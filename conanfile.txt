@@ -1,0 +1,15 @@
+[requires]
+glad/0.1.24@bincrafters/stable
+glfw/3.2.1.20180327@bincrafters/stable
+glm/0.9.9.1@g-truc/stable
+
+[options]
+glad:profile=core
+glad:api_type=gl
+glad:api_version=4.6
+glad:spec=gl
+glad:no_loader=False
+glad:extensions=GL_ARB_bindless_texture
+
+[generators]
+cmake
