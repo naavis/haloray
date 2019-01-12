@@ -232,8 +232,21 @@ void main(int argc, char const *argv[])
         glfwPollEvents();
     }
 
+    glUseProgram(0);
     glDeleteProgram(texDrawPrg);
     glDeleteProgram(computeShader);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDeleteFramebuffers(1, &framebuffer);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDeleteTextures(1, &framebufferColorTexture);
+
+    glBindVertexArray(0);
+    glDeleteVertexArrays(1, &quadVao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glDeleteBuffers(1, &quadVbo);
 
     nk_glfw3_shutdown();
     glfwTerminate();
