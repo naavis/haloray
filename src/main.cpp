@@ -38,6 +38,37 @@ GLFWwindow* createWindow() {
     return window;
 }
 
+GLuint createExampleShaderProgram() {
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    static const GLchar* vertexShaderSrc =
+        "#version 460 core\n"
+        "void main(void) {\n"
+        "   gl_Position = vec4(0.0, 0.0, 0.5, 1.0);\n"
+        "}\n";
+    glShaderSource(vertexShader, 1, &vertexShaderSrc, NULL);
+    glCompileShader(vertexShader);
+
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    static const GLchar* fragShaderSrc =
+        "#version 460 core\n"
+        "out vec4 color;\n"
+        "void main(void) {\n"
+        "   color = vec4(0.0, 0.8, 1.0, 1.0);\n"
+        "}\n";
+    glShaderSource(fragmentShader, 1, &fragShaderSrc, NULL);
+    glCompileShader(fragmentShader);
+
+    GLuint program = glCreateProgram();
+    glAttachShader(program, vertexShader);
+    glAttachShader(program, fragmentShader);
+    glLinkProgram(program);
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    return program;
+}
+
 void main(int argc, char const *argv[])
 {
     /* Initialize GLFW */
@@ -58,6 +89,8 @@ void main(int argc, char const *argv[])
         nk_glfw3_font_stash_end();
     }
 
+    GLuint examplePrg = createExampleShaderProgram();
+
     GLuint framebuffer;
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -75,21 +108,28 @@ void main(int argc, char const *argv[])
     static const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0 };
     glDrawBuffers(1, draw_buffers);
 
+    GLuint exampleVbo;
+    glGenVertexArrays(1, &exampleVbo);
+    glBindVertexArray(exampleVbo);
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        glUseProgram(0);
         /* Bind to off screen framebuffer */
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         glClear(GL_COLOR_BUFFER_BIT);
 
         /* TODO: Render to offscreen buffer here */
 
-        /* Bind default framebuffer */
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-
         /* TODO: Render offscreen buffer contents to default framebuffer */
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glUseProgram(examplePrg);
+        glBindVertexArray(exampleVbo);
+        glPointSize(40.0f);
+        glDrawArrays(GL_POINTS, 0, 1);
 
         /* Start defining UI */
         nk_glfw3_new_frame();
@@ -102,12 +142,15 @@ void main(int argc, char const *argv[])
 
         /* Render UI here */
         nk_glfw3_render(NK_ANTI_ALIASING_ON);
+
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
         /* Poll for and process events */
         glfwPollEvents();
     }
+
+    glDeleteProgram(examplePrg);
 
     nk_glfw3_shutdown();
     glfwTerminate();
