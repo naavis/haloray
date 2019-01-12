@@ -38,23 +38,25 @@ GLFWwindow* createWindow() {
     return window;
 }
 
-GLuint createExampleShaderProgram() {
+GLuint createTexDrawShaderProgram() {
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     static const GLchar* vertexShaderSrc =
         "#version 460 core\n"
-        "void main(void) {\n"
-        "   gl_Position = vec4(0.0, 0.0, 0.5, 1.0);\n"
-        "}\n";
+        "in vec2 position;"
+        "void main(void) {"
+        "   gl_Position = vec4(position, 0.0f, 1.0);"
+        "}";
     glShaderSource(vertexShader, 1, &vertexShaderSrc, NULL);
     glCompileShader(vertexShader);
 
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     static const GLchar* fragShaderSrc =
         "#version 460 core\n"
-        "out vec4 color;\n"
-        "void main(void) {\n"
-        "   color = vec4(0.0, 0.8, 1.0, 1.0);\n"
-        "}\n";
+        "out vec4 color;"
+        "uniform sampler2D s;"
+        "void main(void) {"
+        "   color = texelFetch(s, ivec2(gl_FragCoord.xy), 0);"
+        "}";
     glShaderSource(fragmentShader, 1, &fragShaderSrc, NULL);
     glCompileShader(fragmentShader);
 
@@ -89,8 +91,6 @@ void main(int argc, char const *argv[])
         nk_glfw3_font_stash_end();
     }
 
-    GLuint examplePrg = createExampleShaderProgram();
-
     GLuint framebuffer;
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -108,28 +108,48 @@ void main(int argc, char const *argv[])
     static const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0 };
     glDrawBuffers(1, draw_buffers);
 
-    GLuint exampleVbo;
-    glGenVertexArrays(1, &exampleVbo);
-    glBindVertexArray(exampleVbo);
+    float points[] = {
+        -1.0f,  -1.0f,
+        -1.0f, 1.0f,
+        1.0f, -1.0f,
+        1.0f, 1.0f,
+    };
+
+    GLuint texDrawPrg = createTexDrawShaderProgram();
+    GLuint quadVao;
+    glGenVertexArrays(1, &quadVao);
+    glBindVertexArray(quadVao);
+    glEnableVertexAttribArray(0);
+
+    GLuint quadVbo;
+    glGenBuffers(1, &quadVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVbo);
+    glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(float), points, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        /* TODO: Render to offscreen buffer using compute shader in separate thread */
         glUseProgram(0);
         /* Bind to off screen framebuffer */
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-        glClear(GL_COLOR_BUFFER_BIT);
 
         /* TODO: Render to offscreen buffer here */
+        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-        /* TODO: Render offscreen buffer contents to default framebuffer */
+        /* Bind back to default framebuffer */
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        /* Render offscreen buffer contents to default framebuffer */
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        glUseProgram(examplePrg);
-        glBindVertexArray(exampleVbo);
-        glPointSize(40.0f);
-        glDrawArrays(GL_POINTS, 0, 1);
+        glUseProgram(texDrawPrg);
+        glBindVertexArray(quadVao);
+        glBindTexture(GL_TEXTURE_2D, framebufferColorTexture);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         /* Start defining UI */
         nk_glfw3_new_frame();
@@ -150,7 +170,7 @@ void main(int argc, char const *argv[])
         glfwPollEvents();
     }
 
-    glDeleteProgram(examplePrg);
+    glDeleteProgram(texDrawPrg);
 
     nk_glfw3_shutdown();
     glfwTerminate();
