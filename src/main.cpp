@@ -51,7 +51,6 @@ int main(int argc, char const *argv[])
         nk_glfw3_font_stash_end();
     }
 
-/*
     GLuint framebuffer;
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -68,16 +67,19 @@ int main(int argc, char const *argv[])
 
     static const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0 };
     glDrawBuffers(1, draw_buffers);
-*/
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Bind to off screen framebuffer */
-        /*glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);*/
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
         /* TODO: Render to offscreen buffer here */
 
         /* Bind default framebuffer */
-        /*glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        /* TODO: Render offscreen buffer contents to default framebuffer */
 
         /* Start rendering UI */
         nk_glfw3_new_frame();
