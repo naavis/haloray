@@ -38,6 +38,32 @@ GLFWwindow* createWindow() {
     return window;
 }
 
+void checkCompileError(GLuint shader) {
+    int rvalue;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &rvalue);
+    if (!rvalue) {
+        fprintf(stderr, "Error in compiling shader\n");
+        GLchar log[10240];
+        GLsizei length;
+        glGetShaderInfoLog(shader, 10239, &length, log);
+        fprintf(stderr, "Compiler log:\n%s\n", log);
+        exit(40);
+    }
+}
+
+void checkLinkError(GLuint program) {
+    int rvalue;
+    glGetProgramiv(program, GL_LINK_STATUS, &rvalue);
+    if (!rvalue) {
+        fprintf(stderr, "Error in linking shader program\n");
+        GLchar log[10240];
+        GLsizei length;
+        glGetProgramInfoLog(program, 10239, &length, log);
+        fprintf(stderr, "Linker log:\n%s\n", log);
+        exit(41);
+    }
+}
+
 GLuint createTexDrawShaderProgram() {
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     static const GLchar* vertexShaderSrc =
@@ -48,6 +74,7 @@ GLuint createTexDrawShaderProgram() {
         "}";
     glShaderSource(vertexShader, 1, &vertexShaderSrc, NULL);
     glCompileShader(vertexShader);
+    checkCompileError(vertexShader);
 
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     static const GLchar* fragShaderSrc =
@@ -59,16 +86,53 @@ GLuint createTexDrawShaderProgram() {
         "}";
     glShaderSource(fragmentShader, 1, &fragShaderSrc, NULL);
     glCompileShader(fragmentShader);
+    checkCompileError(fragmentShader);
 
     GLuint program = glCreateProgram();
     glAttachShader(program, vertexShader);
     glAttachShader(program, fragmentShader);
     glLinkProgram(program);
+    checkLinkError(program);
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
     return program;
+}
+
+GLuint createExampleComputeShader() {
+    GLuint shader = glCreateShader(GL_COMPUTE_SHADER);
+    static const GLchar* src =
+        "#version 460 core\n"
+        "layout(local_size_x = 1, local_size_y = 1) in;"
+        "layout(binding = 0, rgba32f) writeonly uniform image2D out_image;"
+        "void main(void) {"
+        "   imageStore(out_image, ivec2(gl_GlobalInvocationID.xy), vec4(0.0f));"
+        "}";
+    glShaderSource(shader, 1, &src, NULL);
+    glCompileShader(shader);
+    checkCompileError(shader);
+
+    GLuint program = glCreateProgram();
+    glAttachShader(program, shader);
+    glLinkProgram(program);
+    checkLinkError(program);
+
+    glDeleteShader(shader);
+
+    return program;
+}
+
+void renderOffscreen(GLuint framebuffer, GLuint computeShader, GLuint tex) {
+        /* Bind to off screen framebuffer */
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+
+        /* TODO: Render to offscreen buffer here */
+        glClearColor(0.1f, 0.2f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glUseProgram(computeShader);
+        glDispatchCompute(100, 100, 1);
 }
 
 void main(int argc, char const *argv[])
@@ -97,8 +161,9 @@ void main(int argc, char const *argv[])
 
     GLuint framebufferColorTexture;
     glGenTextures(1, &framebufferColorTexture);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, framebufferColorTexture);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, 1920, 1080);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 1920, 1080, 0, GL_RGBA, GL_FLOAT, NULL);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -128,25 +193,20 @@ void main(int argc, char const *argv[])
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
+    GLuint computeShader = createExampleComputeShader();
+
+    renderOffscreen(framebuffer, computeShader, framebufferColorTexture);
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
-        /* TODO: Render to offscreen buffer using compute shader in separate thread */
-        glUseProgram(0);
-        /* Bind to off screen framebuffer */
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-        /* TODO: Render to offscreen buffer here */
-        glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        /* Bind back to default framebuffer */
+        /* Bind to default framebuffer */
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         /* Render offscreen buffer contents to default framebuffer */
+        glUseProgram(texDrawPrg);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        glUseProgram(texDrawPrg);
         glBindVertexArray(quadVao);
         glBindTexture(GL_TEXTURE_2D, framebufferColorTexture);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -171,6 +231,7 @@ void main(int argc, char const *argv[])
     }
 
     glDeleteProgram(texDrawPrg);
+    glDeleteProgram(computeShader);
 
     nk_glfw3_shutdown();
     glfwTerminate();
