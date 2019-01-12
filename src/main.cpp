@@ -100,7 +100,7 @@ GLuint createTexDrawShaderProgram() {
     return program;
 }
 
-GLuint createExampleComputeShader() {
+GLuint createComputeShader() {
     GLuint shader = glCreateShader(GL_COMPUTE_SHADER);
     static const GLchar* src =
         "#version 460 core\n"
@@ -128,11 +128,23 @@ void renderOffscreen(GLuint framebuffer, GLuint computeShader, GLuint tex) {
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
-        /* TODO: Render to offscreen buffer here */
+        /* Render to offscreen buffer here */
         glClearColor(0.1f, 0.2f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(computeShader);
         glDispatchCompute(100, 100, 1);
+}
+
+void renderGUI(struct nk_context* ctx) {
+    nk_glfw3_new_frame();
+
+    if (nk_begin(ctx, "Parameters", nk_rect(50, 50, 230, 250), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+        nk_layout_row_static(ctx, 30, 200, 1);
+        nk_button_label(ctx, "This is a button");
+    }
+    nk_end(ctx);
+
+    nk_glfw3_render(NK_ANTI_ALIASING_ON);
 }
 
 void main(int argc, char const *argv[])
@@ -147,7 +159,7 @@ void main(int argc, char const *argv[])
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
     /* Initialize Nuklear */
-    struct nk_context *ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
+    struct nk_context* ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
 
     {
         struct nk_font_atlas *atlas;
@@ -193,7 +205,7 @@ void main(int argc, char const *argv[])
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-    GLuint computeShader = createExampleComputeShader();
+    GLuint computeShader = createComputeShader();
 
     renderOffscreen(framebuffer, computeShader, framebufferColorTexture);
 
@@ -211,17 +223,7 @@ void main(int argc, char const *argv[])
         glBindTexture(GL_TEXTURE_2D, framebufferColorTexture);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-        /* Start defining UI */
-        nk_glfw3_new_frame();
-
-        if (nk_begin(ctx, "Parameters", nk_rect(50, 50, 230, 250), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
-            nk_layout_row_static(ctx, 30, 200, 1);
-            nk_button_label(ctx, "This is a button");
-        }
-        nk_end(ctx);
-
-        /* Render UI here */
-        nk_glfw3_render(NK_ANTI_ALIASING_ON);
+        renderGUI(ctx);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
