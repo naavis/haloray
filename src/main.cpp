@@ -17,13 +17,8 @@
 #define MAX_VERTEX_BUFFER 512 * 1024
 #define MAX_ELEMENT_BUFFER 128 * 1024
 
-int main(int argc, char const *argv[])
-{
+GLFWwindow* createWindow() {
     GLFWwindow* window;
-
-    /* Initialize the library */
-    if (!glfwInit())
-        return -1;
 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -34,15 +29,27 @@ int main(int argc, char const *argv[])
     if (!window)
     {
         glfwTerminate();
-        return -1;
+        exit(EXIT_FAILURE);
     }
 
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
+    return window;
+}
+
+void main(int argc, char const *argv[])
+{
+    /* Initialize GLFW */
+    if (!glfwInit())
+        exit(EXIT_FAILURE);
+
+    GLFWwindow* window = createWindow();
+
     /* Initialize GLAD */
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
+    /* Initialize Nuklear */
     struct nk_context *ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
 
     {
@@ -73,15 +80,18 @@ int main(int argc, char const *argv[])
     {
         /* Bind to off screen framebuffer */
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         /* TODO: Render to offscreen buffer here */
 
         /* Bind default framebuffer */
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClear(GL_COLOR_BUFFER_BIT);
+
 
         /* TODO: Render offscreen buffer contents to default framebuffer */
 
-        /* Start rendering UI */
+        /* Start defining UI */
         nk_glfw3_new_frame();
 
         if (nk_begin(ctx, "Parameters", nk_rect(50, 50, 230, 250), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
@@ -90,9 +100,7 @@ int main(int argc, char const *argv[])
         }
         nk_end(ctx);
 
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
-
+        /* Render UI here */
         nk_glfw3_render(NK_ANTI_ALIASING_ON);
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -103,5 +111,5 @@ int main(int argc, char const *argv[])
 
     nk_glfw3_shutdown();
     glfwTerminate();
-    return 0;
+    exit(EXIT_SUCCESS);
 }
