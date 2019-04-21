@@ -123,15 +123,15 @@ GLuint createComputeShader() {
 }
 
 void renderOffscreen(GLuint framebuffer, GLuint computeShader, GLuint tex) {
-        /* Bind to off screen framebuffer */
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-        glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    /* Bind to off screen framebuffer */
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
-        /* Render to offscreen buffer here */
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glUseProgram(computeShader);
-        glDispatchCompute(200, 200, 1);
+    /* Render to offscreen buffer here */
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glUseProgram(computeShader);
+    glDispatchCompute(200, 200, 1);
 }
 
 void renderGUI(struct nk_context* ctx) {
