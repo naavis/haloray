@@ -1,3 +1,4 @@
+#include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -13,6 +14,10 @@
 #define NK_KEYSTATE_BASED_INPUT
 #include "nuklear.h"
 #include "nuklear_glfw_gl4.h"
+
+const std::string computeShaderSource =
+#include "shaders/raytrace.glsl"
+;
 
 #define MAX_VERTEX_BUFFER 512 * 1024
 #define MAX_ELEMENT_BUFFER 128 * 1024
@@ -102,13 +107,7 @@ GLuint createTexDrawShaderProgram() {
 
 GLuint createComputeShader() {
     GLuint shader = glCreateShader(GL_COMPUTE_SHADER);
-    static const GLchar* src =
-        "#version 460 core\n"
-        "layout(local_size_x = 1, local_size_y = 1) in;"
-        "layout(binding = 0, rgba32f) writeonly uniform image2D out_image;"
-        "void main(void) {"
-        "   imageStore(out_image, ivec2(gl_GlobalInvocationID.xy), vec4(0.0f));"
-        "}";
+    static const GLchar* src = computeShaderSource.c_str();
     glShaderSource(shader, 1, &src, NULL);
     glCompileShader(shader);
     checkCompileError(shader);
@@ -129,10 +128,10 @@ void renderOffscreen(GLuint framebuffer, GLuint computeShader, GLuint tex) {
         glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
         /* Render to offscreen buffer here */
-        glClearColor(0.1f, 0.2f, 0.1f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(computeShader);
-        glDispatchCompute(100, 100, 1);
+        glDispatchCompute(200, 200, 1);
 }
 
 void renderGUI(struct nk_context* ctx) {
