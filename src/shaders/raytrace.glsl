@@ -4,6 +4,60 @@ R""(
 layout(local_size_x = 1) in;
 layout(binding = 0, rgba32f) writeonly uniform image2D out_image;
 
+vec3 vertices[] = vec3[](
+    vec3(0.0, 1.0, 1.0),
+    vec3(0.8660254038, 0.5, 1.0),
+    vec3(0.8660254038, -0.5, 1.0),
+    vec3(0.0, -1.0, 1.0),
+    vec3(-0.8660254038, -0.5, 1.0),
+    vec3(-0.8660254038, 0.5, 1.0),
+
+    vec3(0.0, 1.0, -1.0),
+    vec3(0.8660254038, 0.5, -1.0),
+    vec3(0.8660254038, -0.5, -1.0),
+    vec3(0.0, -1.0, -1.0),
+    vec3(-0.8660254038, -0.5, -1.0),
+    vec3(-0.8660254038, 0.5, -1.0)
+);
+
+ivec3 triangles[] = ivec3[](
+    // Face 1 (basal)
+    ivec3(0, 1, 2),
+    ivec3(0, 2, 3),
+    ivec3(0, 3, 5),
+    ivec3(3, 4, 5),
+
+    // Face 2 (basal)
+    ivec3(6, 7, 8),
+    ivec3(6, 8, 9),
+    ivec3(6, 9, 11),
+    ivec3(9, 10, 11),
+
+    // Face 3 (prism)
+    ivec3(0, 1, 6),
+    ivec3(6, 7, 1),
+
+    // Face 4 (prism)
+    ivec3(1, 2, 7),
+    ivec3(7, 8, 2),
+
+    // Face 5 (prism)
+    ivec3(2, 3, 8),
+    ivec3(8, 9, 3),
+
+    // Face 6 (prism)
+    ivec3(3, 4, 9),
+    ivec3(9, 10, 4),
+
+    // Face 7 (prism)
+    ivec3(4, 5, 10),
+    ivec3(10, 11, 5),
+
+    // Face 8 (prism)
+    ivec3(5, 0, 11),
+    ivec3(11, 6, 0)
+);
+
 uint wang_hash(uint a)
 {
 	a -= (a<<6);
