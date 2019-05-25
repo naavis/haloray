@@ -115,11 +115,22 @@ uint intersectTriangleFromOutside(vec3 rayDirection)
     return uint(selectedTriangleIndex);
 }
 
+vec3 sampleTriangle(uint triangleIndex)
+{
+    vec3 vertA = vertices[triangles[triangleIndex][0]];
+    vec3 vertB = vertices[triangles[triangleIndex][1]];
+    vec3 vertC = vertices[triangles[triangleIndex][2]];
+    float u = rand();
+    float v = rand();
+    return (1.0 - u - v) * vertA + u * vertB + v * vertC;
+}
+
 void main(void)
 {
     // Sun direction in alt-az
     vec2 sunDirection = vec2(radians(0.0));
 
+    // Hard coded arbitrary rotations for now
     float cRotation = radians(rand() * 360.0);
     float aRotation = radians(rand() * 360.0);
     float bRotation = radians(rand() * 360.0);
@@ -158,8 +169,7 @@ void main(void)
     rayDirection = rotationMatrix * rayDirection;
 
     uint triangleIndex = intersectTriangleFromOutside(rayDirection);
-
-    // TODO: Select point on triangle
+    vec3 trianglePoint = sampleTriangle(triangleIndex);
     // TODO: Trace ray
 
     imageStore(out_image, ivec2(rand() * 1920, rand() * 1080), vec4(rand(), rand(), rand(), 1.0f));
