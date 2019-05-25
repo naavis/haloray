@@ -6,18 +6,18 @@ layout(binding = 0, rgba32f) writeonly uniform image2D out_image;
 
 vec3 vertices[] = vec3[](
     vec3(0.0, 1.0, 1.0),
-    vec3(0.8660254038, 0.5, 1.0),
-    vec3(0.8660254038, -0.5, 1.0),
-    vec3(0.0, -1.0, 1.0),
-    vec3(-0.8660254038, -0.5, 1.0),
-    vec3(-0.8660254038, 0.5, 1.0),
-
+    vec3(0.8660254038, 1.0, 0.5),
+    vec3(0.8660254038, 1.0, -0.5),
     vec3(0.0, 1.0, -1.0),
-    vec3(0.8660254038, 0.5, -1.0),
-    vec3(0.8660254038, -0.5, -1.0),
+    vec3(-0.8660254038, 1.0, -0.5),
+    vec3(-0.8660254038, 1.0, 0.5),
+
+    vec3(0.0, -1.0, 1.0),
+    vec3(0.8660254038, -1.0, 0.5),
+    vec3(0.8660254038, -1.0, -0.5),
     vec3(0.0, -1.0, -1.0),
-    vec3(-0.8660254038, -0.5, -1.0),
-    vec3(-0.8660254038, 0.5, -1.0)
+    vec3(-0.8660254038, -1.0, -0.5),
+    vec3(-0.8660254038, -1.0, 0.5)
 );
 
 ivec3 triangles[] = ivec3[](
@@ -81,9 +81,58 @@ uint rand_lcg(void)
 float rand(void) { return rand_lcg() / 4294967295.0f; }
 
 void main(void) {
-    // TODO: Generate crystal
-    // TODO: Generate ray and rotate it
-    // TODO: Go through crystal triangles and calculate solid angle
+    // Sun direction in alt-az
+    vec2 sunDirection = vec2(radians(0.0));
+
+    float cRotation = radians(rand() * 360.0);
+    float aRotation = radians(rand() * 360.0);
+    float bRotation = radians(rand() * 360.0);
+
+    // Corresponds to rotation around y axis
+    mat3 cRotationMat = mat3(
+        cos(cRotation), 0.0, -sin(cRotation),
+        0.0, 1.0, 0.0,
+        sin(cRotation), 0.0, cos(cRotation)
+    );
+
+    // Corresponds to rotation around z axis
+    mat3 aRotationMat = mat3(
+        cos(aRotation), sin(aRotation), 0.0,
+        -sin(aRotation), cos(aRotation), 0.0,
+        0.0, 0.0, 1.0
+    );
+
+    // Corresponds to rotation around x axis
+    mat3 bRotationMat = mat3(
+        1.0, 0.0, 0.0,
+        0.0, cos(bRotation), sin(bRotation),
+        0.0, -sin(bRotation), cos(bRotation)
+    );
+
+    mat3 rotationMatrix = bRotationMat * aRotationMat * cRotationMat;
+    mat3 inverseRotationMatrix = transpose(rotationMatrix);
+
+    // Convert sun direction to incoming ray vector
+    vec3 rayDirection = -vec3(
+        sin(sunDirection.y) * cos(sunDirection.x),
+        cos(sunDirection.y) * cos(sunDirection.x),
+        sin(sunDirection.x)
+        );
+
+    rayDirection = rotationMatrix * rayDirection;
+
+    float triangleProjectedAreas[triangles.length()];
+    for (int i = 0; i < triangles.length(); ++i) {
+        vec3 vertA = vertices[triangles[i][0]];
+        vec3 vertB = vertices[triangles[i][1]];
+        vec3 vertC = vertices[triangles[i][2]];
+        vec3 triangleCrossProduct = cross(vertB - vertA, vertC - vertA);
+        float triangleArea = length(0.5 * triangleCrossProduct);
+        vec3 triangleNormal = normalize(-triangleCrossProduct);
+
+        triangleProjectedAreas[i] = max(0.0, triangleArea * dot(triangleNormal, -rayDirection));
+    }
+
     // TODO: Select triangle to hit
     // TODO: Select point on triangle
     // TODO: Trace ray
