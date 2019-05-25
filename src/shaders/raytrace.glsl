@@ -121,7 +121,9 @@ void main(void) {
 
     rayDirection = rotationMatrix * rayDirection;
 
+    // Calculate triangle properties
     float triangleProjectedAreas[triangles.length()];
+    float sumProjectedAreas = 0.0;
     for (int i = 0; i < triangles.length(); ++i) {
         vec3 vertA = vertices[triangles[i][0]];
         vec3 vertB = vertices[triangles[i][1]];
@@ -131,9 +133,21 @@ void main(void) {
         vec3 triangleNormal = normalize(-triangleCrossProduct);
 
         triangleProjectedAreas[i] = max(0.0, triangleArea * dot(triangleNormal, -rayDirection));
+        sumProjectedAreas += triangleProjectedAreas[i];
     }
 
-    // TODO: Select triangle to hit
+    // Select triangle to hit
+    float triangleSelector = rand() * sumProjectedAreas;
+    float areaAccumulator = 0.0;
+    int selectedTriangleIndex = -1;
+    for (int i = 0; i < triangleProjectedAreas.length(); ++i) {
+        areaAccumulator += triangleProjectedAreas[i];
+        if (areaAccumulator > triangleSelector) {
+            selectedTriangleIndex = i;
+            break;
+        }
+    }
+
     // TODO: Select point on triangle
     // TODO: Trace ray
 
