@@ -125,6 +125,26 @@ vec3 sampleTriangle(uint triangleIndex)
     return (1.0 - u - v) * vertA + u * vertB + v * vertC;
 }
 
+vec3 getNormal(uint triangleIndex)
+{
+    vec3 vertA = vertices[triangles[triangleIndex][0]];
+    vec3 vertB = vertices[triangles[triangleIndex][1]];
+    vec3 vertC = vertices[triangles[triangleIndex][2]];
+    return normalize(cross(vertC - vertA, vertB - vertA));
+}
+
+float getReflectionCoefficient(vec3 normal, vec3 rayDir)
+{
+    float incomingAngle = dot(normal, -rayDir);
+    vec3 refractedDir = refract(-rayDir, normal, 1.31);
+    float refractedAngle = dot(-normal, refractedDir);
+    float rs = abs((incomingAngle - 1.31 * refractedAngle) / (incomingAngle + 1.31 * refractedAngle));
+    rs = rs * rs;
+    float rp = abs((refractedAngle - 1.31 * incomingAngle) / (refractedAngle + 1.31 * incomingAngle));
+    rp = rp * rp;
+    return 0.5 * (rs + rp);
+}
+
 void main(void)
 {
     // Sun direction in alt-az
@@ -169,8 +189,20 @@ void main(void)
     rayDirection = rotationMatrix * rayDirection;
 
     uint triangleIndex = intersectTriangleFromOutside(rayDirection);
-    vec3 trianglePoint = sampleTriangle(triangleIndex);
-    // TODO: Trace ray
+    vec3 startingPoint = sampleTriangle(triangleIndex);
+    vec3 startingPointNormal = getNormal(triangleIndex);
+    float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rayDirection);
+    vec3 resultingRay;
+    if (rand() < reflectionCoeff)
+    {
+        // Ray reflects off crystal
+        resultingRay = reflect(-rayDirection, startingPointNormal);
+    } else
+    {
+        // Ray enters crystal
+        // TODO: Trace ray inside crystal
+    }
+    resultingRay = inverseRotationMatrix * resultingRay;
 
     imageStore(out_image, ivec2(rand() * 1920, rand() * 1080), vec4(rand(), rand(), rand(), 1.0f));
 }
