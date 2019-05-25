@@ -90,9 +90,9 @@ uint intersectTriangleFromOutside(vec3 rayDirection)
         vec3 vertA = vertices[triangles[i][0]];
         vec3 vertB = vertices[triangles[i][1]];
         vec3 vertC = vertices[triangles[i][2]];
-        vec3 triangleCrossProduct = cross(vertB - vertA, vertC - vertA);
-        float triangleArea = length(0.5 * triangleCrossProduct);
-        vec3 triangleNormal = normalize(-triangleCrossProduct);
+        vec3 triangleCrossProduct = cross(vertC - vertA, vertB - vertA);
+        float triangleArea = 0.5 * length(triangleCrossProduct);
+        vec3 triangleNormal = normalize(triangleCrossProduct);
 
         triangleProjectedAreas[i] = max(0.0, triangleArea * dot(triangleNormal, -rayDirection));
         sumProjectedAreas += triangleProjectedAreas[i];
