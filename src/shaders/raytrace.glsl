@@ -4,37 +4,29 @@ R""(
 layout(local_size_x = 1) in;
 layout(binding = 0, rgba32f) writeonly uniform image2D out_image;
 
-uint rng_state = 0;
-
-uint rand_xorshift(void)
+uint wang_hash(uint a)
 {
-    // Xorshift algorithm from George Marsaglia's paper
-    rng_state ^= (rng_state << 13);
-    rng_state ^= (rng_state >> 17);
-    rng_state ^= (rng_state << 5);
-    return rng_state;
+	a -= (a<<6);
+	a ^= (a>>17);
+	a -= (a<<9);
+	a ^= (a<<4);
+	a -= (a<<3);
+	a ^= (a<<10);
+	a ^= (a>>15);
+	return a;
 }
 
-uint wang_hash(uint seed)
+uint rngState = wang_hash(uint(gl_WorkGroupID.x + gl_WorkGroupID.y * gl_NumWorkGroups.x));
+
+uint rand_lcg(void)
 {
-    seed = (seed ^ 61) ^ (seed >> 16);
-    seed *= 9;
-    seed = seed ^ (seed >> 4);
-    seed *= 0x27d4eb2d;
-    seed = seed ^ (seed >> 15);
-    return seed;
+	rngState = 1664525u * rngState + 1013904223u;
+	return rngState;
 }
 
-void initialize_rng(uint seed) {
-    rng_state = wang_hash(seed);
-}
-
-float rand(void) {
-    return float(rand_xorshift()) / 4294967295.0f;
-}
+float rand(void) { return rand_lcg() / 4294967295.0f; }
 
 void main(void) {
-    initialize_rng(gl_WorkGroupID.y * gl_NumWorkGroups.x + gl_WorkGroupID.x);
     // TODO: Generate crystal
     // TODO: Generate ray and rotate it
     // TODO: Go through crystal triangles and calculate solid angle
@@ -42,6 +34,6 @@ void main(void) {
     // TODO: Select point on triangle
     // TODO: Trace ray
 
-    imageStore(out_image, ivec2(gl_GlobalInvocationID.xy), vec4(rand(), rand(), rand(), 1.0f));
+    imageStore(out_image, ivec2(rand() * 1920, rand() * 1080), vec4(rand(), rand(), rand(), 1.0f));
 }
 )""
