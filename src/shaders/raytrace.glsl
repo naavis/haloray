@@ -28,33 +28,33 @@ ivec3 triangles[] = ivec3[](
     ivec3(3, 4, 5),
 
     // Face 2 (basal)
-    ivec3(6, 7, 8),
-    ivec3(6, 8, 9),
-    ivec3(6, 9, 11),
-    ivec3(9, 10, 11),
+    ivec3(6, 8, 7),
+    ivec3(6, 9, 8),
+    ivec3(6, 11, 9),
+    ivec3(9, 11, 10),
 
     // Face 3 (prism)
-    ivec3(0, 1, 6),
+    ivec3(0, 6, 1),
     ivec3(6, 7, 1),
 
     // Face 4 (prism)
-    ivec3(1, 2, 7),
+    ivec3(1, 7, 2),
     ivec3(7, 8, 2),
 
     // Face 5 (prism)
-    ivec3(2, 3, 8),
+    ivec3(2, 8, 3),
     ivec3(8, 9, 3),
 
     // Face 6 (prism)
-    ivec3(3, 4, 9),
+    ivec3(3, 9, 4),
     ivec3(9, 10, 4),
 
     // Face 7 (prism)
-    ivec3(4, 5, 10),
+    ivec3(4, 10, 5),
     ivec3(10, 11, 5),
 
     // Face 8 (prism)
-    ivec3(5, 0, 11),
+    ivec3(5, 11, 0),
     ivec3(11, 6, 0)
 );
 
