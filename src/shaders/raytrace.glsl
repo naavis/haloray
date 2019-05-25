@@ -4,6 +4,15 @@ R""(
 layout(local_size_x = 1) in;
 layout(binding = 0, rgba32f) writeonly uniform image2D out_image;
 
+const float PI = 3.14159;
+
+struct intersection {
+    uint triangleIndex;
+    vec2 uv;
+    vec3 hitPoint;
+    float t;
+};
+
 vec3 vertices[] = vec3[](
     vec3(0.0, 1.0, 1.0),
     vec3(0.8660254038, 1.0, 0.5),
@@ -87,10 +96,10 @@ uint intersectTriangleFromOutside(vec3 rayDirection)
     float sumProjectedAreas = 0.0;
     for (int i = 0; i < triangles.length(); ++i)
     {
-        vec3 vertA = vertices[triangles[i][0]];
-        vec3 vertB = vertices[triangles[i][1]];
-        vec3 vertC = vertices[triangles[i][2]];
-        vec3 triangleCrossProduct = cross(vertC - vertA, vertB - vertA);
+        vec3 v0 = vertices[triangles[i][0]];
+        vec3 v1 = vertices[triangles[i][1]];
+        vec3 v2 = vertices[triangles[i][2]];
+        vec3 triangleCrossProduct = cross(v2 - v0, v1 - v0);
         float triangleArea = 0.5 * length(triangleCrossProduct);
         vec3 triangleNormal = normalize(triangleCrossProduct);
 
@@ -117,38 +126,122 @@ uint intersectTriangleFromOutside(vec3 rayDirection)
 
 vec3 sampleTriangle(uint triangleIndex)
 {
-    vec3 vertA = vertices[triangles[triangleIndex][0]];
-    vec3 vertB = vertices[triangles[triangleIndex][1]];
-    vec3 vertC = vertices[triangles[triangleIndex][2]];
+    vec3 v0 = vertices[triangles[triangleIndex][0]];
+    vec3 v1 = vertices[triangles[triangleIndex][1]];
+    vec3 v2 = vertices[triangles[triangleIndex][2]];
     float u = rand();
     float v = rand();
-    return (1.0 - u - v) * vertA + u * vertB + v * vertC;
+    return (1.0 - u - v) * v0 + u * v1 + v * v2;
 }
 
 vec3 getNormal(uint triangleIndex)
 {
-    vec3 vertA = vertices[triangles[triangleIndex][0]];
-    vec3 vertB = vertices[triangles[triangleIndex][1]];
-    vec3 vertC = vertices[triangles[triangleIndex][2]];
-    return normalize(cross(vertC - vertA, vertB - vertA));
+    vec3 v0 = vertices[triangles[triangleIndex][0]];
+    vec3 v1 = vertices[triangles[triangleIndex][1]];
+    vec3 v2 = vertices[triangles[triangleIndex][2]];
+    return normalize(cross(v2 - v0, v1 - v0));
 }
 
-float getReflectionCoefficient(vec3 normal, vec3 rayDir)
+float getReflectionCoefficient(vec3 normal, vec3 rayDir, float n0, float n1)
 {
+    // TODO: Calculate refracted angle smarter
     float incomingAngle = dot(normal, -rayDir);
-    vec3 refractedDir = refract(-rayDir, normal, 1.31);
+    if (n1 / n0 < sin(incomingAngle)) return 1.0;
+
+    vec3 refractedDir = refract(-rayDir, normal, n0 / n1);
     float refractedAngle = dot(-normal, refractedDir);
-    float rs = abs((incomingAngle - 1.31 * refractedAngle) / (incomingAngle + 1.31 * refractedAngle));
+    float rs = abs((n0 * incomingAngle - n1 * refractedAngle) / (n0 * incomingAngle + n1 * refractedAngle));
     rs = rs * rs;
-    float rp = abs((refractedAngle - 1.31 * incomingAngle) / (refractedAngle + 1.31 * incomingAngle));
+    float rp = abs((n0 * refractedAngle - n1 * incomingAngle) / (n0 * refractedAngle + n1 * incomingAngle));
     rp = rp * rp;
     return 0.5 * (rs + rp);
+}
+
+intersection findIntersection(vec3 rayOrigin, vec3 rayDirection)
+{
+    float maxT;
+    int index = 0;
+    vec2 barycentricHitpoint;
+    for (int i = 0; i < triangles.length(); ++i)
+    {
+        vec3 v0 = vertices[triangles[i][0]];
+        vec3 v1 = vertices[triangles[i][1]];
+        vec3 v2 = vertices[triangles[i][2]];
+
+        vec3 normal = cross(v1 - v0, v2 - v0);
+        if (abs(dot(normal, rayDirection)) < 0.001) continue;
+        float area = 0.5 * length(normal);
+
+        // Check if ray is parallel to triangle
+        float d = dot(normal, v0);
+        float t = - (dot(normal, rayOrigin) + d) / dot(normal, rayDirection);
+        if (t < 0.0) continue;
+
+        vec3 c;
+        vec2 uv;
+        vec3 p = rayOrigin + t * rayDirection;
+
+        // Edge 0
+        vec3 edge0 = v1 - v0;
+        vec3 vp0 = p - v0;
+        c = cross(edge0, vp0);
+        if (dot(normal, c) < 0) continue;
+
+        // Edge 1
+        vec3 edge1 = v2 - v1;
+        vec3 vp1 = p - v1;
+        c = cross(edge1, vp1);
+        uv.x = 0.5 * length(c) / area;
+        if (dot(normal, c) < 0) continue;
+
+        // Edge 2
+        vec3 edge2 = v0 - v2;
+        vec3 vp2 = p - v2;
+        c = cross(edge2, vp2);
+        uv.y = 0.5 * length(c) / area;
+        if (dot(normal, c) < 0) continue;
+
+        // Checking for farthest intersection
+        // There should be only 1-2 intersections, with the first one always
+        // being an erroneous match with the triangle at the ray origin
+        if (t > maxT)
+        {
+            maxT = t;
+            index = i;
+            barycentricHitpoint = uv;
+        }
+    }
+
+    vec3 hitPoint = rayOrigin + maxT * rayDirection;
+
+    return intersection(index, barycentricHitpoint, hitPoint, maxT);
+}
+
+vec3 traceRay(vec3 rayOrigin, vec3 rayDirection)
+{
+    vec3 ro = rayOrigin;
+    vec3 rd = rayDirection;
+    while (true)
+    {
+        intersection hitResult = findIntersection(ro, rd);
+        vec3 normal = -getNormal(hitResult.triangleIndex);
+        float reflectionCoefficient = getReflectionCoefficient(normal, rd, 1.31, 1.00);
+        if (rand() < reflectionCoefficient)
+        {
+            // Ray refracts out of crystal
+            return refract(-rd, normal, 1.31);
+        } else {
+            // Ray reflects back into crystal
+            ro = hitResult.hitPoint;
+            rd = reflect(-rd, normal);
+        }
+    }
 }
 
 void main(void)
 {
     // Sun direction in alt-az
-    vec2 sunDirection = vec2(radians(0.0));
+    vec2 sunDirection = radians(vec2(0.0, 0.0));
 
     // Hard coded arbitrary rotations for now
     float cRotation = radians(rand() * 360.0);
@@ -191,19 +284,25 @@ void main(void)
     uint triangleIndex = intersectTriangleFromOutside(rayDirection);
     vec3 startingPoint = sampleTriangle(triangleIndex);
     vec3 startingPointNormal = getNormal(triangleIndex);
-    float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rayDirection);
+    float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rayDirection, 1.0, 1.31);
     vec3 resultingRay;
     if (rand() < reflectionCoeff)
     {
         // Ray reflects off crystal
         resultingRay = reflect(-rayDirection, startingPointNormal);
-    } else
-    {
+    } else {
         // Ray enters crystal
-        // TODO: Trace ray inside crystal
+        vec3 refractedRayDirection = refract(-rayDirection, startingPointNormal, 1.0 / 1.31);
+        resultingRay = traceRay(startingPoint, refractedRayDirection);
     }
-    resultingRay = inverseRotationMatrix * resultingRay;
 
-    imageStore(out_image, ivec2(rand() * 1920, rand() * 1080), vec4(rand(), rand(), rand(), 1.0f));
+    resultingRay = normalize(inverseRotationMatrix * resultingRay);
+
+    // Convert cartesian direction vector to pixel coordinates
+    vec2 resultAltAz = 0.5 + vec2(asin(resultingRay.z), atan(resultingRay.y / resultingRay.x)) / PI;
+    ivec2 resolution = imageSize(out_image);
+    ivec2 resultPixel = ivec2(resolution.x * resultAltAz.y, resolution.y * resultAltAz.x);
+
+    imageStore(out_image, resultPixel, vec4(1.0));
 }
 )""
