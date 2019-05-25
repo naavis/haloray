@@ -89,7 +89,14 @@ uint rand_lcg(void)
 
 float rand(void) { return rand_lcg() / 4294967295.0f; }
 
-uint intersectTriangleFromOutside(vec3 rayDirection)
+vec2 randn(void)
+{
+    float u1 = sqrt(-2.0 * log(rand()));
+    float u2 = 2.0 * PI * rand();
+    return vec2(u1 * cos(u2), u1 * sin(u2));
+}
+
+uint intersectFirstTriangle(vec3 rayDirection)
 {
     // Calculate triangle properties
     float triangleProjectedAreas[triangles.length()];
@@ -168,11 +175,12 @@ intersection findIntersection(vec3 rayOrigin, vec3 rayDirection)
         vec3 v1 = vertices[triangles[i][1]];
         vec3 v2 = vertices[triangles[i][2]];
 
+        // Check if ray is parallel to triangle
         vec3 normal = cross(v1 - v0, v2 - v0);
         if (abs(dot(normal, rayDirection)) < 0.001) continue;
         float area = 0.5 * length(normal);
 
-        // Check if ray is parallel to triangle
+        // Check if triangle is behind
         float d = dot(normal, v0);
         float t = - (dot(normal, rayOrigin) + d) / dot(normal, rayDirection);
         if (t < 0.0) continue;
@@ -225,7 +233,7 @@ vec3 traceRay(vec3 rayOrigin, vec3 rayDirection)
     {
         intersection hitResult = findIntersection(ro, rd);
         vec3 normal = -getNormal(hitResult.triangleIndex);
-        float reflectionCoefficient = getReflectionCoefficient(normal, rd, 1.31, 1.00);
+        float reflectionCoefficient = getReflectionCoefficient(normal, rd, 1.31, 1.0);
         if (rand() < reflectionCoefficient)
         {
             // Ray refracts out of crystal
@@ -245,8 +253,9 @@ void main(void)
 
     // Hard coded arbitrary rotations for now
     float cRotation = radians(rand() * 360.0);
-    float aRotation = radians(rand() * 360.0);
-    float bRotation = radians(rand() * 360.0);
+    vec2 gaussianRotation = randn();
+    float aRotation = radians(gaussianRotation.x * 20.0);
+    float bRotation = radians(gaussianRotation.y * 20.0);
 
     // Corresponds to rotation around y axis
     mat3 cRotationMat = mat3(
@@ -281,7 +290,7 @@ void main(void)
 
     rayDirection = rotationMatrix * rayDirection;
 
-    uint triangleIndex = intersectTriangleFromOutside(rayDirection);
+    uint triangleIndex = intersectFirstTriangle(rayDirection);
     vec3 startingPoint = sampleTriangle(triangleIndex);
     vec3 startingPointNormal = getNormal(triangleIndex);
     float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rayDirection, 1.0, 1.31);
@@ -296,7 +305,7 @@ void main(void)
         resultingRay = traceRay(startingPoint, refractedRayDirection);
     }
 
-    resultingRay = normalize(inverseRotationMatrix * resultingRay);
+    resultingRay = -normalize(inverseRotationMatrix * resultingRay);
 
     // Convert cartesian direction vector to pixel coordinates
     vec2 resultAltAz = 0.5 + vec2(asin(resultingRay.z), atan(resultingRay.y / resultingRay.x)) / PI;
