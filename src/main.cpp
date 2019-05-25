@@ -122,7 +122,7 @@ GLuint createComputeShader() {
     return program;
 }
 
-void renderOffscreen(GLuint framebuffer, GLuint computeShader, GLuint tex) {
+void renderOffscreen(GLuint framebuffer, GLuint computeShader, GLuint tex, unsigned int numGroups) {
     /* Bind to off screen framebuffer */
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
@@ -131,7 +131,12 @@ void renderOffscreen(GLuint framebuffer, GLuint computeShader, GLuint tex) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(computeShader);
-    glDispatchCompute(200, 200, 1);
+
+    GLint maxNumGroups;
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNumGroups);
+    unsigned int finalNumGroups = (int)numGroups > maxNumGroups ? maxNumGroups : numGroups;
+
+    glDispatchCompute(finalNumGroups, 1, 1);
 }
 
 void renderGUI(struct nk_context* ctx) {
@@ -206,7 +211,7 @@ void main(int argc, char const *argv[])
 
     GLuint computeShader = createComputeShader();
 
-    renderOffscreen(framebuffer, computeShader, framebufferColorTexture);
+    renderOffscreen(framebuffer, computeShader, framebufferColorTexture, 1000000);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
