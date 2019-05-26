@@ -215,11 +215,24 @@ vec3 traceRay(vec3 rayOrigin, vec3 rayDirection)
     return vec3(0.0);
 }
 
+vec3 altAzToCartesian(vec2 altAz)
+{
+    return normalize(vec3(
+        cos(altAz.x) * sin(altAz.y),
+        sin(altAz.x),
+        cos(altAz.x) * cos(altAz.y)
+        ));
+}
+
+vec2 cartesianToAltAz(vec3 direction)
+{
+    return vec2(asin(direction.y), atan(direction.x / direction.z));
+}
+
 void main(void)
 {
     // Sun direction in alt-az
-    float sunAltitude = radians(20.0);
-    float sunAzimuth = radians(0.0);
+    vec2 sunDirection = radians(vec2(20.0, 0.0));
 
     // Hard coded arbitrary rotations for now
     vec2 gaussianRotation = randn();
@@ -252,11 +265,7 @@ void main(void)
     mat3 inverseRotationMatrix = transpose(rotationMatrix);
 
     // Convert sun direction to incoming ray vector
-    vec3 rayDirection = -normalize(vec3(
-        cos(sunAltitude) * sin(sunAzimuth),
-        sin(sunAltitude),
-        cos(sunAltitude) * cos(sunAzimuth)
-        ));
+    vec3 rayDirection = -altAzToCartesian(sunDirection);
 
     vec3 rotatedRayDirection = rotationMatrix * rayDirection;
 
@@ -277,10 +286,11 @@ void main(void)
     resultingRay = -normalize(inverseRotationMatrix * resultingRay);
 
     // Convert cartesian direction vector to pixel coordinates
-    vec2 resultAltAz = 0.5 + vec2(asin(resultingRay.y), atan(resultingRay.x / resultingRay.z)) / PI;
+    vec2 resultAltAz = 0.5 + cartesianToAltAz(resultingRay) / PI;
     ivec2 resolution = imageSize(out_image);
     ivec2 resultPixel = ivec2(resolution.x * resultAltAz.y, resolution.y * resultAltAz.x);
 
     imageStore(out_image, resultPixel, vec4(1.0));
+    memoryBarrierImage();
 }
 )""
