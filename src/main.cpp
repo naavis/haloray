@@ -122,7 +122,7 @@ GLuint createComputeShader() {
     return program;
 }
 
-void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups) {
+void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups, float sunAltitude, float sunAzimuth) {
     glClearTexImage(tex, 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glClearTexImage(spinlock, 0, GL_RED, GL_UNSIGNED_INT, NULL);
@@ -134,6 +134,8 @@ void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNumGroups);
     unsigned int finalNumGroups = (int)numGroups > maxNumGroups ? maxNumGroups : numGroups;
 
+    glUniform1f(0, sunAltitude);
+    glUniform1f(1, sunAzimuth);
     glDispatchCompute(finalNumGroups, 1, 1);
 }
 
@@ -207,7 +209,9 @@ void main(int argc, char const *argv[])
 
     GLuint computeShader = createComputeShader();
 
-    int rays = 1000;
+    int rays = 100000;
+    float sunAltitude = 0.0;
+    float sunAzimuth = 0.0;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -225,15 +229,23 @@ void main(int argc, char const *argv[])
 
         nk_glfw3_new_frame();
 
-        if (nk_begin(ctx, "Parameters", nk_rect(50, 50, 230, 250), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
-            nk_layout_row_static(ctx, 30, 200, 1);
+        if (nk_begin(ctx, "Parameters", nk_rect(50, 50, 330, 400), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            nk_layout_row_dynamic(ctx, 30, 1);
+
+            nk_label(ctx, "Sun altitude", NK_TEXT_LEFT);
+            nk_slider_float(ctx, -90.0f, &sunAltitude, 90.0f, 0.1f);
+
+            nk_label(ctx, "Sun azimuth", NK_TEXT_LEFT);
+            nk_slider_float(ctx, 0.0f, &sunAzimuth, 360.0f, 0.1f);
+
             nk_label(ctx, "Number of rays", NK_TEXT_LEFT);
-            nk_slider_int(ctx, 1000, &rays, 50000000, 1000);
+            nk_slider_int(ctx, 100000, &rays, 50000000, 1000);
             char rayString[10];
             _itoa(rays, rayString, 10);
             nk_label(ctx, rayString, NK_TEXT_CENTERED);
+
             if (nk_button_label(ctx, "Render")) {
-                renderOffscreen(computeShader, framebufferColorTexture, spinlockTexture, rays);
+                renderOffscreen(computeShader, framebufferColorTexture, spinlockTexture, rays, sunAltitude, sunAzimuth);
             }
         }
         nk_end(ctx);

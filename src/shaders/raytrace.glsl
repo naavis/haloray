@@ -2,8 +2,11 @@ R""(
 #version 460 core
 
 layout(local_size_x = 1) in;
-layout(binding = 0, rgba32f) coherent uniform image2D out_image;
-layout(binding = 1, r32ui) coherent uniform uimage2D spinlock;
+layout(binding = 0, rgba32f) uniform coherent image2D out_image;
+layout(binding = 1, r32ui) uniform coherent uimage2D spinlock;
+
+layout(location = 0) uniform float sunAltitude;
+layout(location = 1) uniform float sunAzimuth;
 
 const float PI = 3.14159;
 
@@ -233,7 +236,7 @@ vec2 cartesianToAltAz(vec3 direction)
 void main(void)
 {
     // Sun direction in alt-az
-    vec2 sunDirection = radians(vec2(20.0, 0.0));
+    vec2 sunDirection = radians(vec2(sunAltitude, sunAzimuth));
 
     // Hard coded arbitrary rotations for now
     vec2 gaussianRotation = randn();
