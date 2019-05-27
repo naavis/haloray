@@ -123,13 +123,11 @@ GLuint createComputeShader() {
 }
 
 void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups) {
-    /* Bind to off screen framebuffer */
+    glClearTexImage(tex, 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glClearTexImage(spinlock, 0, GL_RED, GL_UNSIGNED_INT, NULL);
     glBindImageTexture(1, spinlock, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 
-    /* Render to offscreen buffer here */
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(computeShader);
 
     GLint maxNumGroups;
@@ -139,16 +137,14 @@ void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned
     glDispatchCompute(finalNumGroups, 1, 1);
 }
 
-void renderGUI(struct nk_context* ctx) {
-    nk_glfw3_new_frame();
+struct nk_context* initNuklear(GLFWwindow* window) {
+    struct nk_context* ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
 
-    if (nk_begin(ctx, "Parameters", nk_rect(50, 50, 230, 250), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
-        nk_layout_row_static(ctx, 30, 200, 1);
-        nk_button_label(ctx, "This is a button");
-    }
-    nk_end(ctx);
+    struct nk_font_atlas *atlas;
+    nk_glfw3_font_stash_begin(&atlas);
+    nk_glfw3_font_stash_end();
 
-    nk_glfw3_render(NK_ANTI_ALIASING_ON);
+    return ctx;
 }
 
 void main(int argc, char const *argv[])
@@ -162,14 +158,7 @@ void main(int argc, char const *argv[])
     /* Initialize GLAD */
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    /* Initialize Nuklear */
-    struct nk_context* ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
-
-    {
-        struct nk_font_atlas *atlas;
-        nk_glfw3_font_stash_begin(&atlas);
-        nk_glfw3_font_stash_end();
-    }
+    struct nk_context* ctx = initNuklear(window);
 
     GLuint framebuffer;
     glGenFramebuffers(1, &framebuffer);
@@ -180,7 +169,6 @@ void main(int argc, char const *argv[])
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, framebufferColorTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 1920, 1080, 0, GL_RGBA, GL_FLOAT, NULL);
-
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -219,7 +207,7 @@ void main(int argc, char const *argv[])
 
     GLuint computeShader = createComputeShader();
 
-    renderOffscreen(computeShader, framebufferColorTexture, spinlockTexture, 1000000);
+    int rays = 1000;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -227,7 +215,7 @@ void main(int argc, char const *argv[])
         /* Bind to default framebuffer */
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        /* Render offscreen buffer contents to default framebuffer */
+        /* Render offscreen texture contents to default framebuffer */
         glUseProgram(texDrawPrg);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -235,7 +223,22 @@ void main(int argc, char const *argv[])
         glBindTexture(GL_TEXTURE_2D, framebufferColorTexture);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-        renderGUI(ctx);
+        nk_glfw3_new_frame();
+
+        if (nk_begin(ctx, "Parameters", nk_rect(50, 50, 230, 250), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            nk_layout_row_static(ctx, 30, 200, 1);
+            nk_label(ctx, "Number of rays", NK_TEXT_LEFT);
+            nk_slider_int(ctx, 1000, &rays, 50000000, 1000);
+            char rayString[10];
+            _itoa(rays, rayString, 10);
+            nk_label(ctx, rayString, NK_TEXT_CENTERED);
+            if (nk_button_label(ctx, "Render")) {
+                renderOffscreen(computeShader, framebufferColorTexture, spinlockTexture, rays);
+            }
+        }
+        nk_end(ctx);
+
+        nk_glfw3_render(NK_ANTI_ALIASING_ON);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

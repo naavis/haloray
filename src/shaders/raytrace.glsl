@@ -297,7 +297,7 @@ void main(void)
         if (imageAtomicCompSwap(spinlock, resultPixel, 0, 1) == 0)
         {
             vec3 currentValue = imageLoad(out_image, resultPixel).xyz;
-            vec3 newValue = currentValue + vec3(0.1);
+            vec3 newValue = currentValue + vec3(0.01);
             imageStore(out_image, resultPixel, vec4(newValue, 1.0));
             memoryBarrier();
             keepWaiting = false;
