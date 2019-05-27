@@ -122,10 +122,10 @@ GLuint createComputeShader() {
     return program;
 }
 
-void renderOffscreen(GLuint framebuffer, GLuint computeShader, GLuint tex, unsigned int numGroups) {
+void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups) {
     /* Bind to off screen framebuffer */
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(1, spinlock, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 
     /* Render to offscreen buffer here */
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -186,6 +186,14 @@ void main(int argc, char const *argv[])
 
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebufferColorTexture, 0);
 
+    GLuint spinlockTexture;
+    glGenTextures(1, &spinlockTexture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, spinlockTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, 1920, 1080, 0, GL_RED, GL_UNSIGNED_INT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     static const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0 };
     glDrawBuffers(1, draw_buffers);
 
@@ -211,7 +219,7 @@ void main(int argc, char const *argv[])
 
     GLuint computeShader = createComputeShader();
 
-    renderOffscreen(framebuffer, computeShader, framebufferColorTexture, 1000000);
+    renderOffscreen(computeShader, framebufferColorTexture, spinlockTexture, 1000000);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))

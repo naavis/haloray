@@ -2,7 +2,8 @@ R""(
 #version 460 core
 
 layout(local_size_x = 1) in;
-layout(binding = 0, rgba32f) writeonly uniform image2D out_image;
+layout(binding = 0, rgba32f) coherent uniform image2D out_image;
+layout(binding = 1, r32ui) coherent uniform uimage2D spinlock;
 
 const float PI = 3.14159;
 
@@ -290,7 +291,18 @@ void main(void)
     ivec2 resolution = imageSize(out_image);
     ivec2 resultPixel = ivec2(resolution.x * resultAltAz.y, resolution.y * resultAltAz.x);
 
-    imageStore(out_image, resultPixel, vec4(1.0));
-    memoryBarrierImage();
+    bool keepWaiting = true;
+    while (keepWaiting)
+    {
+        if (imageAtomicCompSwap(spinlock, resultPixel, 0, 1) == 0)
+        {
+            vec3 currentValue = imageLoad(out_image, resultPixel).xyz;
+            vec3 newValue = currentValue + vec3(0.1);
+            imageStore(out_image, resultPixel, vec4(newValue, 1.0));
+            memoryBarrier();
+            keepWaiting = false;
+            imageAtomicExchange(spinlock, resultPixel, 0);
+        }
+    }
 }
 )""
