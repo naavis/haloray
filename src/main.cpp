@@ -241,32 +241,20 @@ void main(int argc, char const *argv[])
 
         if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 430), windowFlags)) {
 
-            nk_layout_row_dynamic(ctx, 200, 1);
+            nk_layout_row_dynamic(ctx, 150, 1);
             if (nk_group_begin(ctx, "Sun parameters", groupFlags)) {
-                nk_layout_row_dynamic(ctx, 30, 2);
-                nk_label(ctx, "Altitude", NK_TEXT_LEFT);
-                char altitudeString[20];
-                sprintf(altitudeString, "%4.2f degrees", sunAltitude);
-                nk_label(ctx, altitudeString, NK_TEXT_RIGHT);
-
                 nk_layout_row_dynamic(ctx, 30, 1);
-                nk_slider_float(ctx, -90.0f, &sunAltitude, 90.0f, 0.1f);
-
-                nk_label(ctx, "Azimuth", NK_TEXT_LEFT);
-                nk_slider_float(ctx, 0.0f, &sunAzimuth, 360.0f, 0.1f);
+                nk_property_float(ctx, "#Altitude: ", -90.0f, &sunAltitude, 90.0f, 0.05f, 0.1f);
+                nk_property_float(ctx, "#Azimuth: ", 0.0f, &sunAzimuth, 360.0f, 0.05f, 0.1f);
 
                 nk_group_end(ctx);
             }
 
-            nk_layout_row_dynamic(ctx, 130, 1);
+            nk_layout_row_dynamic(ctx, 100, 1);
             if (nk_group_begin(ctx, "Simulation parameters", groupFlags)) {
-                nk_layout_row_dynamic(ctx, 30, 2);
-                nk_label(ctx, "Number of rays", NK_TEXT_LEFT);
-                char rayString[10];
-                sprintf(rayString, "%i", rays);
-                nk_label(ctx, rayString, NK_TEXT_RIGHT);
                 nk_layout_row_dynamic(ctx, 30, 1);
-                nk_slider_int(ctx, 100000, &rays, 50000000, 1000);
+                nk_property_int(ctx, "#Number of rays:", 10000, &rays, 50000000, 10000, 50000);
+
                 nk_group_end(ctx);
             }
 
