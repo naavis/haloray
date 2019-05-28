@@ -233,6 +233,11 @@ vec2 cartesianToAltAz(vec3 direction)
     return vec2(asin(direction.y), atan(direction.x / direction.z));
 }
 
+vec2 altAzToPolar(vec2 altAz)
+{
+    return vec2(length(altAz), atan(altAz.y, altAz.x));
+}
+
 void main(void)
 {
     // Sun direction in alt-az
@@ -290,12 +295,18 @@ void main(void)
     resultRay = -normalize(inverseRotationMatrix * resultRay);
 
     ivec2 resolution = imageSize(out_image);
+    float aspectRatio = float(resolution.x) / float(resolution.y);
 
     // Convert cartesian direction vector to pixel coordinates
     vec2 altAz = cartesianToAltAz(resultRay);
-    vec2 altAzNormalized = 0.5 + altAz / PI;
+    vec2 polar = altAzToPolar(altAz);
 
-    ivec2 pixelCoordinates = ivec2(resolution.x * altAzNormalized.y, resolution.y * altAzNormalized.x);
+    // Rectilinear projection
+    float projectionFactor = 2.0 * tan(polar.r / 2.0);
+    vec2 rectilinear = vec2(aspectRatio * projectionFactor * cos(polar.y), projectionFactor * sin(polar.y));
+    vec2 normalizedCoordinates = 0.5 + rectilinear / PI;
+
+    ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.y, resolution.y * normalizedCoordinates.x);
 
     bool keepWaiting = true;
     while (keepWaiting)
