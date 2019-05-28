@@ -124,7 +124,7 @@ GLuint createComputeShader() {
     return program;
 }
 
-void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups, float sunAltitude, float sunAzimuth) {
+void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups, float sunAltitude, float sunAzimuth, float caRatio, float caRatioStd) {
     glClearTexImage(tex, 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glClearTexImage(spinlock, 0, GL_RED, GL_UNSIGNED_INT, NULL);
@@ -138,6 +138,8 @@ void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned
 
     glUniform1f(0, sunAltitude);
     glUniform1f(1, sunAzimuth);
+    glUniform1f(2, caRatio);
+    glUniform1f(3, caRatioStd);
     glDispatchCompute(finalNumGroups, 1, 1);
 }
 
@@ -211,9 +213,14 @@ void main(int argc, char const *argv[])
 
     GLuint computeShader = createComputeShader();
 
+    const nk_flags windowFlags = NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE;
+    const nk_flags groupFlags = NK_WINDOW_BORDER|NK_WINDOW_TITLE;
+
     int rays = 100000;
     float sunAltitude = 0.0;
     float sunAzimuth = 0.0;
+    float caRatio = 1.0;
+    float caRatioStd = 0.0;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -232,9 +239,10 @@ void main(int argc, char const *argv[])
 
         nk_glfw3_new_frame();
 
-        if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 430), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+        if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 430), windowFlags)) {
+
             nk_layout_row_dynamic(ctx, 200, 1);
-            if (nk_group_begin(ctx, "Sun parameters", NK_WINDOW_BORDER|NK_WINDOW_TITLE)) {
+            if (nk_group_begin(ctx, "Sun parameters", groupFlags)) {
                 nk_layout_row_dynamic(ctx, 30, 2);
                 nk_label(ctx, "Altitude", NK_TEXT_LEFT);
                 char altitudeString[20];
@@ -251,7 +259,7 @@ void main(int argc, char const *argv[])
             }
 
             nk_layout_row_dynamic(ctx, 130, 1);
-            if (nk_group_begin(ctx, "Simulation parameters", NK_WINDOW_BORDER|NK_WINDOW_TITLE)) {
+            if (nk_group_begin(ctx, "Simulation parameters", groupFlags)) {
                 nk_layout_row_dynamic(ctx, 30, 2);
                 nk_label(ctx, "Number of rays", NK_TEXT_LEFT);
                 char rayString[10];
@@ -264,8 +272,15 @@ void main(int argc, char const *argv[])
 
             nk_layout_row_dynamic(ctx, 30, 1);
             if (nk_button_label(ctx, "Render")) {
-                renderOffscreen(computeShader, framebufferColorTexture, spinlockTexture, rays, sunAltitude, sunAzimuth);
+                renderOffscreen(computeShader, framebufferColorTexture, spinlockTexture, rays, sunAltitude, sunAzimuth, caRatio, caRatioStd);
             }
+        }
+        nk_end(ctx);
+
+        if (nk_begin(ctx, "Crystal settings", nk_rect(400, 50, 500, 400), windowFlags)) {
+            nk_layout_row_dynamic(ctx, 30, 2);
+            nk_property_float(ctx, "#C/A ratio average:", 0.01f, &caRatio, 10.0f, 0.05f, 0.01f);
+            nk_property_float(ctx, "#C/A ratio std:", 0.0f, &caRatioStd, 10.0f, 0.05f, 0.01f);
         }
         nk_end(ctx);
 

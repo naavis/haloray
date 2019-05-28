@@ -7,6 +7,8 @@ layout(binding = 1, r32ui) uniform coherent uimage2D spinlock;
 
 layout(location = 0) uniform float sunAltitude;
 layout(location = 1) uniform float sunAzimuth;
+layout(location = 2) uniform float caRatio;
+layout(location = 3) uniform float caRatioStd;
 
 const float PI = 3.14159;
 
@@ -249,6 +251,12 @@ vec2 sampleSun(vec2 altAz)
 
 void main(void)
 {
+    float caMultiplier = caRatio + randn().x * caRatioStd;
+    for (int i = 0; i < vertices.length(); ++i)
+    {
+        vertices[i].y *= max(0.001, caMultiplier);
+    }
+
     // Sun direction in alt-az
     vec2 sunDirection = radians(vec2(sunAltitude, sunAzimuth));
 
