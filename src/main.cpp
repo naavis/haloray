@@ -27,7 +27,7 @@ GLFWwindow* createWindow() {
 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(1920, 1080, "Halo Sim Prototype", NULL, NULL);
@@ -72,7 +72,7 @@ void checkLinkError(GLuint program) {
 GLuint createTexDrawShaderProgram() {
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     static const GLchar* vertexShaderSrc =
-        "#version 460 core\n"
+        "#version 440 core\n"
         "in vec2 position;"
         "void main(void) {"
         "    gl_Position = vec4(position, 0.0f, 1.0);"
@@ -83,7 +83,7 @@ GLuint createTexDrawShaderProgram() {
 
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     static const GLchar* fragShaderSrc =
-        "#version 460 core\n"
+        "#version 440 core\n"
         "out vec4 color;"
         "uniform sampler2D s;"
         "void main(void) {"
