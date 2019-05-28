@@ -75,7 +75,7 @@ GLuint createTexDrawShaderProgram() {
         "#version 460 core\n"
         "in vec2 position;"
         "void main(void) {"
-        "   gl_Position = vec4(position, 0.0f, 1.0);"
+        "    gl_Position = vec4(position, 0.0f, 1.0);"
         "}";
     glShaderSource(vertexShader, 1, &vertexShaderSrc, NULL);
     glCompileShader(vertexShader);
@@ -87,7 +87,9 @@ GLuint createTexDrawShaderProgram() {
         "out vec4 color;"
         "uniform sampler2D s;"
         "void main(void) {"
-        "   color = texelFetch(s, ivec2(gl_FragCoord.xy), 0);"
+        "    vec3 linearValue = texelFetch(s, ivec2(gl_FragCoord.xy), 0).xyz;"
+        "    vec3 gammaCorrected = pow(linearValue, vec3(0.45));"
+        "    color = vec4(gammaCorrected, 1.0);"
         "}";
     glShaderSource(fragmentShader, 1, &fragShaderSrc, NULL);
     glCompileShader(fragmentShader);
