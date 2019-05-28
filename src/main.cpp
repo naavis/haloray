@@ -290,6 +290,7 @@ void main(int argc, char const *argv[])
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDeleteTextures(1, &framebufferColorTexture);
+    glDeleteTextures(1, &spinlockTexture);
 
     glBindVertexArray(0);
     glDeleteVertexArrays(1, &quadVao);
