@@ -277,34 +277,37 @@ void main(void)
     vec3 startingPoint = sampleTriangle(triangleIndex);
     vec3 startingPointNormal = getNormal(triangleIndex);
     float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rotatedRayDirection, 1.0, 1.31);
-    vec3 resultingRay = vec3(0.0);
+    vec3 resultRay = vec3(0.0);
     if (rand() < reflectionCoeff)
     {
         // Ray reflects off crystal
-        resultingRay = reflect(rotatedRayDirection, startingPointNormal);
+        resultRay = reflect(rotatedRayDirection, startingPointNormal);
     } else {
         // Ray enters crystal
         vec3 refractedRayDirection = refract(rotatedRayDirection, startingPointNormal, 1.0 / 1.31);
-        resultingRay = traceRay(startingPoint, refractedRayDirection);
+        resultRay = traceRay(startingPoint, refractedRayDirection);
     }
-    resultingRay = -normalize(inverseRotationMatrix * resultingRay);
+    resultRay = -normalize(inverseRotationMatrix * resultRay);
+
+    ivec2 resolution = imageSize(out_image);
 
     // Convert cartesian direction vector to pixel coordinates
-    vec2 resultAltAz = 0.5 + cartesianToAltAz(resultingRay) / PI;
-    ivec2 resolution = imageSize(out_image);
-    ivec2 resultPixel = ivec2(resolution.x * resultAltAz.y, resolution.y * resultAltAz.x);
+    vec2 altAz = cartesianToAltAz(resultRay);
+    vec2 altAzNormalized = 0.5 + altAz / PI;
+
+    ivec2 pixelCoordinates = ivec2(resolution.x * altAzNormalized.y, resolution.y * altAzNormalized.x);
 
     bool keepWaiting = true;
     while (keepWaiting)
     {
-        if (imageAtomicCompSwap(spinlock, resultPixel, 0, 1) == 0)
+        if (imageAtomicCompSwap(spinlock, pixelCoordinates, 0, 1) == 0)
         {
-            vec3 currentValue = imageLoad(out_image, resultPixel).xyz;
+            vec3 currentValue = imageLoad(out_image, pixelCoordinates).xyz;
             vec3 newValue = currentValue + vec3(0.01);
-            imageStore(out_image, resultPixel, vec4(newValue, 1.0));
+            imageStore(out_image, pixelCoordinates, vec4(newValue, 1.0));
             memoryBarrier();
             keepWaiting = false;
-            imageAtomicExchange(spinlock, resultPixel, 0);
+            imageAtomicExchange(spinlock, pixelCoordinates, 0);
         }
     }
 }
