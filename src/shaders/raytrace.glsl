@@ -238,6 +238,15 @@ vec2 altAzToPolar(vec2 altAz)
     return vec2(length(altAz), atan(altAz.y, altAz.x));
 }
 
+vec2 sampleSun(vec2 altAz)
+{
+    // 0.5 degrees in radians
+    const float sunDiameter = 0.0087266;
+    float sampleAngle = rand() * 2.0 * PI;
+    float sampleDistance = sqrt(rand()) * 0.5 * sunDiameter;
+    return altAz + vec2(sampleDistance * sin(sampleAngle), sampleDistance * cos(sampleAngle));
+}
+
 void main(void)
 {
     // Sun direction in alt-az
@@ -274,7 +283,7 @@ void main(void)
     mat3 inverseRotationMatrix = transpose(rotationMatrix);
 
     // Convert sun direction to incoming ray vector
-    vec3 rayDirection = -altAzToCartesian(sunDirection);
+    vec3 rayDirection = -altAzToCartesian(sampleSun(sunDirection));
 
     vec3 rotatedRayDirection = rotationMatrix * rayDirection;
 
