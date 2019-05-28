@@ -232,21 +232,32 @@ void main(int argc, char const *argv[])
 
         nk_glfw3_new_frame();
 
-        if (nk_begin(ctx, "Parameters", nk_rect(50, 50, 330, 400), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+        if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 450), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+            nk_layout_row_dynamic(ctx, 200, 1);
+            if (nk_group_begin(ctx, "Sun parameters", NK_WINDOW_BORDER|NK_WINDOW_TITLE)) {
+                nk_layout_row_dynamic(ctx, 30, 1);
+                nk_label(ctx, "Altitude", NK_TEXT_LEFT);
+                nk_slider_float(ctx, -90.0f, &sunAltitude, 90.0f, 0.1f);
+
+                nk_label(ctx, "Azimuth", NK_TEXT_LEFT);
+                nk_slider_float(ctx, 0.0f, &sunAzimuth, 360.0f, 0.1f);
+
+                nk_group_end(ctx);
+            }
+
+            nk_layout_row_dynamic(ctx, 150, 1);
+            if (nk_group_begin(ctx, "Simulation parameters", NK_WINDOW_BORDER|NK_WINDOW_TITLE)) {
+                nk_layout_row_dynamic(ctx, 30, 1);
+                nk_label(ctx, "Number of rays", NK_TEXT_LEFT);
+                nk_slider_int(ctx, 100000, &rays, 50000000, 1000);
+                char rayString[10];
+                _itoa(rays, rayString, 10);
+                nk_label(ctx, rayString, NK_TEXT_CENTERED);
+
+                nk_group_end(ctx);
+            }
+
             nk_layout_row_dynamic(ctx, 30, 1);
-
-            nk_label(ctx, "Sun altitude", NK_TEXT_LEFT);
-            nk_slider_float(ctx, -90.0f, &sunAltitude, 90.0f, 0.1f);
-
-            nk_label(ctx, "Sun azimuth", NK_TEXT_LEFT);
-            nk_slider_float(ctx, 0.0f, &sunAzimuth, 360.0f, 0.1f);
-
-            nk_label(ctx, "Number of rays", NK_TEXT_LEFT);
-            nk_slider_int(ctx, 100000, &rays, 50000000, 1000);
-            char rayString[10];
-            _itoa(rays, rayString, 10);
-            nk_label(ctx, rayString, NK_TEXT_CENTERED);
-
             if (nk_button_label(ctx, "Render")) {
                 renderOffscreen(computeShader, framebufferColorTexture, spinlockTexture, rays, sunAltitude, sunAzimuth);
             }
