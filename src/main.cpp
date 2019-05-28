@@ -10,10 +10,10 @@
 #define NK_INCLUDE_FONT_BAKING
 #define NK_INCLUDE_DEFAULT_FONT
 #define NK_IMPLEMENTATION
-#define NK_GLFW_GL4_IMPLEMENTATION
+#define NK_GLFW_GL3_IMPLEMENTATION
 #define NK_KEYSTATE_BASED_INPUT
 #include "nuklear.h"
-#include "nuklear_glfw_gl4.h"
+#include "nuklear_glfw.h"
 
 const std::string computeShaderSource =
 #include "shaders/raytrace.glsl"
@@ -27,7 +27,7 @@ GLFWwindow* createWindow() {
 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(1920, 1080, "Halo Sim Prototype", NULL, NULL);
@@ -142,7 +142,7 @@ void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned
 }
 
 struct nk_context* initNuklear(GLFWwindow* window) {
-    struct nk_context* ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
+    struct nk_context* ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
 
     struct nk_font_atlas *atlas;
     nk_glfw3_font_stash_begin(&atlas);
@@ -269,7 +269,7 @@ void main(int argc, char const *argv[])
         }
         nk_end(ctx);
 
-        nk_glfw3_render(NK_ANTI_ALIASING_ON);
+        nk_glfw3_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
