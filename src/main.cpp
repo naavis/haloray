@@ -216,6 +216,7 @@ void main(int argc, char const *argv[])
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         /* Bind to default framebuffer */
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
