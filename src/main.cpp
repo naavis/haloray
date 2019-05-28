@@ -232,11 +232,16 @@ void main(int argc, char const *argv[])
 
         nk_glfw3_new_frame();
 
-        if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 450), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
+        if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 430), NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE)) {
             nk_layout_row_dynamic(ctx, 200, 1);
             if (nk_group_begin(ctx, "Sun parameters", NK_WINDOW_BORDER|NK_WINDOW_TITLE)) {
-                nk_layout_row_dynamic(ctx, 30, 1);
+                nk_layout_row_dynamic(ctx, 30, 2);
                 nk_label(ctx, "Altitude", NK_TEXT_LEFT);
+                char altitudeString[20];
+                sprintf(altitudeString, "%4.2f degrees", sunAltitude);
+                nk_label(ctx, altitudeString, NK_TEXT_RIGHT);
+
+                nk_layout_row_dynamic(ctx, 30, 1);
                 nk_slider_float(ctx, -90.0f, &sunAltitude, 90.0f, 0.1f);
 
                 nk_label(ctx, "Azimuth", NK_TEXT_LEFT);
@@ -245,15 +250,15 @@ void main(int argc, char const *argv[])
                 nk_group_end(ctx);
             }
 
-            nk_layout_row_dynamic(ctx, 150, 1);
+            nk_layout_row_dynamic(ctx, 130, 1);
             if (nk_group_begin(ctx, "Simulation parameters", NK_WINDOW_BORDER|NK_WINDOW_TITLE)) {
-                nk_layout_row_dynamic(ctx, 30, 1);
+                nk_layout_row_dynamic(ctx, 30, 2);
                 nk_label(ctx, "Number of rays", NK_TEXT_LEFT);
-                nk_slider_int(ctx, 100000, &rays, 50000000, 1000);
                 char rayString[10];
-                _itoa(rays, rayString, 10);
-                nk_label(ctx, rayString, NK_TEXT_CENTERED);
-
+                sprintf(rayString, "%i", rays);
+                nk_label(ctx, rayString, NK_TEXT_RIGHT);
+                nk_layout_row_dynamic(ctx, 30, 1);
+                nk_slider_int(ctx, 100000, &rays, 50000000, 1000);
                 nk_group_end(ctx);
             }
 
