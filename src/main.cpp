@@ -106,8 +106,10 @@ GLuint createTexDrawShaderProgram() {
         "out vec4 color;"
         "uniform sampler2D s;"
         "void main(void) {"
-        "    vec3 linearValue = texelFetch(s, ivec2(gl_FragCoord.xy), 0).xyz;"
-        "    vec3 gammaCorrected = pow(linearValue, vec3(0.45));"
+        "    vec3 xyz = texelFetch(s, ivec2(gl_FragCoord.xy), 0).xyz;"
+        "    mat3 xyzToSrgb = mat3(3.2406, -0.9689, 0.0557, -1.5372, 1.8758, -0.2040, -0.4986, 0.0415, 1.0570);"
+        "    vec3 linearSrgb = xyzToSrgb * xyz;"
+        "    vec3 gammaCorrected = pow(linearSrgb, vec3(0.42));"
         "    color = vec4(gammaCorrected, 1.0);"
         "}";
     glShaderSource(fragmentShader, 1, &fragShaderSrc, NULL);

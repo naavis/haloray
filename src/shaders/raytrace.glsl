@@ -1,7 +1,7 @@
 R""(
 #version 440 core
 
-#define XOR_SHIFT 0
+#define XOR_SHIFT 1
 
 #define DISTRIBUTION_UNIFORM 0
 #define DISTRIBUTION_GAUSSIAN 1
@@ -140,6 +140,34 @@ vec2 randn(void)
     return vec2(u1 * cos(u2), u1 * sin(u2));
 }
 
+float xFit_1931(float wave)
+{
+    float t1 = (wave - 442.0) * ((wave < 442.0) ? 0.0624 : 0.0374);
+    float t2 = (wave - 599.8) * ((wave < 599.8) ? 0.0264 : 0.0323);
+    float t3 = (wave - 501.1) * ((wave < 501.1) ? 0.0490 : 0.0382);
+    return 0.362 * exp(-0.5 * t1 * t1) + 1.056 * exp(-0.5 * t2 * t2) - 0.065f * exp(-0.5 * t3 * t3);
+}
+
+float yFit_1931(float wave)
+{
+    float t1 = (wave - 568.8) * ((wave < 568.8) ? 0.0213 : 0.0247);
+    float t2 = (wave - 530.9) * ((wave < 530.9) ? 0.0613 : 0.0322);
+    return 0.821 * exp(-0.5 * t1 * t1) + 0.286 * exp(-0.5 * t2 * t2);
+}
+
+float zFit_1931(float wave)
+{
+    float t1 = (wave - 437.0) * ((wave < 437.0) ? 0.0845 : 0.0278);
+    float t2 = (wave - 459.0) * ((wave < 459.0) ? 0.0385 : 0.0725);
+    return 1.217 * exp(-0.5 * t1 * t1) + 0.681 * exp(-0.5 * t2 * t2);
+}
+
+float getIceIOR(float wavelength)
+{
+    // Eq. from Simulating rainbows and halos in color by Stanley Gedzelman
+    return 1.3203 - 0.0000333 * wavelength;
+}
+
 uint selectFirstTriangle(vec3 rayDirection)
 {
     // Calculate triangle normals and projected areas
@@ -244,7 +272,7 @@ intersection findIntersection(vec3 rayOrigin, vec3 rayDirection)
     return intersection(false, 0, vec3(0.0));
 }
 
-vec3 traceRay(vec3 rayOrigin, vec3 rayDirection)
+vec3 traceRay(vec3 rayOrigin, vec3 rayDirection, float indexOfRefraction)
 {
     vec3 ro = rayOrigin;
     vec3 rd = rayDirection;
@@ -253,7 +281,7 @@ vec3 traceRay(vec3 rayOrigin, vec3 rayDirection)
         intersection hitResult = findIntersection(ro, rd);
         if (hitResult.didHit == false) break;
         vec3 normal = getNormal(hitResult.triangleIndex);
-        float reflectionCoefficient = getReflectionCoefficient(normal, rd, 1.31, 1.0);
+        float reflectionCoefficient = getReflectionCoefficient(normal, rd, indexOfRefraction, 1.0);
         if (rand() < reflectionCoefficient)
         {
             // Ray reflects back into crystal
@@ -315,6 +343,7 @@ mat3 rotateAroundZ(float angle)
 
 mat3 getUniformRandomRotationMatrix(void)
 {
+    // From Fast Random Rotation Matrices, by James Arvo
     float theta = 2.0 * PI * rand();
     float phi = 2.0 * PI * rand();
     float z = rand();
@@ -375,7 +404,9 @@ void main(void)
     uint triangleIndex = selectFirstTriangle(rotatedRayDirection);
     vec3 startingPoint = sampleTriangle(triangleIndex);
     vec3 startingPointNormal = -getNormal(triangleIndex);
-    float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rotatedRayDirection, 1.0, 1.31);
+    float wavelength = 400.0 + rand() * 300.0;
+    float indexOfRefraction = getIceIOR(wavelength);
+    float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rotatedRayDirection, 1.0, indexOfRefraction);
     vec3 resultRay = vec3(0.0);
     if (rand() < reflectionCoeff)
     {
@@ -383,8 +414,8 @@ void main(void)
         resultRay = reflect(rotatedRayDirection, startingPointNormal);
     } else {
         // Ray enters crystal
-        vec3 refractedRayDirection = refract(rotatedRayDirection, startingPointNormal, 1.0 / 1.31);
-        resultRay = traceRay(startingPoint, refractedRayDirection);
+        vec3 refractedRayDirection = refract(rotatedRayDirection, startingPointNormal, 1.0 / indexOfRefraction);
+        resultRay = traceRay(startingPoint, refractedRayDirection, indexOfRefraction);
     }
 
     if (length(resultRay) < 0.0001) return;
@@ -405,13 +436,15 @@ void main(void)
 
     ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.y, resolution.y * normalizedCoordinates.x);
 
+    vec3 cieXYZ = vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
+
     bool keepWaiting = true;
     while (keepWaiting)
     {
         if (imageAtomicCompSwap(spinlock, pixelCoordinates, 0, 1) == 0)
         {
             vec3 currentValue = imageLoad(out_image, pixelCoordinates).xyz;
-            vec3 newValue = currentValue + vec3(0.01);
+            vec3 newValue = currentValue + 0.01 * cieXYZ;
             imageStore(out_image, pixelCoordinates, vec4(newValue, 1.0));
             memoryBarrier();
             keepWaiting = false;
