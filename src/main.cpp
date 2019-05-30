@@ -23,17 +23,13 @@ typedef struct {
     float caRatioAverage;
     float caRatioStd;
 
-    int aRotationDistribution;
-    float aRotationAverage;
-    float aRotationStd;
+    int polarAngleDistribution;
+    float polarAngleAverage;
+    float polarAngleStd;
 
-    int bRotationDistribution;
-    float bRotationAverage;
-    float bRotationStd;
-
-    int cRotationDistribution;
-    float cRotationAverage;
-    float cRotationStd;
+    int rotationDistribution;
+    float rotationAverage;
+    float rotationStd;
 } crystalProperties_t;
 
 typedef struct {
@@ -166,17 +162,13 @@ void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned
     glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.caRatioAverage"), crystalProperties.caRatioAverage);
     glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.caRatioStd"), crystalProperties.caRatioStd);
 
-    glUniform1i(glGetUniformLocation(computeShader, "crystalProperties.aRotationDistribution"), crystalProperties.aRotationDistribution);
-    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.aRotationAverage"), crystalProperties.aRotationAverage);
-    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.aRotationStd"), crystalProperties.aRotationStd);
+    glUniform1i(glGetUniformLocation(computeShader, "crystalProperties.polarAngleDistribution"), crystalProperties.polarAngleDistribution);
+    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.polarAngleAverage"), crystalProperties.polarAngleAverage);
+    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.polarAngleStd"), crystalProperties.polarAngleStd);
 
-    glUniform1i(glGetUniformLocation(computeShader, "crystalProperties.bRotationDistribution"), crystalProperties.bRotationDistribution);
-    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.bRotationAverage"), crystalProperties.bRotationAverage);
-    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.bRotationStd"), crystalProperties.bRotationStd);
-
-    glUniform1i(glGetUniformLocation(computeShader, "crystalProperties.cRotationDistribution"), crystalProperties.cRotationDistribution);
-    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.cRotationAverage"), crystalProperties.cRotationAverage);
-    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.cRotationStd"), crystalProperties.cRotationStd);
+    glUniform1i(glGetUniformLocation(computeShader, "crystalProperties.rotationDistribution"), crystalProperties.rotationDistribution);
+    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.rotationAverage"), crystalProperties.rotationAverage);
+    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.rotationStd"), crystalProperties.rotationStd);
 
     glDispatchCompute(finalNumGroups, 1, 1);
 }
@@ -256,25 +248,21 @@ void main(int argc, char const *argv[])
 
     int rays = 10000000;
     sunProperties_t sun;
-    sun.altitude = 10.0;
-    sun.azimuth = 0.0;
-    sun.diameter = 0.5;
+    sun.altitude = 30.0f;
+    sun.azimuth = 0.0f;
+    sun.diameter = 0.5f;
 
     crystalProperties_t crystalProperties;
-    crystalProperties.caRatioAverage = 1.0;
-    crystalProperties.caRatioStd = 0.5;
+    crystalProperties.caRatioAverage = 0.3f;
+    crystalProperties.caRatioStd = 0.0f;
 
-    crystalProperties.aRotationDistribution = 0;
-    crystalProperties.aRotationAverage = 0.0;
-    crystalProperties.aRotationStd = 0.0;
+    crystalProperties.polarAngleDistribution = 1;
+    crystalProperties.polarAngleAverage = 90.0f;
+    crystalProperties.polarAngleStd = 3.0f;
 
-    crystalProperties.bRotationDistribution = 0;
-    crystalProperties.bRotationAverage = 0.0;
-    crystalProperties.bRotationStd = 0.0;
-
-    crystalProperties.cRotationDistribution = 0;
-    crystalProperties.cRotationAverage = 0.0;
-    crystalProperties.cRotationStd = 0.0;
+    crystalProperties.rotationDistribution = 1;
+    crystalProperties.rotationAverage = 60.0f;
+    crystalProperties.rotationStd = 3.0f;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -299,38 +287,26 @@ void main(int argc, char const *argv[])
             nk_property_float(ctx, "#C/A ratio std:", 0.0f, &(crystalProperties.caRatioStd), 10.0f, 0.05f, 0.01f);
 
             const char* distributions[] = {"Uniform", "Gaussian"};
-            nk_layout_row_dynamic(ctx, 150, 1);
-            if (nk_group_begin(ctx, "A axis", groupFlags)) {
+            nk_layout_row_dynamic(ctx, 130, 1);
+            if (nk_group_begin(ctx, "C axis orientation", groupFlags)) {
                 nk_layout_row_dynamic(ctx, 30, 1);
-                crystalProperties.aRotationDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), crystalProperties.aRotationDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
-                if (crystalProperties.aRotationDistribution == 1) {
+                crystalProperties.polarAngleDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), crystalProperties.polarAngleDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
+                if (crystalProperties.polarAngleDistribution == 1) {
                     nk_layout_row_dynamic(ctx, 30, 2);
-                    nk_property_float(ctx, "#Average rotation:", 0.0f, &(crystalProperties.aRotationAverage), 360.0f, 0.1f, 0.5f);
-                    nk_property_float(ctx, "#Average std::", 0.0f, &(crystalProperties.aRotationStd), 360.0f, 0.1f, 0.5f);
+                    nk_property_float(ctx, "#Average rotation:", 0.0f, &(crystalProperties.polarAngleAverage), 360.0f, 0.1f, 0.5f);
+                    nk_property_float(ctx, "#Average std:", 0.0f, &(crystalProperties.polarAngleStd), 360.0f, 0.1f, 0.5f);
                 }
                 nk_group_end(ctx);
             }
 
-            nk_layout_row_dynamic(ctx, 150, 1);
-            if (nk_group_begin(ctx, "B axis", groupFlags)) {
+            nk_layout_row_dynamic(ctx, 130, 1);
+            if (nk_group_begin(ctx, "Rotation around C axis", groupFlags)) {
                 nk_layout_row_dynamic(ctx, 30, 1);
-                crystalProperties.bRotationDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), crystalProperties.bRotationDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
-                if (crystalProperties.bRotationDistribution == 1) {
+                crystalProperties.rotationDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), crystalProperties.rotationDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
+                if (crystalProperties.rotationDistribution == 1) {
                     nk_layout_row_dynamic(ctx, 30, 2);
-                    nk_property_float(ctx, "#Average rotation:", 0.0f, &(crystalProperties.bRotationAverage), 360.0f, 0.1f, 0.5f);
-                    nk_property_float(ctx, "#Average std::", 0.0f, &(crystalProperties.bRotationStd), 360.0f, 0.1f, 0.5f);
-                }
-                nk_group_end(ctx);
-            }
-
-            nk_layout_row_dynamic(ctx, 150, 1);
-            if (nk_group_begin(ctx, "C axis", groupFlags)) {
-                nk_layout_row_dynamic(ctx, 30, 1);
-                crystalProperties.cRotationDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), crystalProperties.cRotationDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
-                if (crystalProperties.cRotationDistribution == 1) {
-                    nk_layout_row_dynamic(ctx, 30, 2);
-                    nk_property_float(ctx, "#Average rotation:", 0.0f, &(crystalProperties.cRotationAverage), 360.0f, 0.1f, 0.5f);
-                    nk_property_float(ctx, "#Average std::", 0.0f, &(crystalProperties.cRotationStd), 360.0f, 0.1f, 0.5f);
+                    nk_property_float(ctx, "#Average rotation:", 0.0f, &(crystalProperties.rotationAverage), 360.0f, 0.1f, 0.5f);
+                    nk_property_float(ctx, "#Average std:", 0.0f, &(crystalProperties.rotationStd), 360.0f, 0.1f, 0.5f);
                 }
                 nk_group_end(ctx);
             }

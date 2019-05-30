@@ -3,6 +3,9 @@ R""(
 
 #define XOR_SHIFT 0
 
+#define DISTRIBUTION_UNIFORM 0
+#define DISTRIBUTION_GAUSSIAN 1
+
 layout(local_size_x = 1) in;
 layout(binding = 0, rgba32f) uniform coherent image2D out_image;
 layout(binding = 1, r32ui) uniform coherent uimage2D spinlock;
@@ -11,17 +14,13 @@ struct crystalProperties_t {
     float caRatioAverage;
     float caRatioStd;
 
-    int aRotationDistribution;
-    float aRotationAverage;
-    float aRotationStd;
+    int polarAngleDistribution;
+    float polarAngleAverage;
+    float polarAngleStd;
 
-    int bRotationDistribution;
-    float bRotationAverage;
-    float bRotationStd;
-
-    int cRotationDistribution;
-    float cRotationAverage;
-    float cRotationStd;
+    int rotationDistribution;
+    float rotationAverage;
+    float rotationStd;
 };
 
 struct sunProperties_t {
@@ -227,7 +226,7 @@ intersection findIntersection(vec3 rayOrigin, vec3 rayDirection)
 
         vec3 pVec = cross(rayDirection, v0v2);
         float determinant = dot(v0v1, pVec);
-        if (determinant < 0.00001) continue;
+        if (determinant < 0.000001) continue;
 
         vec3 tVec = rayOrigin - v0;
         float u = dot(tVec, pVec);
@@ -296,55 +295,62 @@ vec2 sampleSun(vec2 altAz)
     return altAz + vec2(sampleDistance * sin(sampleAngle), sampleDistance * cos(sampleAngle));
 }
 
-mat3 getRotationMatrix(void)
+mat3 rotateAroundY(float angle)
 {
-    float aRotation;
-    float bRotation;
-    float cRotation;
-    if (crystalProperties.aRotationDistribution == 0)
-    {
-        aRotation = rand() * 2.0 * PI;
-    } else {
-        aRotation = radians(crystalProperties.aRotationAverage + crystalProperties.aRotationStd * randn().x);
-    }
+    return mat3(
+        cos(angle), 0.0, -sin(angle),
+        0.0, 1.0, 0.0,
+        sin(angle), 0.0, cos(angle)
+    );
+}
 
-    if (crystalProperties.bRotationDistribution == 0)
-    {
-        bRotation = rand() * 2.0 * PI;
-    } else {
-        bRotation = radians(crystalProperties.bRotationAverage + crystalProperties.bRotationStd * randn().x);
-    }
-
-    if (crystalProperties.cRotationDistribution == 0)
-    {
-        cRotation = rand() * 2.0 * PI;
-    } else {
-        cRotation = radians(crystalProperties.cRotationAverage + crystalProperties.cRotationStd * randn().x);
-    }
-
-    // Corresponds to rotation around z axis
-    mat3 aRotationMat = mat3(
-        cos(aRotation), sin(aRotation), 0.0,
-        -sin(aRotation), cos(aRotation), 0.0,
+mat3 rotateAroundZ(float angle)
+{
+    return mat3(
+        cos(angle), sin(angle), 0.0,
+        -sin(angle), cos(angle), 0.0,
         0.0, 0.0, 1.0
     );
+}
 
-    // Corresponds to rotation around x axis
-    mat3 bRotationMat = mat3(
-        1.0, 0.0, 0.0,
-        0.0, cos(bRotation), sin(bRotation),
-        0.0, -sin(bRotation), cos(bRotation)
-    );
+mat3 getUniformRandomRotationMatrix(void)
+{
+    float theta = 2.0 * PI * rand();
+    float phi = 2.0 * PI * rand();
+    float z = rand();
+    mat3 zRotationMatrix = mat3(cos(theta), -sin(theta), 0.0, sin(theta), cos(theta), 0.0, 0.0, 0.0, 1.0);
+    vec3 reflectionVector = vec3(cos(phi) * sqrt(z), sin(phi) * sqrt(z), sqrt(1.0 - z));
+    return (2.0 * outerProduct(reflectionVector, reflectionVector) - mat3(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)) * zRotationMatrix;
+}
 
-    // Corresponds to rotation around y axis
-    mat3 cRotationMat = mat3(
-        cos(cRotation), 0.0, -sin(cRotation),
-        0.0, 1.0, 0.0,
-        sin(cRotation), 0.0, cos(cRotation)
-    );
+mat3 getRotationMatrix(void)
+{
+    if (crystalProperties.polarAngleDistribution == DISTRIBUTION_UNIFORM && crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
+    {
+        return getUniformRandomRotationMatrix();
+    }
+    float polarAngle;
+    float rotationAngle;
 
-    mat3 rotationMatrix = cRotationMat * bRotationMat * aRotationMat;
-    return rotationMatrix;
+    if (crystalProperties.polarAngleDistribution == DISTRIBUTION_UNIFORM)
+    {
+        polarAngle = rand() * 2.0 * PI;
+    } else {
+        polarAngle = radians(crystalProperties.polarAngleAverage + crystalProperties.polarAngleStd * randn().x);
+    }
+
+    if (crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
+    {
+        rotationAngle = rand() * 2.0 * PI;
+    } else {
+        rotationAngle = radians(crystalProperties.rotationAverage + crystalProperties.rotationStd * randn().x);
+    }
+
+    mat3 rotationMat = rotateAroundY(rotationAngle);
+    mat3 polarTiltMat = rotateAroundZ(polarAngle);
+    mat3 azimuthMat = rotateAroundY(rand() * 2.0 * PI);
+
+    return rotationMat * polarTiltMat * azimuthMat;
 }
 
 void main(void)
@@ -379,11 +385,11 @@ void main(void)
         // Ray enters crystal
         vec3 refractedRayDirection = refract(rotatedRayDirection, startingPointNormal, 1.0 / 1.31);
         resultRay = traceRay(startingPoint, refractedRayDirection);
-        if (length(resultRay) < 0.0001) return;
     }
 
-    mat3 inverseRotationMatrix = transpose(rotationMatrix);
-    resultRay = -normalize(inverseRotationMatrix * resultRay);
+    if (length(resultRay) < 0.0001) return;
+
+    resultRay = -normalize(resultRay * rotationMatrix);
 
     ivec2 resolution = imageSize(out_image);
     float aspectRatio = float(resolution.y) / float(resolution.x);
