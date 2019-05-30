@@ -224,22 +224,24 @@ intersection findIntersection(vec3 rayOrigin, vec3 rayDirection)
 
         vec3 v0v1 = v1 - v0;
         vec3 v0v2 = v2 - v0;
+
         vec3 pVec = cross(rayDirection, v0v2);
         float determinant = dot(v0v1, pVec);
-        if (determinant < 0.0001) continue;
-        float inverseDeterminant = 1.0 / determinant;
+        if (determinant < 0.00001) continue;
+
         vec3 tVec = rayOrigin - v0;
-        float u = dot(tVec, pVec) * inverseDeterminant;
-        if (u < 0.0 || u > 1.0) continue;
+        float u = dot(tVec, pVec);
+        if (u < 0.0 || u > determinant) continue;
 
         vec3 qVec = cross(tVec, v0v1);
-        float v = dot(rayDirection, qVec) * inverseDeterminant;
-        if (v < 0.0 || u + v > 1.0) continue;
+        float v = dot(rayDirection, qVec);
+        if (v < 0.0 || u + v > determinant) continue;
 
-        float t = dot(v0v2, qVec) * inverseDeterminant;
+        float t = dot(v0v2, qVec) / determinant;
 
         return intersection(true, triangleIndex, rayOrigin + t * rayDirection);
     }
+
     return intersection(false, 0, vec3(0.0));
 }
 
