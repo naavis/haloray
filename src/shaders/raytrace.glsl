@@ -182,7 +182,12 @@ vec3 sampleTriangle(uint triangleIndex)
     vec3 v2 = vertices[triangle.z];
     float u = rand();
     float v = rand();
-    return (1.0 - u - v) * v0 + u * v1 + v * v2;
+    if (u + v > 1.0) {
+        u = 1.0 - u;
+        v = 1.0 - v;
+    }
+
+    return v0 + u * (v1 - v0) + v * (v2 - v0);
 }
 
 vec3 getNormal(uint triangleIndex)
@@ -272,6 +277,8 @@ vec3 altAzToCartesian(vec2 altAz)
 
 vec2 cartesianToAltAz(vec3 direction)
 {
+    // Altitude ranges from -PI/2 to +PI/2
+    // Azimuth ranges from -PI to +PI
     return vec2(asin(direction.y), atan(direction.x, direction.z));
 }
 
@@ -343,7 +350,7 @@ void main(void)
     float caMultiplier = crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd;
     for (int i = 0; i < vertices.length(); ++i)
     {
-        vertices[i].y *= max(0.001, caMultiplier);
+        vertices[i].y *= max(0.0, caMultiplier);
     }
 
     // Sun direction in alt-az
