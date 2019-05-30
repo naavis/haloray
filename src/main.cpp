@@ -19,6 +19,29 @@ const std::string computeShaderSource =
 #include "shaders/raytrace.glsl"
 ;
 
+typedef struct {
+    float caRatioAverage;
+    float caRatioStd;
+
+    bool aRotationDistribution;
+    float aRotationAverage;
+    float aRotationStd;
+
+    bool bRotationDistribution;
+    float bRotationAverage;
+    float bRotationStd;
+
+    bool cRotationDistribution;
+    float cRotationAverage;
+    float cRotationStd;
+} crystalProperties_t;
+
+typedef struct {
+    float altitude;
+    float azimuth;
+    float diameter;
+} sunProperties_t;
+
 #define MAX_VERTEX_BUFFER 512 * 1024
 #define MAX_ELEMENT_BUFFER 128 * 1024
 
@@ -124,7 +147,7 @@ GLuint createComputeShader() {
     return program;
 }
 
-void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups, float sunAltitude, float sunAzimuth, float caRatio, float caRatioStd) {
+void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups, sunProperties_t sun, crystalProperties_t crystalProperties) {
     glClearTexImage(tex, 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glClearTexImage(spinlock, 0, GL_RED, GL_UNSIGNED_INT, NULL);
@@ -136,10 +159,11 @@ void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNumGroups);
     unsigned int finalNumGroups = (int)numGroups > maxNumGroups ? maxNumGroups : numGroups;
 
-    glUniform1f(0, sunAltitude);
-    glUniform1f(1, sunAzimuth);
-    glUniform1f(2, caRatio);
-    glUniform1f(3, caRatioStd);
+    glUniform1f(glGetUniformLocation(computeShader, "sun.altitude"), sun.altitude);
+    glUniform1f(glGetUniformLocation(computeShader, "sun.azimuth"), sun.azimuth);
+    glUniform1f(glGetUniformLocation(computeShader, "sun.diameter"), sun.diameter);
+    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.caRatioAverage"), crystalProperties.caRatioAverage);
+    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.caRatioStd"), crystalProperties.caRatioStd);
     glDispatchCompute(finalNumGroups, 1, 1);
 }
 
@@ -217,10 +241,14 @@ void main(int argc, char const *argv[])
     const nk_flags groupFlags = NK_WINDOW_BORDER|NK_WINDOW_TITLE;
 
     int rays = 100000;
-    float sunAltitude = 0.0;
-    float sunAzimuth = 0.0;
-    float caRatio = 1.0;
-    float caRatioStd = 0.0;
+    sunProperties_t sun;
+    sun.altitude = 0.0;
+    sun.azimuth = 0.0;
+    sun.diameter = 0.5;
+
+    crystalProperties_t crystalProperties;
+    crystalProperties.caRatioAverage = 1.0;
+    crystalProperties.caRatioStd = 0.0;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -244,8 +272,9 @@ void main(int argc, char const *argv[])
             nk_layout_row_dynamic(ctx, 150, 1);
             if (nk_group_begin(ctx, "Sun parameters", groupFlags)) {
                 nk_layout_row_dynamic(ctx, 30, 1);
-                nk_property_float(ctx, "#Altitude: ", -90.0f, &sunAltitude, 90.0f, 0.05f, 0.1f);
-                nk_property_float(ctx, "#Azimuth: ", 0.0f, &sunAzimuth, 360.0f, 0.05f, 0.1f);
+                nk_property_float(ctx, "#Altitude:", -90.0f, &(sun.altitude), 90.0f, 0.05f, 0.1f);
+                nk_property_float(ctx, "#Azimuth:", 0.0f, &(sun.azimuth), 360.0f, 0.05f, 0.1f);
+                nk_property_float(ctx, "#Diameter:", 0.0f, &(sun.diameter), 360.0f, 0.01f, 0.1f);
 
                 nk_group_end(ctx);
             }
@@ -260,15 +289,15 @@ void main(int argc, char const *argv[])
 
             nk_layout_row_dynamic(ctx, 30, 1);
             if (nk_button_label(ctx, "Render")) {
-                renderOffscreen(computeShader, framebufferColorTexture, spinlockTexture, rays, sunAltitude, sunAzimuth, caRatio, caRatioStd);
+                renderOffscreen(computeShader, framebufferColorTexture, spinlockTexture, rays, sun, crystalProperties);
             }
         }
         nk_end(ctx);
 
         if (nk_begin(ctx, "Crystal settings", nk_rect(400, 50, 500, 400), windowFlags)) {
             nk_layout_row_dynamic(ctx, 30, 2);
-            nk_property_float(ctx, "#C/A ratio average:", 0.01f, &caRatio, 10.0f, 0.05f, 0.01f);
-            nk_property_float(ctx, "#C/A ratio std:", 0.0f, &caRatioStd, 10.0f, 0.05f, 0.01f);
+            nk_property_float(ctx, "#C/A ratio average:", 0.01f, &(crystalProperties.caRatioAverage), 10.0f, 0.05f, 0.01f);
+            nk_property_float(ctx, "#C/A ratio std:", 0.0f, &(crystalProperties.caRatioStd), 10.0f, 0.05f, 0.01f);
         }
         nk_end(ctx);
 

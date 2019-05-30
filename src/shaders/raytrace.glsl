@@ -5,10 +5,31 @@ layout(local_size_x = 1) in;
 layout(binding = 0, rgba32f) uniform coherent image2D out_image;
 layout(binding = 1, r32ui) uniform coherent uimage2D spinlock;
 
-layout(location = 0) uniform float sunAltitude;
-layout(location = 1) uniform float sunAzimuth;
-layout(location = 2) uniform float caRatio;
-layout(location = 3) uniform float caRatioStd;
+struct crystalProperties_t {
+    float caRatioAverage;
+    float caRatioStd;
+
+    bool aRotationDistribution;
+    float aRotationAverage;
+    float aRotationStd;
+
+    bool bRotationDistribution;
+    float bRotationAverage;
+    float bRotationStd;
+
+    bool cRotationDistribution;
+    float cRotationAverage;
+    float cRotationStd;
+};
+
+struct sunProperties_t {
+    float altitude;
+    float azimuth;
+    float diameter;
+};
+
+uniform struct sunProperties_t sun;
+uniform struct crystalProperties_t crystalProperties;
 
 const float PI = 3.14159;
 
@@ -242,23 +263,21 @@ vec2 altAzToPolar(vec2 altAz)
 
 vec2 sampleSun(vec2 altAz)
 {
-    // 0.5 degrees in radians
-    const float sunDiameter = 0.0087266;
     float sampleAngle = rand() * 2.0 * PI;
-    float sampleDistance = sqrt(rand()) * 0.5 * sunDiameter;
+    float sampleDistance = sqrt(rand()) * 0.5 * radians(sun.diameter);
     return altAz + vec2(sampleDistance * sin(sampleAngle), sampleDistance * cos(sampleAngle));
 }
 
 void main(void)
 {
-    float caMultiplier = caRatio + randn().x * caRatioStd;
+    float caMultiplier = crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd;
     for (int i = 0; i < vertices.length(); ++i)
     {
         vertices[i].y *= max(0.001, caMultiplier);
     }
 
     // Sun direction in alt-az
-    vec2 sunDirection = radians(vec2(sunAltitude, sunAzimuth));
+    vec2 sunDirection = radians(vec2(sun.altitude, sun.azimuth));
 
     // Hard coded arbitrary rotations for now
     vec2 gaussianRotation = randn();
