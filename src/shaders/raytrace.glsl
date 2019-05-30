@@ -1,5 +1,5 @@
 R""(
-#version 460 core
+#version 440 core
 
 #define XOR_SHIFT 0
 
