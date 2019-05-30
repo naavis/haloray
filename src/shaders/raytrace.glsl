@@ -196,7 +196,7 @@ vec3 getNormal(uint triangleIndex)
     vec3 v0 = vertices[triangle.x];
     vec3 v1 = vertices[triangle.y];
     vec3 v2 = vertices[triangle.z];
-    return normalize(cross(v2 - v0, v1 - v0));
+    return normalize(cross(v1 - v0, v2 - v0));
 }
 
 float getReflectionCoefficient(vec3 normal, vec3 rayDir, float n0, float n1)
@@ -253,7 +253,7 @@ vec3 traceRay(vec3 rayOrigin, vec3 rayDirection)
     {
         intersection hitResult = findIntersection(ro, rd);
         if (hitResult.didHit == false) break;
-        vec3 normal = -getNormal(hitResult.triangleIndex);
+        vec3 normal = getNormal(hitResult.triangleIndex);
         float reflectionCoefficient = getReflectionCoefficient(normal, rd, 1.31, 1.0);
         if (rand() < reflectionCoefficient)
         {
@@ -368,7 +368,7 @@ void main(void)
 
     uint triangleIndex = selectFirstTriangle(rotatedRayDirection);
     vec3 startingPoint = sampleTriangle(triangleIndex);
-    vec3 startingPointNormal = getNormal(triangleIndex);
+    vec3 startingPointNormal = -getNormal(triangleIndex);
     float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rotatedRayDirection, 1.0, 1.31);
     vec3 resultRay = vec3(0.0);
     if (rand() < reflectionCoeff)
