@@ -253,7 +253,7 @@ vec3 altAzToCartesian(vec2 altAz)
 
 vec2 cartesianToAltAz(vec3 direction)
 {
-    return vec2(asin(direction.y), atan(direction.x / direction.z));
+    return vec2(asin(direction.y), atan(direction.x, direction.z));
 }
 
 vec2 altAzToPolar(vec2 altAz)
