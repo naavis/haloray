@@ -254,23 +254,23 @@ void main(int argc, char const *argv[])
     const nk_flags windowFlags = NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE;
     const nk_flags groupFlags = NK_WINDOW_BORDER|NK_WINDOW_TITLE;
 
-    int rays = 100000;
+    int rays = 10000000;
     sunProperties_t sun;
-    sun.altitude = 0.0;
+    sun.altitude = 10.0;
     sun.azimuth = 0.0;
     sun.diameter = 0.5;
 
     crystalProperties_t crystalProperties;
     crystalProperties.caRatioAverage = 1.0;
-    crystalProperties.caRatioStd = 0.0;
+    crystalProperties.caRatioStd = 0.5;
 
-    crystalProperties.aRotationDistribution = 1;
+    crystalProperties.aRotationDistribution = 0;
     crystalProperties.aRotationAverage = 0.0;
-    crystalProperties.aRotationStd = 5.0;
+    crystalProperties.aRotationStd = 0.0;
 
-    crystalProperties.bRotationDistribution = 1;
+    crystalProperties.bRotationDistribution = 0;
     crystalProperties.bRotationAverage = 0.0;
-    crystalProperties.bRotationStd = 5.0;
+    crystalProperties.bRotationStd = 0.0;
 
     crystalProperties.cRotationDistribution = 0;
     crystalProperties.cRotationAverage = 0.0;
