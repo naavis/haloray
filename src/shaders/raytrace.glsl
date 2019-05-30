@@ -1,6 +1,8 @@
 R""(
 #version 460 core
 
+#define XOR_SHIFT 0
+
 layout(local_size_x = 1) in;
 layout(binding = 0, rgba32f) uniform coherent image2D out_image;
 layout(binding = 1, r32ui) uniform coherent uimage2D spinlock;
@@ -107,13 +109,30 @@ uint wang_hash(uint a)
 
 uint rngState = wang_hash(uint(gl_WorkGroupID.x + gl_WorkGroupID.y * gl_NumWorkGroups.x));
 
+#ifdef XOR_SHIFT
+
+uint rand_xorshift(void)
+ {
+    // Xorshift algorithm from George Marsaglia's paper
+    rngState ^= (rngState << 13);
+    rngState ^= (rngState >> 17);
+    rngState ^= (rngState << 5);
+    return rngState;
+ }
+
+float rand(void) { return rand_xorshift() / 4294967295.0f; }
+
+#else
+
 uint rand_lcg(void)
 {
 	rngState = 1664525u * rngState + 1013904223u;
 	return rngState;
 }
 
-float rand(void) { return rand_lcg() / 4294967295.0f; }
+float rand(void) { return rand_lcf() / 4294967295.0f; }
+
+#endif
 
 vec2 randn(void)
 {
