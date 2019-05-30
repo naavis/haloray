@@ -43,18 +43,18 @@ struct intersection {
 
 vec3 vertices[] = vec3[](
     vec3(0.0, 1.0, 1.0),
-    vec3(0.8660254038, 1.0, 0.5),
-    vec3(0.8660254038, 1.0, -0.5),
-    vec3(0.0, 1.0, -1.0),
-    vec3(-0.8660254038, 1.0, -0.5),
     vec3(-0.8660254038, 1.0, 0.5),
+    vec3(-0.8660254038, 1.0, -0.5),
+    vec3(0.0, 1.0, -1.0),
+    vec3(0.8660254038, 1.0, -0.5),
+    vec3(0.8660254038, 1.0, 0.5),
 
     vec3(0.0, -1.0, 1.0),
-    vec3(0.8660254038, -1.0, 0.5),
-    vec3(0.8660254038, -1.0, -0.5),
-    vec3(0.0, -1.0, -1.0),
+    vec3(-0.8660254038, -1.0, 0.5),
     vec3(-0.8660254038, -1.0, -0.5),
-    vec3(-0.8660254038, -1.0, 0.5)
+    vec3(0.0, -1.0, -1.0),
+    vec3(0.8660254038, -1.0, -0.5),
+    vec3(0.8660254038, -1.0, 0.5)
 );
 
 ivec3 triangles[] = ivec3[](
@@ -349,8 +349,8 @@ void main(void)
     // Sun direction in alt-az
     vec2 sunDirection = radians(vec2(sun.altitude, sun.azimuth));
 
+    // Rotation matrix to orient ray/crystal
     mat3 rotationMatrix = getRotationMatrix();
-    mat3 inverseRotationMatrix = transpose(rotationMatrix);
 
     // Convert sun direction to incoming ray vector
     vec3 rayDirection = -altAzToCartesian(sampleSun(sunDirection));
@@ -370,7 +370,10 @@ void main(void)
         // Ray enters crystal
         vec3 refractedRayDirection = refract(rotatedRayDirection, startingPointNormal, 1.0 / 1.31);
         resultRay = traceRay(startingPoint, refractedRayDirection);
+        if (length(resultRay) < 0.0001) return;
     }
+
+    mat3 inverseRotationMatrix = transpose(rotationMatrix);
     resultRay = -normalize(inverseRotationMatrix * resultRay);
 
     ivec2 resolution = imageSize(out_image);
