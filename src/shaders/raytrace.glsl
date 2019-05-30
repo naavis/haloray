@@ -9,15 +9,15 @@ struct crystalProperties_t {
     float caRatioAverage;
     float caRatioStd;
 
-    bool aRotationDistribution;
+    int aRotationDistribution;
     float aRotationAverage;
     float aRotationStd;
 
-    bool bRotationDistribution;
+    int bRotationDistribution;
     float bRotationAverage;
     float bRotationStd;
 
-    bool cRotationDistribution;
+    int cRotationDistribution;
     float cRotationAverage;
     float cRotationStd;
 };
@@ -279,11 +279,29 @@ void main(void)
     // Sun direction in alt-az
     vec2 sunDirection = radians(vec2(sun.altitude, sun.azimuth));
 
-    // Hard coded arbitrary rotations for now
-    vec2 gaussianRotation = randn();
-    float aRotation = radians(gaussianRotation.x * 5.0);
-    float bRotation = radians(gaussianRotation.y * 5.0);
-    float cRotation = radians(rand() * 360.0);
+    float aRotation;
+    float bRotation;
+    float cRotation;
+    if (crystalProperties.aRotationDistribution == 0)
+    {
+        aRotation = radians(rand() * 360.0);
+    } else {
+        aRotation = radians(crystalProperties.aRotationAverage + crystalProperties.aRotationStd * randn().x);
+    }
+
+    if (crystalProperties.bRotationDistribution == 0)
+    {
+        bRotation = radians(rand() * 360.0);
+    } else {
+        bRotation = radians(crystalProperties.bRotationAverage + crystalProperties.bRotationStd * randn().x);
+    }
+
+    if (crystalProperties.cRotationDistribution == 0)
+    {
+        cRotation = radians(rand() * 360.0);
+    } else {
+        cRotation = radians(crystalProperties.cRotationAverage + crystalProperties.cRotationStd * randn().x);
+    }
 
     // Corresponds to rotation around z axis
     mat3 aRotationMat = mat3(
