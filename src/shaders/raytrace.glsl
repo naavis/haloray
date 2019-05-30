@@ -382,6 +382,11 @@ mat3 getRotationMatrix(void)
     return rotationMat * polarTiltMat * azimuthMat;
 }
 
+float daylightEstimate(float wavelength)
+{
+    return 1.0 - 0.0013333 * wavelength;
+}
+
 void main(void)
 {
     float caMultiplier = crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd;
@@ -436,7 +441,7 @@ void main(void)
 
     ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.y, resolution.y * normalizedCoordinates.x);
 
-    vec3 cieXYZ = vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
+    vec3 cieXYZ = daylightEstimate(wavelength) * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
 
     bool keepWaiting = true;
     while (keepWaiting)
