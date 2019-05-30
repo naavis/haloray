@@ -349,7 +349,7 @@ void main(void)
     resultRay = -normalize(inverseRotationMatrix * resultRay);
 
     ivec2 resolution = imageSize(out_image);
-    float aspectRatio = float(resolution.x) / float(resolution.y);
+    float aspectRatio = float(resolution.y) / float(resolution.x);
 
     // Convert cartesian direction vector to pixel coordinates
     vec2 altAz = cartesianToAltAz(resultRay);
@@ -357,7 +357,7 @@ void main(void)
 
     // Rectilinear projection
     float projectionFactor = 2.0 * tan(polar.r / 2.0);
-    vec2 rectilinear = vec2(aspectRatio * projectionFactor * cos(polar.y), projectionFactor * sin(polar.y));
+    vec2 rectilinear = vec2(projectionFactor * cos(polar.y), aspectRatio * projectionFactor * sin(polar.y));
     vec2 normalizedCoordinates = 0.5 + rectilinear / PI;
 
     ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.y, resolution.y * normalizedCoordinates.x);
