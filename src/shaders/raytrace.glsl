@@ -141,9 +141,9 @@ vec2 randn(void)
     return vec2(u1 * cos(u2), u1 * sin(u2));
 }
 
-uint intersectFirstTriangle(vec3 rayDirection)
+uint selectFirstTriangle(vec3 rayDirection)
 {
-    // Calculate triangle properties
+    // Calculate triangle normals and projected areas
     float triangleProjectedAreas[triangles.length()];
     float sumProjectedAreas = 0.0;
     for (int i = 0; i < triangles.length(); ++i)
@@ -287,37 +287,28 @@ vec2 sampleSun(vec2 altAz)
     return altAz + vec2(sampleDistance * sin(sampleAngle), sampleDistance * cos(sampleAngle));
 }
 
-void main(void)
+mat3 getRotationMatrix(void)
 {
-    float caMultiplier = crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd;
-    for (int i = 0; i < vertices.length(); ++i)
-    {
-        vertices[i].y *= max(0.001, caMultiplier);
-    }
-
-    // Sun direction in alt-az
-    vec2 sunDirection = radians(vec2(sun.altitude, sun.azimuth));
-
     float aRotation;
     float bRotation;
     float cRotation;
     if (crystalProperties.aRotationDistribution == 0)
     {
-        aRotation = radians(rand() * 360.0);
+        aRotation = rand() * 2.0 * PI;
     } else {
         aRotation = radians(crystalProperties.aRotationAverage + crystalProperties.aRotationStd * randn().x);
     }
 
     if (crystalProperties.bRotationDistribution == 0)
     {
-        bRotation = radians(rand() * 360.0);
+        bRotation = rand() * 2.0 * PI;
     } else {
         bRotation = radians(crystalProperties.bRotationAverage + crystalProperties.bRotationStd * randn().x);
     }
 
     if (crystalProperties.cRotationDistribution == 0)
     {
-        cRotation = radians(rand() * 360.0);
+        cRotation = rand() * 2.0 * PI;
     } else {
         cRotation = radians(crystalProperties.cRotationAverage + crystalProperties.cRotationStd * randn().x);
     }
@@ -344,6 +335,21 @@ void main(void)
     );
 
     mat3 rotationMatrix = cRotationMat * bRotationMat * aRotationMat;
+    return rotationMatrix;
+}
+
+void main(void)
+{
+    float caMultiplier = crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd;
+    for (int i = 0; i < vertices.length(); ++i)
+    {
+        vertices[i].y *= max(0.001, caMultiplier);
+    }
+
+    // Sun direction in alt-az
+    vec2 sunDirection = radians(vec2(sun.altitude, sun.azimuth));
+
+    mat3 rotationMatrix = getRotationMatrix();
     mat3 inverseRotationMatrix = transpose(rotationMatrix);
 
     // Convert sun direction to incoming ray vector
@@ -351,7 +357,7 @@ void main(void)
 
     vec3 rotatedRayDirection = rotationMatrix * rayDirection;
 
-    uint triangleIndex = intersectFirstTriangle(rotatedRayDirection);
+    uint triangleIndex = selectFirstTriangle(rotatedRayDirection);
     vec3 startingPoint = sampleTriangle(triangleIndex);
     vec3 startingPointNormal = getNormal(triangleIndex);
     float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rotatedRayDirection, 1.0, 1.31);
