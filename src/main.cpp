@@ -103,7 +103,7 @@ OpenGL::Program createTexDrawShaderProgram()
     return program;
 }
 
-OpenGL::Program createComputeShader()
+OpenGL::Program createComputeShaderProgram()
 {
     OpenGL::Shader shader(computeShaderSource, OpenGL::ShaderType::Compute);
     shader.Compile();
@@ -115,33 +115,33 @@ OpenGL::Program createComputeShader()
     return program;
 }
 
-void runSimulation(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups, sunProperties_t sun, crystalProperties_t crystalProperties)
+void runSimulation(GLuint computeShaderPrg, GLuint tex, GLuint spinlock, unsigned int numGroups, sunProperties_t sun, crystalProperties_t crystalProperties)
 {
     glClearTexImage(tex, 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glClearTexImage(spinlock, 0, GL_RED, GL_UNSIGNED_INT, NULL);
     glBindImageTexture(1, spinlock, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 
-    glUseProgram(computeShader);
+    glUseProgram(computeShaderPrg);
 
     GLint maxNumGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNumGroups);
     unsigned int finalNumGroups = (int)numGroups > maxNumGroups ? maxNumGroups : numGroups;
 
-    glUniform1f(glGetUniformLocation(computeShader, "sun.altitude"), sun.altitude);
-    glUniform1f(glGetUniformLocation(computeShader, "sun.azimuth"), sun.azimuth);
-    glUniform1f(glGetUniformLocation(computeShader, "sun.diameter"), sun.diameter);
+    glUniform1f(glGetUniformLocation(computeShaderPrg, "sun.altitude"), sun.altitude);
+    glUniform1f(glGetUniformLocation(computeShaderPrg, "sun.azimuth"), sun.azimuth);
+    glUniform1f(glGetUniformLocation(computeShaderPrg, "sun.diameter"), sun.diameter);
 
-    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.caRatioAverage"), crystalProperties.caRatioAverage);
-    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.caRatioStd"), crystalProperties.caRatioStd);
+    glUniform1f(glGetUniformLocation(computeShaderPrg, "crystalProperties.caRatioAverage"), crystalProperties.caRatioAverage);
+    glUniform1f(glGetUniformLocation(computeShaderPrg, "crystalProperties.caRatioStd"), crystalProperties.caRatioStd);
 
-    glUniform1i(glGetUniformLocation(computeShader, "crystalProperties.polarAngleDistribution"), crystalProperties.polarAngleDistribution);
-    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.polarAngleAverage"), crystalProperties.polarAngleAverage);
-    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.polarAngleStd"), crystalProperties.polarAngleStd);
+    glUniform1i(glGetUniformLocation(computeShaderPrg, "crystalProperties.polarAngleDistribution"), crystalProperties.polarAngleDistribution);
+    glUniform1f(glGetUniformLocation(computeShaderPrg, "crystalProperties.polarAngleAverage"), crystalProperties.polarAngleAverage);
+    glUniform1f(glGetUniformLocation(computeShaderPrg, "crystalProperties.polarAngleStd"), crystalProperties.polarAngleStd);
 
-    glUniform1i(glGetUniformLocation(computeShader, "crystalProperties.rotationDistribution"), crystalProperties.rotationDistribution);
-    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.rotationAverage"), crystalProperties.rotationAverage);
-    glUniform1f(glGetUniformLocation(computeShader, "crystalProperties.rotationStd"), crystalProperties.rotationStd);
+    glUniform1i(glGetUniformLocation(computeShaderPrg, "crystalProperties.rotationDistribution"), crystalProperties.rotationDistribution);
+    glUniform1f(glGetUniformLocation(computeShaderPrg, "crystalProperties.rotationAverage"), crystalProperties.rotationAverage);
+    glUniform1f(glGetUniformLocation(computeShaderPrg, "crystalProperties.rotationStd"), crystalProperties.rotationStd);
 
     glDispatchCompute(finalNumGroups, 1, 1);
 }
@@ -202,7 +202,6 @@ void main(int argc, char const *argv[])
         1.0f,
     };
 
-    OpenGL::Program texDrawPrg = createTexDrawShaderProgram();
     GLuint quadVao;
     glGenVertexArrays(1, &quadVao);
     glBindVertexArray(quadVao);
@@ -215,7 +214,8 @@ void main(int argc, char const *argv[])
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-    OpenGL::Program computeShader = createComputeShader();
+    OpenGL::Program texDrawPrg = createTexDrawShaderProgram();
+    OpenGL::Program computeShaderPrg = createComputeShaderProgram();
 
     const nk_flags windowFlags = NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE;
     const nk_flags groupFlags = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
@@ -322,7 +322,7 @@ void main(int argc, char const *argv[])
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
             if (nk_button_label(ctx, "Render"))
             {
-                runSimulation(computeShader.GetProgramHandle(), simulationTexture, spinlockTexture, rays, sun, crystalProperties);
+                runSimulation(computeShaderPrg.GetProgramHandle(), simulationTexture, spinlockTexture, rays, sun, crystalProperties);
             }
         }
         nk_end(ctx);
