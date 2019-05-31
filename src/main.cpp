@@ -146,7 +146,7 @@ GLuint createComputeShader() {
     return program;
 }
 
-void renderOffscreen(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups, sunProperties_t sun, crystalProperties_t crystalProperties) {
+void runSimulation(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups, sunProperties_t sun, crystalProperties_t crystalProperties) {
     glClearTexImage(tex, 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glClearTexImage(spinlock, 0, GL_RED, GL_UNSIGNED_INT, NULL);
@@ -338,7 +338,7 @@ void main(int argc, char const *argv[])
             nk_label(ctx, "Brightness", NK_TEXT_LEFT);
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
             if (nk_button_label(ctx, "Render")) {
-                renderOffscreen(computeShader, simulationTexture, spinlockTexture, rays, sun, crystalProperties);
+                runSimulation(computeShader, simulationTexture, spinlockTexture, rays, sun, crystalProperties);
             }
         }
         nk_end(ctx);
