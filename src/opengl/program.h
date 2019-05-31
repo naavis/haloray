@@ -8,9 +8,9 @@ class Program
 public:
     Program();
     ~Program();
-
     void AttachShader(const Shader &shader) const;
     void Link();
+    void Use();
 
     unsigned int GetProgramHandle() const;
 
