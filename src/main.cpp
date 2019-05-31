@@ -104,11 +104,12 @@ GLuint createTexDrawShaderProgram() {
     static const GLchar* fragShaderSrc =
         "#version 440 core\n"
         "out vec4 color;"
+        "uniform float exposure;"
         "uniform sampler2D s;"
         "void main(void) {"
         "    vec3 xyz = texelFetch(s, ivec2(gl_FragCoord.xy), 0).xyz;"
         "    mat3 xyzToSrgb = mat3(3.2406, -0.9689, 0.0557, -1.5372, 1.8758, -0.2040, -0.4986, 0.0415, 1.0570);"
-        "    vec3 linearSrgb = xyzToSrgb * xyz;"
+        "    vec3 linearSrgb = xyzToSrgb * xyz * exposure;"
         "    vec3 gammaCorrected = pow(linearSrgb, vec3(0.42));"
         "    color = vec4(gammaCorrected, 1.0);"
         "}";
@@ -266,6 +267,8 @@ void main(int argc, char const *argv[])
     crystalProperties.rotationAverage = 60.0f;
     crystalProperties.rotationStd = 1.0f;
 
+    float exposure = 1.0f;
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
@@ -275,6 +278,7 @@ void main(int argc, char const *argv[])
 
         /* Render offscreen texture contents to default framebuffer */
         glUseProgram(texDrawPrg);
+        glUniform1f(glGetUniformLocation(texDrawPrg, "exposure"), exposure);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(quadVao);
@@ -335,6 +339,8 @@ void main(int argc, char const *argv[])
             }
 
             nk_layout_row_dynamic(ctx, 30, 1);
+            nk_label(ctx, "Brightness", NK_TEXT_LEFT);
+            nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
             if (nk_button_label(ctx, "Render")) {
                 renderOffscreen(computeShader, framebufferColorTexture, spinlockTexture, rays, sun, crystalProperties);
             }
