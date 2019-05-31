@@ -115,7 +115,7 @@ std::shared_ptr<OpenGL::Program> createComputeShaderProgram()
     return program;
 }
 
-void runSimulation(std::shared_ptr<OpenGL::Program> computeShaderPrg, GLuint tex, GLuint spinlock, unsigned int numGroups, sunProperties_t sun, crystalProperties_t crystalProperties)
+void runSimulation(std::shared_ptr<OpenGL::Program> computeShaderPrg, GLuint tex, GLuint spinlock, unsigned int numRays, sunProperties_t sun, crystalProperties_t crystalProperties)
 {
     glClearTexImage(tex, 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
@@ -126,7 +126,7 @@ void runSimulation(std::shared_ptr<OpenGL::Program> computeShaderPrg, GLuint tex
 
     GLint maxNumGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNumGroups);
-    unsigned int finalNumGroups = (int)numGroups > maxNumGroups ? maxNumGroups : numGroups;
+    unsigned int finalNumGroups = (int)numRays > maxNumGroups ? maxNumGroups : numRays;
     GLuint shaderHandle = computeShaderPrg->GetProgramHandle();
 
     glUniform1f(glGetUniformLocation(shaderHandle, "sun.altitude"), sun.altitude);
@@ -227,7 +227,7 @@ void main(int argc, char const *argv[])
     const nk_flags windowFlags = NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE;
     const nk_flags groupFlags = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
 
-    int rays = 10000000;
+    int numRays = 10000000;
     sunProperties_t sun;
     sun.altitude = 30.0f;
     sun.azimuth = 0.0f;
@@ -318,7 +318,7 @@ void main(int argc, char const *argv[])
             if (nk_group_begin(ctx, "Simulation parameters", groupFlags))
             {
                 nk_layout_row_dynamic(ctx, 30, 1);
-                nk_property_int(ctx, "#Number of rays:", 10000, &rays, 40000000, 10000, 50000);
+                nk_property_int(ctx, "#Number of rays:", 10000, &numRays, 40000000, 10000, 50000);
 
                 nk_group_end(ctx);
             }
@@ -328,7 +328,7 @@ void main(int argc, char const *argv[])
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
             if (nk_button_label(ctx, "Render"))
             {
-                runSimulation(computeShaderPrg, simulationTexture, spinlockTexture, rays, sun, crystalProperties);
+                runSimulation(computeShaderPrg, simulationTexture, spinlockTexture, numRays, sun, crystalProperties);
             }
         }
         nk_end(ctx);
