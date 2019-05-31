@@ -17,9 +17,10 @@
 
 const std::string computeShaderSource =
 #include "shaders/raytrace.glsl"
-;
+    ;
 
-typedef struct {
+typedef struct
+{
     float caRatioAverage;
     float caRatioStd;
 
@@ -32,7 +33,8 @@ typedef struct {
     float rotationStd;
 } crystalProperties_t;
 
-typedef struct {
+typedef struct
+{
     float altitude;
     float azimuth;
     float diameter;
@@ -41,8 +43,9 @@ typedef struct {
 #define MAX_VERTEX_BUFFER 512 * 1024
 #define MAX_ELEMENT_BUFFER 128 * 1024
 
-GLFWwindow* createWindow() {
-    GLFWwindow* window;
+GLFWwindow *createWindow()
+{
+    GLFWwindow *window;
 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -62,10 +65,12 @@ GLFWwindow* createWindow() {
     return window;
 }
 
-void checkCompileError(GLuint shader) {
+void checkCompileError(GLuint shader)
+{
     int rvalue;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &rvalue);
-    if (!rvalue) {
+    if (!rvalue)
+    {
         fprintf(stderr, "Error in compiling shader\n");
         GLchar log[10240];
         GLsizei length;
@@ -75,10 +80,12 @@ void checkCompileError(GLuint shader) {
     }
 }
 
-void checkLinkError(GLuint program) {
+void checkLinkError(GLuint program)
+{
     int rvalue;
     glGetProgramiv(program, GL_LINK_STATUS, &rvalue);
-    if (!rvalue) {
+    if (!rvalue)
+    {
         fprintf(stderr, "Error in linking shader program\n");
         GLchar log[10240];
         GLsizei length;
@@ -88,9 +95,10 @@ void checkLinkError(GLuint program) {
     }
 }
 
-GLuint createTexDrawShaderProgram() {
+GLuint createTexDrawShaderProgram()
+{
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    static const GLchar* vertexShaderSrc =
+    static const GLchar *vertexShaderSrc =
         "#version 440 core\n"
         "in vec2 position;"
         "void main(void) {"
@@ -101,7 +109,7 @@ GLuint createTexDrawShaderProgram() {
     checkCompileError(vertexShader);
 
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    static const GLchar* fragShaderSrc =
+    static const GLchar *fragShaderSrc =
         "#version 440 core\n"
         "out vec4 color;"
         "uniform float exposure;"
@@ -129,9 +137,10 @@ GLuint createTexDrawShaderProgram() {
     return program;
 }
 
-GLuint createComputeShader() {
+GLuint createComputeShader()
+{
     GLuint shader = glCreateShader(GL_COMPUTE_SHADER);
-    static const GLchar* src = computeShaderSource.c_str();
+    static const GLchar *src = computeShaderSource.c_str();
     glShaderSource(shader, 1, &src, NULL);
     glCompileShader(shader);
     checkCompileError(shader);
@@ -146,7 +155,8 @@ GLuint createComputeShader() {
     return program;
 }
 
-void runSimulation(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups, sunProperties_t sun, crystalProperties_t crystalProperties) {
+void runSimulation(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned int numGroups, sunProperties_t sun, crystalProperties_t crystalProperties)
+{
     glClearTexImage(tex, 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glClearTexImage(spinlock, 0, GL_RED, GL_UNSIGNED_INT, NULL);
@@ -176,8 +186,9 @@ void runSimulation(GLuint computeShader, GLuint tex, GLuint spinlock, unsigned i
     glDispatchCompute(finalNumGroups, 1, 1);
 }
 
-struct nk_context* initNuklear(GLFWwindow* window) {
-    struct nk_context* ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
+struct nk_context *initNuklear(GLFWwindow *window)
+{
+    struct nk_context *ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
 
     struct nk_font_atlas *atlas;
     nk_glfw3_font_stash_begin(&atlas);
@@ -192,12 +203,12 @@ void main(int argc, char const *argv[])
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
-    GLFWwindow* window = createWindow();
+    GLFWwindow *window = createWindow();
 
     /* Initialize GLAD */
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    struct nk_context* ctx = initNuklear(window);
+    struct nk_context *ctx = initNuklear(window);
 
     GLuint simulationTexture;
     glGenTextures(1, &simulationTexture);
@@ -217,14 +228,18 @@ void main(int argc, char const *argv[])
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    static const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0 };
+    static const GLenum draw_buffers[] = {GL_COLOR_ATTACHMENT0};
     glDrawBuffers(1, draw_buffers);
 
     float points[] = {
-        -1.0f,  -1.0f,
-        -1.0f, 1.0f,
-        1.0f, -1.0f,
-        1.0f, 1.0f,
+        -1.0f,
+        -1.0f,
+        -1.0f,
+        1.0f,
+        1.0f,
+        -1.0f,
+        1.0f,
+        1.0f,
     };
 
     GLuint texDrawPrg = createTexDrawShaderProgram();
@@ -242,8 +257,8 @@ void main(int argc, char const *argv[])
 
     GLuint computeShader = createComputeShader();
 
-    const nk_flags windowFlags = NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_SCALABLE|NK_WINDOW_MINIMIZABLE|NK_WINDOW_TITLE;
-    const nk_flags groupFlags = NK_WINDOW_BORDER|NK_WINDOW_TITLE;
+    const nk_flags windowFlags = NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE;
+    const nk_flags groupFlags = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
 
     int rays = 10000000;
     sunProperties_t sun;
@@ -283,17 +298,20 @@ void main(int argc, char const *argv[])
 
         nk_glfw3_new_frame();
 
-        if (nk_begin(ctx, "Crystal settings", nk_rect(400, 50, 500, 400), windowFlags)) {
+        if (nk_begin(ctx, "Crystal settings", nk_rect(400, 50, 500, 400), windowFlags))
+        {
             nk_layout_row_dynamic(ctx, 30, 2);
             nk_property_float(ctx, "#C/A ratio average:", 0.01f, &(crystalProperties.caRatioAverage), 10.0f, 0.05f, 0.01f);
             nk_property_float(ctx, "#C/A ratio std:", 0.0f, &(crystalProperties.caRatioStd), 10.0f, 0.05f, 0.01f);
 
-            const char* distributions[] = {"Uniform", "Gaussian"};
+            const char *distributions[] = {"Uniform", "Gaussian"};
             nk_layout_row_dynamic(ctx, 130, 1);
-            if (nk_group_begin(ctx, "C axis orientation", groupFlags)) {
+            if (nk_group_begin(ctx, "C axis orientation", groupFlags))
+            {
                 nk_layout_row_dynamic(ctx, 30, 1);
                 crystalProperties.polarAngleDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), crystalProperties.polarAngleDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
-                if (crystalProperties.polarAngleDistribution == 1) {
+                if (crystalProperties.polarAngleDistribution == 1)
+                {
                     nk_layout_row_dynamic(ctx, 30, 2);
                     nk_property_float(ctx, "#Average rotation:", 0.0f, &(crystalProperties.polarAngleAverage), 360.0f, 0.1f, 0.5f);
                     nk_property_float(ctx, "#Average std:", 0.0f, &(crystalProperties.polarAngleStd), 360.0f, 0.1f, 0.5f);
@@ -302,10 +320,12 @@ void main(int argc, char const *argv[])
             }
 
             nk_layout_row_dynamic(ctx, 130, 1);
-            if (nk_group_begin(ctx, "Rotation around C axis", groupFlags)) {
+            if (nk_group_begin(ctx, "Rotation around C axis", groupFlags))
+            {
                 nk_layout_row_dynamic(ctx, 30, 1);
                 crystalProperties.rotationDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), crystalProperties.rotationDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
-                if (crystalProperties.rotationDistribution == 1) {
+                if (crystalProperties.rotationDistribution == 1)
+                {
                     nk_layout_row_dynamic(ctx, 30, 2);
                     nk_property_float(ctx, "#Average rotation:", 0.0f, &(crystalProperties.rotationAverage), 360.0f, 0.1f, 0.5f);
                     nk_property_float(ctx, "#Average std:", 0.0f, &(crystalProperties.rotationStd), 360.0f, 0.1f, 0.5f);
@@ -315,9 +335,11 @@ void main(int argc, char const *argv[])
         }
         nk_end(ctx);
 
-        if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 430), windowFlags)) {
+        if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 430), windowFlags))
+        {
             nk_layout_row_dynamic(ctx, 150, 1);
-            if (nk_group_begin(ctx, "Sun parameters", groupFlags)) {
+            if (nk_group_begin(ctx, "Sun parameters", groupFlags))
+            {
                 nk_layout_row_dynamic(ctx, 30, 1);
                 nk_property_float(ctx, "#Altitude:", -90.0f, &(sun.altitude), 90.0f, 0.05f, 0.1f);
                 nk_property_float(ctx, "#Azimuth:", 0.0f, &(sun.azimuth), 360.0f, 0.05f, 0.1f);
@@ -327,7 +349,8 @@ void main(int argc, char const *argv[])
             }
 
             nk_layout_row_dynamic(ctx, 100, 1);
-            if (nk_group_begin(ctx, "Simulation parameters", groupFlags)) {
+            if (nk_group_begin(ctx, "Simulation parameters", groupFlags))
+            {
                 nk_layout_row_dynamic(ctx, 30, 1);
                 nk_property_int(ctx, "#Number of rays:", 10000, &rays, 40000000, 10000, 50000);
 
@@ -337,7 +360,8 @@ void main(int argc, char const *argv[])
             nk_layout_row_dynamic(ctx, 30, 1);
             nk_label(ctx, "Brightness", NK_TEXT_LEFT);
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
-            if (nk_button_label(ctx, "Render")) {
+            if (nk_button_label(ctx, "Render"))
+            {
                 runSimulation(computeShader, simulationTexture, spinlockTexture, rays, sun, crystalProperties);
             }
         }
