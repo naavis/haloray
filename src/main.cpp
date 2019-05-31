@@ -259,12 +259,12 @@ void main(int argc, char const *argv[])
     crystalProperties.caRatioStd = 0.0f;
 
     crystalProperties.polarAngleDistribution = 1;
-    crystalProperties.polarAngleAverage = 90.0f;
-    crystalProperties.polarAngleStd = 3.0f;
+    crystalProperties.polarAngleAverage = 0.0f;
+    crystalProperties.polarAngleStd = 40.0f;
 
     crystalProperties.rotationDistribution = 1;
     crystalProperties.rotationAverage = 60.0f;
-    crystalProperties.rotationStd = 3.0f;
+    crystalProperties.rotationStd = 1.0f;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
