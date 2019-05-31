@@ -14,6 +14,8 @@
 #define NK_KEYSTATE_BASED_INPUT
 #include "nuklear.h"
 #include "nuklear_glfw.h"
+#include "opengl/shader.h"
+#include "opengl/program.h"
 
 const std::string computeShaderSource =
 #include "shaders/raytrace.glsl"
@@ -65,51 +67,19 @@ GLFWwindow *createWindow()
     return window;
 }
 
-void checkCompileError(GLuint shader)
+OpenGL::Program createTexDrawShaderProgram()
 {
-    int rvalue;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &rvalue);
-    if (!rvalue)
-    {
-        fprintf(stderr, "Error in compiling shader\n");
-        GLchar log[10240];
-        GLsizei length;
-        glGetShaderInfoLog(shader, 10239, &length, log);
-        fprintf(stderr, "Compiler log:\n%s\n", log);
-        exit(40);
-    }
-}
-
-void checkLinkError(GLuint program)
-{
-    int rvalue;
-    glGetProgramiv(program, GL_LINK_STATUS, &rvalue);
-    if (!rvalue)
-    {
-        fprintf(stderr, "Error in linking shader program\n");
-        GLchar log[10240];
-        GLsizei length;
-        glGetProgramInfoLog(program, 10239, &length, log);
-        fprintf(stderr, "Linker log:\n%s\n", log);
-        exit(41);
-    }
-}
-
-GLuint createTexDrawShaderProgram()
-{
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    static const GLchar *vertexShaderSrc =
+    const std::string vertexShaderSrc =
         "#version 440 core\n"
         "in vec2 position;"
         "void main(void) {"
         "    gl_Position = vec4(position, 0.0f, 1.0);"
         "}";
-    glShaderSource(vertexShader, 1, &vertexShaderSrc, NULL);
-    glCompileShader(vertexShader);
-    checkCompileError(vertexShader);
 
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    static const GLchar *fragShaderSrc =
+    OpenGL::Shader vertexShader(vertexShaderSrc, OpenGL::ShaderType::Vertex);
+    vertexShader.Compile();
+
+    const std::string fragShaderSrc =
         "#version 440 core\n"
         "out vec4 color;"
         "uniform float exposure;"
@@ -121,36 +91,26 @@ GLuint createTexDrawShaderProgram()
         "    vec3 gammaCorrected = pow(linearSrgb, vec3(0.42));"
         "    color = vec4(gammaCorrected, 1.0);"
         "}";
-    glShaderSource(fragmentShader, 1, &fragShaderSrc, NULL);
-    glCompileShader(fragmentShader);
-    checkCompileError(fragmentShader);
 
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-    glLinkProgram(program);
-    checkLinkError(program);
+    OpenGL::Shader fragmentShader(fragShaderSrc, OpenGL::ShaderType::Fragment);
+    fragmentShader.Compile();
 
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    OpenGL::Program program;
+    program.AttachShader(vertexShader);
+    program.AttachShader(fragmentShader);
+    program.Link();
 
     return program;
 }
 
-GLuint createComputeShader()
+OpenGL::Program createComputeShader()
 {
-    GLuint shader = glCreateShader(GL_COMPUTE_SHADER);
-    static const GLchar *src = computeShaderSource.c_str();
-    glShaderSource(shader, 1, &src, NULL);
-    glCompileShader(shader);
-    checkCompileError(shader);
+    OpenGL::Shader shader(computeShaderSource, OpenGL::ShaderType::Compute);
+    shader.Compile();
 
-    GLuint program = glCreateProgram();
-    glAttachShader(program, shader);
-    glLinkProgram(program);
-    checkLinkError(program);
-
-    glDeleteShader(shader);
+    OpenGL::Program program;
+    program.AttachShader(shader);
+    program.Link();
 
     return program;
 }
@@ -242,7 +202,7 @@ void main(int argc, char const *argv[])
         1.0f,
     };
 
-    GLuint texDrawPrg = createTexDrawShaderProgram();
+    OpenGL::Program texDrawPrg = createTexDrawShaderProgram();
     GLuint quadVao;
     glGenVertexArrays(1, &quadVao);
     glBindVertexArray(quadVao);
@@ -255,7 +215,7 @@ void main(int argc, char const *argv[])
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-    GLuint computeShader = createComputeShader();
+    OpenGL::Program computeShader = createComputeShader();
 
     const nk_flags windowFlags = NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE;
     const nk_flags groupFlags = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
@@ -288,8 +248,8 @@ void main(int argc, char const *argv[])
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         /* Render offscreen texture contents to default framebuffer */
-        glUseProgram(texDrawPrg);
-        glUniform1f(glGetUniformLocation(texDrawPrg, "exposure"), exposure);
+        glUseProgram(texDrawPrg.GetProgramHandle());
+        glUniform1f(glGetUniformLocation(texDrawPrg.GetProgramHandle(), "exposure"), exposure);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(quadVao);
@@ -362,7 +322,7 @@ void main(int argc, char const *argv[])
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
             if (nk_button_label(ctx, "Render"))
             {
-                runSimulation(computeShader, simulationTexture, spinlockTexture, rays, sun, crystalProperties);
+                runSimulation(computeShader.GetProgramHandle(), simulationTexture, spinlockTexture, rays, sun, crystalProperties);
             }
         }
         nk_end(ctx);
@@ -377,8 +337,6 @@ void main(int argc, char const *argv[])
     }
 
     glUseProgram(0);
-    glDeleteProgram(texDrawPrg);
-    glDeleteProgram(computeShader);
 
     glBindTexture(GL_TEXTURE_2D, 0);
     glDeleteTextures(1, &simulationTexture);
