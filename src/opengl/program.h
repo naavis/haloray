@@ -8,13 +8,14 @@ class Program
 public:
     Program();
     ~Program();
-    Program(const Program &);
-    void AttachShader(Shader shader);
+
+    void AttachShader(const Shader &shader) const;
     void Link();
 
     unsigned int GetProgramHandle() const;
 
 private:
+    Program(const Program &);
     Program operator=(const Program &);
     unsigned int mProgramHandle;
     bool mIsLinked;

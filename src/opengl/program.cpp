@@ -15,13 +15,7 @@ Program::~Program()
     glDeleteProgram(mProgramHandle);
 }
 
-Program::Program(const Program &other)
-{
-    mProgramHandle = other.GetProgramHandle();
-    mIsLinked = true;
-}
-
-void Program::AttachShader(Shader shader)
+void Program::AttachShader(const Shader &shader) const
 {
     glAttachShader(mProgramHandle, shader.GetShaderHandle());
 }

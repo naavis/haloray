@@ -21,6 +21,8 @@ public:
     unsigned int GetShaderHandle() const;
 
 private:
+    Shader(const Shader &);
+    Shader operator=(const Shader &);
     std::string mSource;
     ShaderType mType;
     unsigned int mShaderHandle;

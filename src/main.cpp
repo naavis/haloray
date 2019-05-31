@@ -67,7 +67,7 @@ GLFWwindow *createWindow()
     return window;
 }
 
-OpenGL::Program createTexDrawShaderProgram()
+std::shared_ptr<OpenGL::Program> createTexDrawShaderProgram()
 {
     const std::string vertexShaderSrc =
         "#version 440 core\n"
@@ -95,22 +95,22 @@ OpenGL::Program createTexDrawShaderProgram()
     OpenGL::Shader fragmentShader(fragShaderSrc, OpenGL::ShaderType::Fragment);
     fragmentShader.Compile();
 
-    OpenGL::Program program;
-    program.AttachShader(vertexShader);
-    program.AttachShader(fragmentShader);
-    program.Link();
+    auto program = std::make_shared<OpenGL::Program>();
+    program->AttachShader(vertexShader);
+    program->AttachShader(fragmentShader);
+    program->Link();
 
     return program;
 }
 
-OpenGL::Program createComputeShaderProgram()
+std::shared_ptr<OpenGL::Program> createComputeShaderProgram()
 {
     OpenGL::Shader shader(computeShaderSource, OpenGL::ShaderType::Compute);
     shader.Compile();
 
-    OpenGL::Program program;
-    program.AttachShader(shader);
-    program.Link();
+    auto program = std::make_shared<OpenGL::Program>();
+    program->AttachShader(shader);
+    program->Link();
 
     return program;
 }
@@ -209,8 +209,19 @@ void main(int argc, char const *argv[])
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-    OpenGL::Program texDrawPrg = createTexDrawShaderProgram();
-    OpenGL::Program computeShaderPrg = createComputeShaderProgram();
+    std::shared_ptr<OpenGL::Program> texDrawPrg;
+    std::shared_ptr<OpenGL::Program> computeShaderPrg;
+
+    try
+    {
+        texDrawPrg = createTexDrawShaderProgram();
+        computeShaderPrg = createComputeShaderProgram();
+    }
+    catch (const std::runtime_error &e)
+    {
+        std::printf("Error occurred when creating shaders:\n%s\n", e.what());
+        exit(EXIT_FAILURE);
+    }
 
     const nk_flags windowFlags = NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE;
     const nk_flags groupFlags = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
@@ -243,8 +254,8 @@ void main(int argc, char const *argv[])
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         /* Render offscreen texture contents to default framebuffer */
-        glUseProgram(texDrawPrg.GetProgramHandle());
-        glUniform1f(glGetUniformLocation(texDrawPrg.GetProgramHandle(), "exposure"), exposure);
+        glUseProgram(texDrawPrg->GetProgramHandle());
+        glUniform1f(glGetUniformLocation(texDrawPrg->GetProgramHandle(), "exposure"), exposure);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(quadVao);
@@ -317,7 +328,7 @@ void main(int argc, char const *argv[])
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
             if (nk_button_label(ctx, "Render"))
             {
-                runSimulation(computeShaderPrg.GetProgramHandle(), simulationTexture, spinlockTexture, rays, sun, crystalProperties);
+                runSimulation(computeShaderPrg->GetProgramHandle(), simulationTexture, spinlockTexture, rays, sun, crystalProperties);
             }
         }
         nk_end(ctx);
