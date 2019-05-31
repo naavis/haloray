@@ -9,7 +9,6 @@ glad:api_type=gl
 glad:api_version=4.4
 glad:spec=gl
 glad:no_loader=False
-glad:extensions=GL_ARB_bindless_texture
 
 [generators]
 cmake
