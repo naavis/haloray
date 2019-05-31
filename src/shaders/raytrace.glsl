@@ -354,32 +354,34 @@ mat3 getUniformRandomRotationMatrix(void)
 
 mat3 getRotationMatrix(void)
 {
-    if (crystalProperties.polarAngleDistribution == DISTRIBUTION_UNIFORM && crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
-    {
-        return getUniformRandomRotationMatrix();
-    }
-    float polarAngle;
-    float rotationAngle;
+    // Orientation of crystal C-axis
+    mat3 orientationMat;
 
-    if (crystalProperties.polarAngleDistribution == DISTRIBUTION_UNIFORM)
-    {
-        polarAngle = rand() * 2.0 * PI;
+    // Rotation around crystal C-axis
+    mat3 rotationMat;
+
+    vec2 gaussianRand = randn();
+    if (crystalProperties.polarAngleDistribution == DISTRIBUTION_UNIFORM) {
+        orientationMat = getUniformRandomRotationMatrix();
     } else {
-        polarAngle = radians(crystalProperties.polarAngleAverage + crystalProperties.polarAngleStd * randn().x);
+        float angleAverage = crystalProperties.polarAngleAverage;
+        float angleStd = crystalProperties.polarAngleStd;
+        float polarAngle = radians(angleAverage + angleStd * gaussianRand.x);
+        mat3 polarTiltMat = rotateAroundZ(polarAngle);
+        orientationMat = polarTiltMat * rotateAroundY(rand() * 2.0 * PI);
     }
 
     if (crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
     {
-        rotationAngle = rand() * 2.0 * PI;
+        rotationMat = rotateAroundY(rand() * 2.0 * PI);
     } else {
-        rotationAngle = radians(crystalProperties.rotationAverage + crystalProperties.rotationStd * randn().x);
+        float angleAverage = crystalProperties.rotationAverage;
+        float angleStd = crystalProperties.rotationStd;
+        float rotationAngle = radians(angleAverage + angleStd * gaussianRand.y);
+        rotationMat = rotateAroundY(rotationAngle);
     }
 
-    mat3 rotationMat = rotateAroundY(rotationAngle);
-    mat3 polarTiltMat = rotateAroundZ(polarAngle);
-    mat3 azimuthMat = rotateAroundY(rand() * 2.0 * PI);
-
-    return rotationMat * polarTiltMat * azimuthMat;
+    return rotationMat * orientationMat;
 }
 
 float daylightEstimate(float wavelength)
