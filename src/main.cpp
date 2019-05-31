@@ -178,8 +178,6 @@ void main(int argc, char const *argv[])
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, simulationTexture, 0);
-
     GLuint spinlockTexture;
     glGenTextures(1, &spinlockTexture);
     glActiveTexture(GL_TEXTURE1);
@@ -187,9 +185,6 @@ void main(int argc, char const *argv[])
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, 1920, 1080, 0, GL_RED, GL_UNSIGNED_INT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    static const GLenum draw_buffers[] = {GL_COLOR_ATTACHMENT0};
-    glDrawBuffers(1, draw_buffers);
 
     float points[] = {
         -1.0f,
