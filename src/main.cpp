@@ -287,7 +287,7 @@ void main(int argc, char const *argv[])
 
         nk_glfw3_new_frame();
 
-        if (nk_begin(ctx, "Crystal settings", nk_rect(400, 50, 500, 600), windowFlags)) {
+        if (nk_begin(ctx, "Crystal settings", nk_rect(400, 50, 500, 400), windowFlags)) {
             nk_layout_row_dynamic(ctx, 30, 2);
             nk_property_float(ctx, "#C/A ratio average:", 0.01f, &(crystalProperties.caRatioAverage), 10.0f, 0.05f, 0.01f);
             nk_property_float(ctx, "#C/A ratio std:", 0.0f, &(crystalProperties.caRatioStd), 10.0f, 0.05f, 0.01f);
