@@ -199,19 +199,15 @@ void main(int argc, char const *argv[])
 
     struct nk_context* ctx = initNuklear(window);
 
-    GLuint framebuffer;
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-    GLuint framebufferColorTexture;
-    glGenTextures(1, &framebufferColorTexture);
+    GLuint simulationTexture;
+    glGenTextures(1, &simulationTexture);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, framebufferColorTexture);
+    glBindTexture(GL_TEXTURE_2D, simulationTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 1920, 1080, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, framebufferColorTexture, 0);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, simulationTexture, 0);
 
     GLuint spinlockTexture;
     glGenTextures(1, &spinlockTexture);
@@ -282,7 +278,7 @@ void main(int argc, char const *argv[])
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(quadVao);
-        glBindTexture(GL_TEXTURE_2D, framebufferColorTexture);
+        glBindTexture(GL_TEXTURE_2D, simulationTexture);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         nk_glfw3_new_frame();
@@ -342,7 +338,7 @@ void main(int argc, char const *argv[])
             nk_label(ctx, "Brightness", NK_TEXT_LEFT);
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
             if (nk_button_label(ctx, "Render")) {
-                renderOffscreen(computeShader, framebufferColorTexture, spinlockTexture, rays, sun, crystalProperties);
+                renderOffscreen(computeShader, simulationTexture, spinlockTexture, rays, sun, crystalProperties);
             }
         }
         nk_end(ctx);
@@ -360,11 +356,8 @@ void main(int argc, char const *argv[])
     glDeleteProgram(texDrawPrg);
     glDeleteProgram(computeShader);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glDeleteFramebuffers(1, &framebuffer);
-
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDeleteTextures(1, &framebufferColorTexture);
+    glDeleteTextures(1, &simulationTexture);
     glDeleteTextures(1, &spinlockTexture);
 
     glBindVertexArray(0);
