@@ -83,9 +83,20 @@ std::shared_ptr<OpenGL::Program> createTexDrawShaderProgram()
         "#version 440 core\n"
         "out vec4 color;"
         "uniform float exposure;"
-        "uniform sampler2D s;"
+        "uniform samplerCube s;"
         "void main(void) {"
-        "    vec3 xyz = texelFetch(s, ivec2(gl_FragCoord.xy), 0).xyz;"
+        "    vec2 resolution = vec2(1920, 1080);"
+        "    vec2 screenCoord = gl_FragCoord.xy / resolution.xy;"
+        "    screenCoord = 2.0 * screenCoord - 1.0;"
+        "    screenCoord.y *= resolution.y / resolution.x;"
+        "    float halfFov = radians(70.0);"
+        "    float distanceFactor = 1.0 / tan(halfFov);"
+        "    vec3 globalUp = vec3(0.0, 1.0, 0.0);"
+        "    vec3 localForward = vec3(1.0, 0.0, 0.0);"
+        "    vec3 localRight = cross(localForward, globalUp);"
+        "    vec3 localUp = cross(localRight, localForward);"
+        "    vec3 rayDir = normalize(distanceFactor * localForward + screenCoord.x * localRight + screenCoord.y * localUp);"
+        "    vec3 xyz = texture(s, rayDir).xyz;"
         "    mat3 xyzToSrgb = mat3(3.2406, -0.9689, 0.0557, -1.5372, 1.8758, -0.2040, -0.4986, 0.0415, 1.0570);"
         "    vec3 linearSrgb = xyzToSrgb * xyz * exposure;"
         "    vec3 gammaCorrected = pow(linearSrgb, vec3(0.42));"
@@ -118,9 +129,9 @@ std::shared_ptr<OpenGL::Program> createComputeShaderProgram()
 void runSimulation(std::shared_ptr<OpenGL::Program> computeShaderPrg, GLuint tex, GLuint spinlock, unsigned int numRays, sunProperties_t sun, crystalProperties_t crystalProperties)
 {
     glClearTexImage(tex, 0, GL_RGBA, GL_FLOAT, NULL);
-    glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glBindImageTexture(0, tex, 0, TRUE, 0, GL_READ_WRITE, GL_RGBA32F);
     glClearTexImage(spinlock, 0, GL_RED, GL_UNSIGNED_INT, NULL);
-    glBindImageTexture(1, spinlock, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+    glBindImageTexture(1, spinlock, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R32UI);
 
     computeShaderPrg->Use();
 
@@ -169,23 +180,35 @@ void main(int argc, char const *argv[])
     /* Initialize GLAD */
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
     struct nk_context *ctx = initNuklear(window);
 
-    GLuint simulationTexture;
-    glGenTextures(1, &simulationTexture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, simulationTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 1920, 1080, 0, GL_RGBA, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GLuint simulationCubeMap;
+    glGenTextures(1, &simulationCubeMap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, simulationCubeMap);
+    for (GLuint i = 0; i < 6; ++i)
+    {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F, 1024, 1024, 0, GL_RGBA, GL_FLOAT, NULL);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-    GLuint spinlockTexture;
-    glGenTextures(1, &spinlockTexture);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, spinlockTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, 1920, 1080, 0, GL_RED, GL_UNSIGNED_INT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GLuint spinlockCubeMap;
+    glGenTextures(1, &spinlockCubeMap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, spinlockCubeMap);
+    for (GLuint i = 0; i < 6; ++i)
+    {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_R32UI, 1024, 1024, 0, GL_RED, GL_UNSIGNED_INT, NULL);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     float points[] = {
         -1.0f,
@@ -258,7 +281,7 @@ void main(int argc, char const *argv[])
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(quadVao);
-        glBindTexture(GL_TEXTURE_2D, simulationTexture);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, simulationCubeMap);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         /* Start rendering GUI */
@@ -328,7 +351,7 @@ void main(int argc, char const *argv[])
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
             if (nk_button_label(ctx, "Render"))
             {
-                runSimulation(computeShaderPrg, simulationTexture, spinlockTexture, numRays, sun, crystalProperties);
+                runSimulation(computeShaderPrg, simulationCubeMap, spinlockCubeMap, numRays, sun, crystalProperties);
             }
         }
         nk_end(ctx);
@@ -343,8 +366,8 @@ void main(int argc, char const *argv[])
     }
 
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDeleteTextures(1, &simulationTexture);
-    glDeleteTextures(1, &spinlockTexture);
+    glDeleteTextures(1, &simulationCubeMap);
+    glDeleteTextures(1, &spinlockCubeMap);
 
     glBindVertexArray(0);
     glDeleteVertexArrays(1, &quadVao);

@@ -7,8 +7,8 @@ R""(
 #define DISTRIBUTION_GAUSSIAN 1
 
 layout(local_size_x = 1) in;
-layout(binding = 0, rgba32f) uniform coherent image2D out_image;
-layout(binding = 1, r32ui) uniform coherent uimage2D spinlock;
+layout(binding = 0, rgba32f) uniform coherent imageCube out_image;
+layout(binding = 1, r32ui) uniform coherent uimageCube spinlock;
 
 struct crystalProperties_t {
     float caRatioAverage;
@@ -428,7 +428,7 @@ void main(void)
     if (length(resultRay) < 0.0001) return;
 
     resultRay = -normalize(resultRay * rotationMatrix);
-
+    /*
     ivec2 resolution = imageSize(out_image);
     float aspectRatio = float(resolution.y) / float(resolution.x);
 
@@ -442,20 +442,44 @@ void main(void)
     vec2 normalizedCoordinates = 0.5 + rectilinear / PI;
 
     ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.y, resolution.y * normalizedCoordinates.x);
-
+*/
     vec3 cieXYZ = daylightEstimate(wavelength) * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
+
+    int largestComponent = 0;
+    for (int i = 1; i < 3; ++i) {
+        if (abs(resultRay[i]) > abs(resultRay[largestComponent])) {
+            largestComponent = i;
+        }
+    }
+
+    vec3[] cubemapLookup = vec3[](
+        vec3(-resultRay.z, -resultRay.y, resultRay.x),
+        vec3(resultRay.z, -resultRay.y, resultRay.x),
+        vec3(resultRay.x, resultRay.z, resultRay.y),
+        vec3(resultRay.x, -resultRay.z, resultRay.y),
+        vec3(resultRay.x, -resultRay.y, resultRay.z),
+        vec3(-resultRay.x, -resultRay.y, resultRay.z)
+    );
+
+    int face = largestComponent * 2 + (resultRay[largestComponent] > 0.0 ? 0 : 1);
+    vec3 lookupResult = cubemapLookup[face];
+
+    float s = 0.5 * (lookupResult.x / abs(lookupResult.z) + 1.0);
+    float t = 0.5 * (lookupResult.y / abs(lookupResult.z) + 1.0);
+
+    ivec3 cubemapCoordinates = ivec3(int(s * 1024), int(t * 1024), face);
 
     bool keepWaiting = true;
     while (keepWaiting)
     {
-        if (imageAtomicCompSwap(spinlock, pixelCoordinates, 0, 1) == 0)
+        if (imageAtomicCompSwap(spinlock, cubemapCoordinates, 0, 1) == 0)
         {
-            vec3 currentValue = imageLoad(out_image, pixelCoordinates).xyz;
+            vec3 currentValue = imageLoad(out_image, cubemapCoordinates).xyz;
             vec3 newValue = currentValue + 0.01 * cieXYZ;
-            imageStore(out_image, pixelCoordinates, vec4(newValue, 1.0));
+            imageStore(out_image, cubemapCoordinates, vec4(newValue, 1.0));
             memoryBarrier();
             keepWaiting = false;
-            imageAtomicExchange(spinlock, pixelCoordinates, 0);
+            imageAtomicExchange(spinlock, cubemapCoordinates, 0);
         }
     }
 }
