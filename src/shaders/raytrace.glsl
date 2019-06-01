@@ -10,7 +10,15 @@ layout(local_size_x = 1) in;
 layout(binding = 0, rgba32f) uniform coherent image2D out_image;
 layout(binding = 1, r32ui) uniform coherent uimage2D spinlock;
 
-struct crystalProperties_t {
+uniform struct sunProperties_t
+{
+    float altitude;
+    float azimuth;
+    float diameter;
+} sun;
+
+uniform struct crystalProperties_t
+{
     float caRatioAverage;
     float caRatioStd;
 
@@ -21,16 +29,7 @@ struct crystalProperties_t {
     int rotationDistribution;
     float rotationAverage;
     float rotationStd;
-};
-
-struct sunProperties_t {
-    float altitude;
-    float azimuth;
-    float diameter;
-};
-
-uniform struct sunProperties_t sun;
-uniform struct crystalProperties_t crystalProperties;
+} crystalProperties;
 
 const float PI = 3.14159;
 
