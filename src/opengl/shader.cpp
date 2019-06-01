@@ -26,7 +26,7 @@ Shader::~Shader()
     glDeleteShader(mShaderHandle);
 }
 
-unsigned int Shader::GetShaderHandle() const
+const unsigned int Shader::GetHandle() const
 {
     if (mIsCompiled)
         return mShaderHandle;

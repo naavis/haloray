@@ -19,7 +19,7 @@ Program::~Program()
 
 void Program::AttachShader(const Shader &shader) const
 {
-    glAttachShader(mProgramHandle, shader.GetShaderHandle());
+    glAttachShader(mProgramHandle, shader.GetHandle());
 }
 
 void Program::Link()
@@ -36,7 +36,7 @@ void Program::Use()
     glUseProgram(mProgramHandle);
 }
 
-unsigned int Program::GetProgramHandle() const
+const unsigned int Program::GetHandle() const
 {
     if (mIsLinked)
         return mProgramHandle;

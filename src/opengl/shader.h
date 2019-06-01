@@ -18,7 +18,7 @@ public:
     Shader(std::string source, ShaderType type);
     ~Shader();
     void Compile();
-    unsigned int GetShaderHandle() const;
+    const unsigned int GetHandle() const;
 
 private:
     Shader(const Shader &);

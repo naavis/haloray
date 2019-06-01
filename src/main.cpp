@@ -18,6 +18,7 @@
 #include "nuklear_glfw.h"
 #include "opengl/shader.h"
 #include "opengl/program.h"
+#include "simulationEngine.h"
 
 const std::string computeShaderSource =
 #include "shaders/raytrace.glsl"
@@ -129,7 +130,7 @@ void runSimulation(std::shared_ptr<OpenGL::Program> computeShaderPrg, GLuint tex
     GLint maxNumGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNumGroups);
     unsigned int finalNumGroups = (int)numRays > maxNumGroups ? maxNumGroups : numRays;
-    GLuint shaderHandle = computeShaderPrg->GetProgramHandle();
+    GLuint shaderHandle = computeShaderPrg->GetHandle();
 
     glUniform1f(glGetUniformLocation(shaderHandle, "sun.altitude"), sun.altitude);
     glUniform1f(glGetUniformLocation(shaderHandle, "sun.azimuth"), sun.azimuth);
@@ -256,7 +257,7 @@ int main(int argc, char const *argv[])
 
         /* Render offscreen texture contents to default framebuffer */
         texDrawPrg->Use();
-        glUniform1f(glGetUniformLocation(texDrawPrg->GetProgramHandle(), "exposure"), exposure);
+        glUniform1f(glGetUniformLocation(texDrawPrg->GetHandle(), "exposure"), exposure);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(quadVao);

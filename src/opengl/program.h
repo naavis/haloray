@@ -12,7 +12,7 @@ public:
     void Link();
     void Use();
 
-    unsigned int GetProgramHandle() const;
+    const unsigned int GetHandle() const;
 
 private:
     Program(const Program &);
