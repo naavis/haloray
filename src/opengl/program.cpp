@@ -1,4 +1,5 @@
 #include "program.h"
+#include <stdexcept>
 #include <glad/glad.h>
 #include "utils.h"
 

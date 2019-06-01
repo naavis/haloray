@@ -16,6 +16,7 @@ Build the project by running:
 mkdir build
 cd build
 conan install --build=missing ..
-cmake --build --config Release ..
+cmake ..
+cmake --build . --config Release
 ```
 

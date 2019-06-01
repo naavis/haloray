@@ -1,4 +1,6 @@
 #include <string>
+#include <memory>
+#include <stdexcept>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -158,7 +160,7 @@ struct nk_context *initNuklear(GLFWwindow *window)
     return ctx;
 }
 
-void main(int argc, char const *argv[])
+int main(int argc, char const *argv[])
 {
     /* Initialize GLFW */
     if (!glfwInit())
