@@ -467,7 +467,7 @@ void main(void)
     float s = 0.5 * (lookupResult.x / abs(lookupResult.z) + 1.0);
     float t = 0.5 * (lookupResult.y / abs(lookupResult.z) + 1.0);
 
-    ivec3 cubemapCoordinates = ivec3(int(s * 1024), int(t * 1024), face);
+    ivec3 cubemapCoordinates = ivec3(int(s * 2048), int(t * 2048), face);
 
     bool keepWaiting = true;
     while (keepWaiting)

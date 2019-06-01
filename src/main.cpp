@@ -80,28 +80,8 @@ std::shared_ptr<OpenGL::Program> createTexDrawShaderProgram()
     vertexShader.Compile();
 
     const std::string fragShaderSrc =
-        "#version 440 core\n"
-        "out vec4 color;"
-        "uniform float exposure;"
-        "uniform samplerCube s;"
-        "void main(void) {"
-        "    vec2 resolution = vec2(1920, 1080);"
-        "    vec2 screenCoord = gl_FragCoord.xy / resolution.xy;"
-        "    screenCoord = 2.0 * screenCoord - 1.0;"
-        "    screenCoord.y *= resolution.y / resolution.x;"
-        "    float halfFov = radians(70.0);"
-        "    float distanceFactor = 1.0 / tan(halfFov);"
-        "    vec3 globalUp = vec3(0.0, 1.0, 0.0);"
-        "    vec3 localForward = vec3(1.0, 0.0, 0.0);"
-        "    vec3 localRight = cross(localForward, globalUp);"
-        "    vec3 localUp = cross(localRight, localForward);"
-        "    vec3 rayDir = normalize(distanceFactor * localForward + screenCoord.x * localRight + screenCoord.y * localUp);"
-        "    vec3 xyz = texture(s, rayDir).xyz;"
-        "    mat3 xyzToSrgb = mat3(3.2406, -0.9689, 0.0557, -1.5372, 1.8758, -0.2040, -0.4986, 0.0415, 1.0570);"
-        "    vec3 linearSrgb = xyzToSrgb * xyz * exposure;"
-        "    vec3 gammaCorrected = pow(linearSrgb, vec3(0.42));"
-        "    color = vec4(gammaCorrected, 1.0);"
-        "}";
+#include "shaders/fragment.glsl"
+        ;
 
     OpenGL::Shader fragmentShader(fragShaderSrc, OpenGL::ShaderType::Fragment);
     fragmentShader.Compile();
@@ -189,7 +169,7 @@ void main(int argc, char const *argv[])
     glBindTexture(GL_TEXTURE_CUBE_MAP, simulationCubeMap);
     for (GLuint i = 0; i < 6; ++i)
     {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F, 1024, 1024, 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA32F, 2048, 2048, 0, GL_RGBA, GL_FLOAT, NULL);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -202,7 +182,7 @@ void main(int argc, char const *argv[])
     glBindTexture(GL_TEXTURE_CUBE_MAP, spinlockCubeMap);
     for (GLuint i = 0; i < 6; ++i)
     {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_R32UI, 1024, 1024, 0, GL_RED, GL_UNSIGNED_INT, NULL);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_R32UI, 2048, 2048, 0, GL_RED, GL_UNSIGNED_INT, NULL);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -268,6 +248,8 @@ void main(int argc, char const *argv[])
     crystalProperties.rotationAverage = 60.0f;
     crystalProperties.rotationStd = 1.0f;
 
+    float yaw = 0.0f;
+    float pitch = 0.0f;
     float exposure = 1.0f;
 
     /* Loop until the user closes the window */
@@ -278,6 +260,9 @@ void main(int argc, char const *argv[])
         /* Render offscreen texture contents to default framebuffer */
         texDrawPrg->Use();
         glUniform1f(glGetUniformLocation(texDrawPrg->GetProgramHandle(), "exposure"), exposure);
+        glUniform1f(glGetUniformLocation(texDrawPrg->GetProgramHandle(), "yaw"), yaw);
+        glUniform1f(glGetUniformLocation(texDrawPrg->GetProgramHandle(), "pitch"), pitch);
+
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(quadVao);
@@ -347,12 +332,23 @@ void main(int argc, char const *argv[])
             }
 
             nk_layout_row_dynamic(ctx, 30, 1);
-            nk_label(ctx, "Brightness", NK_TEXT_LEFT);
-            nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
+
             if (nk_button_label(ctx, "Render"))
             {
                 runSimulation(computeShaderPrg, simulationCubeMap, spinlockCubeMap, numRays, sun, crystalProperties);
             }
+        }
+        nk_end(ctx);
+
+        if (nk_begin(ctx, "View settings", nk_rect(50, 600, 330, 300), windowFlags))
+        {
+            nk_layout_row_dynamic(ctx, 30, 1);
+            nk_label(ctx, "Yaw", NK_TEXT_LEFT);
+            nk_slider_float(ctx, -180.0f, &yaw, 180.0f, 0.1f);
+            nk_label(ctx, "Pitch", NK_TEXT_LEFT);
+            nk_slider_float(ctx, -90.0f, &pitch, 90.0f, 0.1f);
+            nk_label(ctx, "Brightness", NK_TEXT_LEFT);
+            nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
         }
         nk_end(ctx);
 
