@@ -305,17 +305,17 @@ int main(int argc, char const *argv[])
 
         if (isRendering)
         {
-            static bool buttonWasDown = false;
-            static bool dragStartedOnWindow = false;
+            static bool justStartedDraggingMouse = true;
+            static bool dragStartedOnBackground = true;
             if (ctx->input.mouse.buttons[0].down == nk_true)
             {
-                if (!buttonWasDown)
+                if (justStartedDraggingMouse)
                 {
-                    dragStartedOnWindow = nk_window_is_any_hovered(ctx) == nk_true;
-                    buttonWasDown = true;
+                    dragStartedOnBackground = nk_window_is_any_hovered(ctx) == nk_false;
+                    justStartedDraggingMouse = false;
                 }
 
-                if (!dragStartedOnWindow)
+                if (dragStartedOnBackground)
                 {
                     float xDelta = ctx->input.mouse.delta.x;
                     float yDelta = ctx->input.mouse.delta.y;
@@ -325,8 +325,8 @@ int main(int argc, char const *argv[])
             }
             else
             {
-                buttonWasDown = false;
-                dragStartedOnWindow = false;
+                justStartedDraggingMouse = true;
+                dragStartedOnBackground = true;
             }
         }
 
