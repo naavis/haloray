@@ -354,6 +354,20 @@ mat3 rotateAroundZ(float angle)
     );
 }
 
+mat3 rotateAroundX(float angle)
+{
+    return mat3(
+        1.0, 0.0, 0.0,
+        0.0, cos(angle), sin(angle),
+        0.0, -sin(angle), cos(angle)
+    );
+}
+
+mat3 getCameraOrientationMatrix()
+{
+    return rotateAroundX(radians(camera.pitch)) * rotateAroundY(radians(camera.yaw));
+}
+
 mat3 getUniformRandomRotationMatrix(void)
 {
     // From Fast Random Rotation Matrices, by James Arvo
@@ -441,6 +455,7 @@ void main(void)
     if (length(resultRay) < 0.0001) return;
 
     resultRay = -normalize(resultRay * rotationMatrix);
+    resultRay = getCameraOrientationMatrix() * resultRay;
 
     ivec2 resolution = imageSize(out_image);
     float aspectRatio = float(resolution.y) / float(resolution.x);

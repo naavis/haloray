@@ -64,7 +64,7 @@ struct Camera
 
     bool operator==(const struct Camera &other) const
     {
-        return pitch == other.pitch && yaw == other.pitch;
+        return pitch == other.pitch && yaw == other.yaw;
     }
 
     bool operator!=(const struct Camera &other) const
@@ -82,13 +82,13 @@ public:
     void Clear();
 
     struct Camera GetCamera() const;
-    void SetCamera(struct Camera);
+    void SetCamera(const struct Camera);
 
     struct CrystalPopulation GetCrystalPopulation() const;
-    void SetCrystalPopulation(struct CrystalPopulation);
+    void SetCrystalPopulation(const struct CrystalPopulation);
 
     struct LightSource GetLightSource() const;
-    void SetLightSource(struct LightSource);
+    void SetLightSource(const struct LightSource);
 
     const unsigned int GetOutputTextureHandle() const;
 

@@ -20,8 +20,9 @@ Camera SimulationEngine::GetCamera() const
     return mCamera;
 }
 
-void SimulationEngine::SetCamera(struct Camera camera)
+void SimulationEngine::SetCamera(const struct Camera camera)
 {
+    Clear();
     mCamera = camera;
 }
 
@@ -30,10 +31,9 @@ CrystalPopulation SimulationEngine::GetCrystalPopulation() const
     return mCrystals;
 }
 
-void SimulationEngine::SetCrystalPopulation(CrystalPopulation crystals)
+void SimulationEngine::SetCrystalPopulation(const CrystalPopulation crystals)
 {
-    if (crystals != mCrystals)
-        Clear();
+    Clear();
     mCrystals = crystals;
 }
 
@@ -42,10 +42,9 @@ LightSource SimulationEngine::GetLightSource() const
     return mLight;
 }
 
-void SimulationEngine::SetLightSource(LightSource light)
+void SimulationEngine::SetLightSource(const LightSource light)
 {
-    if (light != mLight)
-        Clear();
+    Clear();
     mLight = light;
 }
 

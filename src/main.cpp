@@ -21,6 +21,9 @@
 #include "nuklear/nuklear.h"
 #include "nuklear/nuklear_glfw.h"
 
+const nk_flags WINDOW_FLAGS = NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE;
+const nk_flags GROUP_FLAGS = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
+
 GLFWwindow *createWindow()
 {
     GLFWwindow *window;
@@ -149,9 +152,6 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
 
-    const nk_flags windowFlags = NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE;
-    const nk_flags groupFlags = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
-
     int numRays = 400000;
 
     HaloSim::Camera camera;
@@ -177,6 +177,7 @@ int main(int argc, char const *argv[])
 
     float exposure = 1.0f;
     int iteration = 1;
+    bool isRendering = false;
 
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
@@ -186,7 +187,7 @@ int main(int argc, char const *argv[])
     {
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
-        /* Render offscreen texture contents to default framebuffer */
+        /* Render simulation result texture */
         texDrawPrg->Use();
         glUniform1f(glGetUniformLocation(texDrawPrg->GetHandle(), "exposure"), exposure / iteration);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -198,7 +199,7 @@ int main(int argc, char const *argv[])
         /* Start rendering GUI */
         nk_glfw3_new_frame();
 
-        if (nk_begin(ctx, "Crystal settings", nk_rect(400, 50, 500, 400), windowFlags))
+        if (nk_begin(ctx, "Crystal settings", nk_rect(400, 50, 500, 400), WINDOW_FLAGS))
         {
             nk_layout_row_dynamic(ctx, 30, 2);
             nk_property_float(ctx, "#C/A ratio average:", 0.01f, &(crystalProperties.caRatioAverage), 10.0f, 0.05f, 0.01f);
@@ -206,7 +207,7 @@ int main(int argc, char const *argv[])
 
             const char *distributions[] = {"Uniform", "Gaussian"};
             nk_layout_row_dynamic(ctx, 130, 1);
-            if (nk_group_begin(ctx, "C axis orientation", groupFlags))
+            if (nk_group_begin(ctx, "C axis orientation", GROUP_FLAGS))
             {
                 nk_layout_row_dynamic(ctx, 30, 1);
                 crystalProperties.polarAngleDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), crystalProperties.polarAngleDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
@@ -220,7 +221,7 @@ int main(int argc, char const *argv[])
             }
 
             nk_layout_row_dynamic(ctx, 130, 1);
-            if (nk_group_begin(ctx, "Rotation around C axis", groupFlags))
+            if (nk_group_begin(ctx, "Rotation around C axis", GROUP_FLAGS))
             {
                 nk_layout_row_dynamic(ctx, 30, 1);
                 crystalProperties.rotationDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), crystalProperties.rotationDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
@@ -235,10 +236,10 @@ int main(int argc, char const *argv[])
         }
         nk_end(ctx);
 
-        if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 430), windowFlags))
+        if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 430), WINDOW_FLAGS))
         {
             nk_layout_row_dynamic(ctx, 150, 1);
-            if (nk_group_begin(ctx, "Sun parameters", groupFlags))
+            if (nk_group_begin(ctx, "Sun parameters", GROUP_FLAGS))
             {
                 nk_layout_row_dynamic(ctx, 30, 1);
                 nk_property_float(ctx, "#Altitude:", -90.0f, &(sun.altitude), 90.0f, 0.05f, 0.1f);
@@ -249,7 +250,7 @@ int main(int argc, char const *argv[])
             }
 
             nk_layout_row_dynamic(ctx, 100, 1);
-            if (nk_group_begin(ctx, "Simulation parameters", groupFlags))
+            if (nk_group_begin(ctx, "Simulation parameters", GROUP_FLAGS))
             {
                 nk_layout_row_dynamic(ctx, 30, 1);
                 nk_property_int(ctx, "#Number of rays:", 10000, &numRays, maxComputeGroups, 10000, 50000);
@@ -260,7 +261,7 @@ int main(int argc, char const *argv[])
             nk_layout_row_dynamic(ctx, 30, 1);
             nk_label(ctx, "Brightness", NK_TEXT_LEFT);
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
-            static bool isRendering = false;
+
             if (isRendering)
             {
                 if (nk_button_label(ctx, "Stop"))
@@ -281,6 +282,13 @@ int main(int argc, char const *argv[])
                     engine.SetLightSource(sun);
                     iteration = 1;
                 }
+
+                if (camera != engine.GetCamera())
+                {
+                    engine.SetCamera(camera);
+                    iteration = 1;
+                }
+
                 engine.Run(numRays);
             }
             else
@@ -294,6 +302,17 @@ int main(int argc, char const *argv[])
             }
         }
         nk_end(ctx);
+
+        if (isRendering)
+        {
+            if (ctx->input.mouse.buttons[0].down == nk_true && !nk_window_is_any_hovered(ctx))
+            {
+                float xDelta = ctx->input.mouse.delta.x;
+                float yDelta = ctx->input.mouse.delta.y;
+                camera.yaw += 0.1f * xDelta;
+                camera.pitch += 0.1f * yDelta;
+            }
+        }
 
         nk_glfw3_render(NK_ANTI_ALIASING_ON);
 
