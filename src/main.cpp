@@ -113,7 +113,7 @@ int main(int argc, char const *argv[])
     }
     catch (const std::runtime_error &e)
     {
-        std::printf("Could not initalize simulation engine: %s", e.what());
+        std::printf("Could not initialize simulation engine: %s", e.what());
         exit(EXIT_FAILURE);
     }
 
