@@ -13,7 +13,7 @@ const std::string computeShaderSource = R""(
 #define DISTRIBUTION_GAUSSIAN 1
 
 layout(local_size_x = 1) in;
-layout(binding = 0, rgba32f) uniform coherent image2D out_image;
+layout(binding = 0, rgba32f) uniform coherent image2D outputImage;
 layout(binding = 1, r32ui) uniform coherent uimage2D spinlock;
 
 uniform uint rngSeed;
@@ -458,7 +458,7 @@ void main(void)
     resultRay = -normalize(resultRay * rotationMatrix);
     resultRay = getCameraOrientationMatrix() * resultRay;
 
-    ivec2 resolution = imageSize(out_image);
+    ivec2 resolution = imageSize(outputImage);
     float aspectRatio = float(resolution.y) / float(resolution.x);
 
     // Convert cartesian direction vector to pixel coordinates
@@ -479,9 +479,9 @@ void main(void)
     {
         if (imageAtomicCompSwap(spinlock, pixelCoordinates, 0, 1) == 0)
         {
-            vec3 currentValue = imageLoad(out_image, pixelCoordinates).xyz;
+            vec3 currentValue = imageLoad(outputImage, pixelCoordinates).xyz;
             vec3 newValue = currentValue + cieXYZ;
-            imageStore(out_image, pixelCoordinates, vec4(newValue, 1.0));
+            imageStore(outputImage, pixelCoordinates, vec4(newValue, 1.0));
             memoryBarrier();
             keepWaiting = false;
             imageAtomicExchange(spinlock, pixelCoordinates, 0);
