@@ -239,7 +239,7 @@ int main(int argc, char const *argv[])
         }
         nk_end(ctx);
 
-        if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 430), WINDOW_FLAGS))
+        if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 500), WINDOW_FLAGS))
         {
             nk_layout_row_dynamic(ctx, 150, 1);
             if (nk_group_begin(ctx, "Sun parameters", GROUP_FLAGS))
@@ -265,6 +265,10 @@ int main(int argc, char const *argv[])
             nk_label(ctx, "Brightness", NK_TEXT_LEFT);
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
 
+            nk_label(ctx, "Zoom", NK_TEXT_LEFT);
+            nk_slider_float(ctx, 0.2f, &(camera.fov), 10.0f, 0.1f);
+
+            nk_layout_row_dynamic(ctx, 50, 1);
             if (isRendering)
             {
                 if (nk_button_label(ctx, "Stop"))
@@ -322,8 +326,8 @@ int main(int argc, char const *argv[])
                 {
                     float xDelta = ctx->input.mouse.delta.x;
                     float yDelta = ctx->input.mouse.delta.y;
-                    camera.yaw += 0.1f * xDelta;
-                    camera.pitch += 0.1f * yDelta;
+                    camera.yaw += 0.15f * xDelta / camera.fov;
+                    camera.pitch += 0.15f * yDelta / camera.fov;
                 }
             }
             else
