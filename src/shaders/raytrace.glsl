@@ -318,18 +318,6 @@ vec3 altAzToCartesian(vec2 altAz)
         ));
 }
 
-vec2 cartesianToAltAz(vec3 direction)
-{
-    // Altitude ranges from -PI/2 to +PI/2
-    // Azimuth ranges from -PI to +PI
-    return vec2(asin(direction.y), atan(direction.x, direction.z));
-}
-
-vec2 altAzToPolar(vec2 altAz)
-{
-    return vec2(length(altAz), atan(altAz.y, altAz.x));
-}
-
 vec2 sampleSun(vec2 altAz)
 {
     float sampleAngle = rand() * 2.0 * PI;
@@ -455,22 +443,18 @@ void main(void)
 
     if (length(resultRay) < 0.0001) return;
 
-    resultRay = -normalize(resultRay * rotationMatrix);
+    resultRay = normalize(resultRay * rotationMatrix);
     resultRay = getCameraOrientationMatrix() * resultRay;
 
     ivec2 resolution = imageSize(outputImage);
     float aspectRatio = float(resolution.y) / float(resolution.x);
 
-    // Convert cartesian direction vector to pixel coordinates
-    vec2 altAz = cartesianToAltAz(resultRay);
-    vec2 polar = altAzToPolar(altAz);
+    // Stereographic projection
+    vec2 projected = vec2(aspectRatio * resultRay.x / (resultRay.z - 1.0), resultRay.y / (resultRay.z - 1.0)) / camera.fov;
 
-    // Rectilinear projection
-    float projectionFactor = 2.0 * tan(polar.r / 2.0);
-    vec2 rectilinear = camera.fov * vec2(projectionFactor * cos(polar.y), aspectRatio * projectionFactor * sin(polar.y));
-    vec2 normalizedCoordinates = 0.5 + rectilinear / PI;
+    vec2 normalizedCoordinates = 0.5 + projected / PI;
 
-    ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.y, resolution.y * normalizedCoordinates.x);
+    ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.x, resolution.y * normalizedCoordinates.y);
 
     vec3 cieXYZ = daylightEstimate(wavelength) * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
 

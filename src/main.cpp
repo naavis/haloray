@@ -156,7 +156,7 @@ int main(int argc, char const *argv[])
     HaloSim::Camera camera;
     camera.pitch = 0.0f;
     camera.yaw = 0.0f;
-    camera.fov = 1.0f;
+    camera.fov = 0.5f;
 
     HaloSim::LightSource sun;
     sun.altitude = 30.0f;
@@ -265,8 +265,8 @@ int main(int argc, char const *argv[])
             nk_label(ctx, "Brightness", NK_TEXT_LEFT);
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
 
-            nk_label(ctx, "Zoom", NK_TEXT_LEFT);
-            nk_slider_float(ctx, 0.2f, &(camera.fov), 10.0f, 0.1f);
+            nk_label(ctx, "Field of view", NK_TEXT_LEFT);
+            nk_slider_float(ctx, 0.01f, &(camera.fov), 2.0f, 0.01f);
 
             nk_layout_row_dynamic(ctx, 50, 1);
             if (isRendering)
@@ -326,8 +326,8 @@ int main(int argc, char const *argv[])
                 {
                     float xDelta = ctx->input.mouse.delta.x;
                     float yDelta = ctx->input.mouse.delta.y;
-                    camera.yaw += 0.15f * xDelta / camera.fov;
-                    camera.pitch += 0.15f * yDelta / camera.fov;
+                    camera.yaw += 0.2f * xDelta * camera.fov;
+                    camera.pitch += 0.2f * yDelta * camera.fov;
                 }
             }
             else
