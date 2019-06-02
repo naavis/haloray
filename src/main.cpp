@@ -21,9 +21,6 @@
 #include "nuklear/nuklear.h"
 #include "nuklear/nuklear_glfw.h"
 
-#define MAX_VERTEX_BUFFER 512 * 1024
-#define MAX_ELEMENT_BUFFER 128 * 1024
-
 GLFWwindow *createWindow()
 {
     GLFWwindow *window;
@@ -293,7 +290,7 @@ int main(int argc, char const *argv[])
         }
         nk_end(ctx);
 
-        nk_glfw3_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
+        nk_glfw3_render(NK_ANTI_ALIASING_ON);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

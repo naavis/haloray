@@ -15,6 +15,9 @@
 
 #include <GLFW/glfw3.h>
 
+#define MAX_VERTEX_BUFFER 512 * 1024
+#define MAX_ELEMENT_BUFFER 128 * 1024
+
 enum nk_glfw_init_state{
     NK_GLFW3_DEFAULT=0,
     NK_GLFW3_INSTALL_CALLBACKS
@@ -208,8 +211,10 @@ nk_glfw3_device_destroy(void)
 }
 
 NK_API void
-nk_glfw3_render(enum nk_anti_aliasing AA, int max_vertex_buffer, int max_element_buffer)
+nk_glfw3_render(enum nk_anti_aliasing AA)
 {
+    int max_vertex_buffer = MAX_VERTEX_BUFFER;
+    int max_element_buffer = MAX_ELEMENT_BUFFER;
     struct nk_glfw_device *dev = &glfw.ogl;
     struct nk_buffer vbuf, ebuf;
     GLfloat ortho[4][4] = {
