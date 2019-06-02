@@ -156,6 +156,7 @@ int main(int argc, char const *argv[])
     HaloSim::Camera camera;
     camera.pitch = 0.0f;
     camera.yaw = 0.0f;
+    camera.fov = 1.0f;
 
     HaloSim::LightSource sun;
     sun.altitude = 30.0f;

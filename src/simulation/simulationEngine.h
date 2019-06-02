@@ -61,10 +61,11 @@ struct Camera
 {
     float pitch;
     float yaw;
+    float fov;
 
     bool operator==(const struct Camera &other) const
     {
-        return pitch == other.pitch && yaw == other.yaw;
+        return pitch == other.pitch && yaw == other.yaw && fov == other.fov;
     }
 
     bool operator!=(const struct Camera &other) const

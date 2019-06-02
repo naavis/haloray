@@ -84,6 +84,7 @@ void SimulationEngine::Run(unsigned int numRays)
 
     glUniform1f(glGetUniformLocation(shaderHandle, "camera.pitch"), mCamera.pitch);
     glUniform1f(glGetUniformLocation(shaderHandle, "camera.yaw"), mCamera.yaw);
+    glUniform1f(glGetUniformLocation(shaderHandle, "camera.fov"), mCamera.fov);
 
     glDispatchCompute(numRays, 1, 1);
 }
