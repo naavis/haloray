@@ -15,6 +15,16 @@ SimulationEngine::SimulationEngine()
 {
 }
 
+Camera SimulationEngine::GetCamera() const
+{
+    return mCamera;
+}
+
+void SimulationEngine::SetCamera(struct Camera camera)
+{
+    mCamera = camera;
+}
+
 CrystalPopulation SimulationEngine::GetCrystalPopulation() const
 {
     return mCrystals;
@@ -72,6 +82,9 @@ void SimulationEngine::Run(unsigned int numRays)
     glUniform1i(glGetUniformLocation(shaderHandle, "crystalProperties.rotationDistribution"), mCrystals.rotationDistribution);
     glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.rotationAverage"), mCrystals.rotationAverage);
     glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.rotationStd"), mCrystals.rotationStd);
+
+    glUniform1f(glGetUniformLocation(shaderHandle, "camera.pitch"), mCamera.pitch);
+    glUniform1f(glGetUniformLocation(shaderHandle, "camera.yaw"), mCamera.yaw);
 
     glDispatchCompute(numRays, 1, 1);
 }

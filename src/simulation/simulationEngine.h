@@ -57,6 +57,22 @@ struct LightSource
     }
 };
 
+struct Camera
+{
+    float pitch;
+    float yaw;
+
+    bool operator==(const struct Camera &other) const
+    {
+        return pitch == other.pitch && yaw == other.pitch;
+    }
+
+    bool operator!=(const struct Camera &other) const
+    {
+        return !operator==(other);
+    }
+};
+
 class SimulationEngine
 {
 public:
@@ -64,6 +80,10 @@ public:
     void Initialize();
     void Run(unsigned int numRays);
     void Clear();
+
+    struct Camera GetCamera() const;
+    void SetCamera(struct Camera);
+
     struct CrystalPopulation GetCrystalPopulation() const;
     void SetCrystalPopulation(struct CrystalPopulation);
 
@@ -81,6 +101,7 @@ private:
     std::unique_ptr<OpenGL::Texture> mSimulationTexture;
     std::unique_ptr<OpenGL::Texture> mSpinlockTexture;
 
+    struct Camera mCamera;
     struct CrystalPopulation mCrystals;
     struct LightSource mLight;
 };

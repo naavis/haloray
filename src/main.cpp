@@ -153,6 +153,11 @@ int main(int argc, char const *argv[])
     const nk_flags groupFlags = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
 
     int numRays = 400000;
+
+    HaloSim::Camera camera;
+    camera.pitch = 0.0f;
+    camera.yaw = 0.0f;
+
     HaloSim::LightSource sun;
     sun.altitude = 30.0f;
     sun.azimuth = 0.0f;

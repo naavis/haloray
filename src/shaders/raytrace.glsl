@@ -1,7 +1,8 @@
 #pragma once
 #include <string>
 
-namespace HaloSim {
+namespace HaloSim
+{
 
 const std::string computeShaderSource = R""(
 #version 440 core
@@ -37,6 +38,12 @@ uniform struct crystalProperties_t
     float rotationAverage;
     float rotationStd;
 } crystalProperties;
+
+uniform struct camera_t
+{
+    float pitch;
+    float yaw;
+} camera;
 
 const float PI = 3.14159;
 
@@ -466,5 +473,4 @@ void main(void)
     }
 }
 )"";
-
 }
