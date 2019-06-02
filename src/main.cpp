@@ -1,5 +1,6 @@
 #include <string>
 #include <memory>
+#include <algorithm>
 #include <stdexcept>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -152,8 +153,6 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
 
-    int numRays = 400000;
-
     HaloSim::Camera camera;
     camera.pitch = 0.0f;
     camera.yaw = 0.0f;
@@ -179,8 +178,11 @@ int main(int argc, char const *argv[])
     int iteration = 1;
     bool isRendering = false;
 
+    int numRays = 400000;
+
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
+    int maxNumRays = std::min(500000, maxComputeGroups);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -253,7 +255,7 @@ int main(int argc, char const *argv[])
             if (nk_group_begin(ctx, "Simulation parameters", GROUP_FLAGS))
             {
                 nk_layout_row_dynamic(ctx, 30, 1);
-                nk_property_int(ctx, "#Number of rays:", 10000, &numRays, maxComputeGroups, 10000, 50000);
+                nk_property_int(ctx, "#Number of rays:", 10000, &numRays, maxNumRays, 10000, 50000);
 
                 nk_group_end(ctx);
             }
