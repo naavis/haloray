@@ -305,12 +305,28 @@ int main(int argc, char const *argv[])
 
         if (isRendering)
         {
-            if (ctx->input.mouse.buttons[0].down == nk_true && !nk_window_is_any_hovered(ctx))
+            static bool buttonWasDown = false;
+            static bool dragStartedOnWindow = false;
+            if (ctx->input.mouse.buttons[0].down == nk_true)
             {
-                float xDelta = ctx->input.mouse.delta.x;
-                float yDelta = ctx->input.mouse.delta.y;
-                camera.yaw += 0.1f * xDelta;
-                camera.pitch += 0.1f * yDelta;
+                if (!buttonWasDown)
+                {
+                    dragStartedOnWindow = nk_window_is_any_hovered(ctx) == nk_true;
+                    buttonWasDown = true;
+                }
+
+                if (!dragStartedOnWindow)
+                {
+                    float xDelta = ctx->input.mouse.delta.x;
+                    float yDelta = ctx->input.mouse.delta.y;
+                    camera.yaw += 0.1f * xDelta;
+                    camera.pitch += 0.1f * yDelta;
+                }
+            }
+            else
+            {
+                buttonWasDown = false;
+                dragStartedOnWindow = false;
             }
         }
 
