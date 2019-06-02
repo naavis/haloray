@@ -33,6 +33,7 @@ void Texture::InitializeTextureImage()
 
 Texture::~Texture()
 {
+    glBindTexture(GL_TEXTURE_2D, 0);
     glDeleteTextures(1, &mTextureHandle);
 }
 

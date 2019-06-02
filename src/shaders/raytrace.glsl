@@ -1,4 +1,9 @@
-R""(
+#pragma once
+#include <string>
+
+namespace HaloSim {
+
+const std::string computeShaderSource = R""(
 #version 440 core
 
 #define XOR_SHIFT 1
@@ -458,4 +463,6 @@ void main(void)
         }
     }
 }
-)""
+)"";
+
+}

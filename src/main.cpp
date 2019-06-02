@@ -20,31 +20,6 @@
 #include "opengl/program.h"
 #include "simulationEngine.h"
 
-const std::string computeShaderSource =
-#include "shaders/raytrace.glsl"
-    ;
-
-typedef struct
-{
-    float caRatioAverage;
-    float caRatioStd;
-
-    int polarAngleDistribution;
-    float polarAngleAverage;
-    float polarAngleStd;
-
-    int rotationDistribution;
-    float rotationAverage;
-    float rotationStd;
-} crystalProperties_t;
-
-typedef struct
-{
-    float altitude;
-    float azimuth;
-    float diameter;
-} sunProperties_t;
-
 #define MAX_VERTEX_BUFFER 512 * 1024
 #define MAX_ELEMENT_BUFFER 128 * 1024
 
@@ -106,50 +81,6 @@ std::shared_ptr<OpenGL::Program> createTexDrawShaderProgram()
     return program;
 }
 
-std::shared_ptr<OpenGL::Program> createComputeShaderProgram()
-{
-    OpenGL::Shader shader(computeShaderSource, OpenGL::ShaderType::Compute);
-    shader.Compile();
-
-    auto program = std::make_shared<OpenGL::Program>();
-    program->AttachShader(shader);
-    program->Link();
-
-    return program;
-}
-
-void runSimulation(std::shared_ptr<OpenGL::Program> computeShaderPrg, GLuint tex, GLuint spinlock, unsigned int numRays, sunProperties_t sun, crystalProperties_t crystalProperties)
-{
-    glClearTexImage(tex, 0, GL_RGBA, GL_FLOAT, NULL);
-    glBindImageTexture(0, tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-    glClearTexImage(spinlock, 0, GL_RED, GL_UNSIGNED_INT, NULL);
-    glBindImageTexture(1, spinlock, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
-
-    computeShaderPrg->Use();
-
-    GLint maxNumGroups;
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNumGroups);
-    unsigned int finalNumGroups = (int)numRays > maxNumGroups ? maxNumGroups : numRays;
-    GLuint shaderHandle = computeShaderPrg->GetHandle();
-
-    glUniform1f(glGetUniformLocation(shaderHandle, "sun.altitude"), sun.altitude);
-    glUniform1f(glGetUniformLocation(shaderHandle, "sun.azimuth"), sun.azimuth);
-    glUniform1f(glGetUniformLocation(shaderHandle, "sun.diameter"), sun.diameter);
-
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.caRatioAverage"), crystalProperties.caRatioAverage);
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.caRatioStd"), crystalProperties.caRatioStd);
-
-    glUniform1i(glGetUniformLocation(shaderHandle, "crystalProperties.polarAngleDistribution"), crystalProperties.polarAngleDistribution);
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.polarAngleAverage"), crystalProperties.polarAngleAverage);
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.polarAngleStd"), crystalProperties.polarAngleStd);
-
-    glUniform1i(glGetUniformLocation(shaderHandle, "crystalProperties.rotationDistribution"), crystalProperties.rotationDistribution);
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.rotationAverage"), crystalProperties.rotationAverage);
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.rotationStd"), crystalProperties.rotationStd);
-
-    glDispatchCompute(finalNumGroups, 1, 1);
-}
-
 struct nk_context *initNuklear(GLFWwindow *window)
 {
     struct nk_context *ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
@@ -174,21 +105,16 @@ int main(int argc, char const *argv[])
 
     struct nk_context *ctx = initNuklear(window);
 
-    GLuint simulationTexture;
-    glGenTextures(1, &simulationTexture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, simulationTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 1920, 1080, 0, GL_RGBA, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    GLuint spinlockTexture;
-    glGenTextures(1, &spinlockTexture);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, spinlockTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, 1920, 1080, 0, GL_RED, GL_UNSIGNED_INT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    HaloSim::SimulationEngine engine;
+    try
+    {
+        engine.Initialize();
+    }
+    catch (const std::runtime_error &e)
+    {
+        std::printf("Could not initalize simulation engine: %s", e.what());
+        exit(EXIT_FAILURE);
+    }
 
     float points[] = {
         -1.0f,
@@ -214,16 +140,14 @@ int main(int argc, char const *argv[])
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
     std::shared_ptr<OpenGL::Program> texDrawPrg;
-    std::shared_ptr<OpenGL::Program> computeShaderPrg;
 
     try
     {
         texDrawPrg = createTexDrawShaderProgram();
-        computeShaderPrg = createComputeShaderProgram();
     }
     catch (const std::runtime_error &e)
     {
-        std::printf("Error occurred when creating shaders:\n%s\n", e.what());
+        std::printf("Error occurred when creating texture drawing shader:\n%s\n", e.what());
         exit(EXIT_FAILURE);
     }
 
@@ -231,12 +155,12 @@ int main(int argc, char const *argv[])
     const nk_flags groupFlags = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
 
     int numRays = 10000000;
-    sunProperties_t sun;
+    HaloSim::sunProperties_t sun;
     sun.altitude = 30.0f;
     sun.azimuth = 0.0f;
     sun.diameter = 0.5f;
 
-    crystalProperties_t crystalProperties;
+    HaloSim::crystalProperties_t crystalProperties;
     crystalProperties.caRatioAverage = 0.3f;
     crystalProperties.caRatioStd = 0.0f;
 
@@ -261,7 +185,7 @@ int main(int argc, char const *argv[])
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(quadVao);
-        glBindTexture(GL_TEXTURE_2D, simulationTexture);
+        glBindTexture(GL_TEXTURE_2D, engine.GetOutputTextureHandle());
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         /* Start rendering GUI */
@@ -331,7 +255,7 @@ int main(int argc, char const *argv[])
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
             if (nk_button_label(ctx, "Render"))
             {
-                runSimulation(computeShaderPrg, simulationTexture, spinlockTexture, numRays, sun, crystalProperties);
+                engine.Run(crystalProperties, sun, numRays);
             }
         }
         nk_end(ctx);
@@ -345,10 +269,6 @@ int main(int argc, char const *argv[])
         glfwPollEvents();
     }
 
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDeleteTextures(1, &simulationTexture);
-    glDeleteTextures(1, &spinlockTexture);
-
     glBindVertexArray(0);
     glDeleteVertexArrays(1, &quadVao);
 
@@ -357,5 +277,5 @@ int main(int argc, char const *argv[])
 
     nk_glfw3_shutdown();
     glfwTerminate();
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }
