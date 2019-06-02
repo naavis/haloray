@@ -368,6 +368,13 @@ mat3 getUniformRandomRotationMatrix(void)
     return (2.0 * outerProduct(reflectionVector, reflectionVector) - mat3(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)) * zRotationMatrix;
 }
 
+vec2 cartesianToPolar(vec3 direction)
+{
+    float r = acos(dot(direction, vec3(0.0, 0.0, 1.0)));
+    float angle = atan(direction.y, direction.x);
+    return vec2(r, angle);
+}
+
 mat3 getRotationMatrix(void)
 {
     // Orientation of crystal C-axis
@@ -443,15 +450,18 @@ void main(void)
 
     if (length(resultRay) < 0.0001) return;
 
-    resultRay = normalize(resultRay * rotationMatrix);
+    resultRay = -normalize(resultRay * rotationMatrix);
     resultRay = getCameraOrientationMatrix() * resultRay;
 
     ivec2 resolution = imageSize(outputImage);
     float aspectRatio = float(resolution.y) / float(resolution.x);
 
-    // Stereographic projection
-    vec2 projected = vec2(aspectRatio * resultRay.x / (resultRay.z - 1.0), resultRay.y / (resultRay.z - 1.0)) / camera.fov;
+    vec2 polar = cartesianToPolar(resultRay);
 
+    // Stereographic projection, f(r) = 2*tan(r/2)
+    float fr = 2.0 * tan(polar.x / 2.0);
+
+    vec2 projected = fr * vec2(aspectRatio * cos(polar.y), sin(polar.y)) / camera.fov;
     vec2 normalizedCoordinates = 0.5 + projected / PI;
 
     ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.x, resolution.y * normalizedCoordinates.y);
