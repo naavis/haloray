@@ -155,13 +155,13 @@ int main(int argc, char const *argv[])
     const nk_flags windowFlags = NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE;
     const nk_flags groupFlags = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
 
-    int numRays = 10000000;
-    HaloSim::sunProperties_t sun;
+    int numRays = 400000;
+    HaloSim::LightSource sun;
     sun.altitude = 30.0f;
     sun.azimuth = 0.0f;
     sun.diameter = 0.5f;
 
-    HaloSim::crystalProperties_t crystalProperties;
+    HaloSim::CrystalPopulation crystalProperties;
     crystalProperties.caRatioAverage = 0.3f;
     crystalProperties.caRatioStd = 0.0f;
 
@@ -174,6 +174,9 @@ int main(int argc, char const *argv[])
     crystalProperties.rotationStd = 1.0f;
 
     float exposure = 1.0f;
+
+    int maxComputeGroups;
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -188,6 +191,9 @@ int main(int argc, char const *argv[])
         glBindVertexArray(quadVao);
         glBindTexture(GL_TEXTURE_2D, engine.GetOutputTextureHandle());
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+        engine.SetCrystalPopulation(crystalProperties);
+        engine.SetLightSource(sun);
 
         /* Start rendering GUI */
         nk_glfw3_new_frame();
@@ -246,7 +252,7 @@ int main(int argc, char const *argv[])
             if (nk_group_begin(ctx, "Simulation parameters", groupFlags))
             {
                 nk_layout_row_dynamic(ctx, 30, 1);
-                nk_property_int(ctx, "#Number of rays:", 10000, &numRays, 40000000, 10000, 50000);
+                nk_property_int(ctx, "#Number of rays:", 10000, &numRays, maxComputeGroups, 10000, 50000);
 
                 nk_group_end(ctx);
             }
@@ -254,9 +260,23 @@ int main(int argc, char const *argv[])
             nk_layout_row_dynamic(ctx, 30, 1);
             nk_label(ctx, "Brightness", NK_TEXT_LEFT);
             nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
-            if (nk_button_label(ctx, "Render"))
+            static bool isRendering = false;
+            if (isRendering)
             {
-                engine.Run(crystalProperties, sun, numRays);
+                if (nk_button_label(ctx, "Stop"))
+                {
+                    isRendering = false;
+                }
+
+                engine.Run(numRays);
+            }
+            else
+            {
+                if (nk_button_label(ctx, "Render"))
+                {
+                    engine.Clear();
+                    isRendering = true;
+                }
             }
         }
         nk_end(ctx);

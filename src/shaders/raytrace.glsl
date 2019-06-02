@@ -15,6 +15,8 @@ layout(local_size_x = 1) in;
 layout(binding = 0, rgba32f) uniform coherent image2D out_image;
 layout(binding = 1, r32ui) uniform coherent uimage2D spinlock;
 
+uniform uint rngSeed;
+
 uniform struct sunProperties_t
 {
     float altitude;
@@ -110,7 +112,7 @@ uint wang_hash(uint a)
 	return a;
 }
 
-uint rngState = wang_hash(uint(gl_WorkGroupID.x + gl_WorkGroupID.y * gl_NumWorkGroups.x));
+uint rngState = wang_hash(rngSeed + uint(gl_WorkGroupID.x + gl_WorkGroupID.y * gl_NumWorkGroups.x));
 
 #ifdef XOR_SHIFT
 
@@ -455,7 +457,7 @@ void main(void)
         if (imageAtomicCompSwap(spinlock, pixelCoordinates, 0, 1) == 0)
         {
             vec3 currentValue = imageLoad(out_image, pixelCoordinates).xyz;
-            vec3 newValue = currentValue + 0.01 * cieXYZ;
+            vec3 newValue = currentValue + 0.1 * cieXYZ;
             imageStore(out_image, pixelCoordinates, vec4(newValue, 1.0));
             memoryBarrier();
             keepWaiting = false;
