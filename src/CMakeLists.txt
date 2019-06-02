@@ -1,6 +1,6 @@
 add_executable(halosim
     main.cpp
-    simulationEngine.cpp
+    simulation/simulationEngine.cpp
     opengl/utils.cpp
     opengl/texture.cpp
     opengl/shader.cpp

@@ -4,6 +4,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include "opengl/shader.h"
+#include "opengl/program.h"
+#include "simulation/simulationEngine.h"
+
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
 #define NK_INCLUDE_STANDARD_VARARGS
@@ -14,11 +18,8 @@
 #define NK_IMPLEMENTATION
 #define NK_GLFW_GL3_IMPLEMENTATION
 #define NK_KEYSTATE_BASED_INPUT
-#include "nuklear.h"
-#include "nuklear_glfw.h"
-#include "opengl/shader.h"
-#include "opengl/program.h"
-#include "simulationEngine.h"
+#include "nuklear/nuklear.h"
+#include "nuklear/nuklear_glfw.h"
 
 #define MAX_VERTEX_BUFFER 512 * 1024
 #define MAX_ELEMENT_BUFFER 128 * 1024

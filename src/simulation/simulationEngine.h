@@ -1,7 +1,7 @@
 #pragma once
-#include "opengl/shader.h"
-#include "opengl/program.h"
-#include "opengl/texture.h"
+#include "../opengl/shader.h"
+#include "../opengl/program.h"
+#include "../opengl/texture.h"
 
 namespace HaloSim
 {
