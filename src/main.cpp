@@ -4,7 +4,6 @@
 #include <stdexcept>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
 #include "opengl/shader.h"
 #include "opengl/program.h"
 #include "simulation/simulationEngine.h"

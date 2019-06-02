@@ -1,7 +1,6 @@
 [requires]
 glad/0.1.24@bincrafters/stable
 glfw/3.2.1.20180327@bincrafters/stable
-glm/0.9.9.1@g-truc/stable
 
 [options]
 glad:profile=core
