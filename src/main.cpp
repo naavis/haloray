@@ -266,10 +266,20 @@ int main(int argc, char const *argv[])
                     isRendering = false;
                 }
 
-                engine.SetCrystalPopulation(crystalProperties);
-                engine.SetLightSource(sun);
-                engine.Run(numRays);
                 ++iteration;
+
+                if (crystalProperties != engine.GetCrystalPopulation())
+                {
+                    engine.SetCrystalPopulation(crystalProperties);
+                    iteration = 1;
+                }
+
+                if (sun != engine.GetLightSource())
+                {
+                    engine.SetLightSource(sun);
+                    iteration = 1;
+                }
+                engine.Run(numRays);
             }
             else
             {
