@@ -457,7 +457,7 @@ void main(void)
         if (imageAtomicCompSwap(spinlock, pixelCoordinates, 0, 1) == 0)
         {
             vec3 currentValue = imageLoad(out_image, pixelCoordinates).xyz;
-            vec3 newValue = currentValue + 0.1 * cieXYZ;
+            vec3 newValue = currentValue + cieXYZ;
             imageStore(out_image, pixelCoordinates, vec4(newValue, 1.0));
             memoryBarrier();
             keepWaiting = false;

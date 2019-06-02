@@ -174,6 +174,7 @@ int main(int argc, char const *argv[])
     crystalProperties.rotationStd = 1.0f;
 
     float exposure = 1.0f;
+    int iteration = 1;
 
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
@@ -185,15 +186,12 @@ int main(int argc, char const *argv[])
 
         /* Render offscreen texture contents to default framebuffer */
         texDrawPrg->Use();
-        glUniform1f(glGetUniformLocation(texDrawPrg->GetHandle(), "exposure"), exposure);
+        glUniform1f(glGetUniformLocation(texDrawPrg->GetHandle(), "exposure"), exposure / iteration);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(quadVao);
         glBindTexture(GL_TEXTURE_2D, engine.GetOutputTextureHandle());
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-        engine.SetCrystalPopulation(crystalProperties);
-        engine.SetLightSource(sun);
 
         /* Start rendering GUI */
         nk_glfw3_new_frame();
@@ -268,13 +266,17 @@ int main(int argc, char const *argv[])
                     isRendering = false;
                 }
 
+                engine.SetCrystalPopulation(crystalProperties);
+                engine.SetLightSource(sun);
                 engine.Run(numRays);
+                ++iteration;
             }
             else
             {
                 if (nk_button_label(ctx, "Render"))
                 {
                     engine.Clear();
+                    iteration = 1;
                     isRendering = true;
                 }
             }
