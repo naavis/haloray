@@ -14,6 +14,7 @@
 #define NK_GLFW_GL3_H_
 
 #include <GLFW/glfw3.h>
+#include <string.h>
 
 #define MAX_VERTEX_BUFFER 512 * 1024
 #define MAX_ELEMENT_BUFFER 128 * 1024

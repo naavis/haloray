@@ -1,5 +1,6 @@
 #pragma once
 #include <random>
+#include <memory>
 #include "../opengl/shader.h"
 #include "../opengl/program.h"
 #include "../opengl/texture.h"
