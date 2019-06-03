@@ -93,19 +93,8 @@ struct nk_context *initNuklear(GLFWwindow *window)
     return ctx;
 }
 
-int main(int argc, char const *argv[])
+void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
 {
-    /* Initialize GLFW */
-    if (!glfwInit())
-        exit(EXIT_FAILURE);
-
-    GLFWwindow *window = createWindow();
-
-    /* Initialize GLAD */
-    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-    struct nk_context *ctx = initNuklear(window);
-
     HaloSim::SimulationEngine engine;
     try
     {
@@ -350,8 +339,25 @@ int main(int argc, char const *argv[])
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, &quadVbo);
+}
+
+int main(int argc, char const *argv[])
+{
+    /* Initialize GLFW */
+    if (!glfwInit())
+        exit(EXIT_FAILURE);
+
+    GLFWwindow *window = createWindow();
+
+    /* Initialize GLAD */
+    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+    /* Initialize Nuklear context */
+    struct nk_context *ctx = initNuklear(window);
+
+    runMainLoop(window, ctx);
 
     nk_glfw3_shutdown();
     glfwTerminate();
-    exit(EXIT_SUCCESS);
+    return 0;
 }
