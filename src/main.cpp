@@ -178,11 +178,11 @@ int main(int argc, char const *argv[])
     int iteration = 1;
     bool isRendering = false;
 
-    int numRays = 400000;
-
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
     int maxNumRays = std::min(500000, maxComputeGroups);
+
+    int numRays = std::min(400000, maxNumRays);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
