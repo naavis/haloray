@@ -353,5 +353,5 @@ int main(int argc, char const *argv[])
 
     nk_glfw3_shutdown();
     glfwTerminate();
-    return EXIT_SUCCESS;
+    exit(EXIT_SUCCESS);
 }
