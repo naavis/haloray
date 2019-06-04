@@ -42,13 +42,11 @@ struct CrystalPopulation
 struct LightSource
 {
     float altitude;
-    float azimuth;
     float diameter;
 
     bool operator==(const struct LightSource &other) const
     {
         return altitude == other.altitude &&
-               azimuth == other.azimuth &&
                diameter == other.diameter;
     }
 

@@ -148,7 +148,6 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
 
     HaloSim::LightSource sun;
     sun.altitude = 30.0f;
-    sun.azimuth = 0.0f;
     sun.diameter = 0.5f;
 
     HaloSim::CrystalPopulation crystalProperties;
@@ -229,12 +228,11 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
 
         if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 500), WINDOW_FLAGS))
         {
-            nk_layout_row_dynamic(ctx, 150, 1);
+            nk_layout_row_dynamic(ctx, 120, 1);
             if (nk_group_begin(ctx, "Sun parameters", GROUP_FLAGS))
             {
                 nk_layout_row_dynamic(ctx, 30, 1);
                 nk_property_float(ctx, "#Altitude:", -90.0f, &(sun.altitude), 90.0f, 0.05f, 0.1f);
-                nk_property_float(ctx, "#Azimuth:", 0.0f, &(sun.azimuth), 360.0f, 0.05f, 0.1f);
                 nk_property_float(ctx, "#Diameter:", 0.0f, &(sun.diameter), 360.0f, 0.01f, 0.1f);
 
                 nk_group_end(ctx);

@@ -21,7 +21,6 @@ uniform uint rngSeed;
 uniform struct sunProperties_t
 {
     float altitude;
-    float azimuth;
     float diameter;
 } sun;
 
@@ -421,7 +420,7 @@ void main(void)
     }
 
     // Sun direction in alt-az
-    vec2 sunDirection = radians(vec2(sun.altitude, sun.azimuth));
+    vec2 sunDirection = radians(vec2(sun.altitude, 0.0));
 
     // Rotation matrix to orient ray/crystal
     mat3 rotationMatrix = getRotationMatrix();

@@ -69,7 +69,6 @@ void SimulationEngine::Run(unsigned int numRays)
     const unsigned int seed = distribution(mMersenneTwister);
     glUniform1ui(glGetUniformLocation(shaderHandle, "rngSeed"), seed);
     glUniform1f(glGetUniformLocation(shaderHandle, "sun.altitude"), mLight.altitude);
-    glUniform1f(glGetUniformLocation(shaderHandle, "sun.azimuth"), mLight.azimuth);
     glUniform1f(glGetUniformLocation(shaderHandle, "sun.diameter"), mLight.diameter);
 
     glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.caRatioAverage"), mCrystals.caRatioAverage);
