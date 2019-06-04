@@ -86,7 +86,7 @@ HaloSim::CrystalPopulation renderCrystalSettingsWindow(struct nk_context *ctx, H
 {
     HaloSim::CrystalPopulation population = initialValues;
 
-    if (nk_begin(ctx, "Crystal settings", nk_rect(50, 600, 500, 400), WINDOW_FLAGS))
+    if (nk_begin(ctx, "Crystal settings", nk_rect(50, 650, 500, 370), WINDOW_FLAGS))
     {
         nk_layout_row_dynamic(ctx, 30, 2);
         population.caRatioAverage = nk_propertyf(ctx, "#C/A ratio average:", 0.01f, population.caRatioAverage, 10.0f, 0.05f, 0.01f);
@@ -124,6 +124,23 @@ HaloSim::CrystalPopulation renderCrystalSettingsWindow(struct nk_context *ctx, H
     nk_end(ctx);
 
     return population;
+}
+
+HaloSim::Camera renderViewSettingsWindow(struct nk_context *ctx, float *exposure, HaloSim::Camera initialCamera)
+{
+    HaloSim::Camera camera = initialCamera;
+    if (nk_begin(ctx, "View", nk_rect(50, 400, 330, 200), WINDOW_FLAGS))
+    {
+        nk_layout_row_dynamic(ctx, 30, 1);
+        nk_label(ctx, "Brightness", NK_TEXT_LEFT);
+        nk_slider_float(ctx, 0.01f, exposure, 10.0f, 0.1f);
+
+        nk_label(ctx, "Field of view", NK_TEXT_LEFT);
+        nk_slider_float(ctx, 0.01f, &(camera.fov), 2.0f, 0.01f);
+    }
+    nk_end(ctx);
+
+    return camera;
 }
 
 struct nk_context *initNuklear(GLFWwindow *window)
@@ -269,8 +286,9 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
         }
 
         crystalProperties = renderCrystalSettingsWindow(ctx, crystalProperties);
+        camera = renderViewSettingsWindow(ctx, &exposure, camera);
 
-        if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 500), WINDOW_FLAGS))
+        if (nk_begin(ctx, "General settings", nk_rect(50, 30, 330, 330), WINDOW_FLAGS))
         {
             nk_layout_row_dynamic(ctx, 120, 1);
             if (nk_group_begin(ctx, "Sun parameters", GROUP_FLAGS))
@@ -291,13 +309,6 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
                 nk_group_end(ctx);
             }
 
-            nk_layout_row_dynamic(ctx, 30, 1);
-            nk_label(ctx, "Brightness", NK_TEXT_LEFT);
-            nk_slider_float(ctx, 0.01f, &exposure, 10.0f, 0.1f);
-
-            nk_label(ctx, "Field of view", NK_TEXT_LEFT);
-            nk_slider_float(ctx, 0.01f, &(camera.fov), 2.0f, 0.01f);
-
             nk_layout_row_dynamic(ctx, 50, 1);
             if (isRendering)
             {
@@ -307,26 +318,6 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
                 }
 
                 ++iteration;
-
-                if (crystalProperties != engine.GetCrystalPopulation())
-                {
-                    engine.SetCrystalPopulation(crystalProperties);
-                    iteration = 1;
-                }
-
-                if (sun != engine.GetLightSource())
-                {
-                    engine.SetLightSource(sun);
-                    iteration = 1;
-                }
-
-                if (camera != engine.GetCamera())
-                {
-                    engine.SetCamera(camera);
-                    iteration = 1;
-                }
-
-                engine.Run(numRays);
             }
             else
             {
@@ -338,7 +329,31 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
                 }
             }
         }
+
         nk_end(ctx);
+
+        if (isRendering)
+        {
+            if (crystalProperties != engine.GetCrystalPopulation())
+            {
+                engine.SetCrystalPopulation(crystalProperties);
+                iteration = 1;
+            }
+
+            if (sun != engine.GetLightSource())
+            {
+                engine.SetLightSource(sun);
+                iteration = 1;
+            }
+
+            if (camera != engine.GetCamera())
+            {
+                engine.SetCamera(camera);
+                iteration = 1;
+            }
+
+            engine.Run(numRays);
+        }
 
         nk_glfw3_render(NK_ANTI_ALIASING_ON);
 
