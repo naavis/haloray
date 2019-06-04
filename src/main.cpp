@@ -82,6 +82,50 @@ std::shared_ptr<OpenGL::Program> createTexDrawShaderProgram()
     return program;
 }
 
+HaloSim::CrystalPopulation renderCrystalSettingsWindow(struct nk_context *ctx, HaloSim::CrystalPopulation initialValues)
+{
+    HaloSim::CrystalPopulation population = initialValues;
+
+    if (nk_begin(ctx, "Crystal settings", nk_rect(50, 600, 500, 400), WINDOW_FLAGS))
+    {
+        nk_layout_row_dynamic(ctx, 30, 2);
+        population.caRatioAverage = nk_propertyf(ctx, "#C/A ratio average:", 0.01f, population.caRatioAverage, 10.0f, 0.05f, 0.01f);
+        population.caRatioStd = nk_propertyf(ctx, "#C/A ratio std:", 0.0f, population.caRatioStd, 10.0f, 0.05f, 0.01f);
+
+        const char *distributions[] = {"Uniform", "Gaussian"};
+        nk_layout_row_dynamic(ctx, 130, 1);
+        if (nk_group_begin(ctx, "C axis orientation", GROUP_FLAGS))
+        {
+            nk_layout_row_dynamic(ctx, 30, 1);
+            population.polarAngleDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), population.polarAngleDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
+            if (population.polarAngleDistribution == 1)
+            {
+                nk_layout_row_dynamic(ctx, 30, 2);
+                population.polarAngleAverage = nk_propertyf(ctx, "#Average rotation:", 0.0f, population.polarAngleAverage, 360.0f, 0.1f, 0.5f);
+                population.polarAngleStd = nk_propertyf(ctx, "#Average std:", 0.0f, population.polarAngleStd, 360.0f, 0.1f, 0.5f);
+            }
+            nk_group_end(ctx);
+        }
+
+        nk_layout_row_dynamic(ctx, 130, 1);
+        if (nk_group_begin(ctx, "Rotation around C axis", GROUP_FLAGS))
+        {
+            nk_layout_row_dynamic(ctx, 30, 1);
+            population.rotationDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), population.rotationDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
+            if (population.rotationDistribution == 1)
+            {
+                nk_layout_row_dynamic(ctx, 30, 2);
+                population.rotationAverage = nk_propertyf(ctx, "#Average rotation:", 0.0f, population.rotationAverage, 360.0f, 0.1f, 0.5f);
+                population.rotationStd = nk_propertyf(ctx, "#Average std:", 0.0f, population.rotationStd, 360.0f, 0.1f, 0.5f);
+            }
+            nk_group_end(ctx);
+        }
+    }
+    nk_end(ctx);
+
+    return population;
+}
+
 struct nk_context *initNuklear(GLFWwindow *window)
 {
     struct nk_context *ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
@@ -224,42 +268,7 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
             }
         }
 
-        if (nk_begin(ctx, "Crystal settings", nk_rect(50, 600, 500, 400), WINDOW_FLAGS))
-        {
-            nk_layout_row_dynamic(ctx, 30, 2);
-            crystalProperties.caRatioAverage = nk_propertyf(ctx, "#C/A ratio average:", 0.01f, crystalProperties.caRatioAverage, 10.0f, 0.05f, 0.01f);
-            crystalProperties.caRatioStd = nk_propertyf(ctx, "#C/A ratio std:", 0.0f, crystalProperties.caRatioStd, 10.0f, 0.05f, 0.01f);
-
-            const char *distributions[] = {"Uniform", "Gaussian"};
-            nk_layout_row_dynamic(ctx, 130, 1);
-            if (nk_group_begin(ctx, "C axis orientation", GROUP_FLAGS))
-            {
-                nk_layout_row_dynamic(ctx, 30, 1);
-                crystalProperties.polarAngleDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), crystalProperties.polarAngleDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
-                if (crystalProperties.polarAngleDistribution == 1)
-                {
-                    nk_layout_row_dynamic(ctx, 30, 2);
-                    crystalProperties.polarAngleAverage = nk_propertyf(ctx, "#Average rotation:", 0.0f, crystalProperties.polarAngleAverage, 360.0f, 0.1f, 0.5f);
-                    crystalProperties.polarAngleStd = nk_propertyf(ctx, "#Average std:", 0.0f, crystalProperties.polarAngleStd, 360.0f, 0.1f, 0.5f);
-                }
-                nk_group_end(ctx);
-            }
-
-            nk_layout_row_dynamic(ctx, 130, 1);
-            if (nk_group_begin(ctx, "Rotation around C axis", GROUP_FLAGS))
-            {
-                nk_layout_row_dynamic(ctx, 30, 1);
-                crystalProperties.rotationDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), crystalProperties.rotationDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
-                if (crystalProperties.rotationDistribution == 1)
-                {
-                    nk_layout_row_dynamic(ctx, 30, 2);
-                    crystalProperties.rotationAverage = nk_propertyf(ctx, "#Average rotation:", 0.0f, crystalProperties.rotationAverage, 360.0f, 0.1f, 0.5f);
-                    crystalProperties.rotationStd = nk_propertyf(ctx, "#Average std:", 0.0f, crystalProperties.rotationStd, 360.0f, 0.1f, 0.5f);
-                }
-                nk_group_end(ctx);
-            }
-        }
-        nk_end(ctx);
+        crystalProperties = renderCrystalSettingsWindow(ctx, crystalProperties);
 
         if (nk_begin(ctx, "General settings", nk_rect(50, 50, 330, 500), WINDOW_FLAGS))
         {
