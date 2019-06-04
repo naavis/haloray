@@ -189,6 +189,40 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
         /* Start rendering GUI */
         nk_glfw3_new_frame();
 
+        if (isRendering && nk_window_is_any_hovered(ctx) == nk_false)
+        {
+            camera.fov -= 0.1f * camera.fov * ctx->input.mouse.scroll_delta.y;
+            camera.fov = std::max(camera.fov, 0.01f);
+            camera.fov = std::min(camera.fov, 2.0f);
+        }
+
+        if (isRendering)
+        {
+            static bool justStartedDraggingMouse = true;
+            static bool dragStartedOnBackground = true;
+            if (ctx->input.mouse.buttons[0].down == nk_true)
+            {
+                if (justStartedDraggingMouse)
+                {
+                    dragStartedOnBackground = nk_window_is_any_hovered(ctx) == nk_false;
+                    justStartedDraggingMouse = false;
+                }
+
+                if (dragStartedOnBackground)
+                {
+                    float xDelta = ctx->input.mouse.delta.x;
+                    float yDelta = ctx->input.mouse.delta.y;
+                    camera.yaw += 0.2f * xDelta * camera.fov;
+                    camera.pitch += 0.2f * yDelta * camera.fov;
+                }
+            }
+            else
+            {
+                justStartedDraggingMouse = true;
+                dragStartedOnBackground = true;
+            }
+        }
+
         if (nk_begin(ctx, "Crystal settings", nk_rect(400, 50, 500, 400), WINDOW_FLAGS))
         {
             nk_layout_row_dynamic(ctx, 30, 2);
@@ -295,33 +329,6 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
             }
         }
         nk_end(ctx);
-
-        if (isRendering)
-        {
-            static bool justStartedDraggingMouse = true;
-            static bool dragStartedOnBackground = true;
-            if (ctx->input.mouse.buttons[0].down == nk_true)
-            {
-                if (justStartedDraggingMouse)
-                {
-                    dragStartedOnBackground = nk_window_is_any_hovered(ctx) == nk_false;
-                    justStartedDraggingMouse = false;
-                }
-
-                if (dragStartedOnBackground)
-                {
-                    float xDelta = ctx->input.mouse.delta.x;
-                    float yDelta = ctx->input.mouse.delta.y;
-                    camera.yaw += 0.2f * xDelta * camera.fov;
-                    camera.pitch += 0.2f * yDelta * camera.fov;
-                }
-            }
-            else
-            {
-                justStartedDraggingMouse = true;
-                dragStartedOnBackground = true;
-            }
-        }
 
         nk_glfw3_render(NK_ANTI_ALIASING_ON);
 
