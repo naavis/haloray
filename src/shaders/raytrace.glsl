@@ -72,16 +72,16 @@ vec3 vertices[] = vec3[](
 
 ivec3 triangles[] = ivec3[](
     // Face 1 (basal)
-    ivec3(0, 1, 2),
-    ivec3(0, 2, 3),
-    ivec3(0, 3, 5),
-    ivec3(3, 4, 5),
+    ivec3(0, 1, 3),
+    ivec3(1, 2, 3),
+    ivec3(0, 3, 4),
+    ivec3(0, 4, 5),
 
     // Face 2 (basal)
-    ivec3(6, 8, 7),
-    ivec3(6, 9, 8),
-    ivec3(6, 11, 9),
-    ivec3(9, 11, 10),
+    ivec3(6, 9, 7),
+    ivec3(7, 9, 8),
+    ivec3(6, 10, 9),
+    ivec3(6, 11, 10),
 
     // Face 3 (prism)
     ivec3(0, 6, 1),
