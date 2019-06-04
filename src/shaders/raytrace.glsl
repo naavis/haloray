@@ -110,13 +110,13 @@ ivec3 triangles[] = ivec3[](
 
 uint wang_hash(uint a)
 {
-	a -= (a<<6);
-	a ^= (a>>17);
-	a -= (a<<9);
-	a ^= (a<<4);
-	a -= (a<<3);
-	a ^= (a<<10);
-	a ^= (a>>15);
+	a -= (a << 6);
+	a ^= (a >> 17);
+	a -= (a << 9);
+	a ^= (a << 4);
+	a -= (a << 3);
+	a ^= (a << 10);
+	a ^= (a >> 15);
 	return a;
 }
 
@@ -133,17 +133,17 @@ uint rand_xorshift(void)
     return rngState;
  }
 
-float rand(void) { return rand_xorshift() / 4294967295.0f; }
+float rand(void) { return float(rand_xorshift()) / 4294967295.0; }
 
 #else
 
 uint rand_lcg(void)
 {
-	rngState = 1664525u * rngState + 1013904223u;
+	rngState = 1664525 * rngState + 1013904223;
 	return rngState;
 }
 
-float rand(void) { return rand_lcf() / 4294967295.0f; }
+float rand(void) { return float(rand_lcf()) / 4294967295.0; }
 
 #endif
 
