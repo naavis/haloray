@@ -102,7 +102,7 @@ HaloSim::CrystalPopulation renderCrystalSettingsWindow(struct nk_context *ctx, H
             {
                 nk_layout_row_dynamic(ctx, 30, 2);
                 population.polarAngleAverage = nk_propertyf(ctx, "#Average rotation:", 0.0f, population.polarAngleAverage, 360.0f, 0.1f, 0.5f);
-                population.polarAngleStd = nk_propertyf(ctx, "#Average std:", 0.0f, population.polarAngleStd, 360.0f, 0.1f, 0.5f);
+                population.polarAngleStd = nk_propertyf(ctx, "#Rotation std:", 0.0f, population.polarAngleStd, 360.0f, 0.1f, 0.5f);
             }
             nk_group_end(ctx);
         }
@@ -116,7 +116,7 @@ HaloSim::CrystalPopulation renderCrystalSettingsWindow(struct nk_context *ctx, H
             {
                 nk_layout_row_dynamic(ctx, 30, 2);
                 population.rotationAverage = nk_propertyf(ctx, "#Average rotation:", 0.0f, population.rotationAverage, 360.0f, 0.1f, 0.5f);
-                population.rotationStd = nk_propertyf(ctx, "#Average std:", 0.0f, population.rotationStd, 360.0f, 0.1f, 0.5f);
+                population.rotationStd = nk_propertyf(ctx, "#Rotation std:", 0.0f, population.rotationStd, 360.0f, 0.1f, 0.5f);
             }
             nk_group_end(ctx);
         }
