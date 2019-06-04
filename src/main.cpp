@@ -226,8 +226,8 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
         if (nk_begin(ctx, "Crystal settings", nk_rect(50, 600, 500, 400), WINDOW_FLAGS))
         {
             nk_layout_row_dynamic(ctx, 30, 2);
-            nk_property_float(ctx, "#C/A ratio average:", 0.01f, &(crystalProperties.caRatioAverage), 10.0f, 0.05f, 0.01f);
-            nk_property_float(ctx, "#C/A ratio std:", 0.0f, &(crystalProperties.caRatioStd), 10.0f, 0.05f, 0.01f);
+            crystalProperties.caRatioAverage = nk_propertyf(ctx, "#C/A ratio average:", 0.01f, crystalProperties.caRatioAverage, 10.0f, 0.05f, 0.01f);
+            crystalProperties.caRatioStd = nk_propertyf(ctx, "#C/A ratio std:", 0.0f, crystalProperties.caRatioStd, 10.0f, 0.05f, 0.01f);
 
             const char *distributions[] = {"Uniform", "Gaussian"};
             nk_layout_row_dynamic(ctx, 130, 1);
@@ -238,8 +238,8 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
                 if (crystalProperties.polarAngleDistribution == 1)
                 {
                     nk_layout_row_dynamic(ctx, 30, 2);
-                    nk_property_float(ctx, "#Average rotation:", 0.0f, &(crystalProperties.polarAngleAverage), 360.0f, 0.1f, 0.5f);
-                    nk_property_float(ctx, "#Average std:", 0.0f, &(crystalProperties.polarAngleStd), 360.0f, 0.1f, 0.5f);
+                    crystalProperties.polarAngleAverage = nk_propertyf(ctx, "#Average rotation:", 0.0f, crystalProperties.polarAngleAverage, 360.0f, 0.1f, 0.5f);
+                    crystalProperties.polarAngleStd = nk_propertyf(ctx, "#Average std:", 0.0f, crystalProperties.polarAngleStd, 360.0f, 0.1f, 0.5f);
                 }
                 nk_group_end(ctx);
             }
@@ -252,8 +252,8 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
                 if (crystalProperties.rotationDistribution == 1)
                 {
                     nk_layout_row_dynamic(ctx, 30, 2);
-                    nk_property_float(ctx, "#Average rotation:", 0.0f, &(crystalProperties.rotationAverage), 360.0f, 0.1f, 0.5f);
-                    nk_property_float(ctx, "#Average std:", 0.0f, &(crystalProperties.rotationStd), 360.0f, 0.1f, 0.5f);
+                    crystalProperties.rotationAverage = nk_propertyf(ctx, "#Average rotation:", 0.0f, crystalProperties.rotationAverage, 360.0f, 0.1f, 0.5f);
+                    crystalProperties.rotationStd = nk_propertyf(ctx, "#Average std:", 0.0f, crystalProperties.rotationStd, 360.0f, 0.1f, 0.5f);
                 }
                 nk_group_end(ctx);
             }
@@ -266,8 +266,8 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
             if (nk_group_begin(ctx, "Sun parameters", GROUP_FLAGS))
             {
                 nk_layout_row_dynamic(ctx, 30, 1);
-                nk_property_float(ctx, "#Altitude:", -90.0f, &(sun.altitude), 90.0f, 0.05f, 0.1f);
-                nk_property_float(ctx, "#Diameter:", 0.0f, &(sun.diameter), 360.0f, 0.01f, 0.1f);
+                sun.altitude = nk_propertyf(ctx, "#Altitude:", -90.0f, sun.altitude, 90.0f, 0.05f, 0.1f);
+                sun.diameter = nk_propertyf(ctx, "#Diameter:", 0.0f, sun.diameter, 360.0f, 0.01f, 0.1f);
 
                 nk_group_end(ctx);
             }
@@ -276,7 +276,7 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
             if (nk_group_begin(ctx, "Simulation parameters", GROUP_FLAGS))
             {
                 nk_layout_row_dynamic(ctx, 30, 1);
-                nk_property_int(ctx, "#Number of rays:", 10000, &numRays, maxNumRays, 1000, 5000);
+                numRays = nk_propertyi(ctx, "#Number of rays:", 10000, numRays, maxNumRays, 1000, 5000);
 
                 nk_group_end(ctx);
             }
