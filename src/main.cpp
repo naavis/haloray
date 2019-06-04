@@ -223,7 +223,7 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
             }
         }
 
-        if (nk_begin(ctx, "Crystal settings", nk_rect(400, 50, 500, 400), WINDOW_FLAGS))
+        if (nk_begin(ctx, "Crystal settings", nk_rect(50, 600, 500, 400), WINDOW_FLAGS))
         {
             nk_layout_row_dynamic(ctx, 30, 2);
             nk_property_float(ctx, "#C/A ratio average:", 0.01f, &(crystalProperties.caRatioAverage), 10.0f, 0.05f, 0.01f);
