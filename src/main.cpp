@@ -191,7 +191,8 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
 
         if (isRendering && nk_window_is_any_hovered(ctx) == nk_false)
         {
-            camera.fov -= 0.1f * camera.fov * ctx->input.mouse.scroll_delta.y;
+            const float zoomSpeed = 0.1f * camera.fov;
+            camera.fov -= zoomSpeed * ctx->input.mouse.scroll_delta.y;
             camera.fov = std::max(camera.fov, 0.01f);
             camera.fov = std::min(camera.fov, 2.0f);
         }
