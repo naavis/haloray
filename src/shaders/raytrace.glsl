@@ -46,7 +46,7 @@ uniform struct camera_t
     float fov;
 } camera;
 
-const float PI = 3.14159;
+const float PI = 3.1415926535;
 
 struct intersection {
     bool didHit;
