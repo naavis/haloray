@@ -303,7 +303,7 @@ vec3 traceRay(vec3 rayOrigin, vec3 rayDirection, float indexOfRefraction)
             rd = reflect(rd, normal);
         } else {
             // Ray refracts out of crystal
-            return refract(rd, normal, 1.31);
+            return refract(rd, normal, indexOfRefraction);
         }
     }
     return vec3(0.0);
