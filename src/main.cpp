@@ -168,7 +168,7 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
 
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
-    int maxNumRays = std::min(500000, maxComputeGroups);
+    const int maxNumRays = std::min(500000, maxComputeGroups);
 
     int numRays = std::min(400000, maxNumRays);
 
