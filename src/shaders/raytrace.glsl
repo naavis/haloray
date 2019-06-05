@@ -308,20 +308,24 @@ vec3 traceRay(vec3 rayOrigin, vec3 rayDirection, float indexOfRefraction)
     return vec3(0.0);
 }
 
-vec3 altAzToCartesian(vec2 altAz)
+vec3 sampleSun(float altitude)
 {
-    return normalize(vec3(
-        cos(altAz.x) * sin(altAz.y),
-        sin(altAz.x),
-        cos(altAz.x) * cos(altAz.y)
-        ));
-}
+    // X and Z are horizontal, sun moves on the Y-Z plane
+    vec3 sunCenterDirection = vec3(
+        0.0,
+        sin(altitude),
+        cos(altitude)
+    );
 
-vec2 sampleSun(vec2 altAz)
-{
+    // X axis is always perpendicular to the Y-Z plane
+    vec3 diskBasis0 = vec3(1.0, 0.0, 0.0);
+    vec3 diskBasis1 = cross(sunCenterDirection, diskBasis0);
+    // Sample uniform point on disk
     float sampleAngle = rand() * 2.0 * PI;
     float sampleDistance = sqrt(rand()) * 0.5 * radians(sun.diameter);
-    return altAz + vec2(sampleDistance * sin(sampleAngle), sampleDistance * cos(sampleAngle));
+    vec3 offset = sampleDistance * (sin(sampleAngle) * diskBasis0 + cos(sampleAngle) * diskBasis1);
+    vec3 sampleDirection = sunCenterDirection + offset;
+    return normalize(sampleDirection);
 }
 
 mat3 rotateAroundY(float angle)
@@ -419,14 +423,10 @@ void main(void)
         vertices[i].y *= max(0.0, caMultiplier);
     }
 
-    // Sun direction in alt-az
-    vec2 sunDirection = radians(vec2(sun.altitude, 0.0));
+    vec3 rayDirection = -sampleSun(radians(sun.altitude));
 
     // Rotation matrix to orient ray/crystal
     mat3 rotationMatrix = getRotationMatrix();
-
-    // Convert sun direction to incoming ray vector
-    vec3 rayDirection = -altAzToCartesian(sampleSun(sunDirection));
 
     vec3 rotatedRayDirection = rotationMatrix * rayDirection;
 
