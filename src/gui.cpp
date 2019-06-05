@@ -29,7 +29,7 @@ void renderCrystalSettingsWindow(struct nk_context *ctx,
         if (nk_group_begin(ctx, "C axis orientation", GROUP_FLAGS))
         {
             nk_layout_row_dynamic(ctx, 30, 1);
-            population.polarAngleDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), population.polarAngleDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
+            nk_combobox(ctx, distributions, NK_LEN(distributions), &(population.polarAngleDistribution), 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
             if (population.polarAngleDistribution == 1)
             {
                 nk_layout_row_dynamic(ctx, 30, 2);
@@ -43,7 +43,7 @@ void renderCrystalSettingsWindow(struct nk_context *ctx,
         if (nk_group_begin(ctx, "Rotation around C axis", GROUP_FLAGS))
         {
             nk_layout_row_dynamic(ctx, 30, 1);
-            population.rotationDistribution = nk_combo(ctx, distributions, NK_LEN(distributions), population.rotationDistribution, 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
+            nk_combobox(ctx, distributions, NK_LEN(distributions), &(population.rotationDistribution), 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
             if (population.rotationDistribution == 1)
             {
                 nk_layout_row_dynamic(ctx, 30, 2);
