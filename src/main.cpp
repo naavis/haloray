@@ -180,7 +180,7 @@ void runMainLoop(GLFWwindow *window,
 
         /* Render simulation result texture */
         texDrawPrg->Use();
-        glUniform1f(glGetUniformLocation(texDrawPrg->GetHandle(), "exposure"), exposure / iteration);
+        glUniform1f(glGetUniformLocation(texDrawPrg->GetHandle(), "exposure"), exposure / iteration / camera.fov);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(quadVao);
