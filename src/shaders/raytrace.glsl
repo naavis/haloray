@@ -117,18 +117,42 @@ uint wang_hash(uint a)
 	return a;
 }
 
-uint rngState = wang_hash(rngSeed + uint(gl_WorkGroupID.x));
+struct xorwowState_t {
+    uint a;
+    uint b;
+    uint c;
+    uint d;
+    uint counter;
+} rngState;
 
-uint rand_xorshift(void)
- {
-    // Xorshift algorithm from George Marsaglia's paper
-    rngState ^= (rngState << 13);
-    rngState ^= (rngState >> 17);
-    rngState ^= (rngState << 5);
-    return rngState;
- }
+void init_xorwow(void)
+{
+    rngState.a = wang_hash(rngSeed + gl_WorkGroupID.x * 4);
+    rngState.b = wang_hash(rngSeed + gl_WorkGroupID.x * 4 + 1);
+    rngState.c = wang_hash(rngSeed + gl_WorkGroupID.x * 4 + 2);
+    rngState.d = wang_hash(rngSeed + gl_WorkGroupID.x * 4 + 3);
+    rngState.counter = 0;
+}
 
-float rand(void) { return float(rand_xorshift()) / 4294967295.0; }
+uint rand_xorwow(void)
+{
+    /* Algorithm "xorwow" from p. 5 of Marsaglia, "Xorshift RNGs" */
+    uint t = rngState.d;
+    uint s = rngState.a;
+    rngState.d = rngState.c;
+    rngState.c = rngState.b;
+    rngState.b = s;
+
+    t ^= t >> 2;
+    t ^= t << 1;
+    t ^= s ^ (s << 4);
+
+    rngState.a = t;
+    rngState.counter += 362437;
+    return t + rngState.counter;
+}
+
+float rand(void) { return float(rand_xorwow()) / 4294967295.0; }
 
 vec2 randn(void)
 {
@@ -401,6 +425,9 @@ float daylightEstimate(float wavelength)
 
 void main(void)
 {
+    // Initialize random number generator
+    init_xorwow();
+
     float caMultiplier = crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd;
     for (int i = 0; i < vertices.length(); ++i)
     {
