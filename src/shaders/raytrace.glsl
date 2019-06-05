@@ -7,8 +7,6 @@ namespace HaloSim
 const std::string computeShaderSource = R""(
 #version 440 core
 
-#define XOR_SHIFT 1
-
 #define DISTRIBUTION_UNIFORM 0
 #define DISTRIBUTION_GAUSSIAN 1
 
@@ -119,9 +117,7 @@ uint wang_hash(uint a)
 	return a;
 }
 
-uint rngState = wang_hash(rngSeed + uint(gl_WorkGroupID.x + gl_WorkGroupID.y * gl_NumWorkGroups.x));
-
-#ifdef XOR_SHIFT
+uint rngState = wang_hash(rngSeed + uint(gl_WorkGroupID.x));
 
 uint rand_xorshift(void)
  {
@@ -133,18 +129,6 @@ uint rand_xorshift(void)
  }
 
 float rand(void) { return float(rand_xorshift()) / 4294967295.0; }
-
-#else
-
-uint rand_lcg(void)
-{
-	rngState = 1664525 * rngState + 1013904223;
-	return rngState;
-}
-
-float rand(void) { return float(rand_lcf()) / 4294967295.0; }
-
-#endif
 
 vec2 randn(void)
 {
