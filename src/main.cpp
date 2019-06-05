@@ -1,6 +1,7 @@
 #include <string>
 #include <memory>
 #include <algorithm>
+#include <functional>
 #include <stdexcept>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -82,15 +83,13 @@ std::shared_ptr<OpenGL::Program> createTexDrawShaderProgram()
     return program;
 }
 
-HaloSim::CrystalPopulation renderCrystalSettingsWindow(struct nk_context *ctx, HaloSim::CrystalPopulation initialValues)
+void renderCrystalSettingsWindow(struct nk_context *ctx, HaloSim::CrystalPopulation &population)
 {
-    HaloSim::CrystalPopulation population = initialValues;
-
     if (nk_begin(ctx, "Crystal settings", nk_rect(50, 650, 500, 370), WINDOW_FLAGS))
     {
         nk_layout_row_dynamic(ctx, 30, 2);
-        population.caRatioAverage = nk_propertyf(ctx, "#C/A ratio average:", 0.01f, population.caRatioAverage, 10.0f, 0.05f, 0.01f);
-        population.caRatioStd = nk_propertyf(ctx, "#C/A ratio std:", 0.0f, population.caRatioStd, 10.0f, 0.05f, 0.01f);
+        nk_property_float(ctx, "#C/A ratio average:", 0.01f, &(population.caRatioAverage), 10.0f, 0.05f, 0.01f);
+        nk_property_float(ctx, "#C/A ratio std:", 0.0f, &(population.caRatioStd), 10.0f, 0.05f, 0.01f);
 
         const char *distributions[] = {"Uniform", "Gaussian"};
         nk_layout_row_dynamic(ctx, 130, 1);
@@ -101,8 +100,8 @@ HaloSim::CrystalPopulation renderCrystalSettingsWindow(struct nk_context *ctx, H
             if (population.polarAngleDistribution == 1)
             {
                 nk_layout_row_dynamic(ctx, 30, 2);
-                population.polarAngleAverage = nk_propertyf(ctx, "#Average rotation:", 0.0f, population.polarAngleAverage, 360.0f, 0.1f, 0.5f);
-                population.polarAngleStd = nk_propertyf(ctx, "#Rotation std:", 0.0f, population.polarAngleStd, 360.0f, 0.1f, 0.5f);
+                nk_property_float(ctx, "#Average rotation:", 0.0f, &(population.polarAngleAverage), 360.0f, 0.1f, 0.5f);
+                nk_property_float(ctx, "#Rotation std:", 0.0f, &(population.polarAngleStd), 360.0f, 0.1f, 0.5f);
             }
             nk_group_end(ctx);
         }
@@ -115,32 +114,75 @@ HaloSim::CrystalPopulation renderCrystalSettingsWindow(struct nk_context *ctx, H
             if (population.rotationDistribution == 1)
             {
                 nk_layout_row_dynamic(ctx, 30, 2);
-                population.rotationAverage = nk_propertyf(ctx, "#Average rotation:", 0.0f, population.rotationAverage, 360.0f, 0.1f, 0.5f);
-                population.rotationStd = nk_propertyf(ctx, "#Rotation std:", 0.0f, population.rotationStd, 360.0f, 0.1f, 0.5f);
+                nk_property_float(ctx, "#Average rotation:", 0.0f, &(population.rotationAverage), 360.0f, 0.1f, 0.5f);
+                nk_property_float(ctx, "#Rotation std:", 0.0f, &(population.rotationStd), 360.0f, 0.1f, 0.5f);
             }
             nk_group_end(ctx);
         }
     }
     nk_end(ctx);
-
-    return population;
 }
 
-HaloSim::Camera renderViewSettingsWindow(struct nk_context *ctx, float *exposure, HaloSim::Camera initialCamera)
+void renderViewSettingsWindow(struct nk_context *ctx, float exposure, HaloSim::Camera &camera)
 {
-    HaloSim::Camera camera = initialCamera;
     if (nk_begin(ctx, "View", nk_rect(50, 400, 330, 200), WINDOW_FLAGS))
     {
         nk_layout_row_dynamic(ctx, 30, 1);
         nk_label(ctx, "Brightness", NK_TEXT_LEFT);
-        nk_slider_float(ctx, 0.01f, exposure, 10.0f, 0.1f);
+        nk_slider_float(ctx, 0.01f, &(exposure), 10.0f, 0.1f);
 
         nk_label(ctx, "Field of view", NK_TEXT_LEFT);
         nk_slider_float(ctx, 0.01f, &(camera.fov), 2.0f, 0.01f);
     }
     nk_end(ctx);
+}
 
-    return camera;
+void renderGeneralSettingsWindow(struct nk_context *ctx,
+                                 bool isRendering,
+                                 int &numRays,
+                                 int maxNumRays,
+                                 HaloSim::LightSource &light,
+                                 std::function<void()> renderButtonFn,
+                                 std::function<void()> stopButtonFn)
+{
+    if (nk_begin(ctx, "General settings", nk_rect(50, 30, 330, 330), WINDOW_FLAGS))
+    {
+        nk_layout_row_dynamic(ctx, 120, 1);
+        if (nk_group_begin(ctx, "Sun parameters", GROUP_FLAGS))
+        {
+            nk_layout_row_dynamic(ctx, 30, 1);
+            nk_property_float(ctx, "#Altitude:", -90.0f, &(light.altitude), 90.0f, 0.05f, 0.1f);
+            nk_property_float(ctx, "#Diameter:", 0.0f, &(light.diameter), 360.0f, 0.01f, 0.1f);
+
+            nk_group_end(ctx);
+        }
+
+        nk_layout_row_dynamic(ctx, 100, 1);
+        if (nk_group_begin(ctx, "Simulation parameters", GROUP_FLAGS))
+        {
+            nk_layout_row_dynamic(ctx, 30, 1);
+            nk_property_int(ctx, "#Number of rays:", 10000, &numRays, maxNumRays, 1000, 5000);
+
+            nk_group_end(ctx);
+        }
+
+        nk_layout_row_dynamic(ctx, 50, 1);
+        if (isRendering)
+        {
+            if (nk_button_label(ctx, "Stop"))
+            {
+                stopButtonFn();
+            }
+        }
+        else
+        {
+            if (nk_button_label(ctx, "Render"))
+            {
+                renderButtonFn();
+            }
+        }
+    }
+    nk_end(ctx);
 }
 
 struct nk_context *initNuklear(GLFWwindow *window)
@@ -285,55 +327,25 @@ void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
             }
         }
 
-        crystalProperties = renderCrystalSettingsWindow(ctx, crystalProperties);
-        camera = renderViewSettingsWindow(ctx, &exposure, camera);
+        renderCrystalSettingsWindow(ctx, crystalProperties);
+        renderViewSettingsWindow(ctx, exposure, camera);
 
-        if (nk_begin(ctx, "General settings", nk_rect(50, 30, 330, 330), WINDOW_FLAGS))
-        {
-            nk_layout_row_dynamic(ctx, 120, 1);
-            if (nk_group_begin(ctx, "Sun parameters", GROUP_FLAGS))
-            {
-                nk_layout_row_dynamic(ctx, 30, 1);
-                sun.altitude = nk_propertyf(ctx, "#Altitude:", -90.0f, sun.altitude, 90.0f, 0.05f, 0.1f);
-                sun.diameter = nk_propertyf(ctx, "#Diameter:", 0.0f, sun.diameter, 360.0f, 0.01f, 0.1f);
+        auto renderButtonFn = [&engine, &iteration, &isRendering]() {
+            engine.Clear();
+            iteration = 1;
+            isRendering = true;
+        };
 
-                nk_group_end(ctx);
-            }
+        auto stopButtonFn = [&isRendering]() {
+            isRendering = false;
+        };
 
-            nk_layout_row_dynamic(ctx, 100, 1);
-            if (nk_group_begin(ctx, "Simulation parameters", GROUP_FLAGS))
-            {
-                nk_layout_row_dynamic(ctx, 30, 1);
-                numRays = nk_propertyi(ctx, "#Number of rays:", 10000, numRays, maxNumRays, 1000, 5000);
-
-                nk_group_end(ctx);
-            }
-
-            nk_layout_row_dynamic(ctx, 50, 1);
-            if (isRendering)
-            {
-                if (nk_button_label(ctx, "Stop"))
-                {
-                    isRendering = false;
-                }
-
-                ++iteration;
-            }
-            else
-            {
-                if (nk_button_label(ctx, "Render"))
-                {
-                    engine.Clear();
-                    iteration = 1;
-                    isRendering = true;
-                }
-            }
-        }
-
-        nk_end(ctx);
+        renderGeneralSettingsWindow(ctx, isRendering, numRays, maxNumRays, sun, renderButtonFn, stopButtonFn);
 
         if (isRendering)
         {
+            ++iteration;
+
             if (crystalProperties != engine.GetCrystalPopulation())
             {
                 engine.SetCrystalPopulation(crystalProperties);
