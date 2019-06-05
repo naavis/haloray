@@ -72,7 +72,8 @@ std::shared_ptr<OpenGL::Program> createTexDrawShaderProgram()
         "    color = vec4(gammaCorrected, 1.0);"
         "}";
 
-    OpenGL::Shader fragmentShader(fragShaderSrc, OpenGL::ShaderType::Fragment);
+    OpenGL::Shader fragmentShader(fragShaderSrc,
+                                  OpenGL::ShaderType::Fragment);
     fragmentShader.Compile();
 
     auto program = std::make_shared<OpenGL::Program>();
@@ -83,7 +84,8 @@ std::shared_ptr<OpenGL::Program> createTexDrawShaderProgram()
     return program;
 }
 
-void renderCrystalSettingsWindow(struct nk_context *ctx, HaloSim::CrystalPopulation &population)
+void renderCrystalSettingsWindow(struct nk_context *ctx,
+                                 HaloSim::CrystalPopulation &population)
 {
     if (nk_begin(ctx, "Crystal settings", nk_rect(50, 650, 500, 370), WINDOW_FLAGS))
     {
@@ -123,7 +125,9 @@ void renderCrystalSettingsWindow(struct nk_context *ctx, HaloSim::CrystalPopulat
     nk_end(ctx);
 }
 
-void renderViewSettingsWindow(struct nk_context *ctx, float &exposure, HaloSim::Camera &camera)
+void renderViewSettingsWindow(struct nk_context *ctx,
+                              float &exposure,
+                              HaloSim::Camera &camera)
 {
     if (nk_begin(ctx, "View", nk_rect(50, 400, 330, 200), WINDOW_FLAGS))
     {
@@ -196,7 +200,8 @@ struct nk_context *initNuklear(GLFWwindow *window)
     return ctx;
 }
 
-void runMainLoop(GLFWwindow *window, struct nk_context *ctx)
+void runMainLoop(GLFWwindow *window,
+                 struct nk_context *ctx)
 {
     HaloSim::SimulationEngine engine;
     try
