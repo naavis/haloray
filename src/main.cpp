@@ -123,7 +123,7 @@ void renderCrystalSettingsWindow(struct nk_context *ctx, HaloSim::CrystalPopulat
     nk_end(ctx);
 }
 
-void renderViewSettingsWindow(struct nk_context *ctx, float exposure, HaloSim::Camera &camera)
+void renderViewSettingsWindow(struct nk_context *ctx, float &exposure, HaloSim::Camera &camera)
 {
     if (nk_begin(ctx, "View", nk_rect(50, 400, 330, 200), WINDOW_FLAGS))
     {
