@@ -56,15 +56,24 @@ struct LightSource
     }
 };
 
+enum Projection
+{
+    Stereographic = 0,
+    Rectilinear,
+    Equidistant,
+    EqualArea
+};
+
 struct Camera
 {
     float pitch;
     float yaw;
     float fov;
+    Projection projection;
 
     bool operator==(const struct Camera &other) const
     {
-        return pitch == other.pitch && yaw == other.yaw && fov == other.fov;
+        return pitch == other.pitch && yaw == other.yaw && fov == other.fov && projection == other.projection;
     }
 
     bool operator!=(const struct Camera &other) const

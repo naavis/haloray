@@ -146,6 +146,7 @@ void runMainLoop(GLFWwindow *window,
     camera.pitch = 0.0f;
     camera.yaw = 0.0f;
     camera.fov = 0.5f;
+    camera.projection = HaloSim::Projection::Stereographic;
 
     HaloSim::LightSource sun;
     sun.altitude = 30.0f;

@@ -36,11 +36,17 @@ uniform struct crystalProperties_t
     float rotationStd;
 } crystalProperties;
 
+#define PROJECTION_STEREOGRAPHIC 0
+#define PROJECTION_RECTILINEAR 1
+#define PROJECTION_EQUIDISTANT 2
+#define PROJECTION_EQUAL_AREA 3
+
 uniform struct camera_t
 {
     float pitch;
     float yaw;
     float fov;
+    int projection;
 } camera;
 
 const float PI = 3.1415926535;
@@ -468,8 +474,16 @@ void main(void)
 
     vec2 polar = cartesianToPolar(resultRay);
 
-    // Stereographic projection, f(r) = 2*tan(r/2)
-    float fr = 2.0 * tan(polar.x / 2.0);
+    float fr;
+    if (camera.projection == PROJECTION_STEREOGRAPHIC) {
+        fr = 2.0 * tan(polar.x / 2.0);
+    } else if (camera.projection == PROJECTION_RECTILINEAR) {
+        fr = tan(polar.x);
+    } else if (camera.projection == PROJECTION_EQUIDISTANT) {
+        fr = polar.x;
+    } else if (camera.projection == PROJECTION_EQUAL_AREA) {
+        fr = 2.0 * sin(polar.x / 2.0);
+    }
 
     vec2 projected = fr * vec2(aspectRatio * cos(polar.y), sin(polar.y)) / camera.fov;
     vec2 normalizedCoordinates = 0.5 + projected / PI;

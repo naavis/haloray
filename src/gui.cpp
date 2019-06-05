@@ -60,7 +60,7 @@ void renderViewSettingsWindow(struct nk_context *ctx,
                               float &exposure,
                               HaloSim::Camera &camera)
 {
-    if (nk_begin(ctx, "View", nk_rect(50, 400, 330, 200), WINDOW_FLAGS))
+    if (nk_begin(ctx, "View", nk_rect(50, 400, 330, 220), WINDOW_FLAGS))
     {
         nk_layout_row_dynamic(ctx, 30, 1);
         nk_label(ctx, "Brightness", NK_TEXT_LEFT);
@@ -68,6 +68,16 @@ void renderViewSettingsWindow(struct nk_context *ctx,
 
         nk_label(ctx, "Field of view", NK_TEXT_LEFT);
         nk_slider_float(ctx, 0.01f, &(camera.fov), 2.0f, 0.01f);
+
+        const char *projections[] = {
+            "Stereographic",
+            "Rectilinear",
+            "Equidistant",
+            "Equal area"};
+
+        int projectionIndex = (int)camera.projection;
+        nk_combobox(ctx, projections, NK_LEN(projections), &(projectionIndex), 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 300));
+        camera.projection = (HaloSim::Projection)projectionIndex;
     }
     nk_end(ctx);
 }
