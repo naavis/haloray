@@ -169,9 +169,11 @@ void runMainLoop(GLFWwindow *window,
 
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
-    const int maxNumRays = std::min(500000, maxComputeGroups);
+    const int defaultMaxNumRays = 500000;
+    const int maxNumRays = std::min(defaultMaxNumRays, maxComputeGroups);
 
-    int numRays = std::min(400000, maxNumRays);
+    const int defaultNumRays = 400000;
+    int numRays = std::min(defaultMaxNumRays, maxNumRays);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
