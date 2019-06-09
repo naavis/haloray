@@ -393,21 +393,48 @@ vec2 cartesianToPolar(vec3 direction)
     return vec2(r, angle);
 }
 
+mat3 fisherRotationMatrix(float kappa)
+{
+    // Returns a rotation matrix based on the
+    // Fisher distribution (von Mises-Fisher, p = 3)
+    // with a mean of (0, 0, 1)
+    // and concentration of kappa
+    float theta = 2.0 * PI * rand();
+    vec2 v = vec2(sin(theta), cos(theta));
+
+    float xi = rand();
+    float w = 1.0 + log(xi + (1.0 - xi) * exp(-2.0 * kappa)) / kappa;
+
+    // randomPoint is Fisher-distributed
+    vec3 randomPoint = vec3(sqrt(1.0 - w * w) * v, w);
+
+    return rotateAroundY(atan(randomPoint.y, randomPoint.x)) * rotateAroundZ(acos(randomPoint.z));
+}
+
 mat3 getRotationMatrix(void)
 {
-    // Orientation of crystal C-axis
-    mat3 orientationMat;
-
     // Rotation around crystal C-axis
     mat3 rotationMat;
+
+    // Orientation of crystal C-axis
+    mat3 orientationMat;
 
     if (crystalProperties.polarAngleDistribution == DISTRIBUTION_UNIFORM) {
         orientationMat = getUniformRandomRotationMatrix();
     } else {
-        float angleAverage = crystalProperties.polarAngleAverage;
-        float angleStd = crystalProperties.polarAngleStd;
-        float polarAngle = radians(angleAverage + angleStd * randn().x);
-        mat3 polarTiltMat = rotateAroundZ(polarAngle);
+        float angleAverage = radians(crystalProperties.polarAngleAverage);
+        float angleStd = radians(crystalProperties.polarAngleStd);
+
+        mat3 polarTiltMat;
+        if (angleStd == 0.0)
+        {
+            polarTiltMat = rotateAroundZ(angleAverage);
+        } else {
+            float variance = angleStd * angleStd;
+            float kappa = 1.0 / variance;
+            polarTiltMat = rotateAroundZ(angleAverage) * fisherRotationMatrix(kappa);
+        }
+
         orientationMat = rotateAroundY(rand() * 2.0 * PI) * polarTiltMat;
     }
 
