@@ -106,6 +106,7 @@ private:
     void InitializeTextures();
 
     std::mt19937 mMersenneTwister;
+    std::uniform_int_distribution<unsigned int> mUniformDistribution;
     std::unique_ptr<OpenGL::Program> mSimulationShader;
     std::unique_ptr<OpenGL::Texture> mSimulationTexture;
     std::unique_ptr<OpenGL::Texture> mSpinlockTexture;

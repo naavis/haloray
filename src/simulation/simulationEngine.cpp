@@ -12,7 +12,8 @@ namespace HaloSim
 {
 
 SimulationEngine::SimulationEngine()
-    : mMersenneTwister(std::mt19937(std::random_device()()))
+    : mMersenneTwister(std::mt19937(std::random_device()())),
+      mUniformDistribution(std::uniform_int_distribution<unsigned int>(0, std::numeric_limits<unsigned int>::max()))
 {
 }
 
@@ -65,8 +66,7 @@ void SimulationEngine::Run(unsigned int numRays)
 
     GLuint shaderHandle = mSimulationShader->GetHandle();
 
-    std::uniform_int_distribution<unsigned int> distribution(0, std::numeric_limits<unsigned int>::max());
-    const unsigned int seed = distribution(mMersenneTwister);
+    const unsigned int seed = mUniformDistribution(mMersenneTwister);
     glUniform1ui(glGetUniformLocation(shaderHandle, "rngSeed"), seed);
     glUniform1f(glGetUniformLocation(shaderHandle, "sun.altitude"), mLight.altitude);
     glUniform1f(glGetUniformLocation(shaderHandle, "sun.diameter"), mLight.diameter);
