@@ -429,6 +429,23 @@ float daylightEstimate(float wavelength)
     return 1.0 - 0.0013333 * wavelength;
 }
 
+void storePixel(ivec2 pixelCoordinates, vec3 value)
+{
+    bool keepWaiting = true;
+    while (keepWaiting)
+    {
+        if (imageAtomicCompSwap(spinlock, pixelCoordinates, 0, 1) == 0)
+        {
+            vec3 currentValue = imageLoad(outputImage, pixelCoordinates).xyz;
+            vec3 newValue = currentValue + value;
+            imageStore(outputImage, pixelCoordinates, vec4(newValue, 1.0));
+            memoryBarrier();
+            keepWaiting = false;
+            imageAtomicExchange(spinlock, pixelCoordinates, 0);
+        }
+    }
+}
+
 void main(void)
 {
     // Initialize random number generator
@@ -494,22 +511,8 @@ void main(void)
         return;
 
     ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.x, resolution.y * normalizedCoordinates.y);
-
     vec3 cieXYZ = daylightEstimate(wavelength) * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
-
-    bool keepWaiting = true;
-    while (keepWaiting)
-    {
-        if (imageAtomicCompSwap(spinlock, pixelCoordinates, 0, 1) == 0)
-        {
-            vec3 currentValue = imageLoad(outputImage, pixelCoordinates).xyz;
-            vec3 newValue = currentValue + cieXYZ;
-            imageStore(outputImage, pixelCoordinates, vec4(newValue, 1.0));
-            memoryBarrier();
-            keepWaiting = false;
-            imageAtomicExchange(spinlock, pixelCoordinates, 0);
-        }
-    }
+    storePixel(pixelCoordinates, cieXYZ);
 }
 )"";
 }
