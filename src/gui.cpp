@@ -58,9 +58,10 @@ void renderCrystalSettingsWindow(struct nk_context *ctx,
 
 void renderViewSettingsWindow(struct nk_context *ctx,
                               float &exposure,
+                              bool &lockedToSun,
                               HaloSim::Camera &camera)
 {
-    if (nk_begin(ctx, "View", nk_rect(50, 400, 330, 220), WINDOW_FLAGS))
+    if (nk_begin(ctx, "View", nk_rect(50, 370, 330, 260), WINDOW_FLAGS))
     {
         nk_layout_row_dynamic(ctx, 30, 1);
         nk_label(ctx, "Brightness", NK_TEXT_LEFT);
@@ -68,6 +69,10 @@ void renderViewSettingsWindow(struct nk_context *ctx,
 
         nk_label(ctx, "Field of view", NK_TEXT_LEFT);
         nk_slider_float(ctx, 0.01f, &(camera.fov), 2.0f, 0.01f);
+
+        int locked = lockedToSun ? 1 : 0;
+        locked = nk_check_label(ctx, "Lock to sun", locked);
+        lockedToSun = locked == nk_true;
 
         const char *projections[] = {
             "Stereographic",
@@ -91,7 +96,7 @@ void renderGeneralSettingsWindow(struct nk_context *ctx,
                                  std::function<void()> renderButtonFn,
                                  std::function<void()> stopButtonFn)
 {
-    if (nk_begin(ctx, "General settings", nk_rect(50, 30, 330, 330), WINDOW_FLAGS))
+    if (nk_begin(ctx, "General settings", nk_rect(50, 20, 330, 330), WINDOW_FLAGS))
     {
         nk_layout_row_dynamic(ctx, 120, 1);
         if (nk_group_begin(ctx, "Sun parameters", GROUP_FLAGS))

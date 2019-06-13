@@ -167,6 +167,7 @@ void runMainLoop(GLFWwindow *window,
     float exposure = 1.0f;
     int iteration = 1;
     bool isRendering = false;
+    bool lockedToSun = false;
 
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
@@ -193,6 +194,12 @@ void runMainLoop(GLFWwindow *window,
         /* Start rendering GUI */
         nk_glfw3_new_frame();
 
+        if (lockedToSun)
+        {
+            camera.pitch = sun.altitude;
+            camera.yaw = 0.0f;
+        }
+
         if (isRendering && nk_window_is_any_hovered(ctx) == nk_false)
         {
             const float zoomSpeed = 0.1f * camera.fov;
@@ -205,7 +212,7 @@ void runMainLoop(GLFWwindow *window,
         {
             static bool justStartedDraggingMouse = true;
             static bool dragStartedOnBackground = true;
-            if (ctx->input.mouse.buttons[0].down == nk_true)
+            if (ctx->input.mouse.buttons[0].down == nk_true && !lockedToSun)
             {
                 if (justStartedDraggingMouse)
                 {
@@ -229,7 +236,7 @@ void runMainLoop(GLFWwindow *window,
         }
 
         renderCrystalSettingsWindow(ctx, crystalProperties);
-        renderViewSettingsWindow(ctx, exposure, camera);
+        renderViewSettingsWindow(ctx, exposure, lockedToSun, camera);
 
         auto renderButtonFn = [&engine, &iteration, &isRendering]() {
             engine.Clear();
