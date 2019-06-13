@@ -400,13 +400,12 @@ mat3 getRotationMatrix(void)
     // Rotation around crystal C-axis
     mat3 rotationMat;
 
-    vec2 gaussianRand = randn();
     if (crystalProperties.polarAngleDistribution == DISTRIBUTION_UNIFORM) {
         orientationMat = getUniformRandomRotationMatrix();
     } else {
         float angleAverage = crystalProperties.polarAngleAverage;
         float angleStd = crystalProperties.polarAngleStd;
-        float polarAngle = radians(angleAverage + angleStd * gaussianRand.x);
+        float polarAngle = radians(angleAverage + angleStd * randn().x);
         mat3 polarTiltMat = rotateAroundZ(polarAngle);
         orientationMat = rotateAroundY(rand() * 2.0 * PI) * polarTiltMat;
     }
@@ -417,7 +416,7 @@ mat3 getRotationMatrix(void)
     } else {
         float angleAverage = crystalProperties.rotationAverage;
         float angleStd = crystalProperties.rotationStd;
-        float rotationAngle = radians(angleAverage + angleStd * gaussianRand.y);
+        float rotationAngle = radians(angleAverage + angleStd * randn().x);
         rotationMat = rotateAroundY(rotationAngle);
     }
 
@@ -479,6 +478,7 @@ void main(void)
     }
 
     vec3 rayDirection = -sampleSun(radians(sun.altitude));
+    float wavelength = 400.0 + rand() * 300.0;
 
     // Rotation matrix to orient ray/crystal
     mat3 rotationMatrix = getRotationMatrix();
@@ -487,7 +487,6 @@ void main(void)
     rotating the incoming ray and not the crystal itself. */
     vec3 rotatedRayDirection = rayDirection * rotationMatrix;
 
-    float wavelength = 400.0 + rand() * 300.0;
     vec3 resultRay = castRayThroughCrystal(rotatedRayDirection, wavelength);
 
     if (length(resultRay) < 0.0001) return;
