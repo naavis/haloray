@@ -161,7 +161,7 @@ void runMainLoop(GLFWwindow *window,
     crystalProperties.polarAngleStd = 40.0f;
 
     crystalProperties.rotationDistribution = 1;
-    crystalProperties.rotationAverage = 60.0f;
+    crystalProperties.rotationAverage = 0.0f;
     crystalProperties.rotationStd = 1.0f;
 
     float exposure = 1.0f;
