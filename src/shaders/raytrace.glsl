@@ -446,6 +446,27 @@ void storePixel(ivec2 pixelCoordinates, vec3 value)
     }
 }
 
+vec3 castRayThroughCrystal(vec3 rayDirection, float wavelength)
+{
+    uint triangleIndex = selectFirstTriangle(rayDirection);
+    vec3 startingPoint = sampleTriangle(triangleIndex);
+    vec3 startingPointNormal = -getNormal(triangleIndex);
+    float indexOfRefraction = getIceIOR(wavelength);
+    float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rayDirection, 1.0, indexOfRefraction);
+    vec3 resultRay = vec3(0.0);
+    if (rand() < reflectionCoeff)
+    {
+        // Ray reflects off crystal
+        resultRay = reflect(rayDirection, startingPointNormal);
+    } else {
+        // Ray enters crystal
+        vec3 refractedRayDirection = refract(rayDirection, startingPointNormal, 1.0 / indexOfRefraction);
+        resultRay = traceRay(startingPoint, refractedRayDirection, indexOfRefraction);
+    }
+
+    return resultRay;
+}
+
 void main(void)
 {
     // Initialize random number generator
@@ -466,22 +487,8 @@ void main(void)
     rotating the incoming ray and not the crystal itself. */
     vec3 rotatedRayDirection = rayDirection * rotationMatrix;
 
-    uint triangleIndex = selectFirstTriangle(rotatedRayDirection);
-    vec3 startingPoint = sampleTriangle(triangleIndex);
-    vec3 startingPointNormal = -getNormal(triangleIndex);
     float wavelength = 400.0 + rand() * 300.0;
-    float indexOfRefraction = getIceIOR(wavelength);
-    float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rotatedRayDirection, 1.0, indexOfRefraction);
-    vec3 resultRay = vec3(0.0);
-    if (rand() < reflectionCoeff)
-    {
-        // Ray reflects off crystal
-        resultRay = reflect(rotatedRayDirection, startingPointNormal);
-    } else {
-        // Ray enters crystal
-        vec3 refractedRayDirection = refract(rotatedRayDirection, startingPointNormal, 1.0 / indexOfRefraction);
-        resultRay = traceRay(startingPoint, refractedRayDirection, indexOfRefraction);
-    }
+    vec3 resultRay = castRayThroughCrystal(rotatedRayDirection, wavelength);
 
     if (length(resultRay) < 0.0001) return;
 
