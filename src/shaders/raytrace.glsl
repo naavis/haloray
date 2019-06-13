@@ -468,7 +468,7 @@ void main(void)
 
     if (length(resultRay) < 0.0001) return;
 
-    resultRay = -normalize(rotationMatrix * resultRay);
+    resultRay = -rotationMatrix * resultRay;
     resultRay = getCameraOrientationMatrix() * resultRay;
 
     ivec2 resolution = imageSize(outputImage);
