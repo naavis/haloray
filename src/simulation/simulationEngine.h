@@ -61,7 +61,8 @@ enum Projection
     Stereographic = 0,
     Rectilinear,
     Equidistant,
-    EqualArea
+    EqualArea,
+    Orthographic
 };
 
 struct Camera

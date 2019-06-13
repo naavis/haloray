@@ -73,7 +73,8 @@ void renderViewSettingsWindow(struct nk_context *ctx,
             "Stereographic",
             "Rectilinear",
             "Equidistant",
-            "Equal area"};
+            "Equal area",
+            "Orthographic"};
 
         int projectionIndex = (int)camera.projection;
         nk_combobox(ctx, projections, NK_LEN(projections), &(projectionIndex), 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 300));

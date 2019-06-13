@@ -40,6 +40,7 @@ uniform struct crystalProperties_t
 #define PROJECTION_RECTILINEAR 1
 #define PROJECTION_EQUIDISTANT 2
 #define PROJECTION_EQUAL_AREA 3
+#define PROJECTION_ORTHOGRAPHIC 4
 
 uniform struct camera_t
 {
@@ -509,6 +510,9 @@ void main(void)
         fr = polar.x;
     } else if (camera.projection == PROJECTION_EQUAL_AREA) {
         fr = 2.0 * sin(polar.x / 2.0);
+    } else if (camera.projection == PROJECTION_ORTHOGRAPHIC) {
+        if (polar.x > 0.5 * PI) return;
+        fr = sin(polar.x);
     }
 
     vec2 projected = fr * vec2(aspectRatio * cos(polar.y), sin(polar.y)) / camera.fov;
