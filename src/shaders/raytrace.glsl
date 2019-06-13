@@ -408,7 +408,7 @@ mat3 getRotationMatrix(void)
         float angleStd = crystalProperties.polarAngleStd;
         float polarAngle = radians(angleAverage + angleStd * gaussianRand.x);
         mat3 polarTiltMat = rotateAroundZ(polarAngle);
-        orientationMat = polarTiltMat * rotateAroundY(rand() * 2.0 * PI);
+        orientationMat = rotateAroundY(rand() * 2.0 * PI) * polarTiltMat;
     }
 
     if (crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
@@ -421,7 +421,7 @@ mat3 getRotationMatrix(void)
         rotationMat = rotateAroundY(rotationAngle);
     }
 
-    return rotationMat * orientationMat;
+    return orientationMat * rotationMat;
 }
 
 float daylightEstimate(float wavelength)
@@ -445,7 +445,9 @@ void main(void)
     // Rotation matrix to orient ray/crystal
     mat3 rotationMatrix = getRotationMatrix();
 
-    vec3 rotatedRayDirection = rotationMatrix * rayDirection;
+    /* The inverse rotation matrix must be applied because we are
+    rotating the incoming ray and not the crystal itself. */
+    vec3 rotatedRayDirection = rayDirection * rotationMatrix;
 
     uint triangleIndex = selectFirstTriangle(rotatedRayDirection);
     vec3 startingPoint = sampleTriangle(triangleIndex);
@@ -466,7 +468,7 @@ void main(void)
 
     if (length(resultRay) < 0.0001) return;
 
-    resultRay = -normalize(resultRay * rotationMatrix);
+    resultRay = -normalize(rotationMatrix * resultRay);
     resultRay = getCameraOrientationMatrix() * resultRay;
 
     ivec2 resolution = imageSize(outputImage);
