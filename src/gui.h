@@ -18,7 +18,8 @@ void renderCrystalSettingsWindow(struct nk_context *ctx,
 void renderViewSettingsWindow(struct nk_context *ctx,
                               float &exposure,
                               bool &lockedToSun,
-                              HaloSim::Camera &camera);
+                              HaloSim::Camera &camera,
+                              double framesPerSecond);
 
 void renderGeneralSettingsWindow(struct nk_context *ctx,
                                  bool isRendering,

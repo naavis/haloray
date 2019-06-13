@@ -18,7 +18,7 @@ const nk_flags GROUP_FLAGS = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
 void renderCrystalSettingsWindow(struct nk_context *ctx,
                                  HaloSim::CrystalPopulation &population)
 {
-    if (nk_begin(ctx, "Crystal settings", nk_rect(50, 650, 500, 370), WINDOW_FLAGS))
+    if (nk_begin(ctx, "Crystal settings", nk_rect(50, 680, 500, 370), WINDOW_FLAGS))
     {
         nk_layout_row_dynamic(ctx, 30, 2);
         nk_property_float(ctx, "#C/A ratio average:", 0.01f, &(population.caRatioAverage), 10.0f, 0.05f, 0.01f);
@@ -59,9 +59,10 @@ void renderCrystalSettingsWindow(struct nk_context *ctx,
 void renderViewSettingsWindow(struct nk_context *ctx,
                               float &exposure,
                               bool &lockedToSun,
-                              HaloSim::Camera &camera)
+                              HaloSim::Camera &camera,
+                              double framesPerSecond)
 {
-    if (nk_begin(ctx, "View", nk_rect(50, 370, 330, 260), WINDOW_FLAGS))
+    if (nk_begin(ctx, "View", nk_rect(50, 370, 330, 280), WINDOW_FLAGS))
     {
         nk_layout_row_dynamic(ctx, 30, 1);
         nk_label(ctx, "Brightness", NK_TEXT_LEFT);
@@ -84,6 +85,8 @@ void renderViewSettingsWindow(struct nk_context *ctx,
         int projectionIndex = (int)camera.projection;
         nk_combobox(ctx, projections, NK_LEN(projections), &(projectionIndex), 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 300));
         camera.projection = (HaloSim::Projection)projectionIndex;
+
+        nk_labelf(ctx, NK_TEXT_LEFT, "Frames per second: %.2f", framesPerSecond);
     }
     nk_end(ctx);
 }

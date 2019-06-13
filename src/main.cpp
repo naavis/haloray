@@ -171,11 +171,13 @@ void runMainLoop(GLFWwindow *window,
 
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
-    const int defaultMaxNumRays = 500000;
-    const int maxNumRays = std::min(defaultMaxNumRays, maxComputeGroups);
+    const int absoluteMaxNumRays = 1000000;
+    const int maxNumRays = std::min(absoluteMaxNumRays, maxComputeGroups);
 
-    const int defaultNumRays = 400000;
-    int numRays = std::min(defaultMaxNumRays, maxNumRays);
+    const int defaultNumRays = 500000;
+    int numRays = std::min(defaultNumRays, maxNumRays);
+    double framesPerSecond = 0.0;
+    auto currentTime = glfwGetTime();
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
@@ -236,7 +238,7 @@ void runMainLoop(GLFWwindow *window,
         }
 
         renderCrystalSettingsWindow(ctx, crystalProperties);
-        renderViewSettingsWindow(ctx, exposure, lockedToSun, camera);
+        renderViewSettingsWindow(ctx, exposure, lockedToSun, camera, framesPerSecond);
 
         auto renderButtonFn = [&engine, &iteration, &isRendering]() {
             engine.Clear();
@@ -282,6 +284,11 @@ void runMainLoop(GLFWwindow *window,
 
         /* Poll for and process events */
         glfwPollEvents();
+
+        /* Update frames per second counter */
+        auto newTime = glfwGetTime();
+        framesPerSecond = 1.0 / (newTime - currentTime);
+        currentTime = newTime;
     }
 
     glBindVertexArray(0);
