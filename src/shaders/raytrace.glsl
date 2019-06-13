@@ -503,6 +503,7 @@ void main(void)
     if (camera.projection == PROJECTION_STEREOGRAPHIC) {
         fr = 2.0 * tan(polar.x / 2.0);
     } else if (camera.projection == PROJECTION_RECTILINEAR) {
+        if (polar.x > 0.5 * PI) return;
         fr = tan(polar.x);
     } else if (camera.projection == PROJECTION_EQUIDISTANT) {
         fr = polar.x;
