@@ -115,7 +115,7 @@ void renderGeneralSettingsWindow(struct nk_context *ctx,
         if (nk_group_begin(ctx, "Simulation parameters", GROUP_FLAGS))
         {
             nk_layout_row_dynamic(ctx, 30, 1);
-            nk_property_int(ctx, "#Number of rays:", 10000, &numRays, maxNumRays, 1000, 5000);
+            nk_property_int(ctx, "#Rays per frame:", 10000, &numRays, maxNumRays, 1000, 5000);
 
             nk_group_end(ctx);
         }
