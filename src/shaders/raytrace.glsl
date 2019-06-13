@@ -513,7 +513,7 @@ void main(void)
     vec2 projected = fr * vec2(aspectRatio * cos(polar.y), sin(polar.y)) / camera.fov;
     vec2 normalizedCoordinates = 0.5 + projected / PI;
 
-    if (any(lessThanEqual(normalizedCoordinates, vec2(0.0, 0.0))) || any(greaterThanEqual(normalizedCoordinates, vec2(1.0, 1.0))))
+    if (any(lessThanEqual(normalizedCoordinates, vec2(0.0))) || any(greaterThanEqual(normalizedCoordinates, vec2(1.0))))
         return;
 
     ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.x, resolution.y * normalizedCoordinates.y);
