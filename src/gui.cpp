@@ -71,7 +71,7 @@ void renderViewSettingsWindow(struct nk_context *ctx,
         nk_slider_float(ctx, 0.01f, &(camera.fov), 2.0f, 0.01f);
 
         int locked = lockedToSun ? 1 : 0;
-        locked = nk_check_label(ctx, "Lock to sun", locked);
+        locked = nk_check_label(ctx, "Lock view to sun", locked);
         lockedToSun = locked == nk_true;
 
         const char *projections[] = {
