@@ -342,6 +342,15 @@ vec3 sampleSun(float altitude)
     return normalize(sampleDirection);
 }
 
+mat3 rotateAroundX(float angle)
+{
+    return mat3(
+        1.0, 0.0, 0.0,
+        0.0, cos(angle), sin(angle),
+        0.0, -sin(angle), cos(angle)
+    );
+}
+
 mat3 rotateAroundY(float angle)
 {
     return mat3(
@@ -357,15 +366,6 @@ mat3 rotateAroundZ(float angle)
         cos(angle), sin(angle), 0.0,
         -sin(angle), cos(angle), 0.0,
         0.0, 0.0, 1.0
-    );
-}
-
-mat3 rotateAroundX(float angle)
-{
-    return mat3(
-        1.0, 0.0, 0.0,
-        0.0, cos(angle), sin(angle),
-        0.0, -sin(angle), cos(angle)
     );
 }
 
