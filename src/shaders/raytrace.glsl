@@ -48,6 +48,7 @@ uniform struct camera_t
     float yaw;
     float fov;
     int projection;
+    int hideSubHorizon;
 } camera;
 
 const float PI = 3.1415926535;
@@ -493,6 +494,10 @@ void main(void)
     if (length(resultRay) < 0.0001) return;
 
     resultRay = -rotationMatrix * resultRay;
+
+    // Hide subhorizon rays
+    if (camera.hideSubHorizon == 1 && resultRay.y < 0.0) return;
+
     resultRay = getCameraOrientationMatrix() * resultRay;
 
     ivec2 resolution = imageSize(outputImage);

@@ -86,6 +86,7 @@ void SimulationEngine::Run(unsigned int numRays)
     glUniform1f(glGetUniformLocation(shaderHandle, "camera.yaw"), mCamera.yaw);
     glUniform1f(glGetUniformLocation(shaderHandle, "camera.fov"), mCamera.fov);
     glUniform1i(glGetUniformLocation(shaderHandle, "camera.projection"), mCamera.projection);
+    glUniform1i(glGetUniformLocation(shaderHandle, "camera.hideSubHorizon"), mCamera.hideSubHorizon ? 1 : 0);
 
     glDispatchCompute(numRays, 1, 1);
 }
