@@ -6,7 +6,7 @@ in the sky, including bright spots, circles and arcs.
 
 HaloRay employs GPGPU to massively accelerate simulations. Brunt of the work happens in OpenGL compute shaders.
 
-## Building
+## How to build?
 
 HaloRay requires an OpenGL 4.4 compliant GPU.
 Build dependencies are handled using [Conan](https://conan.io/) and the build itself is done with
