@@ -4,6 +4,8 @@ HaloRay simulates the reflection and refraction of sun light inside hexagonal ic
 in high altitude clouds in the atmosphere. These ice crystal produce various optical phenomena
 in the sky, including bright spots, circles and arcs.
 
+HaloRay employs GPGPU to massively accelerate simulations. Brunt of the work happens in OpenGL compute shaders.
+
 ## Building
 
 HaloRay requires an OpenGL 4.4 compliant GPU.
