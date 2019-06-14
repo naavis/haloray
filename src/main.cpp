@@ -32,7 +32,7 @@ GLFWwindow *createWindow()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(1920, 1080, "Halo Sim Prototype", NULL, NULL);
+    window = glfwCreateWindow(1920, 1080, "HaloRay", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
