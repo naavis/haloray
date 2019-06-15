@@ -6,7 +6,7 @@
 #include "../opengl/program.h"
 #include "../opengl/texture.h"
 
-#include "../shaders/raytrace.glsl"
+#include "shaders/raytrace.glsl"
 
 namespace HaloSim
 {
