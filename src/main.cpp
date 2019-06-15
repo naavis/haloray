@@ -8,7 +8,7 @@
 #include "opengl/shader.h"
 #include "opengl/program.h"
 #include "simulation/simulationEngine.h"
-#include "gui.h"
+#include "gui/gui.h"
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
@@ -20,8 +20,8 @@
 #define NK_IMPLEMENTATION
 #define NK_GLFW_GL3_IMPLEMENTATION
 #define NK_KEYSTATE_BASED_INPUT
-#include "nuklear/nuklear.h"
-#include "nuklear/nuklear_glfw.h"
+#include "gui/nuklear/nuklear.h"
+#include "gui/nuklear/nuklear_glfw.h"
 
 GLFWwindow *createWindow()
 {

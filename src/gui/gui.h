@@ -10,7 +10,7 @@
 #define NK_GLFW_GL3_IMPLEMENTATION
 #define NK_KEYSTATE_BASED_INPUT
 #include "nuklear/nuklear.h"
-#include "simulation/simulationEngine.h"
+#include "../simulation/simulationEngine.h"
 
 void renderCrystalSettingsWindow(struct nk_context *ctx,
                                  HaloSim::CrystalPopulation &population);

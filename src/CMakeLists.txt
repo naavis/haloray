@@ -1,6 +1,6 @@
 add_executable(haloray
     main.cpp
-    gui.cpp
+    gui/gui.cpp
     simulation/simulationEngine.cpp
     opengl/utils.cpp
     opengl/texture.cpp
