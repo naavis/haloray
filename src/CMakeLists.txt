@@ -1,4 +1,4 @@
-add_executable(halosim
+add_executable(haloray
     main.cpp
     gui.cpp
     simulation/simulationEngine.cpp
@@ -6,4 +6,4 @@ add_executable(halosim
     opengl/texture.cpp
     opengl/shader.cpp
     opengl/program.cpp)
-target_link_libraries(halosim ${CONAN_LIBS})
+target_link_libraries(haloray ${CONAN_LIBS})
