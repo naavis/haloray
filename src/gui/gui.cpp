@@ -62,7 +62,7 @@ void renderViewSettingsWindow(struct nk_context *ctx,
                               HaloSim::Camera &camera,
                               double framesPerSecond)
 {
-    if (nk_begin(ctx, "View", nk_rect(50, 370, 330, 320), WINDOW_FLAGS))
+    if (nk_begin(ctx, "View", nk_rect(50, 380, 330, 320), WINDOW_FLAGS))
     {
         nk_layout_row_dynamic(ctx, 30, 1);
         nk_label(ctx, "Brightness", NK_TEXT_LEFT);
@@ -98,12 +98,13 @@ void renderViewSettingsWindow(struct nk_context *ctx,
 void renderGeneralSettingsWindow(struct nk_context *ctx,
                                  bool isRendering,
                                  int &numRays,
-                                 int maxNumRays,
+                                 const int maxNumRays,
+                                 int &maxNumIterations,
                                  HaloSim::LightSource &light,
                                  std::function<void()> renderButtonFn,
                                  std::function<void()> stopButtonFn)
 {
-    if (nk_begin(ctx, "General settings", nk_rect(50, 20, 330, 330), WINDOW_FLAGS))
+    if (nk_begin(ctx, "General settings", nk_rect(50, 20, 330, 350), WINDOW_FLAGS))
     {
         nk_layout_row_dynamic(ctx, 120, 1);
         if (nk_group_begin(ctx, "Sun parameters", GROUP_FLAGS))
@@ -115,11 +116,12 @@ void renderGeneralSettingsWindow(struct nk_context *ctx,
             nk_group_end(ctx);
         }
 
-        nk_layout_row_dynamic(ctx, 100, 1);
+        nk_layout_row_dynamic(ctx, 120, 1);
         if (nk_group_begin(ctx, "Simulation parameters", GROUP_FLAGS))
         {
             nk_layout_row_dynamic(ctx, 30, 1);
             nk_property_int(ctx, "#Rays per frame:", 10000, &numRays, maxNumRays, 1000, 5000);
+            nk_property_int(ctx, "#Maximum number of frames:", 1, &maxNumIterations, 1000000, 1, 10);
 
             nk_group_end(ctx);
         }

@@ -167,6 +167,7 @@ void runMainLoop(GLFWwindow *window,
 
     float exposure = 1.0f;
     int iteration = 1;
+    int maxNumIterations = 1000;
     bool isRendering = false;
     bool lockedToSun = false;
 
@@ -251,12 +252,10 @@ void runMainLoop(GLFWwindow *window,
             isRendering = false;
         };
 
-        renderGeneralSettingsWindow(ctx, isRendering, numRays, maxNumRays, sun, renderButtonFn, stopButtonFn);
+        renderGeneralSettingsWindow(ctx, isRendering, numRays, maxNumRays, maxNumIterations, sun, renderButtonFn, stopButtonFn);
 
         if (isRendering)
         {
-            ++iteration;
-
             if (crystalProperties != engine.GetCrystalPopulation())
             {
                 engine.SetCrystalPopulation(crystalProperties);
@@ -275,7 +274,11 @@ void runMainLoop(GLFWwindow *window,
                 iteration = 1;
             }
 
-            engine.Run(numRays);
+            if (iteration < maxNumIterations)
+            {
+                engine.Run(numRays);
+                ++iteration;
+            }
         }
 
         nk_glfw3_render(NK_ANTI_ALIASING_ON);
