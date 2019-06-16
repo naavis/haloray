@@ -1,1 +1,6 @@
 theme: jekyll-theme-minimal
+title: HaloRay
+description: Hyperspeed Ice Crystal Halo Simulation
+
+exclude:
+  - .gitignore
