@@ -22,6 +22,28 @@
 #include "gui/nuklear/nuklear.h"
 #include "gui/nuklear/nuklear_glfw.h"
 
+struct CallbackState
+{
+    HaloSim::SimulationEngine *engine;
+    bool *showInterface;
+};
+
+void windowResizeCallback(GLFWwindow *window, int width, int height)
+{
+    auto state = reinterpret_cast<struct CallbackState *>(glfwGetWindowUserPointer(window));
+    state->engine->ResizeOutputTextureCallback(width, height);
+}
+
+void keyboardCallback(GLFWwindow *window, int key, int scanCode, int action, int mods)
+{
+    auto state = reinterpret_cast<struct CallbackState *>(glfwGetWindowUserPointer(window));
+
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+    {
+        *(state->showInterface) = !*(state->showInterface);
+    }
+}
+
 GLFWwindow *createWindow()
 {
     GLFWwindow *window;
@@ -62,30 +84,8 @@ void runMainLoop(GLFWwindow *window,
     glfwGetWindowSize(window, &initialWidth, &initialHeight);
     HaloSim::SimulationEngine engine(initialWidth, initialHeight);
 
-    bool showInterface = true;
-    struct CallbackState
-    {
-        HaloSim::SimulationEngine *engine;
-        bool *showInterface;
-    } cbState;
-
-    cbState.engine = &engine;
-    cbState.showInterface = &showInterface;
-
-    glfwSetWindowUserPointer(window, &cbState);
-    glfwSetWindowSizeCallback(window, [](GLFWwindow *window, int width, int height) {
-        auto state = reinterpret_cast<struct CallbackState *>(glfwGetWindowUserPointer(window));
-        state->engine->ResizeOutputTextureCallback(width, height);
-    });
-
-    glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scanCode, int action, int mods) {
-        auto state = reinterpret_cast<struct CallbackState *>(glfwGetWindowUserPointer(window));
-
-        if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-        {
-            *(state->showInterface) = !*(state->showInterface);
-        }
-    });
+    glfwSetWindowSizeCallback(window, windowResizeCallback);
+    glfwSetKeyCallback(window, keyboardCallback);
 
     try
     {
@@ -136,6 +136,7 @@ void runMainLoop(GLFWwindow *window,
     int maxNumIterations = 1000;
     bool isRendering = false;
     bool lockedToSun = false;
+    bool showInterface = true;
 
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
@@ -144,6 +145,13 @@ void runMainLoop(GLFWwindow *window,
 
     const int defaultNumRays = 500000;
     int numRays = std::min(defaultNumRays, maxNumRays);
+
+    CallbackState cbState;
+    cbState.engine = &engine;
+    cbState.showInterface = &showInterface;
+
+    glfwSetWindowUserPointer(window, &cbState);
+
     double framesPerSecond = 0.0;
     auto currentTime = glfwGetTime();
 
