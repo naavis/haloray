@@ -100,10 +100,29 @@ void runMainLoop(GLFWwindow *window,
     glfwGetWindowSize(window, &initialWidth, &initialHeight);
     HaloSim::SimulationEngine engine(initialWidth, initialHeight);
 
-    glfwSetWindowUserPointer(window, &engine);
+    bool showInterface = true;
+    struct CallbackState
+    {
+        HaloSim::SimulationEngine *engine;
+        bool *showInterface;
+    } cbState;
+
+    cbState.engine = &engine;
+    cbState.showInterface = &showInterface;
+
+    glfwSetWindowUserPointer(window, &cbState);
     glfwSetWindowSizeCallback(window, [](GLFWwindow *window, int width, int height) {
-        auto engine = reinterpret_cast<HaloSim::SimulationEngine *>(glfwGetWindowUserPointer(window));
-        engine->ResizeOutputTextureCallback(width, height);
+        auto state = reinterpret_cast<struct CallbackState *>(glfwGetWindowUserPointer(window));
+        state->engine->ResizeOutputTextureCallback(width, height);
+    });
+
+    glfwSetKeyCallback(window, [](GLFWwindow *window, int key, int scanCode, int action, int mods) {
+        auto state = reinterpret_cast<struct CallbackState *>(glfwGetWindowUserPointer(window));
+
+        if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+        {
+            *(state->showInterface) = !*(state->showInterface);
+        }
     });
 
     try
@@ -248,8 +267,11 @@ void runMainLoop(GLFWwindow *window,
             }
         }
 
-        renderCrystalSettingsWindow(ctx, crystalProperties);
-        renderViewSettingsWindow(ctx, exposure, lockedToSun, camera, framesPerSecond);
+        if (showInterface)
+        {
+            renderCrystalSettingsWindow(ctx, crystalProperties);
+            renderViewSettingsWindow(ctx, exposure, lockedToSun, camera, framesPerSecond);
+        }
 
         auto renderButtonFn = [&engine, &iteration, &isRendering]() {
             engine.Clear();
@@ -261,7 +283,10 @@ void runMainLoop(GLFWwindow *window,
             isRendering = false;
         };
 
-        renderGeneralSettingsWindow(ctx, isRendering, numRays, maxNumRays, maxNumIterations, iteration, sun, renderButtonFn, stopButtonFn);
+        if (showInterface)
+        {
+            renderGeneralSettingsWindow(ctx, isRendering, numRays, maxNumRays, maxNumIterations, iteration, sun, renderButtonFn, stopButtonFn);
+        }
 
         if (isRendering)
         {
