@@ -96,7 +96,16 @@ struct nk_context *initNuklear(GLFWwindow *window)
 void runMainLoop(GLFWwindow *window,
                  struct nk_context *ctx)
 {
-    HaloSim::SimulationEngine engine;
+    int initialWidth, initialHeight;
+    glfwGetWindowSize(window, &initialWidth, &initialHeight);
+    HaloSim::SimulationEngine engine(initialWidth, initialHeight);
+
+    glfwSetWindowUserPointer(window, &engine);
+    glfwSetWindowSizeCallback(window, [](GLFWwindow *window, int width, int height) {
+        auto engine = reinterpret_cast<HaloSim::SimulationEngine *>(glfwGetWindowUserPointer(window));
+        engine->ResizeOutputTextureCallback(width, height);
+    });
+
     try
     {
         engine.Initialize();

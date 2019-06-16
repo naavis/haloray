@@ -11,8 +11,12 @@
 namespace HaloSim
 {
 
-SimulationEngine::SimulationEngine()
-    : mMersenneTwister(std::mt19937(std::random_device()())),
+SimulationEngine::SimulationEngine(
+    unsigned int outputWidth,
+    unsigned int outputHeight)
+    : mOutputWidth(outputWidth),
+      mOutputHeight(outputHeight),
+      mMersenneTwister(std::mt19937(std::random_device()())),
       mUniformDistribution(std::uniform_int_distribution<unsigned int>(0, std::numeric_limits<unsigned int>::max()))
 {
 }
@@ -124,8 +128,19 @@ void SimulationEngine::InitializeShader()
 
 void SimulationEngine::InitializeTextures()
 {
-    mSimulationTexture = std::make_unique<OpenGL::Texture>(1920, 1080, 0, OpenGL::TextureType::Color);
-    mSpinlockTexture = std::make_unique<OpenGL::Texture>(1920, 1080, 1, OpenGL::TextureType::Monochrome);
+    mSimulationTexture = std::make_unique<OpenGL::Texture>(mOutputWidth, mOutputHeight, 0, OpenGL::TextureType::Color);
+    mSpinlockTexture = std::make_unique<OpenGL::Texture>(mOutputWidth, mOutputHeight, 1, OpenGL::TextureType::Monochrome);
+}
+
+void SimulationEngine::ResizeOutputTextureCallback(const unsigned int width, const unsigned int height)
+{
+    mOutputWidth = width;
+    mOutputHeight = height;
+
+    mSimulationTexture.reset();
+    mSpinlockTexture.reset();
+
+    InitializeTextures();
 }
 
 } // namespace HaloSim

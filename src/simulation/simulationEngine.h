@@ -91,7 +91,7 @@ struct Camera
 class SimulationEngine
 {
 public:
-    SimulationEngine();
+    SimulationEngine(unsigned int outputWidth, unsigned int outputHeight);
     void Initialize();
     void Run(unsigned int numRays);
     void Clear();
@@ -107,10 +107,14 @@ public:
 
     const unsigned int GetOutputTextureHandle() const;
 
+    void ResizeOutputTextureCallback(const unsigned int width, const unsigned int height);
+
 private:
     void InitializeShader();
     void InitializeTextures();
 
+    unsigned int mOutputWidth;
+    unsigned int mOutputHeight;
     std::mt19937 mMersenneTwister;
     std::uniform_int_distribution<unsigned int> mUniformDistribution;
     std::unique_ptr<OpenGL::Program> mSimulationShader;
