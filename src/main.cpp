@@ -8,6 +8,7 @@
 #include "opengl/textureRenderer.h"
 #include "simulation/simulationEngine.h"
 #include "gui/gui.h"
+#include "version.h"
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
@@ -53,7 +54,16 @@ GLFWwindow *createWindow()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(1920, 1080, "HaloRay", NULL, NULL);
+
+    char titleBuffer[100];
+    std::sprintf(
+        titleBuffer,
+        "HaloRay %i.%i.%i",
+        HaloRay_VERSION_MAJOR,
+        HaloRay_VERSION_MINOR,
+        HaloRay_VERSION_PATCH);
+
+    window = glfwCreateWindow(1920, 1080, titleBuffer, NULL, NULL);
     if (!window)
     {
         glfwTerminate();
