@@ -5,5 +5,6 @@ add_executable(haloray
     opengl/utils.cpp
     opengl/texture.cpp
     opengl/shader.cpp
+    opengl/textureRenderer.cpp
     opengl/program.cpp)
 target_link_libraries(haloray ${CONAN_LIBS})
