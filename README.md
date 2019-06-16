@@ -6,6 +6,10 @@ in the sky, including bright spots, circles and arcs.
 
 HaloRay employs GPGPU to massively accelerate simulations. Brunt of the work happens in OpenGL compute shaders.
 
+HaloRay currently supports Windows and Linux.
+
+![Simulation of a column crystal halo display](images/column-halos.png)
+
 ## How to build?
 
 HaloRay requires an OpenGL 4.4 compliant GPU.
@@ -13,6 +17,7 @@ Build dependencies are handled using [Conan](https://conan.io/) and the build it
 [CMake](https://cmake.org/).
 
 Conan must be configured with the Bincrafters remote:
+
 ```bash
 conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 ```
@@ -26,4 +31,3 @@ conan install --build=missing ..
 cmake ..
 cmake --build . --config Release
 ```
-
