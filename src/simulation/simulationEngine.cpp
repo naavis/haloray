@@ -141,6 +141,7 @@ void SimulationEngine::ResizeOutputTextureCallback(const unsigned int width, con
     mSpinlockTexture.reset();
 
     InitializeTextures();
+    Clear();
 }
 
 } // namespace HaloSim
