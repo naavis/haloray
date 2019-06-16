@@ -175,7 +175,7 @@ void runMainLoop(GLFWwindow *window,
     crystalProperties.rotationStd = 1.0f;
 
     float exposure = 1.0f;
-    int iteration = 1;
+    int iteration = 0;
     int maxNumIterations = 1000;
     bool isRendering = false;
     bool lockedToSun = false;
@@ -197,7 +197,7 @@ void runMainLoop(GLFWwindow *window,
 
         /* Render simulation result texture */
         texDrawPrg->Use();
-        glUniform1f(glGetUniformLocation(texDrawPrg->GetHandle(), "exposure"), exposure / iteration / camera.fov);
+        glUniform1f(glGetUniformLocation(texDrawPrg->GetHandle(), "exposure"), exposure / (iteration + 1) / camera.fov);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(quadVao);
@@ -253,7 +253,7 @@ void runMainLoop(GLFWwindow *window,
 
         auto renderButtonFn = [&engine, &iteration, &isRendering]() {
             engine.Clear();
-            iteration = 1;
+            iteration = 0;
             isRendering = true;
         };
 
@@ -261,26 +261,26 @@ void runMainLoop(GLFWwindow *window,
             isRendering = false;
         };
 
-        renderGeneralSettingsWindow(ctx, isRendering, numRays, maxNumRays, maxNumIterations, sun, renderButtonFn, stopButtonFn);
+        renderGeneralSettingsWindow(ctx, isRendering, numRays, maxNumRays, maxNumIterations, iteration, sun, renderButtonFn, stopButtonFn);
 
         if (isRendering)
         {
             if (crystalProperties != engine.GetCrystalPopulation())
             {
                 engine.SetCrystalPopulation(crystalProperties);
-                iteration = 1;
+                iteration = 0;
             }
 
             if (sun != engine.GetLightSource())
             {
                 engine.SetLightSource(sun);
-                iteration = 1;
+                iteration = 0;
             }
 
             if (camera != engine.GetCamera())
             {
                 engine.SetCamera(camera);
-                iteration = 1;
+                iteration = 0;
             }
 
             if (iteration < maxNumIterations)

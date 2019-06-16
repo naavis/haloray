@@ -26,6 +26,7 @@ void renderGeneralSettingsWindow(struct nk_context *ctx,
                                  int &numRays,
                                  const int maxNumRays,
                                  int &maxNumIterations,
+                                 const int currentIteration,
                                  HaloSim::LightSource &light,
                                  std::function<void()> renderButtonFn,
                                  std::function<void()> stopButtonFn);
