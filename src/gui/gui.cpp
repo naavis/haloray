@@ -12,6 +12,8 @@
 #include "nuklear/nuklear.h"
 #include "../simulation/simulationEngine.h"
 
+namespace GUI {
+
 const nk_flags WINDOW_FLAGS = NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE;
 const nk_flags GROUP_FLAGS = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
 
@@ -147,4 +149,6 @@ void renderViewSettingsWindow(struct nk_context *ctx,
         nk_labelf(ctx, NK_TEXT_LEFT, "Frames per second: %.2f", framesPerSecond);
     }
     nk_end(ctx);
+}
+
 }

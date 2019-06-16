@@ -207,8 +207,8 @@ void runMainLoop(GLFWwindow *window,
 
         if (showInterface)
         {
-            renderCrystalSettingsWindow(ctx, crystalProperties);
-            renderViewSettingsWindow(ctx, exposure, lockedToSun, camera, framesPerSecond);
+            GUI::renderCrystalSettingsWindow(ctx, crystalProperties);
+            GUI::renderViewSettingsWindow(ctx, exposure, lockedToSun, camera, framesPerSecond);
         }
 
         auto renderButtonFn = [&engine, &iteration, &isRendering]() {
@@ -223,7 +223,7 @@ void runMainLoop(GLFWwindow *window,
 
         if (showInterface)
         {
-            renderGeneralSettingsWindow(ctx, isRendering, numRays, maxNumRays, maxNumIterations, iteration, sun, renderButtonFn, stopButtonFn);
+            GUI::renderGeneralSettingsWindow(ctx, isRendering, numRays, maxNumRays, maxNumIterations, iteration, sun, renderButtonFn, stopButtonFn);
         }
 
         if (isRendering)

@@ -12,6 +12,8 @@
 #include "nuklear/nuklear.h"
 #include "../simulation/simulationEngine.h"
 
+namespace GUI {
+
 void renderCrystalSettingsWindow(struct nk_context *ctx,
                                  HaloSim::CrystalPopulation &population);
 
@@ -30,3 +32,5 @@ void renderGeneralSettingsWindow(struct nk_context *ctx,
                                  HaloSim::LightSource &light,
                                  std::function<void()> renderButtonFn,
                                  std::function<void()> stopButtonFn);
+
+}
