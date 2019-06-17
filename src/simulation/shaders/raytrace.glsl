@@ -27,9 +27,9 @@ uniform struct crystalProperties_t
     float caRatioAverage;
     float caRatioStd;
 
-    int polarAngleDistribution;
-    float polarAngleAverage;
-    float polarAngleStd;
+    int tiltDistribution;
+    float tiltAverage;
+    float tiltStd;
 
     int rotationDistribution;
     float rotationAverage;
@@ -372,20 +372,24 @@ vec2 cartesianToPolar(vec3 direction)
 
 mat3 getRotationMatrix(void)
 {
-    // Orientation of crystal C-axis
-    mat3 orientationMat;
+    if (crystalProperties.tiltDistribution == DISTRIBUTION_UNIFORM && crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
+    {
+        return getUniformRandomRotationMatrix();
+    }
+
+    // Tilt of the crystal C-axis
+    mat3 tiltMat;
 
     // Rotation around crystal C-axis
     mat3 rotationMat;
 
-    if (crystalProperties.polarAngleDistribution == DISTRIBUTION_UNIFORM) {
-        orientationMat = getUniformRandomRotationMatrix();
+    if (crystalProperties.tiltDistribution == DISTRIBUTION_UNIFORM) {
+        tiltMat = rotateAroundZ(rand() * 2.0 * PI);
     } else {
-        float angleAverage = crystalProperties.polarAngleAverage;
-        float angleStd = crystalProperties.polarAngleStd;
-        float polarAngle = radians(angleAverage + angleStd * randn().x);
-        mat3 polarTiltMat = rotateAroundZ(polarAngle);
-        orientationMat = rotateAroundY(rand() * 2.0 * PI) * polarTiltMat;
+        float angleAverage = crystalProperties.tiltAverage;
+        float angleStd = crystalProperties.tiltStd;
+        float tiltAngle = radians(angleAverage + angleStd * randn().x);
+        tiltMat = rotateAroundZ(tiltAngle);
     }
 
     if (crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
@@ -398,7 +402,7 @@ mat3 getRotationMatrix(void)
         rotationMat = rotateAroundY(rotationAngle);
     }
 
-    return orientationMat * rotationMat;
+    return rotateAroundY(rand() * 2.0 * PI) * tiltMat * rotationMat;
 }
 
 float daylightEstimate(float wavelength)

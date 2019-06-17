@@ -12,7 +12,8 @@
 #include "nuklear/nuklear.h"
 #include "../simulation/simulationEngine.h"
 
-namespace GUI {
+namespace GUI
+{
 
 const nk_flags WINDOW_FLAGS = NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_MINIMIZABLE | NK_WINDOW_TITLE;
 const nk_flags GROUP_FLAGS = NK_WINDOW_BORDER | NK_WINDOW_TITLE;
@@ -82,15 +83,15 @@ void renderCrystalSettingsWindow(struct nk_context *ctx,
 
         const char *distributions[] = {"Uniform", "Gaussian"};
         nk_layout_row_dynamic(ctx, 120, 1);
-        if (nk_group_begin(ctx, "C axis orientation", GROUP_FLAGS))
+        if (nk_group_begin(ctx, "C axis tilt", GROUP_FLAGS))
         {
             nk_layout_row_dynamic(ctx, 30, 1);
-            nk_combobox(ctx, distributions, NK_LEN(distributions), &(population.polarAngleDistribution), 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
-            if (population.polarAngleDistribution == 1)
+            nk_combobox(ctx, distributions, NK_LEN(distributions), &(population.tiltDistribution), 30, nk_vec2(nk_layout_widget_bounds(ctx).w, 90));
+            if (population.tiltDistribution == 1)
             {
                 nk_layout_row_dynamic(ctx, 30, 2);
-                nk_property_float(ctx, "#Average rotation:", 0.0f, &(population.polarAngleAverage), 360.0f, 0.1f, 0.5f);
-                nk_property_float(ctx, "#Rotation std:", 0.0f, &(population.polarAngleStd), 360.0f, 0.1f, 0.5f);
+                nk_property_float(ctx, "#Average tilt:", 0.0f, &(population.tiltAverage), 360.0f, 0.1f, 0.5f);
+                nk_property_float(ctx, "#Tilt std:", 0.0f, &(population.tiltStd), 360.0f, 0.1f, 0.5f);
             }
             nk_group_end(ctx);
         }
@@ -151,4 +152,4 @@ void renderViewSettingsWindow(struct nk_context *ctx,
     nk_end(ctx);
 }
 
-}
+} // namespace GUI

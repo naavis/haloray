@@ -13,9 +13,9 @@ struct CrystalPopulation
     float caRatioAverage;
     float caRatioStd;
 
-    int polarAngleDistribution;
-    float polarAngleAverage;
-    float polarAngleStd;
+    int tiltDistribution;
+    float tiltAverage;
+    float tiltStd;
 
     int rotationDistribution;
     float rotationAverage;
@@ -25,9 +25,9 @@ struct CrystalPopulation
     {
         return caRatioAverage == other.caRatioAverage &&
                caRatioStd == other.caRatioStd &&
-               polarAngleDistribution == other.polarAngleDistribution &&
-               polarAngleAverage == other.polarAngleAverage &&
-               polarAngleStd == other.polarAngleStd &&
+               tiltDistribution == other.tiltDistribution &&
+               tiltAverage == other.tiltAverage &&
+               tiltStd == other.tiltStd &&
                rotationDistribution == other.rotationDistribution &&
                rotationAverage == other.rotationAverage &&
                rotationStd == other.rotationStd;
