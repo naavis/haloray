@@ -25,7 +25,7 @@
 
 #include <QApplication>
 #include <QMainWindow>
-#include "gui/ui_mainwindow.h"
+#include "gui/ui_mainWindow.h"
 
 struct CallbackState
 {

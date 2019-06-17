@@ -15,6 +15,7 @@ find_package(Qt5 COMPONENTS REQUIRED Core Widgets Gui)
 
 add_executable(haloray
     main.cpp
+    gui/mainWindow.ui
     gui/gui.cpp
     simulation/simulationEngine.cpp
     opengl/utils.cpp
@@ -22,7 +23,6 @@ add_executable(haloray
     opengl/shader.cpp
     opengl/textureRenderer.cpp
     opengl/program.cpp
-    mainwindow.ui
     )
 
 target_link_libraries(haloray ${CONAN_LIBS} Qt5::Core Qt5::Widgets Qt5::Gui)

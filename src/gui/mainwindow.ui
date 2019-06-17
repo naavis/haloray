@@ -12,17 +12,174 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>800</width>
-    <height>600</height>
+    <width>640</width>
+    <height>480</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>HaloRay</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
     <item>
-     <widget class="QOpenGLWidget" name="openGLWidget"/>
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0">
+      <item>
+       <widget class="QGroupBox" name="generalSettingsGroupBox">
+        <property name="title">
+         <string>General Settings</string>
+        </property>
+        <layout class="QFormLayout" name="formLayout_2">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="sunAltitudeLabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Sun altitude</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSlider" name="sunAltitudeSlider">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="sunDiameterLabel">
+           <property name="text">
+            <string>Sun diameter</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QDoubleSpinBox" name="sunDiameterSpinner">
+           <property name="suffix">
+            <string>°</string>
+           </property>
+           <property name="decimals">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <double>30.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.500000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="raysPerFrameLabel">
+           <property name="text">
+            <string>Rays per frame</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="raysPerFrameSpinner">
+           <property name="showGroupSeparator" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="maximum">
+            <number>1000000</number>
+           </property>
+           <property name="value">
+            <number>500000</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="maxNumFramesLabel">
+           <property name="text">
+            <string>Maximum frames</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="maxNumFramesSpinner">
+           <property name="showGroupSeparator" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="maximum">
+            <number>1000000000</number>
+           </property>
+           <property name="value">
+            <number>100000000</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="crystalSettingsGroupBox">
+        <property name="title">
+         <string>Crystal Settings</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="viewSettingsGroupBox">
+        <property name="title">
+         <string>View Settings</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="renderButton">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Render</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QOpenGLWidget" name="openGLWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>500</width>
+        <height>500</height>
+       </size>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
