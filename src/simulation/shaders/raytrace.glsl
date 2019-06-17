@@ -372,20 +372,24 @@ vec2 cartesianToPolar(vec3 direction)
 
 mat3 getRotationMatrix(void)
 {
+    if (crystalProperties.polarAngleDistribution == DISTRIBUTION_UNIFORM && crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
+    {
+        return getUniformRandomRotationMatrix();
+    }
+
     // Orientation of crystal C-axis
-    mat3 orientationMat;
+    mat3 polarTiltMat;
 
     // Rotation around crystal C-axis
     mat3 rotationMat;
 
     if (crystalProperties.polarAngleDistribution == DISTRIBUTION_UNIFORM) {
-        orientationMat = getUniformRandomRotationMatrix();
+        polarTiltMat = rotateAroundZ(rand() * 2.0 * PI);
     } else {
         float angleAverage = crystalProperties.polarAngleAverage;
         float angleStd = crystalProperties.polarAngleStd;
         float polarAngle = radians(angleAverage + angleStd * randn().x);
-        mat3 polarTiltMat = rotateAroundZ(polarAngle);
-        orientationMat = rotateAroundY(rand() * 2.0 * PI) * polarTiltMat;
+        polarTiltMat = rotateAroundZ(polarAngle);
     }
 
     if (crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
@@ -398,7 +402,7 @@ mat3 getRotationMatrix(void)
         rotationMat = rotateAroundY(rotationAngle);
     }
 
-    return orientationMat * rotationMat;
+    return rotateAroundY(rand() * 2.0 * PI) * polarTiltMat * rotationMat;
 }
 
 float daylightEstimate(float wavelength)
