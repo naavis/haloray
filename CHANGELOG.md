@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-### Added
-
 ### Changed
 
 - Fixed bug where uniform C-axis orientation was messing with C-axis rotation
 
-### Removed
+## 1.0.0
+
+- First official release
