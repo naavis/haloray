@@ -23,6 +23,10 @@
 #include "gui/nuklear/nuklear.h"
 #include "gui/nuklear/nuklear_glfw.h"
 
+#include <QApplication>
+#include <QMainWindow>
+#include "gui/ui_mainwindow.h"
+
 struct CallbackState
 {
     HaloSim::SimulationEngine *engine;
@@ -278,8 +282,17 @@ void runMainLoop(GLFWwindow *window,
     }
 }
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
+    QApplication app(argc, argv);
+    QMainWindow mainWindow;
+    Ui::MainWindow ui;
+    ui.setupUi(&mainWindow);
+
+    mainWindow.show();
+
+    return app.exec();
+
     /* Initialize GLFW */
     if (!glfwInit())
         exit(EXIT_FAILURE);
