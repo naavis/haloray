@@ -133,9 +133,9 @@ void runMainLoop(GLFWwindow *window,
     crystalProperties.caRatioAverage = 0.3f;
     crystalProperties.caRatioStd = 0.0f;
 
-    crystalProperties.polarAngleDistribution = 1;
-    crystalProperties.polarAngleAverage = 0.0f;
-    crystalProperties.polarAngleStd = 40.0f;
+    crystalProperties.tiltDistribution = 1;
+    crystalProperties.tiltAverage = 0.0f;
+    crystalProperties.tiltStd = 40.0f;
 
     crystalProperties.rotationDistribution = 1;
     crystalProperties.rotationAverage = 0.0f;

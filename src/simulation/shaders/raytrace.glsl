@@ -27,9 +27,9 @@ uniform struct crystalProperties_t
     float caRatioAverage;
     float caRatioStd;
 
-    int polarAngleDistribution;
-    float polarAngleAverage;
-    float polarAngleStd;
+    int tiltDistribution;
+    float tiltAverage;
+    float tiltStd;
 
     int rotationDistribution;
     float rotationAverage;
@@ -372,24 +372,24 @@ vec2 cartesianToPolar(vec3 direction)
 
 mat3 getRotationMatrix(void)
 {
-    if (crystalProperties.polarAngleDistribution == DISTRIBUTION_UNIFORM && crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
+    if (crystalProperties.tiltDistribution == DISTRIBUTION_UNIFORM && crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
     {
         return getUniformRandomRotationMatrix();
     }
 
-    // Orientation of crystal C-axis
-    mat3 polarTiltMat;
+    // Tilt of the crystal C-axis
+    mat3 tiltMat;
 
     // Rotation around crystal C-axis
     mat3 rotationMat;
 
-    if (crystalProperties.polarAngleDistribution == DISTRIBUTION_UNIFORM) {
-        polarTiltMat = rotateAroundZ(rand() * 2.0 * PI);
+    if (crystalProperties.tiltDistribution == DISTRIBUTION_UNIFORM) {
+        tiltMat = rotateAroundZ(rand() * 2.0 * PI);
     } else {
-        float angleAverage = crystalProperties.polarAngleAverage;
-        float angleStd = crystalProperties.polarAngleStd;
-        float polarAngle = radians(angleAverage + angleStd * randn().x);
-        polarTiltMat = rotateAroundZ(polarAngle);
+        float angleAverage = crystalProperties.tiltAverage;
+        float angleStd = crystalProperties.tiltStd;
+        float tiltAngle = radians(angleAverage + angleStd * randn().x);
+        tiltMat = rotateAroundZ(tiltAngle);
     }
 
     if (crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
@@ -402,7 +402,7 @@ mat3 getRotationMatrix(void)
         rotationMat = rotateAroundY(rotationAngle);
     }
 
-    return rotateAroundY(rand() * 2.0 * PI) * polarTiltMat * rotationMat;
+    return rotateAroundY(rand() * 2.0 * PI) * tiltMat * rotationMat;
 }
 
 float daylightEstimate(float wavelength)

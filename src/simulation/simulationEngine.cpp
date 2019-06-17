@@ -78,9 +78,9 @@ void SimulationEngine::Run(unsigned int numRays)
     glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.caRatioAverage"), mCrystals.caRatioAverage);
     glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.caRatioStd"), mCrystals.caRatioStd);
 
-    glUniform1i(glGetUniformLocation(shaderHandle, "crystalProperties.polarAngleDistribution"), mCrystals.polarAngleDistribution);
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.polarAngleAverage"), mCrystals.polarAngleAverage);
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.polarAngleStd"), mCrystals.polarAngleStd);
+    glUniform1i(glGetUniformLocation(shaderHandle, "crystalProperties.tiltDistribution"), mCrystals.tiltDistribution);
+    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.tiltAverage"), mCrystals.tiltAverage);
+    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.tiltStd"), mCrystals.tiltStd);
 
     glUniform1i(glGetUniformLocation(shaderHandle, "crystalProperties.rotationDistribution"), mCrystals.rotationDistribution);
     glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.rotationAverage"), mCrystals.rotationAverage);

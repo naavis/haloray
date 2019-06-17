@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Fixed bug where uniform C-axis orientation was messing with C-axis rotation
+- Renamed C-axis orientation to simply C-axis tilt
 
 ## 1.0.0
 
