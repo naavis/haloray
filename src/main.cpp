@@ -8,10 +8,7 @@
 #include "opengl/textureRenderer.h"
 #include "simulation/simulationEngine.h"
 #include "version.h"
-
-#include <QApplication>
-#include <QMainWindow>
-#include "gui/ui_mainWindow.h"
+#include "gui/mainWindow.h"
 
 struct CallbackState
 {
@@ -231,10 +228,7 @@ void runMainLoop(GLFWwindow *window)
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QMainWindow mainWindow;
-    Ui::MainWindow ui;
-    ui.setupUi(&mainWindow);
-
+    MainWindow mainWindow;
     mainWindow.show();
 
     return app.exec();
