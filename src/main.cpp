@@ -7,21 +7,7 @@
 #include <GLFW/glfw3.h>
 #include "opengl/textureRenderer.h"
 #include "simulation/simulationEngine.h"
-#include "gui/gui.h"
 #include "version.h"
-
-#define NK_INCLUDE_FIXED_TYPES
-#define NK_INCLUDE_STANDARD_IO
-#define NK_INCLUDE_STANDARD_VARARGS
-#define NK_INCLUDE_DEFAULT_ALLOCATOR
-#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
-#define NK_INCLUDE_FONT_BAKING
-#define NK_INCLUDE_DEFAULT_FONT
-#define NK_IMPLEMENTATION
-#define NK_GLFW_GL3_IMPLEMENTATION
-#define NK_KEYSTATE_BASED_INPUT
-#include "gui/nuklear/nuklear.h"
-#include "gui/nuklear/nuklear_glfw.h"
 
 #include <QApplication>
 #include <QMainWindow>
@@ -30,23 +16,12 @@
 struct CallbackState
 {
     HaloSim::SimulationEngine *engine;
-    bool *showInterface;
 };
 
 void windowResizeCallback(GLFWwindow *window, int width, int height)
 {
     auto state = reinterpret_cast<struct CallbackState *>(glfwGetWindowUserPointer(window));
     state->engine->ResizeOutputTextureCallback(width, height);
-}
-
-void keyboardCallback(GLFWwindow *window, int key, int scanCode, int action, int mods)
-{
-    auto state = reinterpret_cast<struct CallbackState *>(glfwGetWindowUserPointer(window));
-
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-    {
-        *(state->showInterface) = !*(state->showInterface);
-    }
 }
 
 GLFWwindow *createWindow()
@@ -80,26 +55,13 @@ GLFWwindow *createWindow()
     return window;
 }
 
-struct nk_context *initNuklear(GLFWwindow *window)
-{
-    struct nk_context *ctx = nk_glfw3_init(window, NK_GLFW3_INSTALL_CALLBACKS);
-
-    struct nk_font_atlas *atlas;
-    nk_glfw3_font_stash_begin(&atlas);
-    nk_glfw3_font_stash_end();
-
-    return ctx;
-}
-
-void runMainLoop(GLFWwindow *window,
-                 struct nk_context *ctx)
+void runMainLoop(GLFWwindow *window)
 {
     int initialWidth, initialHeight;
     glfwGetWindowSize(window, &initialWidth, &initialHeight);
     HaloSim::SimulationEngine engine(initialWidth, initialHeight);
 
     glfwSetWindowSizeCallback(window, windowResizeCallback);
-    glfwSetKeyCallback(window, keyboardCallback);
 
     try
     {
@@ -162,8 +124,6 @@ void runMainLoop(GLFWwindow *window,
 
     CallbackState cbState;
     cbState.engine = &engine;
-    cbState.showInterface = &showInterface;
-
     glfwSetWindowUserPointer(window, &cbState);
 
     double framesPerSecond = 0.0;
@@ -175,15 +135,13 @@ void runMainLoop(GLFWwindow *window,
         texRenderer.SetUniformFloat("exposure", exposure / (iteration + 1) / camera.fov);
         texRenderer.Render(engine.GetOutputTextureHandle());
 
-        /* Start rendering GUI */
-        nk_glfw3_new_frame();
-
         if (lockedToSun)
         {
             camera.pitch = sun.altitude;
             camera.yaw = 0.0f;
         }
 
+        /*
         if (isRendering && nk_window_is_any_hovered(ctx) == nk_false)
         {
             const float zoomSpeed = 0.1f * camera.fov;
@@ -218,12 +176,7 @@ void runMainLoop(GLFWwindow *window,
                 dragStartedOnBackground = true;
             }
         }
-
-        if (showInterface)
-        {
-            GUI::renderCrystalSettingsWindow(ctx, crystalProperties);
-            GUI::renderViewSettingsWindow(ctx, exposure, lockedToSun, camera, framesPerSecond);
-        }
+*/
 
         auto renderButtonFn = [&engine, &iteration, &isRendering]() {
             engine.Clear();
@@ -234,11 +187,6 @@ void runMainLoop(GLFWwindow *window,
         auto stopButtonFn = [&isRendering]() {
             isRendering = false;
         };
-
-        if (showInterface)
-        {
-            GUI::renderGeneralSettingsWindow(ctx, isRendering, numRays, maxNumRays, maxNumIterations, iteration, sun, renderButtonFn, stopButtonFn);
-        }
 
         if (isRendering)
         {
@@ -266,8 +214,6 @@ void runMainLoop(GLFWwindow *window,
                 ++iteration;
             }
         }
-
-        nk_glfw3_render(NK_ANTI_ALIASING_ON);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -302,12 +248,8 @@ int main(int argc, char *argv[])
     /* Initialize GLAD */
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    /* Initialize Nuklear context */
-    struct nk_context *ctx = initNuklear(window);
+    runMainLoop(window);
 
-    runMainLoop(window, ctx);
-
-    nk_glfw3_shutdown();
     glfwTerminate();
     return 0;
 }

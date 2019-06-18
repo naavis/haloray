@@ -16,7 +16,6 @@ find_package(Qt5 COMPONENTS REQUIRED Core Widgets Gui)
 add_executable(haloray
     main.cpp
     gui/mainWindow.ui
-    gui/gui.cpp
     simulation/simulationEngine.cpp
     opengl/utils.cpp
     opengl/texture.cpp
