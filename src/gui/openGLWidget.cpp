@@ -2,7 +2,6 @@
 #include <QWidget>
 #include <QOpenGLWidget>
 #include <memory>
-#include <random>
 #include "../simulation/simulationEngine.h"
 #include "../opengl/textureRenderer.h"
 
@@ -12,8 +11,6 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 
 void OpenGLWidget::paintGL()
 {
-    glClearColor(1.0, (float)std::rand() / RAND_MAX, 1.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
     mEngine->Run(10000);
     mTextureRenderer->SetUniformFloat("exposure", 1.0f);
     mTextureRenderer->Render(mEngine->GetOutputTextureHandle());
@@ -59,6 +56,6 @@ void OpenGLWidget::initializeGL()
     mEngine->SetLightSource(sun);
     mEngine->SetCrystalPopulation(crystalProperties);
 
-    glClearColor(1.0, (float)std::rand() / RAND_MAX, 1.0, 1.0);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 }
