@@ -1,13 +1,12 @@
 #include "program.h"
 #include <stdexcept>
-#include <glad/glad.h>
-#include "utils.h"
 
 namespace OpenGL
 {
 
 Program::Program()
 {
+    initializeOpenGLFunctions();
     mProgramHandle = glCreateProgram();
 }
 
@@ -17,7 +16,7 @@ Program::~Program()
     glDeleteProgram(mProgramHandle);
 }
 
-void Program::AttachShader(const Shader &shader) const
+void Program::AttachShader(const Shader &shader)
 {
     glAttachShader(mProgramHandle, shader.GetHandle());
 }
@@ -25,7 +24,6 @@ void Program::AttachShader(const Shader &shader) const
 void Program::Link()
 {
     glLinkProgram(mProgramHandle);
-    CheckLinkError(mProgramHandle);
     mIsLinked = true;
 }
 

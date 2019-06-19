@@ -3,62 +3,14 @@
 #include <algorithm>
 #include <functional>
 #include <stdexcept>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include "opengl/textureRenderer.h"
 #include "simulation/simulationEngine.h"
 #include "version.h"
 #include "gui/mainWindow.h"
 
-struct CallbackState
+void runMainLoop()
 {
-    HaloSim::SimulationEngine *engine;
-};
-
-void windowResizeCallback(GLFWwindow *window, int width, int height)
-{
-    auto state = reinterpret_cast<struct CallbackState *>(glfwGetWindowUserPointer(window));
-    state->engine->ResizeOutputTextureCallback(width, height);
-}
-
-GLFWwindow *createWindow()
-{
-    GLFWwindow *window;
-
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
-
-    /* Create a windowed mode window and its OpenGL context */
-
-    char titleBuffer[100];
-    std::sprintf(
-        titleBuffer,
-        "HaloRay %i.%i.%i",
-        HaloRay_VERSION_MAJOR,
-        HaloRay_VERSION_MINOR,
-        HaloRay_VERSION_PATCH);
-
-    window = glfwCreateWindow(1920, 1080, titleBuffer, NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-
-    return window;
-}
-
-void runMainLoop(GLFWwindow *window)
-{
-    int initialWidth, initialHeight;
-    glfwGetWindowSize(window, &initialWidth, &initialHeight);
-    HaloSim::SimulationEngine engine(initialWidth, initialHeight);
-
-    glfwSetWindowSizeCallback(window, windowResizeCallback);
+    HaloSim::SimulationEngine engine(1920, 1080);
 
     try
     {
@@ -111,6 +63,7 @@ void runMainLoop(GLFWwindow *window)
     bool lockedToSun = false;
     bool showInterface = true;
 
+    /*
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
     const int absoluteMaxNumRays = 1000000;
@@ -118,16 +71,11 @@ void runMainLoop(GLFWwindow *window)
 
     const int defaultNumRays = 500000;
     int numRays = std::min(defaultNumRays, maxNumRays);
-
-    CallbackState cbState;
-    cbState.engine = &engine;
-    glfwSetWindowUserPointer(window, &cbState);
-
-    double framesPerSecond = 0.0;
-    auto currentTime = glfwGetTime();
+*/
+    int numRays = 500000;
 
     /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
+    while (true)
     {
         texRenderer.SetUniformFloat("exposure", exposure / (iteration + 1) / camera.fov);
         texRenderer.Render(engine.GetOutputTextureHandle());
@@ -211,17 +159,6 @@ void runMainLoop(GLFWwindow *window)
                 ++iteration;
             }
         }
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
-
-        /* Poll for and process events */
-        glfwPollEvents();
-
-        /* Update frames per second counter */
-        auto newTime = glfwGetTime();
-        framesPerSecond = 1.0 / (newTime - currentTime);
-        currentTime = newTime;
     }
 }
 
@@ -232,18 +169,4 @@ int main(int argc, char *argv[])
     mainWindow.show();
 
     return app.exec();
-
-    /* Initialize GLFW */
-    if (!glfwInit())
-        exit(EXIT_FAILURE);
-
-    GLFWwindow *window = createWindow();
-
-    /* Initialize GLAD */
-    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
-    runMainLoop(window);
-
-    glfwTerminate();
-    return 0;
 }

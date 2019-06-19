@@ -19,7 +19,6 @@ add_executable(haloray
     gui/mainWindow.cpp
     gui/openGLWidget.cpp
     simulation/simulationEngine.cpp
-    opengl/utils.cpp
     opengl/texture.cpp
     opengl/shader.cpp
     opengl/textureRenderer.cpp

@@ -1,11 +1,12 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <QOpenGLFunctions_4_4_Core>
 #include "program.h"
 
 namespace OpenGL
 {
-class TextureRenderer
+class TextureRenderer : protected QOpenGLFunctions_4_4_Core
 {
 public:
     TextureRenderer() = default;

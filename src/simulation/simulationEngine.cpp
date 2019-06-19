@@ -1,5 +1,4 @@
 #include "simulationEngine.h"
-#include <glad/glad.h>
 #include <memory>
 #include <random>
 #include <limits>
@@ -106,6 +105,7 @@ void SimulationEngine::Clear()
 
 void SimulationEngine::Initialize()
 {
+    initializeOpenGLFunctions();
     InitializeShader();
     InitializeTextures();
 }

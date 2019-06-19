@@ -1,7 +1,6 @@
 #include "textureRenderer.h"
 #include <memory>
 #include <string>
-#include <glad/glad.h>
 #include "program.h"
 
 namespace OpenGL
@@ -46,6 +45,7 @@ std::unique_ptr<OpenGL::Program> TextureRenderer::InitializeTexDrawShaderProgram
 
 void TextureRenderer::Initialize()
 {
+    initializeOpenGLFunctions();
     float points[] = {
         -1.0f,
         -1.0f,

@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <glad/glad.h>
+#include <QOpenGLFunctions_4_4_Core>
 
 namespace OpenGL
 {
@@ -12,7 +12,7 @@ enum ShaderType
     Compute = GL_COMPUTE_SHADER
 };
 
-class Shader
+class Shader : protected QOpenGLFunctions_4_4_Core
 {
 public:
     Shader(std::string source, ShaderType type);

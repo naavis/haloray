@@ -1,6 +1,7 @@
 #pragma once
 #include <random>
 #include <memory>
+#include <QOpenGLFunctions_4_4_Core>
 #include "../opengl/shader.h"
 #include "../opengl/program.h"
 #include "../opengl/texture.h"
@@ -88,7 +89,7 @@ struct Camera
     }
 };
 
-class SimulationEngine
+class SimulationEngine : protected QOpenGLFunctions_4_4_Core
 {
 public:
     SimulationEngine(unsigned int outputWidth, unsigned int outputHeight);

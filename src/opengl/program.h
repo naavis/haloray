@@ -1,14 +1,15 @@
 #pragma once
 #include "shader.h"
+#include <QOpenGLFunctions_4_4_Core>
 
 namespace OpenGL
 {
-class Program
+class Program : protected QOpenGLFunctions_4_4_Core
 {
 public:
     Program();
     ~Program();
-    void AttachShader(const Shader &shader) const;
+    void AttachShader(const Shader &shader);
     void Link();
     void Use();
 
