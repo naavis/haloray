@@ -9,12 +9,21 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
 }
 
+void OpenGLWidget::startRendering()
+{
+    mEngine->Start(10000);
+    update();
+}
+
 void OpenGLWidget::paintGL()
 {
-    mEngine->Step();
-    mTextureRenderer->SetUniformFloat("exposure", 1.0f);
-    mTextureRenderer->Render(mEngine->GetOutputTextureHandle());
-    update();
+    if (mEngine->IsRunning())
+    {
+        mEngine->Step();
+        mTextureRenderer->SetUniformFloat("exposure", 1.0f);
+        mTextureRenderer->Render(mEngine->GetOutputTextureHandle());
+        update();
+    }
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
@@ -58,6 +67,4 @@ void OpenGLWidget::initializeGL()
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
-
-    mEngine->Start(10000);
 }

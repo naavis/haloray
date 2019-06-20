@@ -98,6 +98,7 @@ public:
     void Step();
 
     void Clear();
+    bool IsRunning() const;
 
     struct Camera GetCamera() const;
     void SetCamera(const struct Camera);

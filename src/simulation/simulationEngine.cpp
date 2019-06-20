@@ -16,8 +16,14 @@ SimulationEngine::SimulationEngine(
     : mOutputWidth(outputWidth),
       mOutputHeight(outputHeight),
       mMersenneTwister(std::mt19937(std::random_device()())),
-      mUniformDistribution(std::uniform_int_distribution<unsigned int>(0, std::numeric_limits<unsigned int>::max()))
+      mUniformDistribution(std::uniform_int_distribution<unsigned int>(0, std::numeric_limits<unsigned int>::max())),
+      mRunning(false)
 {
+}
+
+bool SimulationEngine::IsRunning() const
+{
+    return mRunning;
 }
 
 Camera SimulationEngine::GetCamera() const
@@ -60,6 +66,7 @@ const unsigned int SimulationEngine::GetOutputTextureHandle() const
 
 void SimulationEngine::Start(unsigned int raysPerStep)
 {
+    if (IsRunning()) return;
     mRunning = true;
     mRaysPerStep = raysPerStep;
     mIteration = 0;
