@@ -58,8 +58,17 @@ const unsigned int SimulationEngine::GetOutputTextureHandle() const
     return mSimulationTexture->GetHandle();
 }
 
-void SimulationEngine::Run(unsigned int numRays)
+void SimulationEngine::Start(unsigned int raysPerStep)
 {
+    mRunning = true;
+    mRaysPerStep = raysPerStep;
+    mIteration = 0;
+}
+
+void SimulationEngine::Step()
+{
+    ++mIteration;
+
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     glBindImageTexture(mSimulationTexture->GetTextureUnit(), mSimulationTexture->GetHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glClearTexImage(mSpinlockTexture->GetHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
@@ -91,7 +100,7 @@ void SimulationEngine::Run(unsigned int numRays)
     glUniform1i(glGetUniformLocation(shaderHandle, "camera.projection"), mCamera.projection);
     glUniform1i(glGetUniformLocation(shaderHandle, "camera.hideSubHorizon"), mCamera.hideSubHorizon ? 1 : 0);
 
-    glDispatchCompute(numRays, 1, 1);
+    glDispatchCompute(mRaysPerStep, 1, 1);
 }
 
 void SimulationEngine::Clear()

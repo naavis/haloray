@@ -11,7 +11,7 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 
 void OpenGLWidget::paintGL()
 {
-    mEngine->Run(10000);
+    mEngine->Step();
     mTextureRenderer->SetUniformFloat("exposure", 1.0f);
     mTextureRenderer->Render(mEngine->GetOutputTextureHandle());
     update();
@@ -58,4 +58,6 @@ void OpenGLWidget::initializeGL()
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    mEngine->Start(10000);
 }

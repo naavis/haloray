@@ -94,7 +94,9 @@ class SimulationEngine : protected QOpenGLFunctions_4_4_Core
 public:
     SimulationEngine(unsigned int outputWidth, unsigned int outputHeight);
     void Initialize();
-    void Run(unsigned int numRays);
+    void Start(unsigned int raysPerStep);
+    void Step();
+
     void Clear();
 
     struct Camera GetCamera() const;
@@ -125,6 +127,10 @@ private:
     struct Camera mCamera;
     struct CrystalPopulation mCrystals;
     struct LightSource mLight;
+
+    bool mRunning;
+    unsigned int mRaysPerStep;
+    unsigned int mIteration;
 };
 
 } // namespace HaloSim
