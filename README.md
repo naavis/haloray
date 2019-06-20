@@ -13,21 +13,15 @@ HaloRay currently supports Windows and Linux.
 ## How to build?
 
 HaloRay requires an OpenGL 4.4 compliant GPU.
-Build dependencies are handled using [Conan](https://conan.io/) and the build itself is done with
-[CMake](https://cmake.org/).
+The build is done using [CMake](https://cmake.org/).
 
-Conan must be configured with the Bincrafters remote:
-
-```bash
-conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
-```
+# TODO: Add mention of Qt
 
 Build the project by running:
 
 ```bash
 mkdir build
 cd build
-conan install --build=missing ..
 cmake ..
 cmake --build . --config Release
 ```

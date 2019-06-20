@@ -25,4 +25,4 @@ add_executable(haloray
     opengl/program.cpp
     )
 
-target_link_libraries(haloray ${CONAN_LIBS} Qt5::Core Qt5::Widgets Qt5::Gui)
+target_link_libraries(haloray Qt5::Core Qt5::Widgets Qt5::Gui)
