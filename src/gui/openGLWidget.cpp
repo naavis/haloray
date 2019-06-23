@@ -31,10 +31,10 @@ void OpenGLWidget::paintGL()
     if (mEngine->IsRunning())
     {
         mEngine->Step();
-        mTextureRenderer->SetUniformFloat("exposure", 1.0f);
-        mTextureRenderer->Render(mEngine->GetOutputTextureHandle());
         update();
     }
+    mTextureRenderer->SetUniformFloat("exposure", 1.0f);
+    mTextureRenderer->Render(mEngine->GetOutputTextureHandle());
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
@@ -44,8 +44,6 @@ void OpenGLWidget::resizeGL(int w, int h)
 void OpenGLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
-
-    setUpdateBehavior(QOpenGLWidget::UpdateBehavior::PartialUpdate);
 
     mTextureRenderer = std::make_unique<OpenGL::TextureRenderer>();
     mEngine->Initialize();

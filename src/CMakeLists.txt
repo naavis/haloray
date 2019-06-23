@@ -20,9 +20,7 @@ add_executable(haloray
     gui/openGLWidget.cpp
     simulation/simulationEngine.cpp
     opengl/texture.cpp
-    opengl/shader.cpp
     opengl/textureRenderer.cpp
-    opengl/program.cpp
     )
 
 target_link_libraries(haloray Qt5::Core Qt5::Widgets Qt5::Gui)

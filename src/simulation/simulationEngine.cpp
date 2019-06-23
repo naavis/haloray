@@ -2,7 +2,7 @@
 #include <memory>
 #include <random>
 #include <limits>
-#include "../opengl/program.h"
+#include <QOpenGLShaderProgram>
 #include "../opengl/texture.h"
 
 #include "shaders/raytrace.glsl"
@@ -91,31 +91,34 @@ void SimulationEngine::Step()
     glClearTexImage(mSpinlockTexture->GetHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
     glBindImageTexture(mSpinlockTexture->GetTextureUnit(), mSpinlockTexture->GetHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 
-    mSimulationShader->Use();
+    mSimulationShader->bind();
 
-    GLuint shaderHandle = mSimulationShader->GetHandle();
+    unsigned int seed = mUniformDistribution(mMersenneTwister);
 
-    const unsigned int seed = mUniformDistribution(mMersenneTwister);
-    glUniform1ui(glGetUniformLocation(shaderHandle, "rngSeed"), seed);
-    glUniform1f(glGetUniformLocation(shaderHandle, "sun.altitude"), mLight.altitude);
-    glUniform1f(glGetUniformLocation(shaderHandle, "sun.diameter"), mLight.diameter);
+    /* The following line needs to use glUniform1ui instead of the
+       setUniformValue method because of a bug in Qt:
+       https://bugreports.qt.io/browse/QTBUG-45507
+    */
+    glUniform1ui(glGetUniformLocation(mSimulationShader->programId(), "rngSeed"), seed);
+    mSimulationShader->setUniformValue("sun.altitude", mLight.altitude);
+    mSimulationShader->setUniformValue("sun.diameter", mLight.diameter);
 
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.caRatioAverage"), mCrystals.caRatioAverage);
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.caRatioStd"), mCrystals.caRatioStd);
+    mSimulationShader->setUniformValue("crystalProperties.caRatioAverage", mCrystals.caRatioAverage);
+    mSimulationShader->setUniformValue("crystalProperties.caRatioStd", mCrystals.caRatioStd);
 
-    glUniform1i(glGetUniformLocation(shaderHandle, "crystalProperties.tiltDistribution"), mCrystals.tiltDistribution);
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.tiltAverage"), mCrystals.tiltAverage);
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.tiltStd"), mCrystals.tiltStd);
+    mSimulationShader->setUniformValue("crystalProperties.tiltDistribution", mCrystals.tiltDistribution);
+    mSimulationShader->setUniformValue("crystalProperties.tiltAverage", mCrystals.tiltAverage);
+    mSimulationShader->setUniformValue("crystalProperties.tiltStd", mCrystals.tiltStd);
 
-    glUniform1i(glGetUniformLocation(shaderHandle, "crystalProperties.rotationDistribution"), mCrystals.rotationDistribution);
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.rotationAverage"), mCrystals.rotationAverage);
-    glUniform1f(glGetUniformLocation(shaderHandle, "crystalProperties.rotationStd"), mCrystals.rotationStd);
+    mSimulationShader->setUniformValue("crystalProperties.rotationDistribution", mCrystals.rotationDistribution);
+    mSimulationShader->setUniformValue("crystalProperties.rotationAverage", mCrystals.rotationAverage);
+    mSimulationShader->setUniformValue("crystalProperties.rotationStd", mCrystals.rotationStd);
 
-    glUniform1f(glGetUniformLocation(shaderHandle, "camera.pitch"), mCamera.pitch);
-    glUniform1f(glGetUniformLocation(shaderHandle, "camera.yaw"), mCamera.yaw);
-    glUniform1f(glGetUniformLocation(shaderHandle, "camera.fov"), mCamera.fov);
-    glUniform1i(glGetUniformLocation(shaderHandle, "camera.projection"), mCamera.projection);
-    glUniform1i(glGetUniformLocation(shaderHandle, "camera.hideSubHorizon"), mCamera.hideSubHorizon ? 1 : 0);
+    mSimulationShader->setUniformValue("camera.pitch", mCamera.pitch);
+    mSimulationShader->setUniformValue("camera.yaw", mCamera.yaw);
+    mSimulationShader->setUniformValue("camera.fov", mCamera.fov);
+    mSimulationShader->setUniformValue("camera.projection", mCamera.projection);
+    mSimulationShader->setUniformValue("camera.hideSubHorizon", mCamera.hideSubHorizon ? 1 : 0);
 
     glDispatchCompute(mRaysPerStep, 1, 1);
 }
@@ -140,17 +143,10 @@ void SimulationEngine::Initialize()
 
 void SimulationEngine::InitializeShader()
 {
-    OpenGL::Shader shader(computeShaderSource, OpenGL::ShaderType::Compute);
-    mSimulationShader = std::make_unique<OpenGL::Program>();
-    try
-    {
-        shader.Compile();
-        mSimulationShader->AttachShader(shader);
-        mSimulationShader->Link();
-    }
-    catch (const std::runtime_error &)
-    {
-        throw;
+    mSimulationShader = std::make_unique<QOpenGLShaderProgram>();
+    mSimulationShader->addCacheableShaderFromSourceCode(QOpenGLShader::ShaderTypeBit::Compute, computeShaderSource.c_str());
+    if (mSimulationShader->link() == false) {
+        throw std::runtime_error(mSimulationShader->log().toUtf8());
     }
 }
 

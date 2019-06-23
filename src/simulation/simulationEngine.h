@@ -1,9 +1,8 @@
 #pragma once
 #include <random>
 #include <memory>
+#include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions_4_4_Core>
-#include "../opengl/shader.h"
-#include "../opengl/program.h"
 #include "../opengl/texture.h"
 
 namespace HaloSim
@@ -122,7 +121,7 @@ private:
     unsigned int mOutputHeight;
     std::mt19937 mMersenneTwister;
     std::uniform_int_distribution<unsigned int> mUniformDistribution;
-    std::unique_ptr<OpenGL::Program> mSimulationShader;
+    std::unique_ptr<QOpenGLShaderProgram> mSimulationShader;
     std::unique_ptr<OpenGL::Texture> mSimulationTexture;
     std::unique_ptr<OpenGL::Texture> mSpinlockTexture;
 
