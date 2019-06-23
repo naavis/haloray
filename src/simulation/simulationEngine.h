@@ -131,6 +131,7 @@ private:
     struct LightSource mLight;
 
     bool mRunning;
+    bool mInitialized;
     unsigned int mRaysPerStep;
     unsigned int mIteration;
 };

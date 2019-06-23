@@ -9,6 +9,11 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
 }
 
+void OpenGLWidget::setEngine(enginePtr engine)
+{
+    mEngine = engine;
+}
+
 void OpenGLWidget::toggleRendering()
 {
     if (mEngine->IsRunning())
@@ -42,7 +47,6 @@ void OpenGLWidget::initializeGL()
 
     setUpdateBehavior(QOpenGLWidget::UpdateBehavior::PartialUpdate);
 
-    mEngine = std::make_unique<HaloSim::SimulationEngine>(size().width(), size().height());
     mTextureRenderer = std::make_unique<OpenGL::TextureRenderer>();
     mEngine->Initialize();
     mTextureRenderer->Initialize();

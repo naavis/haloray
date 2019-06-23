@@ -19,7 +19,8 @@ SimulationEngine::SimulationEngine(
       mUniformDistribution(std::uniform_int_distribution<unsigned int>(0, std::numeric_limits<unsigned int>::max())),
       mRunning(false),
       mRaysPerStep(1),
-      mIteration(0)
+      mIteration(0),
+      mInitialized(false)
 {
 }
 
@@ -130,9 +131,11 @@ void SimulationEngine::Clear()
 
 void SimulationEngine::Initialize()
 {
+    if (mInitialized) return;
     initializeOpenGLFunctions();
     InitializeShader();
     InitializeTextures();
+    mInitialized = true;
 }
 
 void SimulationEngine::InitializeShader()

@@ -11,4 +11,5 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    std::shared_ptr<HaloSim::SimulationEngine> mEngine;
 };

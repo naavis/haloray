@@ -9,8 +9,14 @@
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Core
 {
     Q_OBJECT
+
+typedef std::shared_ptr<HaloSim::SimulationEngine> enginePtr;
+
 public:
     explicit OpenGLWidget(QWidget *parent = 0);
+    void setEngine(enginePtr engine);
+
+public slots:
     void toggleRendering();
 
 protected:
@@ -19,6 +25,6 @@ protected:
     void initializeGL() override;
 
 private:
-    std::unique_ptr<HaloSim::SimulationEngine> mEngine;
+    enginePtr mEngine;
     std::unique_ptr<OpenGL::TextureRenderer> mTextureRenderer;
 };
