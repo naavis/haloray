@@ -8,5 +8,5 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(ui->renderButton, &QPushButton::clicked, ui->openGLWidget, &OpenGLWidget::startRendering);
+    connect(ui->renderButton, &QPushButton::clicked, ui->openGLWidget, &OpenGLWidget::toggleRendering);
 }

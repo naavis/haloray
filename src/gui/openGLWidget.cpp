@@ -9,10 +9,16 @@ OpenGLWidget::OpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
 }
 
-void OpenGLWidget::startRendering()
+void OpenGLWidget::toggleRendering()
 {
-    mEngine->Start(10000);
-    update();
+    if (mEngine->IsRunning())
+    {
+        mEngine->Stop();
+        update();
+    } else {
+        mEngine->Start(10000);
+        update();
+    }
 }
 
 void OpenGLWidget::paintGL()
@@ -33,6 +39,9 @@ void OpenGLWidget::resizeGL(int w, int h)
 void OpenGLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
+
+    setUpdateBehavior(QOpenGLWidget::UpdateBehavior::PartialUpdate);
+
     mEngine = std::make_unique<HaloSim::SimulationEngine>(size().width(), size().height());
     mTextureRenderer = std::make_unique<OpenGL::TextureRenderer>();
     mEngine->Initialize();

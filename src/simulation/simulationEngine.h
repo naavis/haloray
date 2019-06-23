@@ -96,6 +96,7 @@ public:
     void Initialize();
     void Start(unsigned int raysPerStep);
     void Step();
+    void Stop();
 
     void Clear();
     bool IsRunning() const;

@@ -17,7 +17,9 @@ SimulationEngine::SimulationEngine(
       mOutputHeight(outputHeight),
       mMersenneTwister(std::mt19937(std::random_device()())),
       mUniformDistribution(std::uniform_int_distribution<unsigned int>(0, std::numeric_limits<unsigned int>::max())),
-      mRunning(false)
+      mRunning(false),
+      mRaysPerStep(1),
+      mIteration(0)
 {
 }
 
@@ -67,9 +69,16 @@ const unsigned int SimulationEngine::GetOutputTextureHandle() const
 void SimulationEngine::Start(unsigned int raysPerStep)
 {
     if (IsRunning()) return;
+    Clear();
     mRunning = true;
     mRaysPerStep = raysPerStep;
     mIteration = 0;
+}
+
+void SimulationEngine::Stop()
+{
+    mIteration = 0;
+    mRunning = false;
 }
 
 void SimulationEngine::Step()

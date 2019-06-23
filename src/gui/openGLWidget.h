@@ -11,7 +11,7 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Core
     Q_OBJECT
 public:
     explicit OpenGLWidget(QWidget *parent = 0);
-    void startRendering();
+    void toggleRendering();
 
 protected:
     void paintGL() override;
