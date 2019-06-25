@@ -12,16 +12,19 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent) : QWidget(parent)
 
     mSunDiameterSpinBox = new QDoubleSpinBox(this);
     mSunDiameterSpinBox->setSuffix("­°");
+    mSunDiameterSpinBox->setSingleStep(0.1);
     mSunDiameterSpinBox->setMinimum(0.01);
     mSunDiameterSpinBox->setMaximum(30.0);
     mSunDiameterSpinBox->setValue(0.5);
 
     mRaysPerFrameSpinBox = new QSpinBox(this);
+    mRaysPerFrameSpinBox->setSingleStep(1000);
     mRaysPerFrameSpinBox->setMinimum(1);
     mRaysPerFrameSpinBox->setMaximum(2000000000);
     mRaysPerFrameSpinBox->setValue(500000);
 
     mMaximumFramesSpinBox = new QSpinBox(this);
+    mRaysPerFrameSpinBox->setSingleStep(60);
     mMaximumFramesSpinBox->setMinimum(1);
     mMaximumFramesSpinBox->setMaximum(1000000000);
     mMaximumFramesSpinBox->setValue(100000000);
