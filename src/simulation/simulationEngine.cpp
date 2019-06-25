@@ -4,7 +4,9 @@
 #include <limits>
 #include <QOpenGLShaderProgram>
 #include "../opengl/texture.h"
-
+#include "camera.h"
+#include "lightSource.h"
+#include "crystalPopulation.h"
 #include "shaders/raytrace.glsl"
 
 namespace HaloSim

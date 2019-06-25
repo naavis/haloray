@@ -3,6 +3,9 @@
 #include <QOpenGLWidget>
 #include <memory>
 #include "../simulation/simulationEngine.h"
+#include "../simulation/camera.h"
+#include "../simulation/lightSource.h"
+#include "../simulation/crystalPopulation.h"
 #include "../opengl/textureRenderer.h"
 
 OpenGLWidget::OpenGLWidget(QWidget *parent) : QOpenGLWidget(parent)

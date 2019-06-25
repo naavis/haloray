@@ -4,89 +4,12 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions_4_4_Core>
 #include "../opengl/texture.h"
+#include "camera.h"
+#include "lightSource.h"
+#include "crystalPopulation.h"
 
 namespace HaloSim
 {
-
-struct CrystalPopulation
-{
-    float caRatioAverage;
-    float caRatioStd;
-
-    int tiltDistribution;
-    float tiltAverage;
-    float tiltStd;
-
-    int rotationDistribution;
-    float rotationAverage;
-    float rotationStd;
-
-    bool operator==(const struct CrystalPopulation &other) const
-    {
-        return caRatioAverage == other.caRatioAverage &&
-               caRatioStd == other.caRatioStd &&
-               tiltDistribution == other.tiltDistribution &&
-               tiltAverage == other.tiltAverage &&
-               tiltStd == other.tiltStd &&
-               rotationDistribution == other.rotationDistribution &&
-               rotationAverage == other.rotationAverage &&
-               rotationStd == other.rotationStd;
-    }
-
-    bool operator!=(const struct CrystalPopulation &other) const
-    {
-        return !operator==(other);
-    }
-};
-
-struct LightSource
-{
-    float altitude;
-    float diameter;
-
-    bool operator==(const struct LightSource &other) const
-    {
-        return altitude == other.altitude &&
-               diameter == other.diameter;
-    }
-
-    bool operator!=(const struct LightSource &other) const
-    {
-        return !operator==(other);
-    }
-};
-
-enum Projection
-{
-    Stereographic = 0,
-    Rectilinear,
-    Equidistant,
-    EqualArea,
-    Orthographic
-};
-
-struct Camera
-{
-    float pitch;
-    float yaw;
-    float fov;
-    Projection projection;
-    bool hideSubHorizon;
-
-    bool operator==(const struct Camera &other) const
-    {
-        return pitch == other.pitch &&
-               yaw == other.yaw &&
-               fov == other.fov &&
-               projection == other.projection &&
-               hideSubHorizon == other.hideSubHorizon;
-    }
-
-    bool operator!=(const struct Camera &other) const
-    {
-        return !operator==(other);
-    }
-};
 
 class SimulationEngine : protected QOpenGLFunctions_4_4_Core
 {
