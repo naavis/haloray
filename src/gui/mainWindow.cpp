@@ -7,17 +7,21 @@
 #include <QComboBox>
 #include "openGLWidget.h"
 #include "../simulation/simulationEngine.h"
+#include "sliderSpinBox.h"
 #include "ui_mainWindow.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->sunAltitudeSlider->setMinimum(-90.0);
+    ui->sunAltitudeSlider->setMaximum(90.0);
+    ui->sunAltitudeSlider->setValue(0.0);
 
     mEngine = std::make_shared<HaloSim::SimulationEngine>(ui->openGLWidget->width(), ui->openGLWidget->height());
     ui->openGLWidget->setEngine(mEngine);
 
     connect(ui->renderButton, &QPushButton::clicked, ui->openGLWidget, &OpenGLWidget::toggleRendering);
-    connect(ui->sunAltitudeSlider, &QSlider::valueChanged, [=](int value) {
+    connect(ui->sunAltitudeSlider, &SliderSpinBox::valueChanged, [=](double value) {
         auto light = mEngine->GetLightSource();
         light.altitude = (float)value;
         mEngine->SetLightSource(light);
