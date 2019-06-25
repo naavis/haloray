@@ -23,8 +23,10 @@ void OpenGLWidget::toggleRendering()
     {
         mEngine->Stop();
         update();
-    } else {
-        mEngine->Start(10000);
+    }
+    else
+    {
+        mEngine->Start(500000);
         update();
     }
 }

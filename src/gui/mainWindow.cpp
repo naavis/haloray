@@ -13,22 +13,12 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->sunAltitudeSlider->setMinimum(-90.0);
-    ui->sunAltitudeSlider->setMaximum(90.0);
-    ui->sunAltitudeSlider->setValue(0.0);
 
     mEngine = std::make_shared<HaloSim::SimulationEngine>(ui->openGLWidget->width(), ui->openGLWidget->height());
     ui->openGLWidget->setEngine(mEngine);
 
     connect(ui->renderButton, &QPushButton::clicked, ui->openGLWidget, &OpenGLWidget::toggleRendering);
-    connect(ui->sunAltitudeSlider, &SliderSpinBox::valueChanged, [=](double value) {
-        auto light = mEngine->GetLightSource();
-        light.altitude = (float)value;
-        mEngine->SetLightSource(light);
-    });
-    connect(ui->sunDiameterSpinner, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {
-        auto light = mEngine->GetLightSource();
-        light.diameter = value;
+    connect(ui->generalSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [=](HaloSim::LightSource light) {
         mEngine->SetLightSource(light);
     });
     connect(ui->caRatioSpinner, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {

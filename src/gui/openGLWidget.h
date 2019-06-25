@@ -10,7 +10,7 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Core
 {
     Q_OBJECT
 
-typedef std::shared_ptr<HaloSim::SimulationEngine> enginePtr;
+    typedef std::shared_ptr<HaloSim::SimulationEngine> enginePtr;
 
 public:
     explicit OpenGLWidget(QWidget *parent = 0);
