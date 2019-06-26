@@ -15,14 +15,16 @@ find_package(Qt5 COMPONENTS REQUIRED Core Widgets Gui)
 
 add_executable(haloray
     main.cpp
-    gui/mainWindow.ui
     gui/mainWindow.cpp
     gui/openGLWidget.cpp
     gui/generalSettingsWidget.cpp
     gui/sliderSpinBox.cpp
+    gui/mainWindow.ui
     simulation/simulationEngine.cpp
     opengl/texture.cpp
     opengl/textureRenderer.cpp
     )
+
+target_include_directories(haloray PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/gui")
 
 target_link_libraries(haloray Qt5::Core Qt5::Widgets Qt5::Gui)
