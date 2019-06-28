@@ -38,7 +38,8 @@ void OpenGLWidget::paintGL()
         mEngine->Step();
         update();
     }
-    mTextureRenderer->SetUniformFloat("exposure", 1.0f);
+    const float exposure = 1.0f / (mEngine->GetIteration() + 1) / mEngine->GetCamera().fov;
+    mTextureRenderer->SetUniformFloat("exposure", exposure);
     mTextureRenderer->Render(mEngine->GetOutputTextureHandle());
 }
 

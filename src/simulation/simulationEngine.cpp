@@ -69,9 +69,15 @@ const unsigned int SimulationEngine::GetOutputTextureHandle() const
     return mSimulationTexture->GetHandle();
 }
 
+unsigned int SimulationEngine::GetIteration() const
+{
+    return mIteration;
+}
+
 void SimulationEngine::Start(unsigned int raysPerStep)
 {
-    if (IsRunning()) return;
+    if (IsRunning())
+        return;
     Clear();
     mRunning = true;
     mRaysPerStep = raysPerStep;
@@ -136,7 +142,8 @@ void SimulationEngine::Clear()
 
 void SimulationEngine::Initialize()
 {
-    if (mInitialized) return;
+    if (mInitialized)
+        return;
     initializeOpenGLFunctions();
     InitializeShader();
     InitializeTextures();
@@ -147,7 +154,8 @@ void SimulationEngine::InitializeShader()
 {
     mSimulationShader = std::make_unique<QOpenGLShaderProgram>();
     mSimulationShader->addCacheableShaderFromSourceCode(QOpenGLShader::ShaderTypeBit::Compute, computeShaderSource.c_str());
-    if (mSimulationShader->link() == false) {
+    if (mSimulationShader->link() == false)
+    {
         throw std::runtime_error(mSimulationShader->log().toUtf8());
     }
 }

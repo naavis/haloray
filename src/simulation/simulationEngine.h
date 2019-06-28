@@ -22,6 +22,7 @@ public:
 
     void Clear();
     bool IsRunning() const;
+    unsigned int GetIteration() const;
 
     struct Camera GetCamera() const;
     void SetCamera(const struct Camera);
