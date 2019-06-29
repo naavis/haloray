@@ -139,13 +139,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QProgressBar" name="progressBar">
-        <property name="value">
-         <number>0</number>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="renderButton">
         <property name="minimumSize">
          <size>
