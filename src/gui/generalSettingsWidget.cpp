@@ -54,14 +54,9 @@ void GeneralSettingsWidget::SetInitialValues(double sunDiameter,
                                              unsigned int raysPerFrame,
                                              unsigned int maxNumFrames)
 {
-    qDebug("Setting initial values for general settings widget");
-    qDebug("Setting sun diameter");
     mSunDiameterSpinBox->setValue(sunDiameter);
-    qDebug("Setting sun altitude");
     mSunAltitudeSlider->setValue(sunAltitude);
-    qDebug("Settings rays per frame");
     mRaysPerFrameSpinBox->setValue(raysPerFrame);
-    qDebug("Setting max number of frames");
     mMaximumFramesSpinBox->setValue(maxNumFrames);
 }
 

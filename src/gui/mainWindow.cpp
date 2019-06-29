@@ -12,7 +12,6 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    qDebug("Initializing main window");
     ui->setupUi(this);
 
     mEngine = std::make_shared<HaloSim::SimulationEngine>(ui->openGLWidget->width(), ui->openGLWidget->height());
