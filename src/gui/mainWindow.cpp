@@ -4,6 +4,7 @@
 #include <QGroupBox>
 #include <QFormLayout>
 #include "../simulation/simulationEngine.h"
+#include "../simulation/crystalPopulation.h"
 #include "sliderSpinBox.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
@@ -19,16 +20,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [=](unsigned int value) {
         mEngine->SetRaysPerStep(value);
     });
-    connect(mCaRatioSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {
-        auto crystals = mEngine->GetCrystalPopulation();
-        crystals.caRatioAverage = value;
-        mEngine->SetCrystalPopulation(crystals);
+
+    connect(mCrystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [=](HaloSim::CrystalPopulation crystal) {
+        mEngine->SetCrystalPopulation(crystal);
     });
-    connect(mCaRatioStdSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {
-        auto crystals = mEngine->GetCrystalPopulation();
-        crystals.caRatioStd = value;
-        mEngine->SetCrystalPopulation(crystals);
-    });
+
     connect(mCameraProjectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index) {
         auto camera = mEngine->GetCamera();
         camera.projection = (HaloSim::Projection)index;
@@ -40,30 +36,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
                                              mEngine->GetRaysPerStep(),
                                              1000000);
 
-    mCaRatioSpinBox->setValue(mEngine->GetCrystalPopulation().caRatioAverage);
-    mCaRatioStdSpinBox->setValue(mEngine->GetCrystalPopulation().caRatioStd);
+    mCrystalSettingsWidget->SetInitialValues(mEngine->GetCrystalPopulation());
 }
 
 void MainWindow::setupUi()
 {
     mGeneralSettingsWidget = new GeneralSettingsWidget();
 
+    mCrystalSettingsWidget = new CrystalSettingsWidget();
+
     mOpenGLWidget = new OpenGLWidget();
     mOpenGLWidget->setMinimumSize(800, 800);
-
-    mCaRatioSpinBox = new QDoubleSpinBox();
-
-    mCaRatioStdSpinBox = new QDoubleSpinBox();
 
     mRenderButton = new QPushButton("Render / Stop");
     mRenderButton->setMinimumHeight(100);
 
     mCameraProjectionComboBox = new QComboBox();
-    mCameraProjectionComboBox->addItem("Stereographic");
-    mCameraProjectionComboBox->addItem("Rectilinear");
-    mCameraProjectionComboBox->addItem("Equidistant");
-    mCameraProjectionComboBox->addItem("Equal area");
-    mCameraProjectionComboBox->addItem("Orthographic");
+    mCameraProjectionComboBox->addItems({"Stereographic",
+                                         "Rectilinear",
+                                         "Equidistant",
+                                         "Equal area",
+                                         "Orthographic"});
 
     auto mainWidget = new QWidget();
     auto topLayout = new QHBoxLayout();
@@ -78,9 +71,8 @@ void MainWindow::setupUi()
     generalSettingsGroupBox->setLayout(generalSettingsLayout);
 
     auto crystalSettingsGroupBox = new QGroupBox("Crystal settings");
-    auto crystalSettingsLayout = new QFormLayout();
-    crystalSettingsLayout->addRow("C/A average ratio", mCaRatioSpinBox);
-    crystalSettingsLayout->addRow("C/A ratio std.", mCaRatioStdSpinBox);
+    auto crystalSettingsLayout = new QHBoxLayout();
+    crystalSettingsLayout->addWidget(mCrystalSettingsWidget);
     crystalSettingsGroupBox->setLayout(crystalSettingsLayout);
 
     auto viewSettingsGroupBox = new QGroupBox("View settings");

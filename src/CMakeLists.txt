@@ -16,6 +16,7 @@ add_executable(haloray
     gui/mainWindow.cpp
     gui/openGLWidget.cpp
     gui/generalSettingsWidget.cpp
+    gui/crystalSettingsWidget.cpp
     gui/sliderSpinBox.cpp
     simulation/simulationEngine.cpp
     opengl/texture.cpp
