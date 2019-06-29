@@ -20,15 +20,10 @@ void OpenGLWidget::setEngine(enginePtr engine)
 void OpenGLWidget::toggleRendering()
 {
     if (mEngine->IsRunning())
-    {
         mEngine->Stop();
-        update();
-    }
     else
-    {
         mEngine->Start();
-        update();
-    }
+    update();
 }
 
 void OpenGLWidget::paintGL()
