@@ -50,12 +50,14 @@ void GeneralSettingsWidget::setupUi()
     mRaysPerFrameSpinBox->setMinimum(1);
     mRaysPerFrameSpinBox->setMaximum(2000000000);
     mRaysPerFrameSpinBox->setValue(500000);
+    mRaysPerFrameSpinBox->setGroupSeparatorShown(true);
 
     mMaximumFramesSpinBox = new QSpinBox(this);
     mRaysPerFrameSpinBox->setSingleStep(60);
     mMaximumFramesSpinBox->setMinimum(1);
     mMaximumFramesSpinBox->setMaximum(1000000000);
     mMaximumFramesSpinBox->setValue(100000000);
+    mMaximumFramesSpinBox->setGroupSeparatorShown(true);
 
     auto layout = new QFormLayout(this);
     layout->addRow("Sun altitude", mSunAltitudeSlider);
