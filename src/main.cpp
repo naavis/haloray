@@ -1,4 +1,5 @@
 #include <QtGlobal>
+#include <QApplication>
 #include "version.h"
 #include "gui/mainWindow.h"
 

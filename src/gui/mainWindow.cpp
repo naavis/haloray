@@ -1,21 +1,16 @@
 #include "mainWindow.h"
-#include <QMainWindow>
-#include <QWidget>
-#include <QPushButton>
-#include <QSlider>
-#include <QDoubleSpinBox>
-#include <QComboBox>
-#include "openGLWidget.h"
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QGroupBox>
+#include <QFormLayout>
 #include "../simulation/simulationEngine.h"
 #include "sliderSpinBox.h"
-#include "ui_mainWindow.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    ui->setupUi(this);
-
-    mEngine = std::make_shared<HaloSim::SimulationEngine>(ui->openGLWidget->width(), ui->openGLWidget->height());
-    ui->openGLWidget->setEngine(mEngine);
+    setupUi();
+    mEngine = std::make_shared<HaloSim::SimulationEngine>(mOpenGLWidget->width(), mOpenGLWidget->height());
+    mOpenGLWidget->setEngine(mEngine);
 
     HaloSim::Camera camera;
     camera.pitch = 0.0f;
@@ -44,34 +39,90 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     mEngine->SetLightSource(sun);
     mEngine->SetCrystalPopulation(crystalProperties);
 
-    connect(ui->renderButton, &QPushButton::clicked, ui->openGLWidget, &OpenGLWidget::toggleRendering);
-    connect(ui->generalSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [=](HaloSim::LightSource light) {
+    connect(mRenderButton, &QPushButton::clicked, mOpenGLWidget, &OpenGLWidget::toggleRendering);
+    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [=](HaloSim::LightSource light) {
         mEngine->SetLightSource(light);
     });
-    connect(ui->generalSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [=](unsigned int value) {
+    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [=](unsigned int value) {
         mEngine->SetRaysPerStep(value);
     });
-    connect(ui->caRatioSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {
+    connect(mCaRatioSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {
         auto crystals = mEngine->GetCrystalPopulation();
         crystals.caRatioAverage = value;
         mEngine->SetCrystalPopulation(crystals);
     });
-    connect(ui->caRatioStdSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {
+    connect(mCaRatioStdSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {
         auto crystals = mEngine->GetCrystalPopulation();
         crystals.caRatioStd = value;
         mEngine->SetCrystalPopulation(crystals);
     });
-    connect(ui->cameraProjectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index) {
+    connect(mCameraProjectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index) {
         auto camera = mEngine->GetCamera();
         camera.projection = (HaloSim::Projection)index;
         mEngine->SetCamera(camera);
     });
 
-    ui->generalSettingsWidget->SetInitialValues(mEngine->GetLightSource().diameter,
-                                                mEngine->GetLightSource().altitude,
-                                                mEngine->GetRaysPerStep(),
-                                                1000000);
+    mGeneralSettingsWidget->SetInitialValues(mEngine->GetLightSource().diameter,
+                                             mEngine->GetLightSource().altitude,
+                                             mEngine->GetRaysPerStep(),
+                                             1000000);
 
-    ui->caRatioSpinBox->setValue(mEngine->GetCrystalPopulation().caRatioAverage);
-    ui->caRatioStdSpinBox->setValue(mEngine->GetCrystalPopulation().caRatioStd);
+    mCaRatioSpinBox->setValue(mEngine->GetCrystalPopulation().caRatioAverage);
+    mCaRatioStdSpinBox->setValue(mEngine->GetCrystalPopulation().caRatioStd);
+}
+
+void MainWindow::setupUi()
+{
+    mGeneralSettingsWidget = new GeneralSettingsWidget(this);
+
+    mOpenGLWidget = new OpenGLWidget(this);
+    mOpenGLWidget->setMinimumSize(800, 800);
+
+    mCaRatioSpinBox = new QDoubleSpinBox(this);
+
+    mCaRatioStdSpinBox = new QDoubleSpinBox(this);
+
+    mRenderButton = new QPushButton("Render / Stop", this);
+    mRenderButton->setMinimumHeight(100);
+
+    mCameraProjectionComboBox = new QComboBox(this);
+    mCameraProjectionComboBox->addItem("Stereographic");
+    mCameraProjectionComboBox->addItem("Rectilinear");
+    mCameraProjectionComboBox->addItem("Equidistant");
+    mCameraProjectionComboBox->addItem("Equal area");
+    mCameraProjectionComboBox->addItem("Orthographic");
+
+    auto mainWidget = new QWidget(this);
+    auto topLayout = new QHBoxLayout(this);
+    mainWidget->setLayout(topLayout);
+    setCentralWidget(mainWidget);
+
+    auto sideBarLayout = new QVBoxLayout(this);
+
+    auto generalSettingsGroupBox = new QGroupBox("General settings", this);
+    auto generalSettingsLayout = new QHBoxLayout(this);
+    generalSettingsLayout->addWidget(mGeneralSettingsWidget);
+    generalSettingsGroupBox->setLayout(generalSettingsLayout);
+
+    auto crystalSettingsGroupBox = new QGroupBox("Crystal settings", this);
+    auto crystalSettingsLayout = new QFormLayout(this);
+    crystalSettingsLayout->addRow("C/A average ratio", mCaRatioSpinBox);
+    crystalSettingsLayout->addRow("C/A ratio std.", mCaRatioStdSpinBox);
+    crystalSettingsGroupBox->setLayout(crystalSettingsLayout);
+
+    auto viewSettingsGroupBox = new QGroupBox("View settings", this);
+    auto viewSettingsLayout = new QFormLayout(this);
+    viewSettingsLayout->addRow("Camera projection", mCameraProjectionComboBox);
+    viewSettingsGroupBox->setLayout(viewSettingsLayout);
+
+    sideBarLayout->addWidget(generalSettingsGroupBox);
+    sideBarLayout->addWidget(crystalSettingsGroupBox);
+    sideBarLayout->addWidget(viewSettingsGroupBox);
+    sideBarLayout->addWidget(mRenderButton);
+
+    topLayout->addLayout(sideBarLayout);
+    topLayout->addWidget(mOpenGLWidget);
+
+    this->setWindowTitle("HaloRay");
+    this->setMinimumSize(640, 480);
 }
