@@ -21,6 +21,7 @@ signals:
 
 private:
     HaloSim::LightSource stateToLightSource() const;
+    void setupUi();
 
     SliderSpinBox *mSunAltitudeSlider;
     QDoubleSpinBox *mSunDiameterSpinBox;

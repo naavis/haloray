@@ -4,6 +4,34 @@
 
 GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent) : QWidget(parent)
 {
+    setupUi();
+
+    connect(mSunAltitudeSlider, &SliderSpinBox::valueChanged, [=](double value) {
+        lightSourceChanged(stateToLightSource());
+    });
+
+    connect(mSunDiameterSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {
+        lightSourceChanged(stateToLightSource());
+    });
+
+    connect(mRaysPerFrameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int value) {
+        numRaysChanged((unsigned int)value);
+    });
+}
+
+void GeneralSettingsWidget::SetInitialValues(double sunDiameter,
+                                             double sunAltitude,
+                                             unsigned int raysPerFrame,
+                                             unsigned int maxNumFrames)
+{
+    mSunDiameterSpinBox->setValue(sunDiameter);
+    mSunAltitudeSlider->setValue(sunAltitude);
+    mRaysPerFrameSpinBox->setValue(raysPerFrame);
+    mMaximumFramesSpinBox->setValue(maxNumFrames);
+}
+
+void GeneralSettingsWidget::setupUi()
+{
     mSunAltitudeSlider = new SliderSpinBox(this);
     mSunAltitudeSlider->setSuffix("­°");
     mSunAltitudeSlider->setMinimum(-90.0);
@@ -29,35 +57,12 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent) : QWidget(parent)
     mMaximumFramesSpinBox->setMaximum(1000000000);
     mMaximumFramesSpinBox->setValue(100000000);
 
-    connect(mSunAltitudeSlider, &SliderSpinBox::valueChanged, [=](double value) {
-        lightSourceChanged(stateToLightSource());
-    });
-
-    connect(mSunDiameterSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {
-        lightSourceChanged(stateToLightSource());
-    });
-
-    connect(mRaysPerFrameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int value) {
-        numRaysChanged((unsigned int)value);
-    });
-
     auto layout = new QFormLayout(this);
     layout->addRow("Sun altitude", mSunAltitudeSlider);
     layout->addRow("Sun diameter", mSunDiameterSpinBox);
     layout->addRow("Rays per frame", mRaysPerFrameSpinBox);
     layout->addRow("Maximum frames", mMaximumFramesSpinBox);
     this->setLayout(layout);
-}
-
-void GeneralSettingsWidget::SetInitialValues(double sunDiameter,
-                                             double sunAltitude,
-                                             unsigned int raysPerFrame,
-                                             unsigned int maxNumFrames)
-{
-    mSunDiameterSpinBox->setValue(sunDiameter);
-    mSunAltitudeSlider->setValue(sunAltitude);
-    mRaysPerFrameSpinBox->setValue(raysPerFrame);
-    mMaximumFramesSpinBox->setValue(maxNumFrames);
 }
 
 HaloSim::LightSource GeneralSettingsWidget::stateToLightSource() const
