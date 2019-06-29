@@ -12,6 +12,7 @@ OpenGLWidget::OpenGLWidget(QWidget *parent)
     : QOpenGLWidget(parent),
       mDragging(false)
 {
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 }
 
 void OpenGLWidget::setEngine(enginePtr engine)

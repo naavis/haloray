@@ -62,6 +62,7 @@ void MainWindow::setupUi()
     auto topLayout = new QHBoxLayout();
     mainWidget->setLayout(topLayout);
     setCentralWidget(mainWidget);
+    setLayout(topLayout);
 
     auto sideBarLayout = new QVBoxLayout();
 
@@ -79,5 +80,4 @@ void MainWindow::setupUi()
     topLayout->addWidget(mOpenGLWidget);
 
     this->setWindowTitle("HaloRay");
-    this->setMinimumSize(640, 480);
 }

@@ -9,6 +9,8 @@ SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
     mSlider->setOrientation(Qt::Orientation::Horizontal);
     mSlider->setSingleStep((int)sliderMultiplier);
     mSlider->setPageStep((int)(10 * sliderMultiplier));
+    mSlider->setMinimumWidth(300);
+    mSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     mSpinBox = new QDoubleSpinBox(this);
     mSpinBox->setSingleStep(0.1);
@@ -17,8 +19,6 @@ SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
     layout->addWidget(mSlider);
     layout->addWidget(mSpinBox);
     setLayout(layout);
-
-    setMinimumWidth(400);
 
     connect(mSlider, &QSlider::valueChanged, [=](int value) {
         mSpinBox->setValue((double)value / sliderMultiplier);
