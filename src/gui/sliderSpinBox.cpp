@@ -6,6 +6,7 @@ SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
     mSlider = new QSlider(this);
     mSlider->setOrientation(Qt::Orientation::Horizontal);
     mSlider->setSingleStep(1);
+
     mSpinBox = new QDoubleSpinBox(this);
     mSpinBox->setSingleStep(0.1);
 

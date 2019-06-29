@@ -105,10 +105,10 @@ void OpenGLWidget::wheelEvent(QWheelEvent *event)
     const float zoomSpeed = 0.1f * camera.fov;
 
     QPoint numPixels = event->pixelDelta();
-    QPoint numDegrees = event->angleDelta() / 8.0;
 
     if (numPixels.isNull())
     {
+        QPoint numDegrees = event->angleDelta() / 8.0;
         auto numSteps = numDegrees.y() / 15.0;
         camera.fov -= zoomSpeed * numSteps;
     }
