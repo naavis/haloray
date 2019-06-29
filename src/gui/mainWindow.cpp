@@ -65,23 +65,13 @@ void MainWindow::setupUi()
 
     auto sideBarLayout = new QVBoxLayout();
 
-    auto generalSettingsGroupBox = new QGroupBox("General settings");
-    auto generalSettingsLayout = new QHBoxLayout();
-    generalSettingsLayout->addWidget(mGeneralSettingsWidget);
-    generalSettingsGroupBox->setLayout(generalSettingsLayout);
-
-    auto crystalSettingsGroupBox = new QGroupBox("Crystal settings");
-    auto crystalSettingsLayout = new QHBoxLayout();
-    crystalSettingsLayout->addWidget(mCrystalSettingsWidget);
-    crystalSettingsGroupBox->setLayout(crystalSettingsLayout);
-
     auto viewSettingsGroupBox = new QGroupBox("View settings");
     auto viewSettingsLayout = new QFormLayout();
     viewSettingsLayout->addRow("Camera projection", mCameraProjectionComboBox);
     viewSettingsGroupBox->setLayout(viewSettingsLayout);
 
-    sideBarLayout->addWidget(generalSettingsGroupBox);
-    sideBarLayout->addWidget(crystalSettingsGroupBox);
+    sideBarLayout->addWidget(mGeneralSettingsWidget);
+    sideBarLayout->addWidget(mCrystalSettingsWidget);
     sideBarLayout->addWidget(viewSettingsGroupBox);
     sideBarLayout->addWidget(mRenderButton);
 

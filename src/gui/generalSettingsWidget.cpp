@@ -1,8 +1,8 @@
 #include "generalSettingsWidget.h"
-#include <QLabel>
 #include <QFormLayout>
 
-GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent) : QWidget(parent)
+GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
+    : QGroupBox("General settings", parent)
 {
     setupUi();
 

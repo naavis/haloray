@@ -2,7 +2,8 @@
 #include <QFormLayout>
 #include "../simulation/crystalPopulation.h"
 
-CrystalSettingsWidget::CrystalSettingsWidget(QWidget *parent) : QWidget(parent)
+CrystalSettingsWidget::CrystalSettingsWidget(QWidget *parent)
+    : QGroupBox("Crystal settings", parent)
 {
     setupUi();
 

@@ -2,10 +2,11 @@
 #include <QWidget>
 #include <QDoubleSpinBox>
 #include <QSpinBox>
+#include <QGroupBox>
 #include "sliderSpinBox.h"
 #include "../simulation/lightSource.h"
 
-class GeneralSettingsWidget : public QWidget
+class GeneralSettingsWidget : public QGroupBox
 {
     Q_OBJECT
 public:

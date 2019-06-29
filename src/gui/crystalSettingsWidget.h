@@ -1,10 +1,11 @@
 #pragma once
 #include <QWidget>
+#include <QGroupBox>
 #include <QComboBox>
 #include "sliderSpinBox.h"
 #include "../simulation/crystalPopulation.h"
 
-class CrystalSettingsWidget : public QWidget
+class CrystalSettingsWidget : public QGroupBox
 {
     Q_OBJECT
 public:
