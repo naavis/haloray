@@ -14,18 +14,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     mOpenGLWidget->setEngine(mEngine);
 
     connect(mRenderButton, &QPushButton::clicked, mOpenGLWidget, &OpenGLWidget::toggleRendering);
-    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [=](HaloSim::LightSource light) {
+    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [this](HaloSim::LightSource light) {
         mEngine->SetLightSource(light);
     });
-    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [=](unsigned int value) {
+    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [this](unsigned int value) {
         mEngine->SetRaysPerStep(value);
     });
 
-    connect(mCrystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [=](HaloSim::CrystalPopulation crystal) {
+    connect(mCrystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [this](HaloSim::CrystalPopulation crystal) {
         mEngine->SetCrystalPopulation(crystal);
     });
 
-    connect(mCameraProjectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](int index) {
+    connect(mCameraProjectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
         auto camera = mEngine->GetCamera();
         camera.projection = (HaloSim::Projection)index;
         mEngine->SetCamera(camera);

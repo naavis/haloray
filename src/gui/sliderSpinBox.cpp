@@ -20,10 +20,10 @@ SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
     layout->addWidget(mSpinBox);
     setLayout(layout);
 
-    connect(mSlider, &QSlider::valueChanged, [=](int value) {
+    connect(mSlider, &QSlider::valueChanged, [this](int value) {
         mSpinBox->setValue((double)value / sliderMultiplier);
     });
-    connect(mSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {
+    connect(mSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double value) {
         mSlider->setValue((int)(value * sliderMultiplier));
     });
     connect(mSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SliderSpinBox::valueChanged);

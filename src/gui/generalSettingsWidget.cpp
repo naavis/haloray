@@ -6,15 +6,15 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
 {
     setupUi();
 
-    connect(mSunAltitudeSlider, &SliderSpinBox::valueChanged, [=](double value) {
+    connect(mSunAltitudeSlider, &SliderSpinBox::valueChanged, [this]() {
         lightSourceChanged(stateToLightSource());
     });
 
-    connect(mSunDiameterSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {
+    connect(mSunDiameterSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this]() {
         lightSourceChanged(stateToLightSource());
     });
 
-    connect(mRaysPerFrameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int value) {
+    connect(mRaysPerFrameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
         numRaysChanged((unsigned int)value);
     });
 }
