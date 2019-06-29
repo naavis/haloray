@@ -7,65 +7,35 @@ CrystalSettingsWidget::CrystalSettingsWidget(QWidget *parent)
 {
     setupUi();
 
-    connect(mCaRatioSlider, &SliderSpinBox::valueChanged, [this]() {
+    auto crystalChangeHandler = [this]() {
         crystalChanged(stateToCrystalPopulation());
-    });
-    connect(mCaRatioStdSlider, &SliderSpinBox::valueChanged, [this]() {
-        crystalChanged(stateToCrystalPopulation());
-    });
+    };
 
-    connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this]() {
-        crystalChanged(stateToCrystalPopulation());
-    });
-    connect(mTiltAverageSlider, &SliderSpinBox::valueChanged, [this]() {
-        crystalChanged(stateToCrystalPopulation());
-    });
-    connect(mTiltStdSlider, &SliderSpinBox::valueChanged, [this]() {
-        crystalChanged(stateToCrystalPopulation());
-    });
+    connect(mCaRatioSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
+    connect(mCaRatioStdSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
 
-    connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this]() {
-        crystalChanged(stateToCrystalPopulation());
-    });
-    connect(mRotationAverageSlider, &SliderSpinBox::valueChanged, [this]() {
-        crystalChanged(stateToCrystalPopulation());
-    });
-    connect(mRotationStdSlider, &SliderSpinBox::valueChanged, [this]() {
-        crystalChanged(stateToCrystalPopulation());
-    });
+    connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), crystalChangeHandler);
+    connect(mTiltAverageSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
+    connect(mTiltStdSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
+
+    connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), crystalChangeHandler);
+    connect(mRotationAverageSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
+    connect(mRotationStdSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
 
     connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
-        if (index == 0)
-        {
-            mTiltAverageSlider->setVisible(false);
-            mTiltStdSlider->setVisible(false);
-            mTiltAverageLabel->setVisible(false);
-            mTiltStdLabel->setVisible(false);
-        }
-        else
-        {
-            mTiltAverageSlider->setVisible(true);
-            mTiltStdSlider->setVisible(true);
-            mTiltAverageLabel->setVisible(true);
-            mTiltStdLabel->setVisible(true);
-        }
+        bool showControls = index != 0;
+        mTiltAverageSlider->setVisible(showControls);
+        mTiltStdSlider->setVisible(showControls);
+        mTiltAverageLabel->setVisible(showControls);
+        mTiltStdLabel->setVisible(showControls);
     });
 
     connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
-        if (index == 0)
-        {
-            mRotationAverageSlider->setVisible(false);
-            mRotationStdSlider->setVisible(false);
-            mRotationAverageLabel->setVisible(false);
-            mRotationStdLabel->setVisible(false);
-        }
-        else
-        {
-            mRotationAverageSlider->setVisible(true);
-            mRotationStdSlider->setVisible(true);
-            mRotationAverageLabel->setVisible(true);
-            mRotationStdLabel->setVisible(true);
-        }
+        bool showControls = index != 0;
+        mRotationAverageSlider->setVisible(showControls);
+        mRotationStdSlider->setVisible(showControls);
+        mRotationAverageLabel->setVisible(showControls);
+        mRotationStdLabel->setVisible(showControls);
     });
 }
 
@@ -142,7 +112,6 @@ void CrystalSettingsWidget::setupUi()
     auto rotationGroupBox = new QGroupBox("Rotation around C-axis");
     auto rotationLayout = new QFormLayout(rotationGroupBox);
     mainLayout->addRow(rotationGroupBox);
-    rotationLayout->addRow(new QLabel("Rotation around C-axis"));
     rotationLayout->addRow("Distribution", mRotationDistributionComboBox);
     rotationLayout->addRow(mRotationAverageLabel, mRotationAverageSlider);
     rotationLayout->addRow(mRotationStdLabel, mRotationStdSlider);
