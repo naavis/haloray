@@ -20,7 +20,7 @@ SimulationEngine::SimulationEngine(
       mMersenneTwister(std::mt19937(std::random_device()())),
       mUniformDistribution(std::uniform_int_distribution<unsigned int>(0, std::numeric_limits<unsigned int>::max())),
       mRunning(false),
-      mRaysPerStep(1),
+      mRaysPerStep(500000),
       mIteration(0),
       mInitialized(false)
 {
@@ -74,19 +74,17 @@ unsigned int SimulationEngine::GetIteration() const
     return mIteration;
 }
 
-void SimulationEngine::Start(unsigned int raysPerStep)
+void SimulationEngine::Start()
 {
     if (IsRunning())
         return;
     Clear();
     mRunning = true;
-    mRaysPerStep = raysPerStep;
     mIteration = 0;
 }
 
 void SimulationEngine::Stop()
 {
-    mIteration = 0;
     mRunning = false;
 }
 
@@ -138,6 +136,17 @@ void SimulationEngine::Clear()
     glBindImageTexture(mSimulationTexture->GetTextureUnit(), mSimulationTexture->GetHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glClearTexImage(mSpinlockTexture->GetHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
     glBindImageTexture(mSpinlockTexture->GetTextureUnit(), mSpinlockTexture->GetHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+}
+
+unsigned int SimulationEngine::GetRaysPerStep() const
+{
+    return mRaysPerStep;
+}
+
+void SimulationEngine::SetRaysPerStep(unsigned int rays)
+{
+    Clear();
+    mRaysPerStep = rays;
 }
 
 void SimulationEngine::Initialize()

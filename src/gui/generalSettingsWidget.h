@@ -13,6 +13,7 @@ public:
 
 signals:
     void lightSourceChanged(HaloSim::LightSource light);
+    void numRaysChanged(unsigned int rays);
 
 private:
     HaloSim::LightSource stateToLightSource() const;

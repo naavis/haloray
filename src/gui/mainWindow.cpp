@@ -21,6 +21,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(ui->generalSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [=](HaloSim::LightSource light) {
         mEngine->SetLightSource(light);
     });
+    connect(ui->generalSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [=](unsigned int value) {
+        mEngine->SetRaysPerStep(value);
+    });
     connect(ui->caRatioSpinner, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double value) {
         auto crystals = mEngine->GetCrystalPopulation();
         crystals.caRatioAverage = value;

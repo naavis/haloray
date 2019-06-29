@@ -37,6 +37,10 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent) : QWidget(parent)
         lightSourceChanged(stateToLightSource());
     });
 
+    connect(mRaysPerFrameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int value) {
+        numRaysChanged((unsigned int)value);
+    });
+
     auto layout = new QFormLayout(this);
     layout->addRow("Sun altitude", mSunAltitudeSlider);
     layout->addRow("Sun diameter", mSunDiameterSpinBox);

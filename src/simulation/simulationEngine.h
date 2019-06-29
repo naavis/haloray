@@ -16,13 +16,17 @@ class SimulationEngine : protected QOpenGLFunctions_4_4_Core
 public:
     SimulationEngine(unsigned int outputWidth, unsigned int outputHeight);
     void Initialize();
-    void Start(unsigned int raysPerStep);
+    void Start();
     void Step();
     void Stop();
+    bool IsRunning() const;
 
     void Clear();
-    bool IsRunning() const;
+
     unsigned int GetIteration() const;
+
+    unsigned int GetRaysPerStep() const;
+    void SetRaysPerStep(unsigned int rays);
 
     struct Camera GetCamera() const;
     void SetCamera(const struct Camera);

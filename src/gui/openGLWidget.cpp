@@ -26,7 +26,7 @@ void OpenGLWidget::toggleRendering()
     }
     else
     {
-        mEngine->Start(500000);
+        mEngine->Start();
         update();
     }
 }
