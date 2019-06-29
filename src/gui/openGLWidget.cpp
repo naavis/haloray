@@ -64,6 +64,7 @@ void OpenGLWidget::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton)
     {
         mDragging = true;
+        this->setCursor(Qt::CursorShape::OpenHandCursor);
         mPreviousDragPoint = event->globalPos();
     }
 }
@@ -88,6 +89,7 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton)
     {
         mDragging = false;
+        this->setCursor(Qt::CursorShape::ArrowCursor);
     }
 }
 
