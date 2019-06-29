@@ -5,20 +5,19 @@ const double sliderMultiplier = 100.0;
 
 SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
 {
-    mSlider = new QSlider(this);
+    mSlider = new QSlider();
     mSlider->setOrientation(Qt::Orientation::Horizontal);
     mSlider->setSingleStep((int)sliderMultiplier);
     mSlider->setPageStep((int)(10 * sliderMultiplier));
     mSlider->setMinimumWidth(300);
     mSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    mSpinBox = new QDoubleSpinBox(this);
+    mSpinBox = new QDoubleSpinBox();
     mSpinBox->setSingleStep(0.1);
 
-    auto layout = new QHBoxLayout();
+    auto layout = new QHBoxLayout(this);
     layout->addWidget(mSlider);
     layout->addWidget(mSpinBox);
-    setLayout(layout);
 
     connect(mSlider, &QSlider::valueChanged, [this](int value) {
         mSpinBox->setValue((double)value / sliderMultiplier);
