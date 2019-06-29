@@ -132,15 +132,20 @@ void CrystalSettingsWidget::setupUi()
     mainLayout->addRow("C/A ratio average", mCaRatioSlider);
     mainLayout->addRow("C/A ratio std.", mCaRatioStdSlider);
 
-    mainLayout->addRow(new QLabel("C-axis tilt"));
-    mainLayout->addRow("Distribution", mTiltDistributionComboBox);
-    mainLayout->addRow(mTiltAverageLabel, mTiltAverageSlider);
-    mainLayout->addRow(mTiltStdLabel, mTiltStdSlider);
+    auto tiltGroupBox = new QGroupBox("C-axis tilt");
+    auto tiltLayout = new QFormLayout(tiltGroupBox);
+    mainLayout->addRow(tiltGroupBox);
+    tiltLayout->addRow("Distribution", mTiltDistributionComboBox);
+    tiltLayout->addRow(mTiltAverageLabel, mTiltAverageSlider);
+    tiltLayout->addRow(mTiltStdLabel, mTiltStdSlider);
 
-    mainLayout->addRow(new QLabel("Rotation around C-axis"));
-    mainLayout->addRow("Distribution", mRotationDistributionComboBox);
-    mainLayout->addRow(mRotationAverageLabel, mRotationAverageSlider);
-    mainLayout->addRow(mRotationStdLabel, mRotationStdSlider);
+    auto rotationGroupBox = new QGroupBox("Rotation around C-axis");
+    auto rotationLayout = new QFormLayout(rotationGroupBox);
+    mainLayout->addRow(rotationGroupBox);
+    rotationLayout->addRow(new QLabel("Rotation around C-axis"));
+    rotationLayout->addRow("Distribution", mRotationDistributionComboBox);
+    rotationLayout->addRow(mRotationAverageLabel, mRotationAverageSlider);
+    rotationLayout->addRow(mRotationStdLabel, mRotationStdSlider);
 }
 
 HaloSim::CrystalPopulation CrystalSettingsWidget::stateToCrystalPopulation() const
