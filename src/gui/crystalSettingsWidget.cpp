@@ -47,7 +47,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(QWidget *parent)
             mTiltAverageSlider->setVisible(true);
             mTiltStdSlider->setVisible(true);
             mTiltAverageLabel->setVisible(true);
-            mTiltStdLabel->setVisible(false);
+            mTiltStdLabel->setVisible(true);
         }
     });
 
