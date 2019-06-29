@@ -73,45 +73,45 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 void MainWindow::setupUi()
 {
-    mGeneralSettingsWidget = new GeneralSettingsWidget(this);
+    mGeneralSettingsWidget = new GeneralSettingsWidget();
 
-    mOpenGLWidget = new OpenGLWidget(this);
+    mOpenGLWidget = new OpenGLWidget();
     mOpenGLWidget->setMinimumSize(800, 800);
 
-    mCaRatioSpinBox = new QDoubleSpinBox(this);
+    mCaRatioSpinBox = new QDoubleSpinBox();
 
-    mCaRatioStdSpinBox = new QDoubleSpinBox(this);
+    mCaRatioStdSpinBox = new QDoubleSpinBox();
 
-    mRenderButton = new QPushButton("Render / Stop", this);
+    mRenderButton = new QPushButton("Render / Stop");
     mRenderButton->setMinimumHeight(100);
 
-    mCameraProjectionComboBox = new QComboBox(this);
+    mCameraProjectionComboBox = new QComboBox();
     mCameraProjectionComboBox->addItem("Stereographic");
     mCameraProjectionComboBox->addItem("Rectilinear");
     mCameraProjectionComboBox->addItem("Equidistant");
     mCameraProjectionComboBox->addItem("Equal area");
     mCameraProjectionComboBox->addItem("Orthographic");
 
-    auto mainWidget = new QWidget(this);
-    auto topLayout = new QHBoxLayout(this);
+    auto mainWidget = new QWidget();
+    auto topLayout = new QHBoxLayout();
     mainWidget->setLayout(topLayout);
     setCentralWidget(mainWidget);
 
-    auto sideBarLayout = new QVBoxLayout(this);
+    auto sideBarLayout = new QVBoxLayout();
 
-    auto generalSettingsGroupBox = new QGroupBox("General settings", this);
-    auto generalSettingsLayout = new QHBoxLayout(this);
+    auto generalSettingsGroupBox = new QGroupBox("General settings");
+    auto generalSettingsLayout = new QHBoxLayout();
     generalSettingsLayout->addWidget(mGeneralSettingsWidget);
     generalSettingsGroupBox->setLayout(generalSettingsLayout);
 
-    auto crystalSettingsGroupBox = new QGroupBox("Crystal settings", this);
-    auto crystalSettingsLayout = new QFormLayout(this);
+    auto crystalSettingsGroupBox = new QGroupBox("Crystal settings");
+    auto crystalSettingsLayout = new QFormLayout();
     crystalSettingsLayout->addRow("C/A average ratio", mCaRatioSpinBox);
     crystalSettingsLayout->addRow("C/A ratio std.", mCaRatioStdSpinBox);
     crystalSettingsGroupBox->setLayout(crystalSettingsLayout);
 
-    auto viewSettingsGroupBox = new QGroupBox("View settings", this);
-    auto viewSettingsLayout = new QFormLayout(this);
+    auto viewSettingsGroupBox = new QGroupBox("View settings");
+    auto viewSettingsLayout = new QFormLayout();
     viewSettingsLayout->addRow("Camera projection", mCameraProjectionComboBox);
     viewSettingsGroupBox->setLayout(viewSettingsLayout);
 
