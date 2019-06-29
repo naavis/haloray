@@ -2,6 +2,7 @@
 #include <QWidget>
 #include <QGroupBox>
 #include <QComboBox>
+#include <QLabel>
 #include "sliderSpinBox.h"
 #include "../simulation/crystalPopulation.h"
 
@@ -25,9 +26,13 @@ private:
 
     QComboBox *mTiltDistributionComboBox;
     SliderSpinBox *mTiltAverageSlider;
+    QLabel *mTiltAverageLabel;
     SliderSpinBox *mTiltStdSlider;
+    QLabel *mTiltStdLabel;
 
     QComboBox *mRotationDistributionComboBox;
     SliderSpinBox *mRotationAverageSlider;
+    QLabel *mRotationAverageLabel;
     SliderSpinBox *mRotationStdSlider;
+    QLabel *mRotationStdLabel;
 };
