@@ -10,6 +10,10 @@ class GeneralSettingsWidget : public QWidget
     Q_OBJECT
 public:
     GeneralSettingsWidget(QWidget *parent = nullptr);
+    void SetInitialValues(double sunDiameter,
+                          double sunAltitude,
+                          unsigned int raysPerFrame,
+                          unsigned int maxNumFrames);
 
 signals:
     void lightSourceChanged(HaloSim::LightSource light);
