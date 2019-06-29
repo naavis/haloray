@@ -43,6 +43,7 @@ void OpenGLWidget::paintGL()
 
 void OpenGLWidget::resizeGL(int w, int h)
 {
+    mEngine->ResizeOutputTextureCallback(w, h);
 }
 
 void OpenGLWidget::initializeGL()
