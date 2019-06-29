@@ -1,6 +1,8 @@
 #pragma once
 #include <QOpenGLWidget>
 #include <QWidget>
+#include <QMouseEvent>
+#include <QWheelEvent>
 #include <QOpenGLFunctions_4_4_Core>
 #include <memory>
 #include "../simulation/simulationEngine.h"
@@ -24,7 +26,15 @@ protected:
     void resizeGL(int w, int h) override;
     void initializeGL() override;
 
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+
+    void wheelEvent(QWheelEvent *event) override;
+
 private:
     enginePtr mEngine;
     std::unique_ptr<OpenGL::TextureRenderer> mTextureRenderer;
+    bool mDragging;
+    QPoint mPreviousDragPoint;
 };
