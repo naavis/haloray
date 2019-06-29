@@ -15,23 +15,6 @@ struct CrystalPopulation
     int rotationDistribution;
     float rotationAverage;
     float rotationStd;
-
-    bool operator==(const struct CrystalPopulation &other) const
-    {
-        return caRatioAverage == other.caRatioAverage &&
-               caRatioStd == other.caRatioStd &&
-               tiltDistribution == other.tiltDistribution &&
-               tiltAverage == other.tiltAverage &&
-               tiltStd == other.tiltStd &&
-               rotationDistribution == other.rotationDistribution &&
-               rotationAverage == other.rotationAverage &&
-               rotationStd == other.rotationStd;
-    }
-
-    bool operator!=(const struct CrystalPopulation &other) const
-    {
-        return !operator==(other);
-    }
 };
 
-}
+} // namespace HaloSim
