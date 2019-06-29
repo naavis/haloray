@@ -18,6 +18,7 @@ SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
     auto layout = new QHBoxLayout(this);
     layout->addWidget(mSlider);
     layout->addWidget(mSpinBox);
+    layout->setMargin(0);
 
     connect(mSlider, &QSlider::valueChanged, [this](int value) {
         mSpinBox->setValue((double)value / sliderMultiplier);
