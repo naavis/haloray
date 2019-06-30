@@ -25,11 +25,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         mEngine->SetCrystalPopulation(crystal);
     });
 
-    connect(mCameraProjectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
-        auto camera = mEngine->GetCamera();
-        camera.projection = (HaloSim::Projection)index;
+    connect(mViewSettingsWidget, &ViewSettingsWidget::cameraChanged, [this](HaloSim::Camera camera) {
         mEngine->SetCamera(camera);
     });
+
+    connect(mOpenGLWidget, &OpenGLWidget::fieldOfViewChanged, mViewSettingsWidget, &ViewSettingsWidget::setFieldOfView);
+    connect(mOpenGLWidget, &OpenGLWidget::cameraOrientationChanged, mViewSettingsWidget, &ViewSettingsWidget::setCameraOrientation);
 
     mGeneralSettingsWidget->SetInitialValues(mEngine->GetLightSource().diameter,
                                              mEngine->GetLightSource().altitude,
@@ -37,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
                                              1000000);
 
     mCrystalSettingsWidget->SetInitialValues(mEngine->GetCrystalPopulation());
+    mViewSettingsWidget->setCamera(mEngine->GetCamera());
 }
 
 void MainWindow::setupUi()
@@ -45,18 +47,13 @@ void MainWindow::setupUi()
 
     mCrystalSettingsWidget = new CrystalSettingsWidget();
 
+    mViewSettingsWidget = new ViewSettingsWidget();
+
     mOpenGLWidget = new OpenGLWidget();
     mOpenGLWidget->setMinimumSize(800, 800);
 
     mRenderButton = new QPushButton("Render / Stop");
     mRenderButton->setMinimumHeight(100);
-
-    mCameraProjectionComboBox = new QComboBox();
-    mCameraProjectionComboBox->addItems({"Stereographic",
-                                         "Rectilinear",
-                                         "Equidistant",
-                                         "Equal area",
-                                         "Orthographic"});
 
     auto mainWidget = new QWidget();
     auto topLayout = new QHBoxLayout();
@@ -66,14 +63,9 @@ void MainWindow::setupUi()
 
     auto sideBarLayout = new QVBoxLayout();
 
-    auto viewSettingsGroupBox = new QGroupBox("View settings");
-    auto viewSettingsLayout = new QFormLayout();
-    viewSettingsLayout->addRow("Camera projection", mCameraProjectionComboBox);
-    viewSettingsGroupBox->setLayout(viewSettingsLayout);
-
     sideBarLayout->addWidget(mGeneralSettingsWidget);
     sideBarLayout->addWidget(mCrystalSettingsWidget);
-    sideBarLayout->addWidget(viewSettingsGroupBox);
+    sideBarLayout->addWidget(mViewSettingsWidget);
     sideBarLayout->addWidget(mRenderButton);
 
     topLayout->addLayout(sideBarLayout);

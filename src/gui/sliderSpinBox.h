@@ -16,6 +16,7 @@ public slots:
     void setValue(double value);
     void setMinimum(double minimum);
     void setMaximum(double maximum);
+    void setWrapping(bool wrapping);
 
 signals:
     void valueChanged(double value);

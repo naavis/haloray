@@ -46,6 +46,11 @@ void SliderSpinBox::setMaximum(double maximum)
     mSpinBox->setMaximum(maximum);
 }
 
+void SliderSpinBox::setWrapping(bool wrapping)
+{
+    mSpinBox->setWrapping(wrapping);
+}
+
 void SliderSpinBox::setValue(double value)
 {
     mSpinBox->setValue(value);

@@ -79,8 +79,19 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *event)
         auto currentMousePosition = event->globalPos();
         auto delta = currentMousePosition - mPreviousDragPoint;
         camera.yaw += delta.x() * 0.2f * camera.fov;
+        if (camera.yaw > 360.0)
+            camera.yaw = -360.0;
+        else if (camera.yaw < -360.0)
+            camera.yaw = 360.0;
+
         camera.pitch += delta.y() * 0.2f * camera.fov;
+        if (camera.pitch > 90.0)
+            camera.pitch = 90.0;
+        else if (camera.pitch < -90.0)
+            camera.pitch = -90.0;
         mEngine->SetCamera(camera);
+
+        emit cameraOrientationChanged(camera.pitch, camera.yaw);
 
         mPreviousDragPoint = currentMousePosition;
     }
@@ -124,4 +135,6 @@ void OpenGLWidget::wheelEvent(QWheelEvent *event)
     mEngine->SetCamera(camera);
 
     event->accept();
+
+    fieldOfViewChanged(camera.fov);
 }

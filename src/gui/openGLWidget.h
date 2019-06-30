@@ -21,6 +21,10 @@ public:
 public slots:
     void toggleRendering();
 
+signals:
+    void fieldOfViewChanged(double fieldOfView);
+    void cameraOrientationChanged(double pitch, double yaw);
+
 protected:
     void paintGL() override;
     void resizeGL(int w, int h) override;

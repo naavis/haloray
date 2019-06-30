@@ -7,6 +7,7 @@
 #include "openGLWidget.h"
 #include "generalSettingsWidget.h"
 #include "crystalSettingsWidget.h"
+#include "viewSettingsWidget.h"
 #include "../simulation/simulationEngine.h"
 
 class MainWindow : public QMainWindow
@@ -20,6 +21,7 @@ private:
 
     GeneralSettingsWidget *mGeneralSettingsWidget;
     CrystalSettingsWidget *mCrystalSettingsWidget;
+    ViewSettingsWidget* mViewSettingsWidget;
     QComboBox *mCameraProjectionComboBox;
     QPushButton *mRenderButton;
     OpenGLWidget *mOpenGLWidget;
