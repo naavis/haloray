@@ -15,9 +15,11 @@ public:
     void setCamera(HaloSim::Camera camera);
     void setFieldOfView(double fov);
     void setCameraOrientation(double pitch, double yaw);
+    void setBrightness(double brightness);
 
 signals:
     void cameraChanged(HaloSim::Camera camera);
+    void brightnessChanged(double brightness);
 
 private:
     void setupUi();
@@ -27,4 +29,5 @@ private:
     SliderSpinBox *mYawSlider;
     QComboBox *mCameraProjectionComboBox;
     QCheckBox *mHideSubHorizonCheckBox;
+    SliderSpinBox *mBrightnessSlider;
 };

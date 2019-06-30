@@ -10,7 +10,9 @@
 
 OpenGLWidget::OpenGLWidget(QWidget *parent)
     : QOpenGLWidget(parent),
-      mDragging(false)
+      mDragging(false),
+      mPreviousDragPoint(QPoint(0, 0)),
+      mExposure(1.0f)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 }
@@ -36,7 +38,7 @@ void OpenGLWidget::paintGL()
         mEngine->Step();
         update();
     }
-    const float exposure = 1.0f / (mEngine->GetIteration() + 1) / mEngine->GetCamera().fov;
+    const float exposure = mExposure / (mEngine->GetIteration() + 1) / mEngine->GetCamera().fov;
     mTextureRenderer->SetUniformFloat("exposure", exposure);
     mTextureRenderer->Render(mEngine->GetOutputTextureHandle());
 }
@@ -137,4 +139,9 @@ void OpenGLWidget::wheelEvent(QWheelEvent *event)
     event->accept();
 
     fieldOfViewChanged(camera.fov);
+}
+
+void OpenGLWidget::setBrightness(double brightness)
+{
+    mExposure = (float)brightness;
 }

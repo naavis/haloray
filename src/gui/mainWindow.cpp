@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connect(mOpenGLWidget, &OpenGLWidget::fieldOfViewChanged, mViewSettingsWidget, &ViewSettingsWidget::setFieldOfView);
     connect(mOpenGLWidget, &OpenGLWidget::cameraOrientationChanged, mViewSettingsWidget, &ViewSettingsWidget::setCameraOrientation);
+    connect(mViewSettingsWidget, &ViewSettingsWidget::brightnessChanged, mOpenGLWidget, &OpenGLWidget::setBrightness);
 
     mGeneralSettingsWidget->SetInitialValues(mEngine->GetLightSource().diameter,
                                              mEngine->GetLightSource().altitude,
@@ -39,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     mCrystalSettingsWidget->SetInitialValues(mEngine->GetCrystalPopulation());
     mViewSettingsWidget->setCamera(mEngine->GetCamera());
+    mViewSettingsWidget->setBrightness(1.0);
 }
 
 void MainWindow::setupUi()

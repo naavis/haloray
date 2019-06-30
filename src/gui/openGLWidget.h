@@ -20,6 +20,7 @@ public:
 
 public slots:
     void toggleRendering();
+    void setBrightness(double brightness);
 
 signals:
     void fieldOfViewChanged(double fieldOfView);
@@ -41,4 +42,5 @@ private:
     std::unique_ptr<OpenGL::TextureRenderer> mTextureRenderer;
     bool mDragging;
     QPoint mPreviousDragPoint;
+    float mExposure;
 };

@@ -13,6 +13,7 @@ ViewSettingsWidget::ViewSettingsWidget(QWidget *parent)
     connect(mPitchSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);
     connect(mYawSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);
     connect(mHideSubHorizonCheckBox, &QCheckBox::stateChanged, cameraChangeHandler);
+    connect(mBrightnessSlider, &SliderSpinBox::valueChanged, this, &ViewSettingsWidget::brightnessChanged);
 }
 
 void ViewSettingsWidget::setupUi()
@@ -39,11 +40,16 @@ void ViewSettingsWidget::setupUi()
     mFieldOfViewSlider->setMinimum(0.01);
     mFieldOfViewSlider->setMaximum(2.0);
 
+    mBrightnessSlider = new SliderSpinBox();
+    mBrightnessSlider->setMinimum(0.1);
+    mBrightnessSlider->setMaximum(15.0);
+
     mHideSubHorizonCheckBox = new QCheckBox();
 
     auto layout = new QFormLayout(this);
     layout->addRow("Camera projection", mCameraProjectionComboBox);
     layout->addRow("Field of view", mFieldOfViewSlider);
+    layout->addRow("Brightness", mBrightnessSlider);
     layout->addRow("Pitch", mPitchSlider);
     layout->addRow("Yaw", mYawSlider);
     layout->addRow("Hide sub-horizon", mHideSubHorizonCheckBox);
@@ -78,4 +84,9 @@ void ViewSettingsWidget::setCameraOrientation(double pitch, double yaw)
 {
     mPitchSlider->setValue(pitch);
     mYawSlider->setValue(yaw);
+}
+
+void ViewSettingsWidget::setBrightness(double brightness)
+{
+    mBrightnessSlider->setValue(brightness);
 }
