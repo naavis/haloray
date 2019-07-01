@@ -140,7 +140,7 @@ void OpenGLWidget::wheelEvent(QWheelEvent *event)
     }
     else
     {
-        camera.fov -= zoomSpeed * numPixels.y();
+        camera.fov -= 0.01 * zoomSpeed * numPixels.y();
     }
 
     camera.fov = std::max(camera.fov, 0.01f);
