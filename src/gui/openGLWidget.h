@@ -27,6 +27,7 @@ signals:
     void fieldOfViewChanged(double fieldOfView);
     void cameraOrientationChanged(double pitch, double yaw);
     void nextIteration(unsigned int iteration);
+    void maxRaysPerFrameChanged(unsigned int maxRays);
 
 protected:
     void paintGL() override;

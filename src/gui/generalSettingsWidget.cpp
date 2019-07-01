@@ -82,3 +82,8 @@ void GeneralSettingsWidget::toggleMaxIterationsSpinBoxStatus()
 {
     mMaximumFramesSpinBox->setEnabled(!mMaximumFramesSpinBox->isEnabled());
 }
+
+void GeneralSettingsWidget::setMaxRaysPerFrame(unsigned int maxRays)
+{
+    mRaysPerFrameSpinBox->setMaximum((int)maxRays);
+}

@@ -23,6 +23,7 @@ signals:
 
 public slots:
     void toggleMaxIterationsSpinBoxStatus();
+    void setMaxRaysPerFrame(unsigned int maxRays);
 
 private:
     HaloSim::LightSource stateToLightSource() const;

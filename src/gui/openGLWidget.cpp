@@ -2,6 +2,7 @@
 #include <QWidget>
 #include <QOpenGLWidget>
 #include <memory>
+#include <algorithm>
 #include "../simulation/simulationEngine.h"
 #include "../simulation/camera.h"
 #include "../simulation/lightSource.h"
@@ -68,6 +69,12 @@ void OpenGLWidget::initializeGL()
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    int maxComputeGroups;
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
+    const int absoluteMaxRaysPerFrame = 5000000;
+    int maxRaysPerFrame = std::min(absoluteMaxRaysPerFrame, maxComputeGroups);
+    emit maxRaysPerFrameChanged(maxRaysPerFrame);
 }
 
 void OpenGLWidget::mousePressEvent(QMouseEvent *event)
