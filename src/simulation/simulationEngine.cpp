@@ -26,7 +26,8 @@ SimulationEngine::SimulationEngine(
       mInitialized(false),
       mCamera(DefaultCamera()),
       mLight(DefaultLightSource()),
-      mCrystals(DefaultCrystalPopulation())
+      mCrystals(DefaultCrystalPopulation()),
+      mCameraLockedToLightSource(false)
 {
 }
 
@@ -44,6 +45,10 @@ void SimulationEngine::SetCamera(const struct Camera camera)
 {
     Clear();
     mCamera = camera;
+    if (mCameraLockedToLightSource)
+    {
+        PointCameraToLightSource();
+    }
 }
 
 CrystalPopulation SimulationEngine::GetCrystalPopulation() const
@@ -66,6 +71,10 @@ void SimulationEngine::SetLightSource(const LightSource light)
 {
     Clear();
     mLight = light;
+    if (mCameraLockedToLightSource)
+    {
+        PointCameraToLightSource();
+    }
 }
 
 const unsigned int SimulationEngine::GetOutputTextureHandle() const
@@ -192,6 +201,19 @@ void SimulationEngine::ResizeOutputTextureCallback(const unsigned int width, con
 
     InitializeTextures();
     Clear();
+}
+
+void SimulationEngine::LockCameraToLightSource(bool locked)
+{
+    mCameraLockedToLightSource = locked;
+    PointCameraToLightSource();
+}
+
+void SimulationEngine::PointCameraToLightSource()
+{
+    Clear();
+    mCamera.yaw = 0.0f;
+    mCamera.pitch = mLight.altitude;
 }
 
 } // namespace HaloSim

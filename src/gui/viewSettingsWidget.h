@@ -20,6 +20,7 @@ public:
 signals:
     void cameraChanged(HaloSim::Camera camera);
     void brightnessChanged(double brightness);
+    void lockToLightSource(bool locked);
 
 private:
     void setupUi();
@@ -30,4 +31,5 @@ private:
     QComboBox *mCameraProjectionComboBox;
     QCheckBox *mHideSubHorizonCheckBox;
     SliderSpinBox *mBrightnessSlider;
+    QCheckBox *mLockToLightSource;
 };

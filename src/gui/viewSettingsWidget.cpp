@@ -14,6 +14,7 @@ ViewSettingsWidget::ViewSettingsWidget(QWidget *parent)
     connect(mYawSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);
     connect(mHideSubHorizonCheckBox, &QCheckBox::stateChanged, cameraChangeHandler);
     connect(mBrightnessSlider, &SliderSpinBox::valueChanged, this, &ViewSettingsWidget::brightnessChanged);
+    connect(mLockToLightSource, &QCheckBox::stateChanged, this, &ViewSettingsWidget::lockToLightSource);
 }
 
 void ViewSettingsWidget::setupUi()
@@ -46,13 +47,16 @@ void ViewSettingsWidget::setupUi()
 
     mHideSubHorizonCheckBox = new QCheckBox();
 
+    mLockToLightSource = new QCheckBox();
+
     auto layout = new QFormLayout(this);
     layout->addRow("Camera projection", mCameraProjectionComboBox);
     layout->addRow("Field of view", mFieldOfViewSlider);
-    layout->addRow("Brightness", mBrightnessSlider);
     layout->addRow("Pitch", mPitchSlider);
     layout->addRow("Yaw", mYawSlider);
+    layout->addRow("Brightness", mBrightnessSlider);
     layout->addRow("Hide sub-horizon", mHideSubHorizonCheckBox);
+    layout->addRow("Lock to light source", mLockToLightSource);
 }
 
 HaloSim::Camera ViewSettingsWidget::stateToCamera() const

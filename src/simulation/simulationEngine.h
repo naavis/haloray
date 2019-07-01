@@ -37,6 +37,8 @@ public:
     struct LightSource GetLightSource() const;
     void SetLightSource(const struct LightSource);
 
+    void LockCameraToLightSource(bool locked);
+
     const unsigned int GetOutputTextureHandle() const;
 
     void ResizeOutputTextureCallback(const unsigned int width, const unsigned int height);
@@ -44,6 +46,7 @@ public:
 private:
     void InitializeShader();
     void InitializeTextures();
+    void PointCameraToLightSource();
 
     unsigned int mOutputWidth;
     unsigned int mOutputHeight;
@@ -61,6 +64,7 @@ private:
     bool mInitialized;
     unsigned int mRaysPerStep;
     unsigned int mIteration;
+    bool mCameraLockedToLightSource;
 };
 
 } // namespace HaloSim
