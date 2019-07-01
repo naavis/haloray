@@ -2,6 +2,7 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QDoubleSpinBox>
+#include <QProgressBar>
 #include "renderButton.h"
 #include "openGLWidget.h"
 #include "generalSettingsWidget.h"
@@ -21,6 +22,7 @@ private:
     GeneralSettingsWidget *mGeneralSettingsWidget;
     CrystalSettingsWidget *mCrystalSettingsWidget;
     ViewSettingsWidget *mViewSettingsWidget;
+    QProgressBar *mProgressBar;
     RenderButton *mRenderButton;
     OpenGLWidget *mOpenGLWidget;
 

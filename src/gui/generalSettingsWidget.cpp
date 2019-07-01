@@ -58,7 +58,7 @@ void GeneralSettingsWidget::setupUi()
 
     mMaximumFramesSpinBox = new QSpinBox();
     mRaysPerFrameSpinBox->setSingleStep(60);
-    mMaximumFramesSpinBox->setMinimum(1);
+    mMaximumFramesSpinBox->setMinimum(100);
     mMaximumFramesSpinBox->setMaximum(1000000000);
     mMaximumFramesSpinBox->setValue(100000000);
     mMaximumFramesSpinBox->setGroupSeparatorShown(true);
@@ -76,4 +76,9 @@ HaloSim::LightSource GeneralSettingsWidget::stateToLightSource() const
     light.altitude = mSunAltitudeSlider->value();
     light.diameter = mSunDiameterSpinBox->value();
     return light;
+}
+
+void GeneralSettingsWidget::toggleMaxIterationsSpinBoxStatus()
+{
+    mMaximumFramesSpinBox->setEnabled(!mMaximumFramesSpinBox->isEnabled());
 }

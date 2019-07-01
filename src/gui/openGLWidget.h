@@ -26,6 +26,7 @@ public slots:
 signals:
     void fieldOfViewChanged(double fieldOfView);
     void cameraOrientationChanged(double pitch, double yaw);
+    void nextIteration(unsigned int iteration);
 
 protected:
     void paintGL() override;

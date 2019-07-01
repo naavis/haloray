@@ -16,6 +16,7 @@ OpenGLWidget::OpenGLWidget(QWidget *parent)
       mMaxIterations(1)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    setUpdateBehavior(UpdateBehavior::PartialUpdate);
 }
 
 void OpenGLWidget::setEngine(enginePtr engine)
@@ -37,6 +38,14 @@ void OpenGLWidget::paintGL()
     if (mEngine->IsRunning() && mEngine->GetIteration() < mMaxIterations)
     {
         mEngine->Step();
+        if (mEngine->GetIteration() % 5 == 0 || mEngine->GetIteration() == mMaxIterations)
+        {
+            /*
+            We don't want to spam signals every frame, since at the moment they
+            are only used to update the progress bar.
+            */
+            emit nextIteration(mEngine->GetIteration());
+        }
         update();
     }
     const float exposure = mExposure / (mEngine->GetIteration() + 1) / mEngine->GetCamera().fov;
@@ -97,6 +106,7 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *event)
         emit cameraOrientationChanged(camera.pitch, camera.yaw);
 
         mPreviousDragPoint = currentMousePosition;
+        update();
     }
 }
 
@@ -140,11 +150,13 @@ void OpenGLWidget::wheelEvent(QWheelEvent *event)
     event->accept();
 
     fieldOfViewChanged(camera.fov);
+    update();
 }
 
 void OpenGLWidget::setBrightness(double brightness)
 {
     mExposure = (float)brightness;
+    update();
 }
 
 void OpenGLWidget::setMaxIterations(unsigned int maxIterations)

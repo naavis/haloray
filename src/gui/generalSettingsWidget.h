@@ -21,6 +21,9 @@ signals:
     void numRaysChanged(unsigned int rays);
     void maximumNumberOfIterationsChanged(unsigned int iterations);
 
+public slots:
+    void toggleMaxIterationsSpinBoxStatus();
+
 private:
     HaloSim::LightSource stateToLightSource() const;
     void setupUi();
