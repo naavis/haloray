@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     mEngine = std::make_shared<HaloSim::SimulationEngine>(mOpenGLWidget->width(), mOpenGLWidget->height());
     mOpenGLWidget->setEngine(mEngine);
 
-    connect(mRenderButton, &QPushButton::clicked, mOpenGLWidget, &OpenGLWidget::toggleRendering);
+    connect(mRenderButton, &RenderButton::clicked, mOpenGLWidget, &OpenGLWidget::toggleRendering);
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [this](HaloSim::LightSource light) {
         mEngine->SetLightSource(light);
     });
@@ -54,7 +54,7 @@ void MainWindow::setupUi()
     mOpenGLWidget = new OpenGLWidget();
     mOpenGLWidget->setMinimumSize(800, 800);
 
-    mRenderButton = new QPushButton("Render / Stop");
+    mRenderButton = new RenderButton();
     mRenderButton->setMinimumHeight(100);
 
     auto mainWidget = new QWidget();

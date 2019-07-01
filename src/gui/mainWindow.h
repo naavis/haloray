@@ -2,8 +2,7 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QDoubleSpinBox>
-#include <QComboBox>
-#include <QPushButton>
+#include "renderButton.h"
 #include "openGLWidget.h"
 #include "generalSettingsWidget.h"
 #include "crystalSettingsWidget.h"
@@ -21,9 +20,8 @@ private:
 
     GeneralSettingsWidget *mGeneralSettingsWidget;
     CrystalSettingsWidget *mCrystalSettingsWidget;
-    ViewSettingsWidget* mViewSettingsWidget;
-    QComboBox *mCameraProjectionComboBox;
-    QPushButton *mRenderButton;
+    ViewSettingsWidget *mViewSettingsWidget;
+    RenderButton *mRenderButton;
     OpenGLWidget *mOpenGLWidget;
 
     std::shared_ptr<HaloSim::SimulationEngine> mEngine;
