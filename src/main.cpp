@@ -1,5 +1,6 @@
 #include <QtGlobal>
 #include <QApplication>
+#include <QSurfaceFormat>
 #include "version.h"
 #include "gui/mainWindow.h"
 
@@ -32,6 +33,14 @@ int main(int argc, char *argv[])
 {
     qInstallMessageHandler(logHandler);
     QApplication app(argc, argv);
+
+    QSurfaceFormat format;
+    format.setVersion(4, 4);
+    format.setProfile(QSurfaceFormat::OpenGLContextProfile::CoreProfile);
+    format.setSwapBehavior(QSurfaceFormat::SwapBehavior::DoubleBuffer);
+    format.setSwapInterval(1);
+    QSurfaceFormat::setDefaultFormat(format);
+
     MainWindow mainWindow;
     mainWindow.show();
 
