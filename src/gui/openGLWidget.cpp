@@ -12,7 +12,8 @@ OpenGLWidget::OpenGLWidget(QWidget *parent)
     : QOpenGLWidget(parent),
       mDragging(false),
       mPreviousDragPoint(QPoint(0, 0)),
-      mExposure(1.0f)
+      mExposure(1.0f),
+      mMaxIterations(1)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 }
@@ -33,7 +34,7 @@ void OpenGLWidget::toggleRendering()
 
 void OpenGLWidget::paintGL()
 {
-    if (mEngine->IsRunning())
+    if (mEngine->IsRunning() && mEngine->GetIteration() < mMaxIterations)
     {
         mEngine->Step();
         update();
@@ -144,4 +145,9 @@ void OpenGLWidget::wheelEvent(QWheelEvent *event)
 void OpenGLWidget::setBrightness(double brightness)
 {
     mExposure = (float)brightness;
+}
+
+void OpenGLWidget::setMaxIterations(unsigned int maxIterations)
+{
+    mMaxIterations = maxIterations;
 }

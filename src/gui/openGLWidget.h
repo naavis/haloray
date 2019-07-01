@@ -21,6 +21,7 @@ public:
 public slots:
     void toggleRendering();
     void setBrightness(double brightness);
+    void setMaxIterations(unsigned int maxIterations);
 
 signals:
     void fieldOfViewChanged(double fieldOfView);
@@ -43,4 +44,5 @@ private:
     bool mDragging;
     QPoint mPreviousDragPoint;
     float mExposure;
+    unsigned int mMaxIterations;
 };

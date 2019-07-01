@@ -19,6 +19,7 @@ public:
 signals:
     void lightSourceChanged(HaloSim::LightSource light);
     void numRaysChanged(unsigned int rays);
+    void maximumNumberOfIterationsChanged(unsigned int iterations);
 
 private:
     HaloSim::LightSource stateToLightSource() const;

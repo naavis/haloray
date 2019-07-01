@@ -17,6 +17,10 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
     connect(mRaysPerFrameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
         numRaysChanged((unsigned int)value);
     });
+
+    connect(mMaximumFramesSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
+        maximumNumberOfIterationsChanged((unsigned int)value);
+    });
 }
 
 void GeneralSettingsWidget::SetInitialValues(double sunDiameter,
