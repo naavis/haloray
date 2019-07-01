@@ -74,7 +74,6 @@ void MainWindow::setupUi()
     auto topLayout = new QHBoxLayout();
     mainWidget->setLayout(topLayout);
     setCentralWidget(mainWidget);
-    setLayout(topLayout);
 
     auto sideBarLayout = new QVBoxLayout();
 
