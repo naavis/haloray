@@ -7,6 +7,7 @@
 class SliderSpinBox : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY(double value READ value WRITE setValue USER true)
 public:
     SliderSpinBox(QWidget *parent = nullptr);
     void setSuffix(const QString &suffix);

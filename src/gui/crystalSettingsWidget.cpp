@@ -11,6 +11,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(QWidget *parent)
         crystalChanged(stateToCrystalPopulation());
     };
 
+    /*
     connect(mCaRatioSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
     connect(mCaRatioStdSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
 
@@ -21,26 +22,57 @@ CrystalSettingsWidget::CrystalSettingsWidget(QWidget *parent)
     connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), crystalChangeHandler);
     connect(mRotationAverageSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
     connect(mRotationStdSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
+    */
 
-    connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
+    auto tiltVisibilityHandler = [this](int index) {
         bool showControls = index != 0;
         mTiltAverageSlider->setVisible(showControls);
         mTiltStdSlider->setVisible(showControls);
         mTiltAverageLabel->setVisible(showControls);
         mTiltStdLabel->setVisible(showControls);
-    });
+    };
+    connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), tiltVisibilityHandler);
 
-    connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
+    auto rotationVisibilityHandler = [this](int index) {
         bool showControls = index != 0;
         mRotationAverageSlider->setVisible(showControls);
         mRotationStdSlider->setVisible(showControls);
         mRotationAverageLabel->setVisible(showControls);
         mRotationStdLabel->setVisible(showControls);
-    });
+    };
+    connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), rotationVisibilityHandler);
+
+    mModel = new CrystalModel();
+    mMapper = new QDataWidgetMapper();
+    mMapper->setModel(mModel);
+    mMapper->addMapping(mCaRatioSlider, 0);
+    mMapper->addMapping(mCaRatioStdSlider, 1);
+    mMapper->addMapping(mTiltDistributionComboBox, 2, "currentIndex");
+    mMapper->addMapping(mTiltAverageSlider, 3);
+    mMapper->addMapping(mTiltStdSlider, 4);
+    mMapper->addMapping(mRotationDistributionComboBox, 5, "currentIndex");
+    mMapper->addMapping(mRotationAverageSlider, 6);
+    mMapper->addMapping(mRotationStdSlider, 7);
+    mMapper->toFirst();
+    mMapper->setSubmitPolicy(QDataWidgetMapper::SubmitPolicy::AutoSubmit);
+
+    auto submitHandler = [this]() { mMapper->submit(); };
+    connect(mCaRatioSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
+    connect(mCaRatioStdSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
+    connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), mMapper, &QDataWidgetMapper::submit);
+    connect(mTiltAverageSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
+    connect(mTiltStdSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
+    connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), mMapper, &QDataWidgetMapper::submit);
+    connect(mRotationAverageSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
+    connect(mRotationStdSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
+
+    tiltVisibilityHandler(mTiltDistributionComboBox->currentIndex());
+    rotationVisibilityHandler(mRotationDistributionComboBox->currentIndex());
 }
 
 void CrystalSettingsWidget::SetInitialValues(HaloSim::CrystalPopulation crystal)
 {
+    /*
     mCaRatioSlider->setValue(crystal.caRatioAverage);
     mCaRatioStdSlider->setValue(crystal.caRatioStd);
 
@@ -51,6 +83,7 @@ void CrystalSettingsWidget::SetInitialValues(HaloSim::CrystalPopulation crystal)
     mRotationDistributionComboBox->setCurrentIndex(crystal.rotationDistribution);
     mRotationAverageSlider->setValue(crystal.rotationAverage);
     mRotationStdSlider->setValue(crystal.rotationStd);
+    */
 }
 
 void CrystalSettingsWidget::setupUi()

@@ -3,7 +3,9 @@
 #include <QGroupBox>
 #include <QComboBox>
 #include <QLabel>
+#include <QDataWidgetMapper>
 #include "sliderSpinBox.h"
+#include "crystalModel.h"
 #include "../simulation/crystalPopulation.h"
 
 class CrystalSettingsWidget : public QGroupBox
@@ -35,4 +37,7 @@ private:
     QLabel *mRotationAverageLabel;
     SliderSpinBox *mRotationStdSlider;
     QLabel *mRotationStdLabel;
+
+    CrystalModel *mModel;
+    QDataWidgetMapper *mMapper;
 };

@@ -41,7 +41,7 @@ Camera SimulationEngine::GetCamera() const
     return mCamera;
 }
 
-void SimulationEngine::SetCamera(const struct Camera camera)
+void SimulationEngine::SetCamera(const Camera camera)
 {
     Clear();
     mCamera = camera;

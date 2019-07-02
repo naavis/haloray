@@ -28,14 +28,14 @@ public:
     unsigned int GetRaysPerStep() const;
     void SetRaysPerStep(unsigned int rays);
 
-    struct Camera GetCamera() const;
-    void SetCamera(const struct Camera);
+    Camera GetCamera() const;
+    void SetCamera(const Camera);
 
-    struct CrystalPopulation GetCrystalPopulation() const;
-    void SetCrystalPopulation(const struct CrystalPopulation);
+    CrystalPopulation GetCrystalPopulation() const;
+    void SetCrystalPopulation(const CrystalPopulation);
 
-    struct LightSource GetLightSource() const;
-    void SetLightSource(const struct LightSource);
+    LightSource GetLightSource() const;
+    void SetLightSource(const LightSource);
 
     void LockCameraToLightSource(bool locked);
 
@@ -56,9 +56,9 @@ private:
     std::unique_ptr<OpenGL::Texture> mSimulationTexture;
     std::unique_ptr<OpenGL::Texture> mSpinlockTexture;
 
-    struct Camera mCamera;
-    struct CrystalPopulation mCrystals;
-    struct LightSource mLight;
+    Camera mCamera;
+    CrystalPopulation mCrystals;
+    LightSource mLight;
 
     bool mRunning;
     bool mInitialized;
