@@ -64,7 +64,7 @@ void MainWindow::setupUi()
     mViewSettingsWidget = new ViewSettingsWidget();
 
     mOpenGLWidget = new OpenGLWidget();
-    mOpenGLWidget->setMinimumSize(800, 800);
+    mOpenGLWidget->setMinimumSize(640, 480);
 
     mProgressBar = new QProgressBar();
     mProgressBar->setTextVisible(false);
