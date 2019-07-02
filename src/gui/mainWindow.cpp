@@ -83,6 +83,7 @@ void MainWindow::setupUi()
     sideBarLayout->addWidget(mGeneralSettingsWidget);
     sideBarLayout->addWidget(mCrystalSettingsWidget);
     sideBarLayout->addWidget(mViewSettingsWidget);
+    sideBarLayout->addStretch();
     sideBarLayout->addWidget(mProgressBar);
     sideBarLayout->addWidget(mRenderButton);
 
