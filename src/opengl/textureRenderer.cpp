@@ -1,13 +1,12 @@
 #include "textureRenderer.h"
 #include <memory>
 #include <string>
-#include <glad/glad.h>
-#include "program.h"
+#include <QOpenGLShaderProgram>
 
 namespace OpenGL
 {
 
-std::unique_ptr<OpenGL::Program> TextureRenderer::InitializeTexDrawShaderProgram()
+std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::InitializeTexDrawShaderProgram()
 {
     const std::string vertexShaderSrc =
         "#version 440 core\n"
@@ -15,9 +14,6 @@ std::unique_ptr<OpenGL::Program> TextureRenderer::InitializeTexDrawShaderProgram
         "void main(void) {"
         "    gl_Position = vec4(position, 0.0f, 1.0);"
         "}";
-
-    OpenGL::Shader vertexShader(vertexShaderSrc, OpenGL::ShaderType::Vertex);
-    vertexShader.Compile();
 
     const std::string fragShaderSrc =
         "#version 440 core\n"
@@ -32,20 +28,21 @@ std::unique_ptr<OpenGL::Program> TextureRenderer::InitializeTexDrawShaderProgram
         "    color = vec4(gammaCorrected, 1.0);"
         "}";
 
-    OpenGL::Shader fragmentShader(fragShaderSrc,
-                                  OpenGL::ShaderType::Fragment);
-    fragmentShader.Compile();
+    auto program = std::make_unique<QOpenGLShaderProgram>();
+    program->addCacheableShaderFromSourceCode(QOpenGLShader::ShaderTypeBit::Vertex, vertexShaderSrc.c_str());
+    program->addCacheableShaderFromSourceCode(QOpenGLShader::ShaderTypeBit::Fragment, fragShaderSrc.c_str());
 
-    auto program = std::make_unique<OpenGL::Program>();
-    program->AttachShader(vertexShader);
-    program->AttachShader(fragmentShader);
-    program->Link();
+    if (program->link() == false)
+    {
+        throw std::runtime_error(program->log().toUtf8());
+    }
 
     return program;
 }
 
 void TextureRenderer::Initialize()
 {
+    initializeOpenGLFunctions();
     float points[] = {
         -1.0f,
         -1.0f,
@@ -76,7 +73,7 @@ void TextureRenderer::Render(unsigned int textureHandle)
 
     /* Render simulation result texture */
 
-    mTexDrawProgram->Use();
+    mTexDrawProgram->bind();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindVertexArray(mQuadVao);
@@ -86,8 +83,8 @@ void TextureRenderer::Render(unsigned int textureHandle)
 
 void TextureRenderer::SetUniformFloat(std::string name, float value)
 {
-    mTexDrawProgram->Use();
-    glUniform1f(glGetUniformLocation(mTexDrawProgram->GetHandle(), name.c_str()), value);
+    mTexDrawProgram->bind();
+    mTexDrawProgram->setUniformValue(name.c_str(), value);
 }
 
 TextureRenderer::~TextureRenderer()

@@ -1,4 +1,5 @@
 #pragma once
+#include <QOpenGLFunctions_4_4_Core>
 
 namespace OpenGL
 {
@@ -9,7 +10,7 @@ enum TextureType
     Monochrome
 };
 
-class Texture
+class Texture : protected QOpenGLFunctions_4_4_Core
 {
 public:
     Texture(unsigned int width, unsigned int height, unsigned int textureUnit, TextureType type);

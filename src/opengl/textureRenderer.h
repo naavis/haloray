@@ -1,11 +1,12 @@
 #pragma once
 #include <memory>
 #include <string>
-#include "program.h"
+#include <QOpenGLShaderProgram>
+#include <QOpenGLFunctions_4_4_Core>
 
 namespace OpenGL
 {
-class TextureRenderer
+class TextureRenderer : protected QOpenGLFunctions_4_4_Core
 {
 public:
     TextureRenderer() = default;
@@ -18,8 +19,8 @@ private:
     TextureRenderer(const TextureRenderer &) = default;
     TextureRenderer &operator=(const TextureRenderer &) = default;
 
-    static std::unique_ptr<OpenGL::Program> InitializeTexDrawShaderProgram();
-    std::unique_ptr<OpenGL::Program> mTexDrawProgram;
+    static std::unique_ptr<QOpenGLShaderProgram> InitializeTexDrawShaderProgram();
+    std::unique_ptr<QOpenGLShaderProgram> mTexDrawProgram;
     unsigned int mQuadVao;
     unsigned int mQuadVbo;
 };

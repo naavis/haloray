@@ -1,0 +1,62 @@
+#include "sliderSpinBox.h"
+#include <QHBoxLayout>
+
+const double sliderMultiplier = 100.0;
+
+SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
+{
+    mSlider = new QSlider();
+    mSlider->setOrientation(Qt::Orientation::Horizontal);
+    mSlider->setSingleStep((int)sliderMultiplier);
+    mSlider->setPageStep((int)(10 * sliderMultiplier));
+    mSlider->setMinimumWidth(150);
+    mSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+    mSpinBox = new QDoubleSpinBox();
+    mSpinBox->setSingleStep(0.1);
+
+    auto layout = new QHBoxLayout(this);
+    layout->addWidget(mSlider);
+    layout->addWidget(mSpinBox);
+    layout->setMargin(0);
+
+    connect(mSlider, &QSlider::valueChanged, [this](int value) {
+        mSpinBox->setValue((double)value / sliderMultiplier);
+    });
+    connect(mSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double value) {
+        mSlider->setValue((int)(value * sliderMultiplier));
+    });
+    connect(mSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SliderSpinBox::valueChanged);
+}
+
+void SliderSpinBox::setSuffix(const QString &suffix)
+{
+    mSpinBox->setSuffix(suffix);
+}
+
+void SliderSpinBox::setMinimum(double minimum)
+{
+    mSlider->setMinimum((int)(minimum * sliderMultiplier));
+    mSpinBox->setMinimum(minimum);
+}
+
+void SliderSpinBox::setMaximum(double maximum)
+{
+    mSlider->setMaximum((int)(maximum * sliderMultiplier));
+    mSpinBox->setMaximum(maximum);
+}
+
+void SliderSpinBox::setWrapping(bool wrapping)
+{
+    mSpinBox->setWrapping(wrapping);
+}
+
+void SliderSpinBox::setValue(double value)
+{
+    mSpinBox->setValue(value);
+}
+
+double SliderSpinBox::value() const
+{
+    return mSpinBox->value();
+}

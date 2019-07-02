@@ -1,16 +1,34 @@
-set (HaloRay_VERSION_MAJOR 1)
-set (HaloRay_VERSION_MINOR 1)
+set (HaloRay_VERSION_MAJOR 2)
+set (HaloRay_VERSION_MINOR 0)
 set (HaloRay_VERSION_PATCH 0)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/version.h")
 
-add_executable(haloray
+# find includes in the corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed
+set(CMAKE_AUTOMOC ON)
+
+find_package(Qt5 COMPONENTS REQUIRED Core Widgets Gui)
+
+set(HALORAY_SOURCES
     main.cpp
-    gui/gui.cpp
+    gui/mainWindow.cpp
+    gui/openGLWidget.cpp
+    gui/generalSettingsWidget.cpp
+    gui/crystalSettingsWidget.cpp
+    gui/viewSettingsWidget.cpp
+    gui/sliderSpinBox.cpp
+    gui/renderButton.cpp
     simulation/simulationEngine.cpp
-    opengl/utils.cpp
     opengl/texture.cpp
-    opengl/shader.cpp
     opengl/textureRenderer.cpp
-    opengl/program.cpp)
-target_link_libraries(haloray ${CONAN_LIBS})
+)
+
+IF (WIN32)
+    add_executable(haloray WIN32 ${HALORAY_SOURCES})
+ELSE()
+    add_executable(haloray ${HALORAY_SOURCES})
+ENDIF()
+
+target_link_libraries(haloray Qt5::Core Qt5::Widgets Qt5::Gui)
