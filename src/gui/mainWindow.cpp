@@ -3,9 +3,11 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QFormLayout>
+#include <QString>
 #include "../simulation/simulationEngine.h"
 #include "../simulation/crystalPopulation.h"
 #include "sliderSpinBox.h"
+#include "../version.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -87,5 +89,8 @@ void MainWindow::setupUi()
     topLayout->addLayout(sideBarLayout);
     topLayout->addWidget(mOpenGLWidget);
 
-    setWindowTitle("HaloRay");
+    setWindowTitle(QString("HaloRay %1.%2.%3")
+                       .arg(HaloRay_VERSION_MAJOR)
+                       .arg(HaloRay_VERSION_MINOR)
+                       .arg(HaloRay_VERSION_PATCH));
 }
