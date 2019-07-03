@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QDoubleSpinBox>
 #include <QProgressBar>
+#include <QScrollArea>
 #include "renderButton.h"
 #include "openGLWidget.h"
 #include "generalSettingsWidget.h"
@@ -18,6 +19,9 @@ public:
 
 private:
     void setupUi();
+    QScrollArea *setupSideBarScrollArea();
+    QProgressBar *setupProgressBar();
+
 
     GeneralSettingsWidget *mGeneralSettingsWidget;
     CrystalSettingsWidget *mCrystalSettingsWidget;

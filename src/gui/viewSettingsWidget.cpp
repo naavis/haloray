@@ -19,6 +19,8 @@ ViewSettingsWidget::ViewSettingsWidget(QWidget *parent)
 
 void ViewSettingsWidget::setupUi()
 {
+    setMaximumWidth(400);
+
     mCameraProjectionComboBox = new QComboBox();
     mCameraProjectionComboBox->addItems({"Stereographic",
                                          "Rectilinear",

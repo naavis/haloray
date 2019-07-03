@@ -170,3 +170,13 @@ void OpenGLWidget::setMaxIterations(unsigned int maxIterations)
 {
     mMaxIterations = maxIterations;
 }
+
+QSize OpenGLWidget::sizeHint() const
+{
+    return QSize(800, 600);
+}
+
+QSize OpenGLWidget::minimumSizeHint() const
+{
+    return QSize(320, 320);
+}

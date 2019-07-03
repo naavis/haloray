@@ -4,6 +4,7 @@
 #include <QGroupBox>
 #include <QFormLayout>
 #include <QString>
+#include <QScrollBar>
 #include "../simulation/simulationEngine.h"
 #include "../simulation/crystalPopulation.h"
 #include "sliderSpinBox.h"
@@ -57,33 +58,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 void MainWindow::setupUi()
 {
-    mGeneralSettingsWidget = new GeneralSettingsWidget();
-
-    mCrystalSettingsWidget = new CrystalSettingsWidget();
-
-    mViewSettingsWidget = new ViewSettingsWidget();
-
     mOpenGLWidget = new OpenGLWidget();
-    mOpenGLWidget->setMinimumSize(640, 480);
-
-    mProgressBar = new QProgressBar();
-    mProgressBar->setTextVisible(false);
-    mProgressBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-
+    mProgressBar = setupProgressBar();
     mRenderButton = new RenderButton();
-    mRenderButton->setMinimumHeight(100);
 
     auto mainWidget = new QWidget();
-    auto topLayout = new QHBoxLayout();
-    mainWidget->setLayout(topLayout);
+    auto topLayout = new QHBoxLayout(mainWidget);
     setCentralWidget(mainWidget);
 
     auto sideBarLayout = new QVBoxLayout();
-
-    sideBarLayout->addWidget(mGeneralSettingsWidget);
-    sideBarLayout->addWidget(mCrystalSettingsWidget);
-    sideBarLayout->addWidget(mViewSettingsWidget);
-    sideBarLayout->addStretch();
+    auto sideBarScrollArea = setupSideBarScrollArea();
+    sideBarLayout->addWidget(sideBarScrollArea);
     sideBarLayout->addWidget(mProgressBar);
     sideBarLayout->addWidget(mRenderButton);
 
@@ -94,4 +79,38 @@ void MainWindow::setupUi()
                        .arg(HaloRay_VERSION_MAJOR)
                        .arg(HaloRay_VERSION_MINOR)
                        .arg(HaloRay_VERSION_PATCH));
+}
+
+QScrollArea *MainWindow::setupSideBarScrollArea()
+{
+    mGeneralSettingsWidget = new GeneralSettingsWidget();
+    mCrystalSettingsWidget = new CrystalSettingsWidget();
+    mViewSettingsWidget = new ViewSettingsWidget();
+
+    auto scrollContainer = new QWidget();
+    auto scrollableLayout = new QVBoxLayout(scrollContainer);
+    scrollableLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+
+    scrollableLayout->addWidget(mGeneralSettingsWidget);
+    scrollableLayout->addWidget(mCrystalSettingsWidget);
+    scrollableLayout->addWidget(mViewSettingsWidget);
+    scrollableLayout->addStretch();
+
+    auto scrollArea = new QScrollArea();
+    scrollArea->setWidget(scrollContainer);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+    scrollArea->setWidgetResizable(true);
+
+    scrollArea->setMinimumWidth(scrollContainer->minimumSize().width() + scrollArea->verticalScrollBar()->sizeHint().width());
+    scrollArea->setMaximumWidth(scrollContainer->maximumSize().width() + scrollArea->verticalScrollBar()->sizeHint().width());
+
+    return scrollArea;
+}
+
+QProgressBar *MainWindow::setupProgressBar()
+{
+    auto progressBar = new QProgressBar();
+    progressBar->setTextVisible(false);
+    progressBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    return progressBar;
 }

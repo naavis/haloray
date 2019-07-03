@@ -55,6 +55,8 @@ void CrystalSettingsWidget::SetInitialValues(HaloSim::CrystalPopulation crystal)
 
 void CrystalSettingsWidget::setupUi()
 {
+    setMaximumWidth(400);
+
     mCaRatioSlider = new SliderSpinBox();
     mCaRatioSlider->setMinimum(0.0);
     mCaRatioSlider->setMaximum(15.0);

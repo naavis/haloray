@@ -4,6 +4,7 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QOpenGLFunctions_4_4_Core>
+#include <QSize>
 #include <memory>
 #include "../simulation/simulationEngine.h"
 #include "../opengl/textureRenderer.h"
@@ -17,6 +18,8 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Core
 public:
     explicit OpenGLWidget(QWidget *parent = 0);
     void setEngine(enginePtr engine);
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
 
 public slots:
     void toggleRendering();
