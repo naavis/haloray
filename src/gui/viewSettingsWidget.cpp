@@ -40,8 +40,9 @@ void ViewSettingsWidget::setupUi()
     mYawSlider->setSuffix("°");
 
     mFieldOfViewSlider = new SliderSpinBox();
-    mFieldOfViewSlider->setMinimum(0.01);
-    mFieldOfViewSlider->setMaximum(2.0);
+    mFieldOfViewSlider->setMinimum(10.0);
+    mFieldOfViewSlider->setMaximum(360.0);
+    mFieldOfViewSlider->setSuffix("°");
 
     mBrightnessSlider = new SliderSpinBox();
     mBrightnessSlider->setMinimum(0.1);

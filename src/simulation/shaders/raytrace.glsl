@@ -482,23 +482,31 @@ void main(void)
 
     vec2 polar = cartesianToPolar(resultRay);
 
+    float fovRadians = radians(camera.fov);
     float fr;
+    float fovNormalizer;
+
     if (camera.projection == PROJECTION_STEREOGRAPHIC) {
         fr = 2.0 * tan(polar.x / 2.0);
+        fovNormalizer = 1.0 / (4.0 * tan(fovRadians / 4.0));
     } else if (camera.projection == PROJECTION_RECTILINEAR) {
         if (polar.x > 0.5 * PI) return;
         fr = tan(polar.x);
+        fovNormalizer = 0.5 / tan(fovRadians / 2.0);
     } else if (camera.projection == PROJECTION_EQUIDISTANT) {
         fr = polar.x;
+        fovNormalizer = 1.0 / fovRadians;
     } else if (camera.projection == PROJECTION_EQUAL_AREA) {
         fr = 2.0 * sin(polar.x / 2.0);
+        fovNormalizer = 1.0 / (4.0 * sin(fovRadians / 4.0));
     } else if (camera.projection == PROJECTION_ORTHOGRAPHIC) {
         if (polar.x > 0.5 * PI) return;
         fr = sin(polar.x);
+        fovNormalizer = 0.5 / sin(fovRadians / 2.0);
     }
 
-    vec2 projected = fr * vec2(aspectRatio * cos(polar.y), sin(polar.y)) / camera.fov;
-    vec2 normalizedCoordinates = 0.5 + projected / PI;
+    vec2 projected = fovNormalizer * fr * vec2(aspectRatio * cos(polar.y), sin(polar.y));
+    vec2 normalizedCoordinates = 0.5 + projected;
 
     if (any(lessThanEqual(normalizedCoordinates, vec2(0.0))) || any(greaterThanEqual(normalizedCoordinates, vec2(1.0))))
         return;
