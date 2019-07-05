@@ -1,7 +1,3 @@
-set (HaloRay_VERSION_MAJOR 2)
-set (HaloRay_VERSION_MINOR 0)
-set (HaloRay_VERSION_PATCH 0)
-
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/version.h")
 
 # find includes in the corresponding build directories

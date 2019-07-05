@@ -75,10 +75,7 @@ void MainWindow::setupUi()
     topLayout->addLayout(sideBarLayout);
     topLayout->addWidget(mOpenGLWidget);
 
-    setWindowTitle(QString("HaloRay %1.%2.%3")
-                       .arg(HaloRay_VERSION_MAJOR)
-                       .arg(HaloRay_VERSION_MINOR)
-                       .arg(HaloRay_VERSION_PATCH));
+    setWindowTitle(QString("HaloRay %1").arg(HaloRay_VERSION));
 }
 
 QScrollArea *MainWindow::setupSideBarScrollArea()
