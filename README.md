@@ -43,8 +43,8 @@ cmake ..
 cmake --build . --config Release
 ```
 
-On Windows you need to copy the following Qt DLL files to the same folder as the
-resulting executable:
+On Windows you need to add the Qt5 binary directory to your path or copy at least
+the following Qt DLL files to the same folder as the resulting executable:
 
 - Qt5Core.dll
 - Qt5Widgets.dll
