@@ -57,7 +57,6 @@ CrystalSettingsWidget::CrystalSettingsWidget(QWidget *parent)
     mMapper->toFirst();
     mMapper->setSubmitPolicy(QDataWidgetMapper::SubmitPolicy::AutoSubmit);
 
-    auto submitHandler = [this]() { mMapper->submit(); };
     connect(mCaRatioSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
     connect(mCaRatioStdSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
     connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), mMapper, &QDataWidgetMapper::submit);
