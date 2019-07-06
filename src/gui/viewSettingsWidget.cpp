@@ -6,7 +6,11 @@ ViewSettingsWidget::ViewSettingsWidget(QWidget *parent)
 {
     setupUi();
 
-    auto cameraChangeHandler = [this]() { cameraChanged(stateToCamera()); };
+    auto cameraChangeHandler = [this]() {
+        auto camera = stateToCamera();
+        mFieldOfViewSlider->setMaximum(camera.getMaximumFov());
+        cameraChanged(camera);
+    };
 
     connect(mCameraProjectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), cameraChangeHandler);
     connect(mFieldOfViewSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);

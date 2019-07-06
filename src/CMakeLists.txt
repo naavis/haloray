@@ -17,6 +17,7 @@ set(HALORAY_SOURCES
     gui/sliderSpinBox.cpp
     gui/renderButton.cpp
     simulation/simulationEngine.cpp
+    simulation/camera.cpp
     opengl/texture.cpp
     opengl/textureRenderer.cpp
 )

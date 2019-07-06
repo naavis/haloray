@@ -152,7 +152,7 @@ void OpenGLWidget::wheelEvent(QWheelEvent *event)
     }
 
     camera.fov = std::max(camera.fov, 10.0f);
-    camera.fov = std::min(camera.fov, 360.0f);
+    camera.fov = std::min(camera.fov, camera.getMaximumFov());
     mEngine->SetCamera(camera);
 
     event->accept();
