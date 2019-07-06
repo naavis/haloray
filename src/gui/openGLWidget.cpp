@@ -49,7 +49,7 @@ void OpenGLWidget::paintGL()
         }
         update();
     }
-    const float exposure = mExposure / (mEngine->GetIteration() + 1) / mEngine->GetCamera().fov;
+    const float exposure = mExposure / (mEngine->GetIteration() + 1) / (mEngine->GetCamera().fov / 180.0);
     mTextureRenderer->SetUniformFloat("exposure", exposure);
     mTextureRenderer->Render(mEngine->GetOutputTextureHandle());
 }
@@ -95,15 +95,16 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *event)
     if (mDragging)
     {
         auto camera = mEngine->GetCamera();
+        auto dragSpeed = camera.fov / height();
         auto currentMousePosition = event->globalPos();
         auto delta = currentMousePosition - mPreviousDragPoint;
-        camera.yaw += delta.x() * 0.2f * camera.fov;
+        camera.yaw += delta.x() * dragSpeed;
         if (camera.yaw > 360.0)
             camera.yaw = -360.0;
         else if (camera.yaw < -360.0)
             camera.yaw = 360.0;
 
-        camera.pitch += delta.y() * 0.2f * camera.fov;
+        camera.pitch += delta.y() * dragSpeed;
         if (camera.pitch > 90.0)
             camera.pitch = 90.0;
         else if (camera.pitch < -90.0)
@@ -150,8 +151,8 @@ void OpenGLWidget::wheelEvent(QWheelEvent *event)
         camera.fov -= 0.01 * zoomSpeed * numPixels.y();
     }
 
-    camera.fov = std::max(camera.fov, 0.01f);
-    camera.fov = std::min(camera.fov, 2.0f);
+    camera.fov = std::max(camera.fov, 10.0f);
+    camera.fov = std::min(camera.fov, camera.getMaximumFov());
     mEngine->SetCamera(camera);
 
     event->accept();
