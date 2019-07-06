@@ -2,28 +2,26 @@
 #include <QFormLayout>
 #include "../simulation/crystalPopulation.h"
 
-CrystalSettingsWidget::CrystalSettingsWidget(QWidget *parent)
-    : QGroupBox("Crystal settings", parent)
+CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPopulationRepository> crystalRepository, QWidget *parent)
+    : QGroupBox("Crystal settings", parent),
+      mModel(new CrystalModel(crystalRepository))
 {
     setupUi();
 
-    /*
-    auto crystalChangeHandler = [this]() {
-        crystalChanged(stateToCrystalPopulation());
-    };
+    mMapper = new QDataWidgetMapper();
+    mMapper->setModel(mModel);
+    mMapper->addMapping(mCaRatioSlider, 0);
+    mMapper->addMapping(mCaRatioStdSlider, 1);
+    mMapper->addMapping(mTiltDistributionComboBox, 2, "currentIndex");
+    mMapper->addMapping(mTiltAverageSlider, 3);
+    mMapper->addMapping(mTiltStdSlider, 4);
+    mMapper->addMapping(mRotationDistributionComboBox, 5, "currentIndex");
+    mMapper->addMapping(mRotationAverageSlider, 6);
+    mMapper->addMapping(mRotationStdSlider, 7);
+    mMapper->toFirst();
+    mMapper->setSubmitPolicy(QDataWidgetMapper::SubmitPolicy::AutoSubmit);
 
-
-    connect(mCaRatioSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
-    connect(mCaRatioStdSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
-
-    connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), crystalChangeHandler);
-    connect(mTiltAverageSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
-    connect(mTiltStdSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
-
-    connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), crystalChangeHandler);
-    connect(mRotationAverageSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
-    connect(mRotationStdSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
-    */
+    connect(mModel, &CrystalModel::dataChanged, this, &CrystalSettingsWidget::crystalChanged);
 
     auto tiltVisibilityHandler = [this](int index) {
         bool showControls = index != 0;
@@ -43,20 +41,6 @@ CrystalSettingsWidget::CrystalSettingsWidget(QWidget *parent)
     };
     connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), rotationVisibilityHandler);
 
-    mModel = new CrystalModel();
-    mMapper = new QDataWidgetMapper();
-    mMapper->setModel(mModel);
-    mMapper->addMapping(mCaRatioSlider, 0);
-    mMapper->addMapping(mCaRatioStdSlider, 1);
-    mMapper->addMapping(mTiltDistributionComboBox, 2, "currentIndex");
-    mMapper->addMapping(mTiltAverageSlider, 3);
-    mMapper->addMapping(mTiltStdSlider, 4);
-    mMapper->addMapping(mRotationDistributionComboBox, 5, "currentIndex");
-    mMapper->addMapping(mRotationAverageSlider, 6);
-    mMapper->addMapping(mRotationStdSlider, 7);
-    mMapper->toFirst();
-    mMapper->setSubmitPolicy(QDataWidgetMapper::SubmitPolicy::AutoSubmit);
-
     connect(mCaRatioSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
     connect(mCaRatioStdSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
     connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), mMapper, &QDataWidgetMapper::submit);
@@ -66,27 +50,27 @@ CrystalSettingsWidget::CrystalSettingsWidget(QWidget *parent)
     connect(mRotationAverageSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
     connect(mRotationStdSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
 
+    connect(mPopulationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), mMapper, &QDataWidgetMapper::setCurrentIndex);
+    connect(mMapper, &QDataWidgetMapper::currentIndexChanged, mPopulationComboBox, QOverload<int>::of(&QComboBox::setCurrentIndex));
+
     tiltVisibilityHandler(mTiltDistributionComboBox->currentIndex());
     rotationVisibilityHandler(mRotationDistributionComboBox->currentIndex());
 
-    mPopulationComboBox->addItems({"Population 1", "Population 2"});
-    connect(mPopulationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), mMapper, &QDataWidgetMapper::setCurrentIndex);
-}
+    connect(mAddPopulationButton, &QPushButton::clicked, [this]() {
+        mModel->addRow();
+        mPopulationComboBox->addItem(QString("Population %1").arg(mModel->rowCount() - 1));
+        mMapper->toLast();
+    });
+    connect(mRemovePopulationButton, &QPushButton::clicked, [this]() {
+        int index = mMapper->currentIndex();
+        mModel->removeRow(index);
+        mPopulationComboBox->removeItem(index);
+    });
 
-void CrystalSettingsWidget::SetInitialValues(HaloSim::CrystalPopulation crystal)
-{
-    /*
-    mCaRatioSlider->setValue(crystal.caRatioAverage);
-    mCaRatioStdSlider->setValue(crystal.caRatioStd);
-
-    mTiltDistributionComboBox->setCurrentIndex(crystal.tiltDistribution);
-    mTiltAverageSlider->setValue(crystal.tiltAverage);
-    mTiltStdSlider->setValue(crystal.tiltStd);
-
-    mRotationDistributionComboBox->setCurrentIndex(crystal.rotationDistribution);
-    mRotationAverageSlider->setValue(crystal.rotationAverage);
-    mRotationStdSlider->setValue(crystal.rotationStd);
-    */
+    for (auto i = 0; i < mModel->rowCount(); ++i)
+    {
+        mPopulationComboBox->addItem(QString("Population %1").arg(i));
+    }
 }
 
 void CrystalSettingsWidget::setupUi()
@@ -94,6 +78,9 @@ void CrystalSettingsWidget::setupUi()
     setMaximumWidth(400);
 
     mPopulationComboBox = new QComboBox();
+
+    mAddPopulationButton = new QPushButton("Add");
+    mRemovePopulationButton = new QPushButton("Remove");
 
     mCaRatioSlider = new SliderSpinBox();
     mCaRatioSlider->setMinimum(0.0);
@@ -139,6 +126,8 @@ void CrystalSettingsWidget::setupUi()
 
     auto mainLayout = new QFormLayout(this);
     mainLayout->addRow("Population", mPopulationComboBox);
+    mainLayout->addRow(mAddPopulationButton);
+    mainLayout->addRow(mRemovePopulationButton);
 
     mainLayout->addRow("C/A ratio average", mCaRatioSlider);
     mainLayout->addRow("C/A ratio std.", mCaRatioStdSlider);
@@ -156,19 +145,4 @@ void CrystalSettingsWidget::setupUi()
     rotationLayout->addRow("Distribution", mRotationDistributionComboBox);
     rotationLayout->addRow(mRotationAverageLabel, mRotationAverageSlider);
     rotationLayout->addRow(mRotationStdLabel, mRotationStdSlider);
-}
-
-HaloSim::CrystalPopulation CrystalSettingsWidget::stateToCrystalPopulation() const
-{
-    HaloSim::CrystalPopulation crystal;
-    crystal.caRatioAverage = mCaRatioSlider->value();
-    crystal.caRatioStd = mCaRatioStdSlider->value();
-    crystal.tiltDistribution = mTiltDistributionComboBox->currentIndex();
-    crystal.tiltAverage = mTiltAverageSlider->value();
-    crystal.tiltStd = mTiltStdSlider->value();
-    crystal.rotationDistribution = mRotationDistributionComboBox->currentIndex();
-    crystal.rotationAverage = mRotationAverageSlider->value();
-    crystal.rotationStd = mRotationStdSlider->value();
-
-    return crystal;
 }

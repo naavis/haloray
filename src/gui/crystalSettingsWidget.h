@@ -3,25 +3,27 @@
 #include <QGroupBox>
 #include <QComboBox>
 #include <QLabel>
+#include <QPushButton>
 #include <QDataWidgetMapper>
 #include "sliderSpinBox.h"
 #include "crystalModel.h"
 #include "../simulation/crystalPopulation.h"
+#include "../simulation/crystalPopulationRepository.h"
 
 class CrystalSettingsWidget : public QGroupBox
 {
     Q_OBJECT
 public:
-    CrystalSettingsWidget(QWidget *parent = nullptr);
-
-    void SetInitialValues(HaloSim::CrystalPopulation crystal);
+    CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPopulationRepository> crystalRepository, QWidget *parent = nullptr);
 
 signals:
-    void crystalChanged(HaloSim::CrystalPopulation crystal);
+    void crystalChanged();
 
 private:
     void setupUi();
-    HaloSim::CrystalPopulation stateToCrystalPopulation() const;
+
+    QPushButton *mAddPopulationButton;
+    QPushButton *mRemovePopulationButton;
 
     SliderSpinBox *mCaRatioSlider;
     SliderSpinBox *mCaRatioStdSlider;

@@ -15,7 +15,8 @@ namespace HaloSim
 
 SimulationEngine::SimulationEngine(
     unsigned int outputWidth,
-    unsigned int outputHeight)
+    unsigned int outputHeight,
+    std::shared_ptr<CrystalPopulationRepository> crystalRepository)
     : mOutputWidth(outputWidth),
       mOutputHeight(outputHeight),
       mMersenneTwister(std::mt19937(std::random_device()())),
@@ -26,8 +27,8 @@ SimulationEngine::SimulationEngine(
       mInitialized(false),
       mCamera(DefaultCamera()),
       mLight(DefaultLightSource()),
-      mCrystals(DefaultCrystalPopulation()),
-      mCameraLockedToLightSource(false)
+      mCameraLockedToLightSource(false),
+      mCrystalRepository(crystalRepository)
 {
 }
 
@@ -49,17 +50,6 @@ void SimulationEngine::SetCamera(const Camera camera)
     {
         PointCameraToLightSource();
     }
-}
-
-CrystalPopulation SimulationEngine::GetCrystalPopulation() const
-{
-    return mCrystals;
-}
-
-void SimulationEngine::SetCrystalPopulation(const CrystalPopulation crystals)
-{
-    Clear();
-    mCrystals = crystals;
 }
 
 LightSource SimulationEngine::GetLightSource() const
@@ -118,20 +108,24 @@ void SimulationEngine::Step()
        setUniformValue method because of a bug in Qt:
        https://bugreports.qt.io/browse/QTBUG-45507
     */
+
+    // TODO: Find random crystal population from repo
+    auto crystals = mCrystalRepository->Get(0);
+
     glUniform1ui(glGetUniformLocation(mSimulationShader->programId(), "rngSeed"), seed);
     mSimulationShader->setUniformValue("sun.altitude", mLight.altitude);
     mSimulationShader->setUniformValue("sun.diameter", mLight.diameter);
 
-    mSimulationShader->setUniformValue("crystalProperties.caRatioAverage", mCrystals.caRatioAverage);
-    mSimulationShader->setUniformValue("crystalProperties.caRatioStd", mCrystals.caRatioStd);
+    mSimulationShader->setUniformValue("crystalProperties.caRatioAverage", crystals.caRatioAverage);
+    mSimulationShader->setUniformValue("crystalProperties.caRatioStd", crystals.caRatioStd);
 
-    mSimulationShader->setUniformValue("crystalProperties.tiltDistribution", mCrystals.tiltDistribution);
-    mSimulationShader->setUniformValue("crystalProperties.tiltAverage", mCrystals.tiltAverage);
-    mSimulationShader->setUniformValue("crystalProperties.tiltStd", mCrystals.tiltStd);
+    mSimulationShader->setUniformValue("crystalProperties.tiltDistribution", crystals.tiltDistribution);
+    mSimulationShader->setUniformValue("crystalProperties.tiltAverage", crystals.tiltAverage);
+    mSimulationShader->setUniformValue("crystalProperties.tiltStd", crystals.tiltStd);
 
-    mSimulationShader->setUniformValue("crystalProperties.rotationDistribution", mCrystals.rotationDistribution);
-    mSimulationShader->setUniformValue("crystalProperties.rotationAverage", mCrystals.rotationAverage);
-    mSimulationShader->setUniformValue("crystalProperties.rotationStd", mCrystals.rotationStd);
+    mSimulationShader->setUniformValue("crystalProperties.rotationDistribution", crystals.rotationDistribution);
+    mSimulationShader->setUniformValue("crystalProperties.rotationAverage", crystals.rotationAverage);
+    mSimulationShader->setUniformValue("crystalProperties.rotationStd", crystals.rotationStd);
 
     mSimulationShader->setUniformValue("camera.pitch", mCamera.pitch);
     mSimulationShader->setUniformValue("camera.yaw", mCamera.yaw);

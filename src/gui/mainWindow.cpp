@@ -5,15 +5,16 @@
 #include <QFormLayout>
 #include <QString>
 #include <QScrollBar>
-#include "../simulation/simulationEngine.h"
 #include "../simulation/crystalPopulation.h"
 #include "sliderSpinBox.h"
 #include "../version.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    mCrystalRepository = std::make_shared<HaloSim::CrystalPopulationRepository>();
+
     setupUi();
-    mEngine = std::make_shared<HaloSim::SimulationEngine>(mOpenGLWidget->width(), mOpenGLWidget->height());
+    mEngine = std::make_shared<HaloSim::SimulationEngine>(mOpenGLWidget->width(), mOpenGLWidget->height(), mCrystalRepository);
     mOpenGLWidget->setEngine(mEngine);
 
     connect(mRenderButton, &RenderButton::clicked, mOpenGLWidget, &OpenGLWidget::toggleRendering);
@@ -27,9 +28,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     });
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, mOpenGLWidget, &OpenGLWidget::setMaxIterations);
 
-    connect(mCrystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [this](HaloSim::CrystalPopulation crystal) {
-        mEngine->SetCrystalPopulation(crystal);
-    });
+    connect(mCrystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [this]() { mEngine->Clear(); });
 
     connect(mViewSettingsWidget, &ViewSettingsWidget::cameraChanged, [this](HaloSim::Camera camera) {
         mEngine->SetCamera(camera);
@@ -51,7 +50,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
                                              mEngine->GetRaysPerStep(),
                                              600);
 
-    mCrystalSettingsWidget->SetInitialValues(mEngine->GetCrystalPopulation());
     mViewSettingsWidget->setCamera(mEngine->GetCamera());
     mViewSettingsWidget->setBrightness(1.0);
 }
@@ -81,7 +79,7 @@ void MainWindow::setupUi()
 QScrollArea *MainWindow::setupSideBarScrollArea()
 {
     mGeneralSettingsWidget = new GeneralSettingsWidget();
-    mCrystalSettingsWidget = new CrystalSettingsWidget();
+    mCrystalSettingsWidget = new CrystalSettingsWidget(mCrystalRepository);
     mViewSettingsWidget = new ViewSettingsWidget();
 
     auto scrollContainer = new QWidget();

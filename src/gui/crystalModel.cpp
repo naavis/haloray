@@ -1,27 +1,15 @@
 #include "crystalModel.h"
-#include <QDebug>
 #include "../simulation/defaults.h"
 
-CrystalModel::CrystalModel(QWidget *parent)
-    : QAbstractTableModel(parent)
+CrystalModel::CrystalModel(std::shared_ptr<HaloSim::CrystalPopulationRepository> crystalRepository, QWidget *parent)
+    : QAbstractTableModel(parent),
+      mCrystals(crystalRepository)
 {
-    auto pop1 = HaloSim::DefaultCrystalPopulation();
-    pop1.caRatioAverage = 2.0f;
-    pop1.tiltAverage = 90.0f;
-    pop1.rotationDistribution = 1;
-    pop1.tiltDistribution = 0;
-    mCrystals.push_back(pop1);
-
-    auto pop2 = HaloSim::DefaultCrystalPopulation();
-    pop2.caRatioAverage = 0.5f;
-    pop2.tiltAverage = 0.0f;
-    pop2.rotationDistribution = 1;
-    mCrystals.push_back(pop2);
 }
 
 int CrystalModel::rowCount(const QModelIndex &parent) const
 {
-    return static_cast<int>(mCrystals.size());
+    return static_cast<int>(mCrystals->GetCount());
 }
 
 int CrystalModel::columnCount(const QModelIndex &parent) const
@@ -31,13 +19,12 @@ int CrystalModel::columnCount(const QModelIndex &parent) const
 
 QVariant CrystalModel::data(const QModelIndex &index, int role) const
 {
-    qDebug() << "Read data with index" << index.row() << index.column() << "and role" << role;
     if (role != Qt::DisplayRole && role != Qt::EditRole)
         return QVariant();
 
     auto col = index.column();
     auto row = index.row();
-    const HaloSim::CrystalPopulation &crystal = mCrystals[row];
+    const HaloSim::CrystalPopulation &crystal = mCrystals->Get(row);
 
     switch (col)
     {
@@ -64,7 +51,6 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
 
 bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    qDebug() << "Read data with index" << index.row() << index.column() << "and role" << role;
     if (role != Qt::EditRole)
         return false;
 
@@ -73,8 +59,7 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
 
     auto row = index.row();
     auto col = index.column();
-    HaloSim::CrystalPopulation &crystal = mCrystals[row];
-
+    HaloSim::CrystalPopulation &crystal = mCrystals->Get(row);
     switch (col)
     {
     case 0:
@@ -104,10 +89,32 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
     default:
         break;
     }
+
+    emit dataChanged(createIndex(0, 0), createIndex(0, 0), {Qt::DisplayRole});
+
     return true;
 }
 
 Qt::ItemFlags CrystalModel::flags(const QModelIndex &index) const
 {
     return Qt::ItemIsEditable | QAbstractTableModel::flags(index);
+}
+
+void CrystalModel::addRow()
+{
+    auto row = mCrystals->GetCount();
+    beginInsertRows(QModelIndex(), row, row);
+
+    bool success = mCrystals->AddDefault();
+
+    endInsertRows();
+}
+
+void CrystalModel::removeRow(int row)
+{
+    beginRemoveRows(QModelIndex(), row, row);
+
+    bool success = mCrystals->Remove(row);
+
+    endRemoveRows();
 }

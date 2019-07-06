@@ -7,6 +7,7 @@
 #include "camera.h"
 #include "lightSource.h"
 #include "crystalPopulation.h"
+#include "crystalPopulationRepository.h"
 
 namespace HaloSim
 {
@@ -14,7 +15,7 @@ namespace HaloSim
 class SimulationEngine : protected QOpenGLFunctions_4_4_Core
 {
 public:
-    SimulationEngine(unsigned int outputWidth, unsigned int outputHeight);
+    SimulationEngine(unsigned int outputWidth, unsigned int outputHeight, std::shared_ptr<CrystalPopulationRepository> crystalRepository);
     void Initialize();
     void Start();
     void Step();
@@ -30,9 +31,6 @@ public:
 
     Camera GetCamera() const;
     void SetCamera(const Camera);
-
-    CrystalPopulation GetCrystalPopulation() const;
-    void SetCrystalPopulation(const CrystalPopulation);
 
     LightSource GetLightSource() const;
     void SetLightSource(const LightSource);
@@ -57,7 +55,6 @@ private:
     std::unique_ptr<OpenGL::Texture> mSpinlockTexture;
 
     Camera mCamera;
-    CrystalPopulation mCrystals;
     LightSource mLight;
 
     bool mRunning;
@@ -65,6 +62,7 @@ private:
     unsigned int mRaysPerStep;
     unsigned int mIteration;
     bool mCameraLockedToLightSource;
+    std::shared_ptr<CrystalPopulationRepository> mCrystalRepository;
 };
 
 } // namespace HaloSim
