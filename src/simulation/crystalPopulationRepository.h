@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <random>
 #include "crystalPopulation.h"
 
 namespace HaloSim
@@ -14,8 +15,11 @@ public:
     CrystalPopulation &Get(unsigned int index);
     unsigned int GetCount() const;
 
+    const CrystalPopulation &Get();
+
 private:
     std::vector<CrystalPopulation> mCrystals;
+    std::mt19937 mMersenneTwister;
 };
 
 } // namespace HaloSim

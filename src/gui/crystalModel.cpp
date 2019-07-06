@@ -110,11 +110,13 @@ void CrystalModel::addRow()
     endInsertRows();
 }
 
-void CrystalModel::removeRow(int row)
+bool CrystalModel::removeRow(int row)
 {
     beginRemoveRows(QModelIndex(), row, row);
 
     bool success = mCrystals->Remove(row);
 
     endRemoveRows();
+
+    return success;
 }

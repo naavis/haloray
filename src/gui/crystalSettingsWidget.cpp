@@ -63,8 +63,9 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPop
     });
     connect(mRemovePopulationButton, &QPushButton::clicked, [this]() {
         int index = mMapper->currentIndex();
-        mModel->removeRow(index);
-        mPopulationComboBox->removeItem(index);
+        bool success = mModel->removeRow(index);
+        if (success)
+            mPopulationComboBox->removeItem(index);
     });
 
     for (auto i = 0; i < mModel->rowCount(); ++i)

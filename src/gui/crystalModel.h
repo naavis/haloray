@@ -18,7 +18,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     void addRow();
-    void removeRow(int row);
+    bool removeRow(int row);
 
 private:
     std::shared_ptr<HaloSim::CrystalPopulationRepository> mCrystals;

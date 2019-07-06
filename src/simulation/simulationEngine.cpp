@@ -109,8 +109,7 @@ void SimulationEngine::Step()
        https://bugreports.qt.io/browse/QTBUG-45507
     */
 
-    // TODO: Find random crystal population from repo
-    auto crystals = mCrystalRepository->Get(0);
+    auto crystals = mCrystalRepository->Get();
 
     glUniform1ui(glGetUniformLocation(mSimulationShader->programId(), "rngSeed"), seed);
     mSimulationShader->setUniformValue("sun.altitude", mLight.altitude);

@@ -5,6 +5,7 @@ namespace HaloSim
 {
 
 CrystalPopulationRepository::CrystalPopulationRepository()
+    : mMersenneTwister(std::mt19937(std::random_device()()))
 {
     AddDefault();
 }
@@ -32,6 +33,14 @@ bool CrystalPopulationRepository::Remove(unsigned int index)
 
 CrystalPopulation &CrystalPopulationRepository::Get(unsigned int index)
 {
+    return mCrystals[index];
+}
+
+const CrystalPopulation &CrystalPopulationRepository::Get()
+{
+    auto count = GetCount();
+    std::uniform_int_distribution<unsigned int> uniformDistribution(0, count - 1);
+    auto index = uniformDistribution(mMersenneTwister);
     return mCrystals[index];
 }
 
