@@ -7,11 +7,12 @@ CrystalSettingsWidget::CrystalSettingsWidget(QWidget *parent)
 {
     setupUi();
 
+    /*
     auto crystalChangeHandler = [this]() {
         crystalChanged(stateToCrystalPopulation());
     };
 
-    /*
+
     connect(mCaRatioSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
     connect(mCaRatioStdSlider, &SliderSpinBox::valueChanged, crystalChangeHandler);
 

@@ -31,7 +31,7 @@ int CrystalModel::columnCount(const QModelIndex &parent) const
 
 QVariant CrystalModel::data(const QModelIndex &index, int role) const
 {
-    qDebug() << "Read data with index " << index.row() << ", " << index.column() << " and role " << role;
+    qDebug() << "Read data with index" << index.row() << index.column() << "and role" << role;
     if (role != Qt::DisplayRole && role != Qt::EditRole)
         return QVariant();
 
@@ -64,7 +64,7 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
 
 bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    qDebug() << "Read data with index " << index.row() << ", " << index.column() << " and role " << role;
+    qDebug() << "Read data with index" << index.row() << index.column() << "and role" << role;
     if (role != Qt::EditRole)
         return false;
 
