@@ -43,8 +43,9 @@ cmake ..
 cmake --build . --config Release
 ```
 
-On Windows you need to add the Qt5 binary directory to your path or copy at least
-the following Qt DLL files to the same folder as the resulting executable:
+On Windows you need to add the Qt5 binary directory to your PATH environment
+variable or copy at least the following Qt DLL files to the same folder as the
+resulting executable:
 
 - Qt5Core.dll
 - Qt5Widgets.dll
@@ -52,4 +53,4 @@ the following Qt DLL files to the same folder as the resulting executable:
 
 You can also do this automatically with the
 [windeployqt](https://doc.qt.io/qt-5/windows-deployment.html) tool, which is
-shipped with Qt 5.
+shipped with Qt 5. This is the recommended way.
