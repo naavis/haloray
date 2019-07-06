@@ -138,7 +138,7 @@ void CrystalSettingsWidget::setupUi()
     mRotationStdLabel = new QLabel("Standard deviation");
 
     auto mainLayout = new QFormLayout(this);
-    mainLayout->addRow(mPopulationComboBox);
+    mainLayout->addRow("Population", mPopulationComboBox);
 
     mainLayout->addRow("C/A ratio average", mCaRatioSlider);
     mainLayout->addRow("C/A ratio std.", mCaRatioStdSlider);
