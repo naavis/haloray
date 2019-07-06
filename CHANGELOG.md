@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- Gave main window an initial size hint
+
 ### Changed
 - Made sidebar scrollable when the window is small enough
 - Made UI show field of view in degrees

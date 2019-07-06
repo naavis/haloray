@@ -111,3 +111,8 @@ QProgressBar *MainWindow::setupProgressBar()
     progressBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     return progressBar;
 }
+
+QSize MainWindow::sizeHint() const
+{
+    return QSize(1280, 720);
+}
