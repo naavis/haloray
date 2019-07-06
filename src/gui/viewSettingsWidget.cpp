@@ -9,6 +9,7 @@ ViewSettingsWidget::ViewSettingsWidget(QWidget *parent)
     auto cameraChangeHandler = [this]() {
         auto camera = stateToCamera();
         mFieldOfViewSlider->setMaximum(camera.getMaximumFov());
+        camera.fov = mFieldOfViewSlider->value();
         cameraChanged(camera);
     };
 
