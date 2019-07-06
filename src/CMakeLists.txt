@@ -8,7 +8,6 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt5 COMPONENTS REQUIRED Core Widgets Gui)
 
 set(HALORAY_SOURCES
-    main.cpp
     gui/mainWindow.cpp
     gui/openGLWidget.cpp
     gui/generalSettingsWidget.cpp
@@ -29,10 +28,14 @@ set(HALORAY_SOURCES
 
 set(RESOURCE_FILES resources/haloray.qrc resources/haloray.rc)
 
+add_library(halorayLib STATIC ${HALORAY_SOURCES} ${RESOURCE_FILES})
+target_link_libraries(halorayLib Qt5::Core Qt5::Widgets Qt5::Gui)
+
 IF (WIN32)
-    add_executable(haloray WIN32 ${HALORAY_SOURCES} ${RESOURCE_FILES})
+    add_executable(haloray WIN32 main.cpp)
 ELSE()
-    add_executable(haloray ${HALORAY_SOURCES} ${RESOURCE_FILES})
+    add_executable(haloray main.cpp)
 ENDIF()
 
-target_link_libraries(haloray Qt5::Core Qt5::Widgets Qt5::Gui)
+
+target_link_libraries(haloray Qt5::Core Qt5::Widgets Qt5::Gui halorayLib)
