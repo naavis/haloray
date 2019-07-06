@@ -69,6 +69,9 @@ CrystalSettingsWidget::CrystalSettingsWidget(QWidget *parent)
 
     tiltVisibilityHandler(mTiltDistributionComboBox->currentIndex());
     rotationVisibilityHandler(mRotationDistributionComboBox->currentIndex());
+
+    mPopulationComboBox->addItems({"Population 1", "Population 2"});
+    connect(mPopulationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), mMapper, &QDataWidgetMapper::setCurrentIndex);
 }
 
 void CrystalSettingsWidget::SetInitialValues(HaloSim::CrystalPopulation crystal)
@@ -90,6 +93,8 @@ void CrystalSettingsWidget::SetInitialValues(HaloSim::CrystalPopulation crystal)
 void CrystalSettingsWidget::setupUi()
 {
     setMaximumWidth(400);
+
+    mPopulationComboBox = new QComboBox();
 
     mCaRatioSlider = new SliderSpinBox();
     mCaRatioSlider->setMinimum(0.0);
@@ -134,6 +139,7 @@ void CrystalSettingsWidget::setupUi()
     mRotationStdLabel = new QLabel("Standard deviation");
 
     auto mainLayout = new QFormLayout(this);
+    mainLayout->addRow(mPopulationComboBox);
 
     mainLayout->addRow("C/A ratio average", mCaRatioSlider);
     mainLayout->addRow("C/A ratio std.", mCaRatioStdSlider);

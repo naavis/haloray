@@ -40,4 +40,5 @@ private:
 
     CrystalModel *mModel;
     QDataWidgetMapper *mMapper;
+    QComboBox *mPopulationComboBox;
 };
