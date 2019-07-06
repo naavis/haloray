@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Changed
 - Made sidebar scrollable when the window is small enough
+- Made UI show field of view in degrees
+- Limited field of view for stereographic, rectilinear and orthographic projections
 
 ## 2.0.0 - 2019-07-02
 
