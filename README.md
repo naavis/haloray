@@ -54,3 +54,6 @@ resulting executable:
 You can also do this automatically with the
 [windeployqt](https://doc.qt.io/qt-5/windows-deployment.html) tool, which is
 shipped with Qt 5. This is the recommended way.
+
+You can check `scripts\build.ps1` to see how the project is built on the
+Appveyor CI server.
