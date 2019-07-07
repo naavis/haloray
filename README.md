@@ -13,7 +13,7 @@ HaloRay currently supports Windows and Linux.
 
 ![Simulation of a column crystal halo display](images/plate-column-random-halo-screenshot.png)
 
-## How to use
+## How to use?
 
 HaloRay is designed in such a way that pretty much every simulation parameter
 can be tweaked in real time. The simulation traces a given number of light rays
@@ -144,3 +144,10 @@ shipped with Qt 5. This is the recommended way.
 
 You can check `scripts\build.ps1` to see how the project is built on the
 Appveyor CI server.
+
+## Acknowledgments
+
+- @lkangas for providing tons of reading material related to this topic
+- @pnuu for additional Linux support
+- [Nuklear](https://github.com/vurtun/nuklear/) for enabling me get this project
+   off the ground
