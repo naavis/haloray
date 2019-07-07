@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Gave main window an initial size hint
+- Support for multiple crystal populations
 
 ### Changed
 - Made sidebar scrollable when the window is small enough
