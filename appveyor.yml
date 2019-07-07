@@ -14,3 +14,10 @@ after_build:
   - ps: scripts\package.ps1
 artifacts:
   - path: '*.zip'
+deploy:
+  - provider: GitHub
+    artifact: /.*\.zip/
+    draft: true
+    on:
+      branch: master
+      APPVEYOR_REPO_TAG: true
