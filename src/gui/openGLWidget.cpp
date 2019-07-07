@@ -39,14 +39,7 @@ void OpenGLWidget::paintGL()
     if (mEngine->IsRunning() && mEngine->GetIteration() < mMaxIterations)
     {
         mEngine->Step();
-        if (mEngine->GetIteration() % 5 == 0 || mEngine->GetIteration() == mMaxIterations)
-        {
-            /*
-            We don't want to spam signals every frame, since at the moment they
-            are only used to update the progress bar.
-            */
-            emit nextIteration(mEngine->GetIteration());
-        }
+        emit nextIteration(mEngine->GetIteration());
         update();
     }
     const float exposure = mExposure / (mEngine->GetIteration() + 1) / (mEngine->GetCamera().fov / 180.0);
@@ -170,6 +163,7 @@ void OpenGLWidget::setBrightness(double brightness)
 void OpenGLWidget::setMaxIterations(unsigned int maxIterations)
 {
     mMaxIterations = maxIterations;
+    update();
 }
 
 QSize OpenGLWidget::sizeHint() const
