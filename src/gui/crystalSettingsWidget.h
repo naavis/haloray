@@ -46,4 +46,6 @@ private:
     CrystalModel *mModel;
     QDataWidgetMapper *mMapper;
     QComboBox *mPopulationComboBox;
+
+    unsigned int mNextPopulationId;
 };
