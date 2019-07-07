@@ -3,6 +3,7 @@ branches:
   only:
     - master
     - develop
+    - /release\/.+/
 image: Visual Studio 2017
 clone_depth: 1
 environment:
@@ -20,4 +21,3 @@ deploy:
     draft: true
     on:
       branch: master
-      APPVEYOR_REPO_TAG: true
