@@ -147,7 +147,7 @@ Appveyor CI server.
 
 ## Acknowledgments
 
-- @lkangas for providing tons of reading material related to this topic
-- @pnuu for additional Linux support
+- [Lauri Kangas](https://github.com/lkangas) for providing tons of reading material related to this topic
+- [Panu Lahtinen](https://github.com/pnuu) for additional Linux support
 - [Nuklear](https://github.com/vurtun/nuklear/) for enabling me get this project
    off the ground
