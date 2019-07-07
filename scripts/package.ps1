@@ -9,4 +9,6 @@ $version = if ($env:APPVEYOR_REPO_BRANCH -eq "master") {
 
 $destination = "${env:APPVEYOR_BUILD_FOLDER}\haloray-${version}.zip"
 $buildLocation = "${env:APPVEYOR_BUILD_FOLDER}\build\src\Release\*"
+
 7z a $destination $buildLocation
+7z a $destination "${env:APPVEYOR_BUILD_FOLDER}\*.md"
