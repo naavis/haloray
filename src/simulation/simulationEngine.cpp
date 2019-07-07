@@ -102,37 +102,43 @@ void SimulationEngine::Step()
 
     mSimulationShader->bind();
 
-    unsigned int seed = mUniformDistribution(mMersenneTwister);
+    for (auto i = 0u; i < mCrystalRepository->GetCount(); ++i)
+    {
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        unsigned int seed = mUniformDistribution(mMersenneTwister);
 
-    /* The following line needs to use glUniform1ui instead of the
-       setUniformValue method because of a bug in Qt:
-       https://bugreports.qt.io/browse/QTBUG-45507
-    */
+        auto crystals = mCrystalRepository->Get(i);
+        auto probability = mCrystalRepository->GetProbability(i);
+        auto numRays = static_cast<unsigned int>(mRaysPerStep * probability);
 
-    auto crystals = mCrystalRepository->Get();
+        /*
+        The following line needs to use glUniform1ui instead of the
+        setUniformValue method because of a bug in Qt:
+        https://bugreports.qt.io/browse/QTBUG-45507
+        */
+        glUniform1ui(glGetUniformLocation(mSimulationShader->programId(), "rngSeed"), seed);
+        mSimulationShader->setUniformValue("sun.altitude", mLight.altitude);
+        mSimulationShader->setUniformValue("sun.diameter", mLight.diameter);
 
-    glUniform1ui(glGetUniformLocation(mSimulationShader->programId(), "rngSeed"), seed);
-    mSimulationShader->setUniformValue("sun.altitude", mLight.altitude);
-    mSimulationShader->setUniformValue("sun.diameter", mLight.diameter);
+        mSimulationShader->setUniformValue("crystalProperties.caRatioAverage", crystals.caRatioAverage);
+        mSimulationShader->setUniformValue("crystalProperties.caRatioStd", crystals.caRatioStd);
 
-    mSimulationShader->setUniformValue("crystalProperties.caRatioAverage", crystals.caRatioAverage);
-    mSimulationShader->setUniformValue("crystalProperties.caRatioStd", crystals.caRatioStd);
+        mSimulationShader->setUniformValue("crystalProperties.tiltDistribution", crystals.tiltDistribution);
+        mSimulationShader->setUniformValue("crystalProperties.tiltAverage", crystals.tiltAverage);
+        mSimulationShader->setUniformValue("crystalProperties.tiltStd", crystals.tiltStd);
 
-    mSimulationShader->setUniformValue("crystalProperties.tiltDistribution", crystals.tiltDistribution);
-    mSimulationShader->setUniformValue("crystalProperties.tiltAverage", crystals.tiltAverage);
-    mSimulationShader->setUniformValue("crystalProperties.tiltStd", crystals.tiltStd);
+        mSimulationShader->setUniformValue("crystalProperties.rotationDistribution", crystals.rotationDistribution);
+        mSimulationShader->setUniformValue("crystalProperties.rotationAverage", crystals.rotationAverage);
+        mSimulationShader->setUniformValue("crystalProperties.rotationStd", crystals.rotationStd);
 
-    mSimulationShader->setUniformValue("crystalProperties.rotationDistribution", crystals.rotationDistribution);
-    mSimulationShader->setUniformValue("crystalProperties.rotationAverage", crystals.rotationAverage);
-    mSimulationShader->setUniformValue("crystalProperties.rotationStd", crystals.rotationStd);
+        mSimulationShader->setUniformValue("camera.pitch", mCamera.pitch);
+        mSimulationShader->setUniformValue("camera.yaw", mCamera.yaw);
+        mSimulationShader->setUniformValue("camera.fov", mCamera.fov);
+        mSimulationShader->setUniformValue("camera.projection", mCamera.projection);
+        mSimulationShader->setUniformValue("camera.hideSubHorizon", mCamera.hideSubHorizon ? 1 : 0);
 
-    mSimulationShader->setUniformValue("camera.pitch", mCamera.pitch);
-    mSimulationShader->setUniformValue("camera.yaw", mCamera.yaw);
-    mSimulationShader->setUniformValue("camera.fov", mCamera.fov);
-    mSimulationShader->setUniformValue("camera.projection", mCamera.projection);
-    mSimulationShader->setUniformValue("camera.hideSubHorizon", mCamera.hideSubHorizon ? 1 : 0);
-
-    glDispatchCompute(mRaysPerStep, 1, 1);
+        glDispatchCompute(numRays, 1, 1);
+    }
 }
 
 void SimulationEngine::Clear()

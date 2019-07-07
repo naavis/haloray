@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <random>
 #include "crystalPopulation.h"
 
 namespace HaloSim
@@ -13,13 +12,14 @@ public:
     bool AddDefault();
     bool Remove(unsigned int index);
     CrystalPopulation &Get(unsigned int index);
+    double GetProbability(unsigned int index) const;
+    unsigned int GetWeight(unsigned int index) const;
+    void SetWeight(unsigned int index, unsigned int weight);
     unsigned int GetCount() const;
-
-    const CrystalPopulation &Get();
 
 private:
     std::vector<CrystalPopulation> mCrystals;
-    std::mt19937 mMersenneTwister;
+    std::vector<unsigned int> mWeights;
 };
 
 } // namespace HaloSim

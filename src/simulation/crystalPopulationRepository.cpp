@@ -1,11 +1,11 @@
 #include "crystalPopulationRepository.h"
+#include <numeric>
 #include "defaults.h"
 
 namespace HaloSim
 {
 
 CrystalPopulationRepository::CrystalPopulationRepository()
-    : mMersenneTwister(std::mt19937(std::random_device()()))
 {
     AddDefault();
 }
@@ -18,6 +18,7 @@ unsigned int CrystalPopulationRepository::GetCount() const
 bool CrystalPopulationRepository::AddDefault()
 {
     mCrystals.push_back(DefaultCrystalPopulation());
+    mWeights.push_back(1);
     return true;
 }
 
@@ -27,6 +28,7 @@ bool CrystalPopulationRepository::Remove(unsigned int index)
         return false;
 
     mCrystals.erase(mCrystals.begin() + index);
+    mWeights.erase(mWeights.begin() + index);
 
     return true;
 }
@@ -36,12 +38,20 @@ CrystalPopulation &CrystalPopulationRepository::Get(unsigned int index)
     return mCrystals[index];
 }
 
-const CrystalPopulation &CrystalPopulationRepository::Get()
+double CrystalPopulationRepository::GetProbability(unsigned int index) const
 {
-    auto count = GetCount();
-    std::uniform_int_distribution<unsigned int> uniformDistribution(0, count - 1);
-    auto index = uniformDistribution(mMersenneTwister);
-    return mCrystals[index];
+    unsigned int totalWeights = std::accumulate(mWeights.cbegin(), mWeights.cend(), 0);
+    return static_cast<double>(mWeights[index]) / totalWeights;
+}
+
+unsigned int CrystalPopulationRepository::GetWeight(unsigned int index) const
+{
+    return mWeights[index];
+}
+
+void CrystalPopulationRepository::SetWeight(unsigned int index, unsigned int weight)
+{
+    mWeights[index] = weight;
 }
 
 } // namespace HaloSim
