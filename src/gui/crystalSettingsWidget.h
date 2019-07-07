@@ -21,6 +21,9 @@ signals:
 
 private:
     void setupUi();
+    SliderSpinBox *createAngleSlider(double min, double max);
+    void setTiltVisibility(bool);
+    void setRotationVisibility(bool);
 
     QPushButton *mAddPopulationButton;
     QPushButton *mRemovePopulationButton;

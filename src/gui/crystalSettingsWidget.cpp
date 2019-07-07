@@ -25,19 +25,13 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPop
 
     auto tiltVisibilityHandler = [this](int index) {
         bool showControls = index != 0;
-        mTiltAverageSlider->setVisible(showControls);
-        mTiltStdSlider->setVisible(showControls);
-        mTiltAverageLabel->setVisible(showControls);
-        mTiltStdLabel->setVisible(showControls);
+        setTiltVisibility(showControls);
     };
     connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), tiltVisibilityHandler);
 
     auto rotationVisibilityHandler = [this](int index) {
         bool showControls = index != 0;
-        mRotationAverageSlider->setVisible(showControls);
-        mRotationStdSlider->setVisible(showControls);
-        mRotationAverageLabel->setVisible(showControls);
-        mRotationStdLabel->setVisible(showControls);
+        setRotationVisibility(showControls);
     };
     connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), rotationVisibilityHandler);
 
@@ -79,7 +73,6 @@ void CrystalSettingsWidget::setupUi()
     setMaximumWidth(400);
 
     mPopulationComboBox = new QComboBox();
-
     mAddPopulationButton = new QPushButton("Add");
     mRemovePopulationButton = new QPushButton("Remove");
 
@@ -94,36 +87,20 @@ void CrystalSettingsWidget::setupUi()
     mTiltDistributionComboBox = new QComboBox();
     mTiltDistributionComboBox->addItems({"Uniform", "Gaussian"});
 
-    mTiltAverageSlider = new SliderSpinBox();
-    mTiltAverageSlider->setMinimum(0.0);
-    mTiltAverageSlider->setMaximum(180.0);
-    mTiltAverageSlider->setSuffix("°");
-
     mTiltAverageLabel = new QLabel("Average");
-
-    mTiltStdSlider = new SliderSpinBox();
-    mTiltStdSlider->setMinimum(0.0);
-    mTiltStdSlider->setMaximum(360.0);
-    mTiltStdSlider->setSuffix("°");
+    mTiltAverageSlider = createAngleSlider(0.0, 180.0);
 
     mTiltStdLabel = new QLabel("Standard deviation");
+    mTiltStdSlider = createAngleSlider(0.0, 360.0);
 
     mRotationDistributionComboBox = new QComboBox();
     mRotationDistributionComboBox->addItems({"Uniform", "Gaussian"});
 
-    mRotationAverageSlider = new SliderSpinBox();
-    mRotationAverageSlider->setMinimum(0.0);
-    mRotationAverageSlider->setMaximum(180.0);
-    mRotationAverageSlider->setSuffix("°");
-
     mRotationAverageLabel = new QLabel("Average");
-
-    mRotationStdSlider = new SliderSpinBox();
-    mRotationStdSlider->setMinimum(0.0);
-    mRotationStdSlider->setMaximum(360.0);
-    mRotationStdSlider->setSuffix("°");
+    mRotationAverageSlider = createAngleSlider(0.0, 180.0);
 
     mRotationStdLabel = new QLabel("Standard deviation");
+    mRotationStdSlider = createAngleSlider(0.0, 360.0);
 
     auto mainLayout = new QFormLayout(this);
     mainLayout->addRow("Population", mPopulationComboBox);
@@ -146,4 +123,29 @@ void CrystalSettingsWidget::setupUi()
     rotationLayout->addRow("Distribution", mRotationDistributionComboBox);
     rotationLayout->addRow(mRotationAverageLabel, mRotationAverageSlider);
     rotationLayout->addRow(mRotationStdLabel, mRotationStdSlider);
+}
+
+SliderSpinBox *CrystalSettingsWidget::createAngleSlider(double min, double max)
+{
+    auto slider = new SliderSpinBox();
+    slider->setMinimum(0.0);
+    slider->setMaximum(180.0);
+    slider->setSuffix("°");
+    return slider;
+}
+
+void CrystalSettingsWidget::setTiltVisibility(bool visible)
+{
+    mTiltAverageSlider->setVisible(visible);
+    mTiltStdSlider->setVisible(visible);
+    mTiltAverageLabel->setVisible(visible);
+    mTiltStdLabel->setVisible(visible);
+}
+
+void CrystalSettingsWidget::setRotationVisibility(bool visible)
+{
+    mRotationAverageSlider->setVisible(visible);
+    mRotationStdSlider->setVisible(visible);
+    mRotationAverageLabel->setVisible(visible);
+    mRotationStdLabel->setVisible(visible);
 }
