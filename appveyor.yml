@@ -1,0 +1,15 @@
+version: 1.0.0-{build}
+branches:
+  only:
+    - feature/appveyor
+image: Visual Studio 2017
+clone_depth: 1
+environment:
+  Qt5_DIR: C:\Qt\5.12.2\msvc2017_64\
+  VCINSTALLDIR: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\
+build_script:
+  - ps: scripts\build.ps1
+after_build:
+  - ps: 7z a "${env:APPVEYOR_BUILD_FOLDER}\haloray.zip" "${env:APPVEYOR_BUILD_FOLDER}\build\src\Release\*"
+artifacts:
+  - path: haloray.zip
