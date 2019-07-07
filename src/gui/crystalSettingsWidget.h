@@ -4,6 +4,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QPushButton>
+#include <QSpinBox>
 #include <QDataWidgetMapper>
 #include "sliderSpinBox.h"
 #include "crystalModel.h"
@@ -42,6 +43,8 @@ private:
     QLabel *mRotationAverageLabel;
     SliderSpinBox *mRotationStdSlider;
     QLabel *mRotationStdLabel;
+
+    QSpinBox *mWeightSpinBox;
 
     CrystalModel *mModel;
     QDataWidgetMapper *mMapper;

@@ -31,6 +31,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPop
     mMapper->addMapping(mRotationDistributionComboBox, 5, "currentIndex");
     mMapper->addMapping(mRotationAverageSlider, 6);
     mMapper->addMapping(mRotationStdSlider, 7);
+    mMapper->addMapping(mWeightSpinBox, 8);
     mMapper->toFirst();
     mMapper->setSubmitPolicy(QDataWidgetMapper::SubmitPolicy::AutoSubmit);
 
@@ -41,6 +42,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPop
     box loses focus, so the sliders and comboboxes must still be manually connected
     to the submit slot of the mapper.
     */
+    connect(mWeightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), mMapper, &QDataWidgetMapper::submit);
     connect(mCaRatioSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
     connect(mCaRatioStdSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
     connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), mMapper, &QDataWidgetMapper::submit);
@@ -115,11 +117,16 @@ void CrystalSettingsWidget::setupUi()
     mRotationStdLabel = new QLabel("Standard deviation");
     mRotationStdSlider = createAngleSlider(0.0, 360.0);
 
+    mWeightSpinBox = new QSpinBox();
+    mWeightSpinBox->setMinimum(0);
+    mWeightSpinBox->setMaximum(10000);
+
     auto mainLayout = new QFormLayout(this);
     mainLayout->addRow("Population", mPopulationComboBox);
     mainLayout->addRow(mAddPopulationButton);
     mainLayout->addRow(mRemovePopulationButton);
 
+    mainLayout->addRow("Population weight", mWeightSpinBox);
     mainLayout->addRow("C/A ratio average", mCaRatioSlider);
     mainLayout->addRow("C/A ratio std.", mCaRatioStdSlider);
 

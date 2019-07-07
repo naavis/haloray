@@ -14,7 +14,7 @@ int CrystalModel::rowCount(const QModelIndex &parent) const
 
 int CrystalModel::columnCount(const QModelIndex &parent) const
 {
-    return 8;
+    return 9;
 }
 
 QVariant CrystalModel::data(const QModelIndex &index, int role) const
@@ -44,6 +44,8 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
         return crystal.rotationAverage;
     case 7:
         return crystal.rotationStd;
+    case 8:
+        return mCrystals->GetWeight(row);
     }
 
     return QVariant();
@@ -85,6 +87,9 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
         break;
     case 7:
         crystal.rotationStd = value.toFloat();
+        break;
+    case 8:
+        mCrystals->SetWeight(row, value.toUInt());
         break;
     default:
         break;
