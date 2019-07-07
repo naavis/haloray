@@ -1,7 +1,8 @@
 version: '2.0.0-{build}'
 branches:
   only:
-    - feature/appveyor
+    - master
+    - develop
 image: Visual Studio 2017
 clone_depth: 1
 environment:
