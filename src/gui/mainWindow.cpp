@@ -4,94 +4,135 @@
 #include <QGroupBox>
 #include <QFormLayout>
 #include <QString>
-#include "../simulation/simulationEngine.h"
+#include <QScrollBar>
 #include "../simulation/crystalPopulation.h"
 #include "sliderSpinBox.h"
-#include "../version.h"
+
+#define STRINGIFY0(v) #v
+#define STRINGIFY(v) STRINGIFY0(v)
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    mCrystalRepository = std::make_shared<HaloSim::CrystalPopulationRepository>();
+
+    /*
+    setupUi must be called before mEngine is constructed, since OpenGLWidget
+    initializes OpenGL for the whole application, and mEngine depends on OpenGL
+    */
     setupUi();
-    mEngine = std::make_shared<HaloSim::SimulationEngine>(mOpenGLWidget->width(), mOpenGLWidget->height());
+    mEngine = std::make_shared<HaloSim::SimulationEngine>(mOpenGLWidget->width(), mOpenGLWidget->height(), mCrystalRepository);
     mOpenGLWidget->setEngine(mEngine);
 
+    // Signals from render button
     connect(mRenderButton, &RenderButton::clicked, mOpenGLWidget, &OpenGLWidget::toggleRendering);
     connect(mRenderButton, &RenderButton::clicked, mGeneralSettingsWidget, &GeneralSettingsWidget::toggleMaxIterationsSpinBoxStatus);
 
-    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [this](HaloSim::LightSource light) {
-        mEngine->SetLightSource(light);
-    });
-    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [this](unsigned int value) {
-        mEngine->SetRaysPerStep(value);
-    });
-    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, mOpenGLWidget, &OpenGLWidget::setMaxIterations);
-
-    connect(mCrystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [this](HaloSim::CrystalPopulation crystal) {
-        mEngine->SetCrystalPopulation(crystal);
+    // Signals from crystal settings
+    connect(mCrystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [this]() {
+        mEngine->Clear();
+        mOpenGLWidget->update();
     });
 
+    // Signals from view settings
     connect(mViewSettingsWidget, &ViewSettingsWidget::cameraChanged, [this](HaloSim::Camera camera) {
         mEngine->SetCamera(camera);
+        mOpenGLWidget->update();
     });
     connect(mViewSettingsWidget, &ViewSettingsWidget::brightnessChanged, mOpenGLWidget, &OpenGLWidget::setBrightness);
     connect(mViewSettingsWidget, &ViewSettingsWidget::lockToLightSource, [this](bool locked) {
         mEngine->LockCameraToLightSource(locked);
+        mOpenGLWidget->update();
     });
+    mViewSettingsWidget->setCamera(mEngine->GetCamera());
+    mViewSettingsWidget->setBrightness(1.0);
 
+    // Signals from OpenGL widget
     connect(mOpenGLWidget, &OpenGLWidget::fieldOfViewChanged, mViewSettingsWidget, &ViewSettingsWidget::setFieldOfView);
     connect(mOpenGLWidget, &OpenGLWidget::cameraOrientationChanged, mViewSettingsWidget, &ViewSettingsWidget::setCameraOrientation);
     connect(mOpenGLWidget, &OpenGLWidget::maxRaysPerFrameChanged, mGeneralSettingsWidget, &GeneralSettingsWidget::setMaxRaysPerFrame);
-
     connect(mOpenGLWidget, &OpenGLWidget::nextIteration, mProgressBar, &QProgressBar::setValue);
+
+    // Signals from general settings
+    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [this](HaloSim::LightSource light) {
+        mEngine->SetLightSource(light);
+        mOpenGLWidget->update();
+    });
+    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [this](unsigned int value) {
+        mEngine->SetRaysPerStep(value);
+        mOpenGLWidget->update();
+    });
+    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, mOpenGLWidget, &OpenGLWidget::setMaxIterations);
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, mProgressBar, &QProgressBar::setMaximum);
 
     mGeneralSettingsWidget->SetInitialValues(mEngine->GetLightSource().diameter,
                                              mEngine->GetLightSource().altitude,
                                              mEngine->GetRaysPerStep(),
                                              600);
-
-    mCrystalSettingsWidget->SetInitialValues(mEngine->GetCrystalPopulation());
-    mViewSettingsWidget->setCamera(mEngine->GetCamera());
-    mViewSettingsWidget->setBrightness(1.0);
 }
 
 void MainWindow::setupUi()
 {
-    mGeneralSettingsWidget = new GeneralSettingsWidget();
-
-    mCrystalSettingsWidget = new CrystalSettingsWidget();
-
-    mViewSettingsWidget = new ViewSettingsWidget();
+#ifdef HALORAY_VERSION
+    setWindowTitle(QString("HaloRay %1").arg(STRINGIFY(HALORAY_VERSION)));
+#else
+    setWindowTitle(QString("HaloRay - %1 - %2")
+                       .arg(STRINGIFY(GIT_BRANCH))
+                       .arg(STRINGIFY(GIT_COMMIT_HASH)));
+#endif
 
     mOpenGLWidget = new OpenGLWidget();
-    mOpenGLWidget->setMinimumSize(640, 480);
-
-    mProgressBar = new QProgressBar();
-    mProgressBar->setTextVisible(false);
-    mProgressBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-
+    mProgressBar = setupProgressBar();
     mRenderButton = new RenderButton();
-    mRenderButton->setMinimumHeight(100);
 
     auto mainWidget = new QWidget();
-    auto topLayout = new QHBoxLayout();
-    mainWidget->setLayout(topLayout);
+    auto topLayout = new QHBoxLayout(mainWidget);
     setCentralWidget(mainWidget);
 
     auto sideBarLayout = new QVBoxLayout();
-
-    sideBarLayout->addWidget(mGeneralSettingsWidget);
-    sideBarLayout->addWidget(mCrystalSettingsWidget);
-    sideBarLayout->addWidget(mViewSettingsWidget);
-    sideBarLayout->addStretch();
+    auto sideBarScrollArea = setupSideBarScrollArea();
+    sideBarLayout->addWidget(sideBarScrollArea);
     sideBarLayout->addWidget(mProgressBar);
     sideBarLayout->addWidget(mRenderButton);
 
     topLayout->addLayout(sideBarLayout);
     topLayout->addWidget(mOpenGLWidget);
+}
 
-    setWindowTitle(QString("HaloRay %1.%2.%3")
-                       .arg(HaloRay_VERSION_MAJOR)
-                       .arg(HaloRay_VERSION_MINOR)
-                       .arg(HaloRay_VERSION_PATCH));
+QScrollArea *MainWindow::setupSideBarScrollArea()
+{
+    mGeneralSettingsWidget = new GeneralSettingsWidget();
+    mCrystalSettingsWidget = new CrystalSettingsWidget(mCrystalRepository);
+    mViewSettingsWidget = new ViewSettingsWidget();
+
+    auto scrollContainer = new QWidget();
+    auto scrollableLayout = new QVBoxLayout(scrollContainer);
+    scrollableLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+
+    scrollableLayout->addWidget(mGeneralSettingsWidget);
+    scrollableLayout->addWidget(mCrystalSettingsWidget);
+    scrollableLayout->addWidget(mViewSettingsWidget);
+    scrollableLayout->addStretch();
+
+    auto scrollArea = new QScrollArea();
+    scrollArea->setWidget(scrollContainer);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+    scrollArea->setWidgetResizable(true);
+
+    scrollArea->setMinimumWidth(scrollContainer->minimumSize().width() + scrollArea->verticalScrollBar()->sizeHint().width());
+    scrollArea->setMaximumWidth(scrollContainer->maximumSize().width() + scrollArea->verticalScrollBar()->sizeHint().width());
+
+    return scrollArea;
+}
+
+QProgressBar *MainWindow::setupProgressBar()
+{
+    auto progressBar = new QProgressBar();
+    progressBar->setTextVisible(false);
+    progressBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    return progressBar;
+}
+
+QSize MainWindow::sizeHint() const
+{
+    return QSize(1920, 1080);
 }

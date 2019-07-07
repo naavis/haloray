@@ -1,7 +1,6 @@
 #include <QtGlobal>
 #include <QApplication>
 #include <QSurfaceFormat>
-#include "version.h"
 #include "gui/mainWindow.h"
 
 void logHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)

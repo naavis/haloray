@@ -1,5 +1,0 @@
-#pragma once
-
-#define HaloRay_VERSION_MAJOR @HaloRay_VERSION_MAJOR@
-#define HaloRay_VERSION_MINOR @HaloRay_VERSION_MINOR@
-#define HaloRay_VERSION_PATCH @HaloRay_VERSION_PATCH@

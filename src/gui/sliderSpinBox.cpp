@@ -9,8 +9,7 @@ SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
     mSlider->setOrientation(Qt::Orientation::Horizontal);
     mSlider->setSingleStep((int)sliderMultiplier);
     mSlider->setPageStep((int)(10 * sliderMultiplier));
-    mSlider->setMinimumWidth(150);
-    mSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mSlider->setMinimumWidth(100);
 
     mSpinBox = new QDoubleSpinBox();
     mSpinBox->setSingleStep(0.1);
@@ -27,6 +26,13 @@ SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
         mSlider->setValue((int)(value * sliderMultiplier));
     });
     connect(mSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SliderSpinBox::valueChanged);
+}
+
+SliderSpinBox::SliderSpinBox(double min, double max, QWidget *parent)
+    : SliderSpinBox(parent)
+{
+    setMinimum(min);
+    setMaximum(max);
 }
 
 void SliderSpinBox::setSuffix(const QString &suffix)

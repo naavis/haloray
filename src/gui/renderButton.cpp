@@ -7,8 +7,9 @@ RenderButton::RenderButton(QWidget *parent)
     const QString renderText = "Render";
     const QString stopText = "Stop";
 
-    this->setText(renderText);
-    this->setStyleSheet("font: bold;");
+    setText(renderText);
+    setStyleSheet("font: bold;");
+    setMinimumHeight(100);
 
     connect(this, &RenderButton::clicked, [this, renderText, stopText]() {
         if (mRendering)

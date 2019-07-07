@@ -1,9 +1,3 @@
-set (HaloRay_VERSION_MAJOR 2)
-set (HaloRay_VERSION_MINOR 0)
-set (HaloRay_VERSION_PATCH 0)
-
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/version.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/version.h")
-
 # find includes in the corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed
@@ -20,7 +14,11 @@ set(HALORAY_SOURCES
     gui/viewSettingsWidget.cpp
     gui/sliderSpinBox.cpp
     gui/renderButton.cpp
+    gui/crystalModel.cpp
     simulation/simulationEngine.cpp
+    simulation/camera.cpp
+    simulation/defaults.cpp
+    simulation/crystalPopulationRepository.cpp
     opengl/texture.cpp
     opengl/textureRenderer.cpp
 )

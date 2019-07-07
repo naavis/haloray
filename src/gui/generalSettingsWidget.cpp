@@ -36,6 +36,8 @@ void GeneralSettingsWidget::SetInitialValues(double sunDiameter,
 
 void GeneralSettingsWidget::setupUi()
 {
+    setMaximumWidth(400);
+
     mSunAltitudeSlider = new SliderSpinBox();
     mSunAltitudeSlider->setSuffix("­°");
     mSunAltitudeSlider->setMinimum(-90.0);

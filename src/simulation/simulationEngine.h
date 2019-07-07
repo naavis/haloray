@@ -7,6 +7,7 @@
 #include "camera.h"
 #include "lightSource.h"
 #include "crystalPopulation.h"
+#include "crystalPopulationRepository.h"
 
 namespace HaloSim
 {
@@ -14,7 +15,7 @@ namespace HaloSim
 class SimulationEngine : protected QOpenGLFunctions_4_4_Core
 {
 public:
-    SimulationEngine(unsigned int outputWidth, unsigned int outputHeight);
+    SimulationEngine(unsigned int outputWidth, unsigned int outputHeight, std::shared_ptr<CrystalPopulationRepository> crystalRepository);
     void Initialize();
     void Start();
     void Step();
@@ -28,14 +29,11 @@ public:
     unsigned int GetRaysPerStep() const;
     void SetRaysPerStep(unsigned int rays);
 
-    struct Camera GetCamera() const;
-    void SetCamera(const struct Camera);
+    Camera GetCamera() const;
+    void SetCamera(const Camera);
 
-    struct CrystalPopulation GetCrystalPopulation() const;
-    void SetCrystalPopulation(const struct CrystalPopulation);
-
-    struct LightSource GetLightSource() const;
-    void SetLightSource(const struct LightSource);
+    LightSource GetLightSource() const;
+    void SetLightSource(const LightSource);
 
     void LockCameraToLightSource(bool locked);
 
@@ -56,15 +54,15 @@ private:
     std::unique_ptr<OpenGL::Texture> mSimulationTexture;
     std::unique_ptr<OpenGL::Texture> mSpinlockTexture;
 
-    struct Camera mCamera;
-    struct CrystalPopulation mCrystals;
-    struct LightSource mLight;
+    Camera mCamera;
+    LightSource mLight;
 
     bool mRunning;
     bool mInitialized;
     unsigned int mRaysPerStep;
     unsigned int mIteration;
     bool mCameraLockedToLightSource;
+    std::shared_ptr<CrystalPopulationRepository> mCrystalRepository;
 };
 
 } // namespace HaloSim

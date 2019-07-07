@@ -19,6 +19,8 @@ struct Camera
     float fov;
     Projection projection;
     bool hideSubHorizon;
+
+    float getMaximumFov() const;
 };
 
 } // namespace HaloSim
