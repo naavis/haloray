@@ -76,13 +76,9 @@ void CrystalSettingsWidget::setupUi()
     mAddPopulationButton = new QPushButton("Add");
     mRemovePopulationButton = new QPushButton("Remove");
 
-    mCaRatioSlider = new SliderSpinBox();
-    mCaRatioSlider->setMinimum(0.0);
-    mCaRatioSlider->setMaximum(15.0);
+    mCaRatioSlider = new SliderSpinBox(0.0, 15.0);
 
-    mCaRatioStdSlider = new SliderSpinBox();
-    mCaRatioStdSlider->setMinimum(0.0);
-    mCaRatioStdSlider->setMaximum(10.0);
+    mCaRatioStdSlider = new SliderSpinBox(0.0, 10.0);
 
     mTiltDistributionComboBox = new QComboBox();
     mTiltDistributionComboBox->addItems({"Uniform", "Gaussian"});
@@ -127,9 +123,7 @@ void CrystalSettingsWidget::setupUi()
 
 SliderSpinBox *CrystalSettingsWidget::createAngleSlider(double min, double max)
 {
-    auto slider = new SliderSpinBox();
-    slider->setMinimum(0.0);
-    slider->setMaximum(180.0);
+    auto slider = new SliderSpinBox(min, max);
     slider->setSuffix("°");
     return slider;
 }

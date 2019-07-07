@@ -28,6 +28,13 @@ SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
     connect(mSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SliderSpinBox::valueChanged);
 }
 
+SliderSpinBox::SliderSpinBox(double min, double max, QWidget *parent)
+    : SliderSpinBox(parent)
+{
+    setMinimum(min);
+    setMaximum(max);
+}
+
 void SliderSpinBox::setSuffix(const QString &suffix)
 {
     mSpinBox->setSuffix(suffix);
