@@ -10,7 +10,7 @@ done using OpenGL compute and fragment shaders.
 
 HaloRay currently supports Windows and Linux.
 
-![Simulation of a column crystal halo display](images/column-halos.png)
+![Simulation of a column crystal halo display](images/plate-column-random-halo-screenshot.png)
 
 ## How to build?
 
