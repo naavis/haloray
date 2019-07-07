@@ -34,7 +34,8 @@ Here are some general settings for the whole simulation.
 
 - **Sun altitude:** Sun altitude from the horizon in degrees
 - **Sun diameter:** Angular diameter of the sun in degrees
-- **Rays per frame:** Number of traced rays per rendered frame
+- **Rays per frame:** Number of rays traced through individual crystals per
+    rendered frame
   - If the user interface slows down a lot during rendering, lower this value
   - On an NVIDIA GeForce GTX 1070 a good value seems to be 500 000 - 1 000 000
   - The maximum value for this parameter may be limited by your GPU
