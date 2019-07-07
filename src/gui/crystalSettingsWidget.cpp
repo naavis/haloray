@@ -1,5 +1,6 @@
 #include "crystalSettingsWidget.h"
 #include <QFormLayout>
+#include <QHBoxLayout>
 #include "../simulation/crystalPopulation.h"
 
 CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPopulationRepository> crystalRepository, QWidget *parent)
@@ -92,8 +93,8 @@ void CrystalSettingsWidget::setupUi()
     mPopulationComboBox->setInsertPolicy(QComboBox::InsertPolicy::NoInsert);
     mPopulationComboBox->setDuplicatesEnabled(true);
 
-    mAddPopulationButton = new QPushButton("Add");
-    mRemovePopulationButton = new QPushButton("Remove");
+    mAddPopulationButton = new QPushButton("Add population");
+    mRemovePopulationButton = new QPushButton("Remove population");
 
     mCaRatioSlider = new SliderSpinBox(0.0, 15.0);
 
@@ -122,9 +123,13 @@ void CrystalSettingsWidget::setupUi()
     mWeightSpinBox->setMaximum(10000);
 
     auto mainLayout = new QFormLayout(this);
-    mainLayout->addRow("Population", mPopulationComboBox);
-    mainLayout->addRow(mAddPopulationButton);
-    mainLayout->addRow(mRemovePopulationButton);
+    mainLayout->addRow("Crystal population", mPopulationComboBox);
+
+    auto addRemoveButtonLayout = new QHBoxLayout();
+    addRemoveButtonLayout->addWidget(mAddPopulationButton);
+    addRemoveButtonLayout->addWidget(mRemovePopulationButton);
+
+    mainLayout->addRow(addRemoveButtonLayout);
 
     mainLayout->addRow("Population weight", mWeightSpinBox);
     mainLayout->addRow("C/A ratio average", mCaRatioSlider);
