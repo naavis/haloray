@@ -8,6 +8,18 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPop
 {
     setupUi();
 
+    auto tiltVisibilityHandler = [this](int index) {
+        bool showControls = index != 0;
+        setTiltVisibility(showControls);
+    };
+    connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), tiltVisibilityHandler);
+
+    auto rotationVisibilityHandler = [this](int index) {
+        bool showControls = index != 0;
+        setRotationVisibility(showControls);
+    };
+    connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), rotationVisibilityHandler);
+
     mMapper = new QDataWidgetMapper();
     mMapper->setModel(mModel);
     mMapper->addMapping(mCaRatioSlider, 0);
@@ -23,18 +35,11 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPop
 
     connect(mModel, &CrystalModel::dataChanged, this, &CrystalSettingsWidget::crystalChanged);
 
-    auto tiltVisibilityHandler = [this](int index) {
-        bool showControls = index != 0;
-        setTiltVisibility(showControls);
-    };
-    connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), tiltVisibilityHandler);
-
-    auto rotationVisibilityHandler = [this](int index) {
-        bool showControls = index != 0;
-        setRotationVisibility(showControls);
-    };
-    connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), rotationVisibilityHandler);
-
+    /*
+    QDataWidgetMapper only submits data when Enter is pressed, or when a text
+    box loses focus, so the sliders and comboboxes must still be manually connected
+    to the submit slot of the mapper.
+    */
     connect(mCaRatioSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
     connect(mCaRatioStdSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
     connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), mMapper, &QDataWidgetMapper::submit);
