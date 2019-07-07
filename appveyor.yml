@@ -17,7 +17,12 @@ artifacts:
   - path: '*.zip'
 deploy:
   - provider: GitHub
+    release: HaloRay $(appveyor_build_version)
     artifact: /.*\.zip/
     draft: true
+    description: ''
+    skip_tags: true
+    auth_token:
+      secure: pb9keaNklmNgmLaw1doReZDdP5Oh/pLZPdwjt+anpcoi34MyqAbFoJbiHJMcWkgD
     on:
       branch: master
