@@ -1,5 +1,0 @@
-#pragma once
-
-#define STRINGIFY0(v) #v
-#define STRINGIFY(v) STRINGIFY0(v)
-#define HaloRay_VERSION STRINGIFY(@PROJECT_VERSION@)
