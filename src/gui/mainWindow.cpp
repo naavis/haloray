@@ -7,7 +7,9 @@
 #include <QScrollBar>
 #include "../simulation/crystalPopulation.h"
 #include "sliderSpinBox.h"
-#include "../version.h"
+
+#define STRINGIFY0(v) #v
+#define STRINGIFY(v) STRINGIFY0(v)
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -70,7 +72,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 void MainWindow::setupUi()
 {
-    setWindowTitle(QString("HaloRay %1").arg(HaloRay_VERSION));
+#ifdef HALORAY_VERSION
+    setWindowTitle(QString("HaloRay %1").arg(STRINGIFY(HALORAY_VERSION)));
+#else
+    setWindowTitle(QString("HaloRay - %1 - %2")
+                       .arg(STRINGIFY(GIT_BRANCH))
+                       .arg(STRINGIFY(GIT_COMMIT_HASH)));
+#endif
 
     mOpenGLWidget = new OpenGLWidget();
     mProgressBar = setupProgressBar();

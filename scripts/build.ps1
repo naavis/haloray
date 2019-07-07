@@ -1,10 +1,21 @@
 # Windows build script for Appveyor
+
 $ErrorActionPreference = "Stop";
+
+$gitBranch = $env:APPVEYOR_REPO_BRANCH
+$gitBranch
+$extraParameters = if ($gitBranch -eq "master") {
+    "-DHALORAY_VERSION='${env:APPVEYOR_BUILD_VERSION}'"
+} else {
+    ""
+}
+
+$extraParameters
 
 pushd
 mkdir build
 cd build
-cmake .. -G "Visual Studio 15 2017 Win64"
+cmake .. -G "Visual Studio 15 2017 Win64" $extraParameters
 cmake --build . --config Release
 cd .\src\Release\
 & "${env:Qt5_DIR}\bin\qtenv2.bat"
