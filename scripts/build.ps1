@@ -1,6 +1,7 @@
 # Windows build script for Appveyor
 $ErrorActionPreference = "Stop";
 
+pushd
 mkdir build
 cd build
 cmake .. -G "Visual Studio 15 2017 Win64"
@@ -17,3 +18,4 @@ cd .\src\Release\
     -no-system-d3d-compiler `
     --release `
     haloray.exe
+popd

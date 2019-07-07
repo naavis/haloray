@@ -10,6 +10,6 @@ environment:
 build_script:
   - ps: scripts\build.ps1
 after_build:
-  - ps: 7z a "${env:APPVEYOR_BUILD_FOLDER}\haloray.zip" "${env:APPVEYOR_BUILD_FOLDER}\build\src\Release\*"
+  - ps: scripts\package.ps1
 artifacts:
-  - path: haloray.zip
+  - path: '*.zip'
