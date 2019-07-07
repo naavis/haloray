@@ -1,4 +1,5 @@
 # HaloRay
+[![Build status](https://ci.appveyor.com/api/projects/status/5k9laekby84x2ex1/branch/develop?svg=true)](https://ci.appveyor.com/project/naavis/haloray/branch/develop)
 
 HaloRay simulates the reflection and refraction of sun light inside hexagonal
 ice crystals present in high altitude clouds in the atmosphere. These ice
