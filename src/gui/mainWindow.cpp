@@ -13,6 +13,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     mCrystalRepository = std::make_shared<HaloSim::CrystalPopulationRepository>();
 
+    /*
+    setupUi must be called before mEngine is constructed, since OpenGLWidget
+    initializes OpenGL for the whole application, and mEngine depends on OpenGL
+    */
     setupUi();
     mEngine = std::make_shared<HaloSim::SimulationEngine>(mOpenGLWidget->width(), mOpenGLWidget->height(), mCrystalRepository);
     mOpenGLWidget->setEngine(mEngine);
