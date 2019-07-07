@@ -26,20 +26,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [this](HaloSim::LightSource light) {
         mEngine->SetLightSource(light);
+        mOpenGLWidget->update();
     });
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [this](unsigned int value) {
         mEngine->SetRaysPerStep(value);
+        mOpenGLWidget->update();
     });
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, mOpenGLWidget, &OpenGLWidget::setMaxIterations);
 
-    connect(mCrystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [this]() { mEngine->Clear(); });
+    connect(mCrystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [this]() {
+        mEngine->Clear();
+        mOpenGLWidget->update();
+    });
 
     connect(mViewSettingsWidget, &ViewSettingsWidget::cameraChanged, [this](HaloSim::Camera camera) {
         mEngine->SetCamera(camera);
+        mOpenGLWidget->update();
     });
     connect(mViewSettingsWidget, &ViewSettingsWidget::brightnessChanged, mOpenGLWidget, &OpenGLWidget::setBrightness);
     connect(mViewSettingsWidget, &ViewSettingsWidget::lockToLightSource, [this](bool locked) {
         mEngine->LockCameraToLightSource(locked);
+        mOpenGLWidget->update();
     });
 
     connect(mOpenGLWidget, &OpenGLWidget::fieldOfViewChanged, mViewSettingsWidget, &ViewSettingsWidget::setFieldOfView);
