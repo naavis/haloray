@@ -149,5 +149,6 @@ Appveyor CI server.
 
 - [Lauri Kangas](https://github.com/lkangas) for providing tons of reading material and debugging help
 - [Panu Lahtinen](https://github.com/pnuu) for additional Linux support
+- [Jaakko Lehtinen](https://users.aalto.fi/~lehtinj7/) for super valuable lessons in computer graphics
 - [Nuklear](https://github.com/vurtun/nuklear/) for enabling me get this project
    off the ground
