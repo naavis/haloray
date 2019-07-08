@@ -5,6 +5,7 @@
 #include <QFormLayout>
 #include <QString>
 #include <QScrollBar>
+#include <QIcon>
 #include "../simulation/crystalPopulation.h"
 #include "sliderSpinBox.h"
 
@@ -79,6 +80,8 @@ void MainWindow::setupUi()
                        .arg(STRINGIFY(GIT_BRANCH))
                        .arg(STRINGIFY(GIT_COMMIT_HASH)));
 #endif
+
+    setWindowIcon(QIcon(":/haloray.ico"));
 
     mOpenGLWidget = new OpenGLWidget();
     mProgressBar = setupProgressBar();

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- Created an application icon for HaloRay
+
 ### Changed
 - Disabled "Add population" button when there is only one population in simulation
 
