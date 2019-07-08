@@ -3,14 +3,11 @@
 $ErrorActionPreference = "Stop";
 
 $gitBranch = $env:APPVEYOR_REPO_BRANCH
-$gitBranch
 $extraParameters = if ($gitBranch -eq "master") {
     "-DHALORAY_VERSION='${env:APPVEYOR_BUILD_VERSION}'"
 } else {
     ""
 }
-
-$extraParameters
 
 pushd
 mkdir build
