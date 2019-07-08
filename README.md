@@ -151,7 +151,7 @@ Appveyor CI server.
 
 - [Lauri Kangas](https://github.com/lkangas) for providing tons of reading material and debugging help
 - [Panu Lahtinen](https://github.com/pnuu) for additional Linux support
-- Jukka Ruoskanen for inspiring HaloRay with making HaloPoint 2.0 back in the day
+- Jukka Ruoskanen for making HaloPoint 2.0 back in the day and inspiring me to start working on HaloRay
 - [Jaakko Lehtinen](https://users.aalto.fi/~lehtinj7/) for super valuable lessons in computer graphics
 - [Nuklear](https://github.com/vurtun/nuklear/) for enabling me get this project
    off the ground
