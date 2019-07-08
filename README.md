@@ -34,7 +34,8 @@ Here are some general settings for the whole simulation.
 
 - **Sun altitude:** Sun altitude from the horizon in degrees
 - **Sun diameter:** Angular diameter of the sun in degrees
-- **Rays per frame:** Number of traced rays per rendered frame
+- **Rays per frame:** Number of rays traced through individual crystals per
+    rendered frame
   - If the user interface slows down a lot during rendering, lower this value
   - On an NVIDIA GeForce GTX 1070 a good value seems to be 500 000 - 1 000 000
   - The maximum value for this parameter may be limited by your GPU
@@ -46,8 +47,9 @@ HaloRay allows you to simulate multiple different ice crystal populations
 simultaneously. You give each population a name for easier reference by typing
 in the **Crystal population** dropdown menu. Each population has a relative
 weight, which can be changed by adjusting the **Population weight** spin box.
-For example, giving weight 1 and 3 to two crystal populations would trace three
-times as many rays through the latter population than the former.
+For example, giving weights 1 and 3 to two crystal populations respectively
+would trace three times as many rays through the latter population than the
+former.
 
 The crystals are hexagonal, and have three named axes as shown in the image
 below.
@@ -55,8 +57,8 @@ below.
 ![Graphic of the different crystallographic axes](images/crystal-axes.png)
 
 The orientation of the ice crystals in each population are defined by two
-parameters: tilt of the crystal around the **a**-axis and rotation around the
-**c**-axis. For each parameter you can currently choose between two different
+parameters: tilt of the crystal around the A-axis and rotation around the
+C-axis. For each parameter you can currently choose between two different
 random distributions: a uniform distribution and a Gaussian distribution. For
 the Gaussian distribution you can choose an average angle and the standard
 deviation of the distribution.
@@ -75,7 +77,7 @@ known to happen in nature.
 The shape of the crystal can also be adjusted by changing the following
 parameters:
 
-- **C/A ratio average:** Ratio between the **c**-axis and **a**-axis lengths of
+- **C/A ratio average:** Ratio between the C-axis and A-axis lengths of
   of the crystal
 - **C/A ratio std:** Standard deviation of the C/A ratio
 
@@ -83,8 +85,8 @@ parameters:
 
 Crystals with a large C/A ratio are look like pencil pieces, and are commonly
 called column crystals. Column crystals tend to orient themselves with the
-**c**-axis horizontal. Crystals with a small C/A ratio are called plate
-crystals. They tend to orient themselves with the **c**-axis vertical. Both
+C-axis horizontal. Crystals with a small C/A ratio are called plate
+crystals. They tend to orient themselves with the C-axis vertical. Both
 kinds of crystals are shown in the image above.
 
 ### View settings
@@ -147,7 +149,9 @@ Appveyor CI server.
 
 ## Acknowledgments
 
-- @lkangas for providing tons of reading material related to this topic
-- @pnuu for additional Linux support
+- [Lauri Kangas](https://github.com/lkangas) for providing tons of reading material and debugging help
+- [Panu Lahtinen](https://github.com/pnuu) for additional Linux support
+- Jukka Ruoskanen for making HaloPoint 2.0 back in the day and inspiring me to start working on HaloRay
+- [Jaakko Lehtinen](https://users.aalto.fi/~lehtinj7/) for super valuable lessons in computer graphics
 - [Nuklear](https://github.com/vurtun/nuklear/) for enabling me get this project
    off the ground

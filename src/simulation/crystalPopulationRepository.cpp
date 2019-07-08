@@ -15,22 +15,16 @@ unsigned int CrystalPopulationRepository::GetCount() const
     return (unsigned int)mCrystals.size();
 }
 
-bool CrystalPopulationRepository::AddDefault()
+void CrystalPopulationRepository::AddDefault()
 {
     mCrystals.push_back(DefaultCrystalPopulation());
     mWeights.push_back(1);
-    return true;
 }
 
-bool CrystalPopulationRepository::Remove(unsigned int index)
+void CrystalPopulationRepository::Remove(unsigned int index)
 {
-    if (mCrystals.size() == 1)
-        return false;
-
     mCrystals.erase(mCrystals.begin() + index);
     mWeights.erase(mWeights.begin() + index);
-
-    return true;
 }
 
 CrystalPopulation &CrystalPopulationRepository::Get(unsigned int index)

@@ -9,8 +9,8 @@ class CrystalPopulationRepository
 {
 public:
     CrystalPopulationRepository();
-    bool AddDefault();
-    bool Remove(unsigned int index);
+    void AddDefault();
+    void Remove(unsigned int index);
     CrystalPopulation &Get(unsigned int index);
     double GetProbability(unsigned int index) const;
     unsigned int GetWeight(unsigned int index) const;

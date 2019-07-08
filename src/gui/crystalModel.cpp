@@ -109,19 +109,18 @@ void CrystalModel::addRow()
 {
     auto row = mCrystals->GetCount();
     beginInsertRows(QModelIndex(), row, row);
-
-    bool success = mCrystals->AddDefault();
-
+    mCrystals->AddDefault();
     endInsertRows();
 }
 
 bool CrystalModel::removeRow(int row)
 {
+    if (mCrystals->GetCount() <= 1)
+        return false;
+
     beginRemoveRows(QModelIndex(), row, row);
-
-    bool success = mCrystals->Remove(row);
-
+    mCrystals->Remove(row);
     endRemoveRows();
 
-    return success;
+    return true;
 }
