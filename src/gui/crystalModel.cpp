@@ -108,7 +108,7 @@ void CrystalModel::addRow()
 {
     auto row = mCrystals->getCount();
     beginInsertRows(QModelIndex(), row, row);
-    mCrystals->addDefault();
+    mCrystals->add();
     endInsertRows();
 }
 

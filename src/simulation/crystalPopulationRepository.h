@@ -9,7 +9,7 @@ class CrystalPopulationRepository
 {
 public:
     CrystalPopulationRepository();
-    void addDefault();
+    void add();
     void remove(unsigned int index);
     CrystalPopulation &get(unsigned int index);
     double getProbability(unsigned int index) const;
@@ -18,6 +18,7 @@ public:
     unsigned int getCount() const;
 
 private:
+    void addDefaults();
     std::vector<CrystalPopulation> mCrystals;
     std::vector<unsigned int> mWeights;
 };

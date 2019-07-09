@@ -61,7 +61,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPop
 
     connect(mAddPopulationButton, &QPushButton::clicked, [this]() {
         mModel->addRow();
-        mPopulationComboBox->addItem(QString("Population %1").arg(mNextPopulationId++));
+        addPopulationComboBoxItem();
         mMapper->toLast();
         updateRemovePopulationButtonState();
     });
@@ -86,12 +86,14 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPop
     updateRemovePopulationButtonState();
 }
 
+void CrystalSettingsWidget::addPopulationComboBoxItem()
+{
+    mPopulationComboBox->addItem(QString("Population %1").arg(mNextPopulationId++));
+}
+
 void CrystalSettingsWidget::fillPopulationComboBox()
 {
-    for (auto i = 0; i < mModel->rowCount(); ++i)
-    {
-        mPopulationComboBox->addItem(QString("Population %1").arg(mNextPopulationId++));
-    }
+    mPopulationComboBox->addItems({"Columns", "Plates", "Random"});
 }
 
 void CrystalSettingsWidget::updateRemovePopulationButtonState()

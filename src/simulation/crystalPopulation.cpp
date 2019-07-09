@@ -40,8 +40,8 @@ CrystalPopulation CrystalPopulation::createPlate()
 CrystalPopulation CrystalPopulation::createColumn()
 {
     CrystalPopulation crystal;
-    crystal.caRatioAverage = 2.0f;
-    crystal.caRatioStd = 0.1f;
+    crystal.caRatioAverage = 7.0f;
+    crystal.caRatioStd = 1.0f;
 
     crystal.tiltDistribution = 1;
     crystal.tiltAverage = 90.0f;

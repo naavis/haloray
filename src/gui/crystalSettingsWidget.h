@@ -22,6 +22,7 @@ signals:
 
 private:
     void setupUi();
+    void addPopulationComboBoxItem();
     void fillPopulationComboBox();
     void updateRemovePopulationButtonState();
     SliderSpinBox *createAngleSlider(double min, double max);

@@ -6,7 +6,7 @@ namespace HaloSim
 
 CrystalPopulationRepository::CrystalPopulationRepository()
 {
-    addDefault();
+    addDefaults();
 }
 
 unsigned int CrystalPopulationRepository::getCount() const
@@ -14,9 +14,21 @@ unsigned int CrystalPopulationRepository::getCount() const
     return (unsigned int)mCrystals.size();
 }
 
-void CrystalPopulationRepository::addDefault()
+void CrystalPopulationRepository::add()
 {
-    mCrystals.push_back(CrystalPopulation::createLowitz());
+    mCrystals.push_back(CrystalPopulation::createRandom());
+    mWeights.push_back(1);
+}
+
+void CrystalPopulationRepository::addDefaults()
+{
+    mCrystals.push_back(CrystalPopulation::createColumn());
+    mWeights.push_back(1);
+
+    mCrystals.push_back(CrystalPopulation::createPlate());
+    mWeights.push_back(1);
+
+    mCrystals.push_back(CrystalPopulation::createRandom());
     mWeights.push_back(1);
 }
 
