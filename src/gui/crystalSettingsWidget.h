@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QDataWidgetMapper>
+#include "addCrystalPopulationButton.h"
 #include "sliderSpinBox.h"
 #include "crystalModel.h"
 #include "../simulation/crystalPopulation.h"
@@ -22,11 +23,14 @@ signals:
 
 private:
     void setupUi();
+    void addPopulationComboBoxItem();
+    void fillPopulationComboBox();
+    void updateRemovePopulationButtonState();
     SliderSpinBox *createAngleSlider(double min, double max);
     void setTiltVisibility(bool);
     void setRotationVisibility(bool);
 
-    QPushButton *mAddPopulationButton;
+    AddCrystalPopulationButton *mAddPopulationButton;
     QPushButton *mRemovePopulationButton;
 
     SliderSpinBox *mCaRatioSlider;

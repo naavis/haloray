@@ -59,29 +59,47 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPop
     tiltVisibilityHandler(mTiltDistributionComboBox->currentIndex());
     rotationVisibilityHandler(mRotationDistributionComboBox->currentIndex());
 
-    connect(mAddPopulationButton, &QPushButton::clicked, [this]() {
-        mModel->addRow();
-        mPopulationComboBox->addItem(QString("Population %1").arg(mNextPopulationId++));
+    connect(mAddPopulationButton, &AddCrystalPopulationButton::addPopulation, [this](HaloSim::CrystalPopulationPreset preset) {
+        mModel->addRow(preset);
+        addPopulationComboBoxItem();
         mMapper->toLast();
+        updateRemovePopulationButtonState();
     });
+
     connect(mRemovePopulationButton, &QPushButton::clicked, [this]() {
         int index = mMapper->currentIndex();
-        if (index != 0)
-            mMapper->toPrevious();
-        else
+        if (index == 0)
             mMapper->toNext();
+        else
+            mMapper->toPrevious();
         bool success = mModel->removeRow(index);
         if (success)
             mPopulationComboBox->removeItem(index);
+
+        updateRemovePopulationButtonState();
     });
 
     connect(mPopulationComboBox, &QComboBox::editTextChanged, [this](const QString &text) {
         mPopulationComboBox->setItemText(mPopulationComboBox->currentIndex(), text);
     });
-    for (auto i = 0; i < mModel->rowCount(); ++i)
-    {
-        mPopulationComboBox->addItem(QString("Population %1").arg(mNextPopulationId++));
-    }
+
+    fillPopulationComboBox();
+    updateRemovePopulationButtonState();
+}
+
+void CrystalSettingsWidget::addPopulationComboBoxItem()
+{
+    mPopulationComboBox->addItem(QString("Population %1").arg(mNextPopulationId++));
+}
+
+void CrystalSettingsWidget::fillPopulationComboBox()
+{
+    mPopulationComboBox->addItems({"Columns", "Plates", "Random"});
+}
+
+void CrystalSettingsWidget::updateRemovePopulationButtonState()
+{
+    mRemovePopulationButton->setEnabled(mModel->rowCount() > 1);
 }
 
 void CrystalSettingsWidget::setupUi()
@@ -93,8 +111,12 @@ void CrystalSettingsWidget::setupUi()
     mPopulationComboBox->setInsertPolicy(QComboBox::InsertPolicy::NoInsert);
     mPopulationComboBox->setDuplicatesEnabled(true);
 
-    mAddPopulationButton = new QPushButton("Add population");
+    mAddPopulationButton = new AddCrystalPopulationButton();
+    mAddPopulationButton->setMinimumHeight(30);
+
     mRemovePopulationButton = new QPushButton("Remove population");
+    mRemovePopulationButton->setMinimumHeight(30);
+    mRemovePopulationButton->setStyleSheet("padding: 10px;");
 
     mCaRatioSlider = new SliderSpinBox(0.0, 15.0);
 
@@ -125,13 +147,13 @@ void CrystalSettingsWidget::setupUi()
     auto mainLayout = new QFormLayout(this);
     mainLayout->addRow("Crystal population", mPopulationComboBox);
 
-    auto addRemoveButtonLayout = new QHBoxLayout();
-    addRemoveButtonLayout->addWidget(mAddPopulationButton);
-    addRemoveButtonLayout->addWidget(mRemovePopulationButton);
+    auto populationButtonLayout = new QHBoxLayout();
+    populationButtonLayout->addWidget(mAddPopulationButton);
+    populationButtonLayout->addWidget(mRemovePopulationButton);
 
-    mainLayout->addRow(addRemoveButtonLayout);
-
+    mainLayout->addRow(populationButtonLayout);
     mainLayout->addRow("Population weight", mWeightSpinBox);
+    mainLayout->addItem(new QSpacerItem(0, 10));
     mainLayout->addRow("C/A ratio average", mCaRatioSlider);
     mainLayout->addRow("C/A ratio std.", mCaRatioStdSlider);
 

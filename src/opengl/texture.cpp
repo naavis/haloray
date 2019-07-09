@@ -11,12 +11,12 @@ Texture::Texture(unsigned int width, unsigned int height, unsigned int textureUn
     glGenTextures(1, &mTextureHandle);
     glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_2D, mTextureHandle);
-    InitializeTextureImage();
+    initializeTextureImage();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-void Texture::InitializeTextureImage()
+void Texture::initializeTextureImage()
 {
     switch (mType)
     {
@@ -37,12 +37,12 @@ Texture::~Texture()
     glDeleteTextures(1, &mTextureHandle);
 }
 
-const unsigned int Texture::GetHandle() const
+const unsigned int Texture::getHandle() const
 {
     return mTextureHandle;
 }
 
-const unsigned int Texture::GetTextureUnit() const
+const unsigned int Texture::getTextureUnit() const
 {
     return mTextureUnit;
 }

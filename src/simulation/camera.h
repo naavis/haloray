@@ -21,6 +21,7 @@ struct Camera
     bool hideSubHorizon;
 
     float getMaximumFov() const;
+    static Camera createDefaultCamera();
 };
 
 } // namespace HaloSim

@@ -27,29 +27,29 @@ void OpenGLWidget::setEngine(enginePtr engine)
 
 void OpenGLWidget::toggleRendering()
 {
-    if (mEngine->IsRunning())
-        mEngine->Stop();
+    if (mEngine->isRunning())
+        mEngine->stop();
     else
-        mEngine->Start();
+        mEngine->start();
     update();
 }
 
 void OpenGLWidget::paintGL()
 {
-    if (mEngine->IsRunning() && mEngine->GetIteration() < mMaxIterations)
+    if (mEngine->isRunning() && mEngine->getIteration() < mMaxIterations)
     {
-        mEngine->Step();
-        emit nextIteration(mEngine->GetIteration());
+        mEngine->step();
+        emit nextIteration(mEngine->getIteration());
         update();
     }
-    const float exposure = mExposure / (mEngine->GetIteration() + 1) / (mEngine->GetCamera().fov / 180.0);
-    mTextureRenderer->SetUniformFloat("exposure", exposure);
-    mTextureRenderer->Render(mEngine->GetOutputTextureHandle());
+    const float exposure = mExposure / (mEngine->getIteration() + 1) / (mEngine->getCamera().fov / 180.0);
+    mTextureRenderer->setUniformFloat("exposure", exposure);
+    mTextureRenderer->render(mEngine->getOutputTextureHandle());
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
 {
-    mEngine->ResizeOutputTextureCallback(w, h);
+    mEngine->resizeOutputTextureCallback(w, h);
 }
 
 void OpenGLWidget::initializeGL()
@@ -57,8 +57,8 @@ void OpenGLWidget::initializeGL()
     initializeOpenGLFunctions();
 
     mTextureRenderer = std::make_unique<OpenGL::TextureRenderer>();
-    mEngine->Initialize();
-    mTextureRenderer->Initialize();
+    mEngine->initialize();
+    mTextureRenderer->initialize();
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -72,7 +72,7 @@ void OpenGLWidget::initializeGL()
 
 void OpenGLWidget::mousePressEvent(QMouseEvent *event)
 {
-    if (!mEngine->IsRunning())
+    if (!mEngine->isRunning())
         return;
 
     if (event->button() == Qt::LeftButton)
@@ -87,7 +87,7 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     if (mDragging)
     {
-        auto camera = mEngine->GetCamera();
+        auto camera = mEngine->getCamera();
         auto dragSpeed = camera.fov / height();
         auto currentMousePosition = event->globalPos();
         auto delta = currentMousePosition - mPreviousDragPoint;
@@ -102,7 +102,7 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *event)
             camera.pitch = 90.0;
         else if (camera.pitch < -90.0)
             camera.pitch = -90.0;
-        mEngine->SetCamera(camera);
+        mEngine->setCamera(camera);
 
         emit cameraOrientationChanged(camera.pitch, camera.yaw);
 
@@ -122,13 +122,13 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void OpenGLWidget::wheelEvent(QWheelEvent *event)
 {
-    if (!mEngine->IsRunning())
+    if (!mEngine->isRunning())
     {
         event->ignore();
         return;
     }
 
-    auto camera = mEngine->GetCamera();
+    auto camera = mEngine->getCamera();
     const float zoomSpeed = 0.1f * camera.fov;
 
     QPoint numPixels = event->pixelDelta();
@@ -146,7 +146,7 @@ void OpenGLWidget::wheelEvent(QWheelEvent *event)
 
     camera.fov = std::max(camera.fov, 10.0f);
     camera.fov = std::min(camera.fov, camera.getMaximumFov());
-    mEngine->SetCamera(camera);
+    mEngine->setCamera(camera);
 
     event->accept();
 

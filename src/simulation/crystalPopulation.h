@@ -3,6 +3,15 @@
 namespace HaloSim
 {
 
+enum CrystalPopulationPreset
+{
+    Random,
+    Plate,
+    Column,
+    Parry,
+    Lowitz
+};
+
 struct CrystalPopulation
 {
     float caRatioAverage;
@@ -15,6 +24,13 @@ struct CrystalPopulation
     int rotationDistribution;
     float rotationAverage;
     float rotationStd;
+
+    static CrystalPopulation presetPopulation(CrystalPopulationPreset);
+    static CrystalPopulation createLowitz();
+    static CrystalPopulation createPlate();
+    static CrystalPopulation createColumn();
+    static CrystalPopulation createParry();
+    static CrystalPopulation createRandom();
 };
 
 } // namespace HaloSim
