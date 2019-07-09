@@ -30,21 +30,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // Signals from crystal settings
     connect(mCrystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [this]() {
-        mEngine->Clear();
+        mEngine->clear();
         mOpenGLWidget->update();
     });
 
     // Signals from view settings
     connect(mViewSettingsWidget, &ViewSettingsWidget::cameraChanged, [this](HaloSim::Camera camera) {
-        mEngine->SetCamera(camera);
+        mEngine->setCamera(camera);
         mOpenGLWidget->update();
     });
     connect(mViewSettingsWidget, &ViewSettingsWidget::brightnessChanged, mOpenGLWidget, &OpenGLWidget::setBrightness);
     connect(mViewSettingsWidget, &ViewSettingsWidget::lockToLightSource, [this](bool locked) {
-        mEngine->LockCameraToLightSource(locked);
+        mEngine->lockCameraToLightSource(locked);
         mOpenGLWidget->update();
     });
-    mViewSettingsWidget->setCamera(mEngine->GetCamera());
+    mViewSettingsWidget->setCamera(mEngine->getCamera());
     mViewSettingsWidget->setBrightness(1.0);
 
     // Signals from OpenGL widget
@@ -55,19 +55,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // Signals from general settings
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [this](HaloSim::LightSource light) {
-        mEngine->SetLightSource(light);
+        mEngine->setLightSource(light);
         mOpenGLWidget->update();
     });
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [this](unsigned int value) {
-        mEngine->SetRaysPerStep(value);
+        mEngine->setRaysPerStep(value);
         mOpenGLWidget->update();
     });
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, mOpenGLWidget, &OpenGLWidget::setMaxIterations);
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, mProgressBar, &QProgressBar::setMaximum);
 
-    mGeneralSettingsWidget->SetInitialValues(mEngine->GetLightSource().diameter,
-                                             mEngine->GetLightSource().altitude,
-                                             mEngine->GetRaysPerStep(),
+    mGeneralSettingsWidget->setInitialValues(mEngine->getLightSource().diameter,
+                                             mEngine->getLightSource().altitude,
+                                             mEngine->getRaysPerStep(),
                                              600);
 }
 

@@ -17,9 +17,11 @@ set(HALORAY_SOURCES
     gui/sliderSpinBox.cpp
     gui/renderButton.cpp
     gui/crystalModel.cpp
+    gui/addCrystalPopulationButton.cpp
     simulation/simulationEngine.cpp
     simulation/camera.cpp
-    simulation/defaults.cpp
+    simulation/lightSource.cpp
+    simulation/crystalPopulation.cpp
     simulation/crystalPopulationRepository.cpp
     opengl/texture.cpp
     opengl/textureRenderer.cpp

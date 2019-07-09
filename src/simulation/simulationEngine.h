@@ -16,35 +16,35 @@ class SimulationEngine : protected QOpenGLFunctions_4_4_Core
 {
 public:
     SimulationEngine(unsigned int outputWidth, unsigned int outputHeight, std::shared_ptr<CrystalPopulationRepository> crystalRepository);
-    void Initialize();
-    void Start();
-    void Step();
-    void Stop();
-    bool IsRunning() const;
+    void initialize();
+    void start();
+    void step();
+    void stop();
+    bool isRunning() const;
 
-    void Clear();
+    void clear();
 
-    unsigned int GetIteration() const;
+    unsigned int getIteration() const;
 
-    unsigned int GetRaysPerStep() const;
-    void SetRaysPerStep(unsigned int rays);
+    unsigned int getRaysPerStep() const;
+    void setRaysPerStep(unsigned int rays);
 
-    Camera GetCamera() const;
-    void SetCamera(const Camera);
+    Camera getCamera() const;
+    void setCamera(const Camera);
 
-    LightSource GetLightSource() const;
-    void SetLightSource(const LightSource);
+    LightSource getLightSource() const;
+    void setLightSource(const LightSource);
 
-    void LockCameraToLightSource(bool locked);
+    void lockCameraToLightSource(bool locked);
 
-    const unsigned int GetOutputTextureHandle() const;
+    const unsigned int getOutputTextureHandle() const;
 
-    void ResizeOutputTextureCallback(const unsigned int width, const unsigned int height);
+    void resizeOutputTextureCallback(const unsigned int width, const unsigned int height);
 
 private:
-    void InitializeShader();
-    void InitializeTextures();
-    void PointCameraToLightSource();
+    void initializeShader();
+    void initializeTextures();
+    void pointCameraToLightSource();
 
     unsigned int mOutputWidth;
     unsigned int mOutputHeight;

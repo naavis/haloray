@@ -11,7 +11,7 @@ class GeneralSettingsWidget : public QGroupBox
     Q_OBJECT
 public:
     GeneralSettingsWidget(QWidget *parent = nullptr);
-    void SetInitialValues(double sunDiameter,
+    void setInitialValues(double sunDiameter,
                           double sunAltitude,
                           unsigned int raysPerFrame,
                           unsigned int maxNumFrames);
