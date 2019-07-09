@@ -22,22 +22,4 @@ Camera DefaultCamera()
     return camera;
 }
 
-CrystalPopulation DefaultCrystalPopulation()
-{
-    // Defaults to a Lowitz display
-    CrystalPopulation crystalProperties;
-    crystalProperties.caRatioAverage = 0.3f;
-    crystalProperties.caRatioStd = 0.0f;
-
-    crystalProperties.tiltDistribution = 1;
-    crystalProperties.tiltAverage = 0.0f;
-    crystalProperties.tiltStd = 40.0f;
-
-    crystalProperties.rotationDistribution = 1;
-    crystalProperties.rotationAverage = 0.0f;
-    crystalProperties.rotationStd = 1.0f;
-
-    return crystalProperties;
-}
-
 } // namespace HaloSim

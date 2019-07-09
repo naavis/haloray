@@ -17,7 +17,7 @@ unsigned int CrystalPopulationRepository::GetCount() const
 
 void CrystalPopulationRepository::AddDefault()
 {
-    mCrystals.push_back(DefaultCrystalPopulation());
+    mCrystals.push_back(CrystalPopulation::CreateLowitz());
     mWeights.push_back(1);
 }
 
