@@ -23,7 +23,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
     });
 }
 
-void GeneralSettingsWidget::SetInitialValues(double sunDiameter,
+void GeneralSettingsWidget::setInitialValues(double sunDiameter,
                                              double sunAltitude,
                                              unsigned int raysPerFrame,
                                              unsigned int maxNumFrames)

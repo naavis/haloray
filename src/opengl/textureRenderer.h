@@ -10,16 +10,16 @@ class TextureRenderer : protected QOpenGLFunctions_4_4_Core
 {
 public:
     TextureRenderer() = default;
-    void Initialize();
-    void SetUniformFloat(std::string name, float value);
-    void Render(unsigned int textureHandle);
+    void initialize();
+    void setUniformFloat(std::string name, float value);
+    void render(unsigned int textureHandle);
     ~TextureRenderer();
 
 private:
     TextureRenderer(const TextureRenderer &) = default;
     TextureRenderer &operator=(const TextureRenderer &) = default;
 
-    static std::unique_ptr<QOpenGLShaderProgram> InitializeTexDrawShaderProgram();
+    static std::unique_ptr<QOpenGLShaderProgram> initializeTexDrawShaderProgram();
     std::unique_ptr<QOpenGLShaderProgram> mTexDrawProgram;
     unsigned int mQuadVao;
     unsigned int mQuadVbo;

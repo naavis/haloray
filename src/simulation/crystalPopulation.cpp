@@ -3,7 +3,7 @@
 namespace HaloSim
 {
 
-CrystalPopulation CrystalPopulation::CreateLowitz()
+CrystalPopulation CrystalPopulation::createLowitz()
 {
     CrystalPopulation crystalProperties;
     crystalProperties.caRatioAverage = 0.3f;

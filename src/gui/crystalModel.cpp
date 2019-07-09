@@ -9,7 +9,7 @@ CrystalModel::CrystalModel(std::shared_ptr<HaloSim::CrystalPopulationRepository>
 
 int CrystalModel::rowCount(const QModelIndex &parent) const
 {
-    return static_cast<int>(mCrystals->GetCount());
+    return static_cast<int>(mCrystals->getCount());
 }
 
 int CrystalModel::columnCount(const QModelIndex &parent) const
@@ -24,7 +24,7 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
 
     auto col = index.column();
     auto row = index.row();
-    const HaloSim::CrystalPopulation &crystal = mCrystals->Get(row);
+    const HaloSim::CrystalPopulation &crystal = mCrystals->get(row);
 
     switch (col)
     {
@@ -45,7 +45,7 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
     case 7:
         return crystal.rotationStd;
     case 8:
-        return mCrystals->GetWeight(row);
+        return mCrystals->getWeight(row);
     }
 
     return QVariant();
@@ -61,7 +61,7 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
 
     auto row = index.row();
     auto col = index.column();
-    HaloSim::CrystalPopulation &crystal = mCrystals->Get(row);
+    HaloSim::CrystalPopulation &crystal = mCrystals->get(row);
     switch (col)
     {
     case 0:
@@ -89,7 +89,7 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
         crystal.rotationStd = value.toFloat();
         break;
     case 8:
-        mCrystals->SetWeight(row, value.toUInt());
+        mCrystals->setWeight(row, value.toUInt());
         break;
     default:
         break;
@@ -107,19 +107,19 @@ Qt::ItemFlags CrystalModel::flags(const QModelIndex &index) const
 
 void CrystalModel::addRow()
 {
-    auto row = mCrystals->GetCount();
+    auto row = mCrystals->getCount();
     beginInsertRows(QModelIndex(), row, row);
-    mCrystals->AddDefault();
+    mCrystals->addDefault();
     endInsertRows();
 }
 
 bool CrystalModel::removeRow(int row)
 {
-    if (mCrystals->GetCount() <= 1)
+    if (mCrystals->getCount() <= 1)
         return false;
 
     beginRemoveRows(QModelIndex(), row, row);
-    mCrystals->Remove(row);
+    mCrystals->remove(row);
     endRemoveRows();
 
     return true;

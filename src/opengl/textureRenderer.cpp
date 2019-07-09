@@ -6,7 +6,7 @@
 namespace OpenGL
 {
 
-std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::InitializeTexDrawShaderProgram()
+std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::initializeTexDrawShaderProgram()
 {
     const std::string vertexShaderSrc =
         "#version 440 core\n"
@@ -40,7 +40,7 @@ std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::InitializeTexDrawShaderPr
     return program;
 }
 
-void TextureRenderer::Initialize()
+void TextureRenderer::initialize()
 {
     initializeOpenGLFunctions();
     float points[] = {
@@ -64,10 +64,10 @@ void TextureRenderer::Initialize()
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-    mTexDrawProgram = InitializeTexDrawShaderProgram();
+    mTexDrawProgram = initializeTexDrawShaderProgram();
 }
 
-void TextureRenderer::Render(unsigned int textureHandle)
+void TextureRenderer::render(unsigned int textureHandle)
 {
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
@@ -81,7 +81,7 @@ void TextureRenderer::Render(unsigned int textureHandle)
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
-void TextureRenderer::SetUniformFloat(std::string name, float value)
+void TextureRenderer::setUniformFloat(std::string name, float value)
 {
     mTexDrawProgram->bind();
     mTexDrawProgram->setUniformValue(name.c_str(), value);

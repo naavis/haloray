@@ -7,43 +7,43 @@ namespace HaloSim
 
 CrystalPopulationRepository::CrystalPopulationRepository()
 {
-    AddDefault();
+    addDefault();
 }
 
-unsigned int CrystalPopulationRepository::GetCount() const
+unsigned int CrystalPopulationRepository::getCount() const
 {
     return (unsigned int)mCrystals.size();
 }
 
-void CrystalPopulationRepository::AddDefault()
+void CrystalPopulationRepository::addDefault()
 {
-    mCrystals.push_back(CrystalPopulation::CreateLowitz());
+    mCrystals.push_back(CrystalPopulation::createLowitz());
     mWeights.push_back(1);
 }
 
-void CrystalPopulationRepository::Remove(unsigned int index)
+void CrystalPopulationRepository::remove(unsigned int index)
 {
     mCrystals.erase(mCrystals.begin() + index);
     mWeights.erase(mWeights.begin() + index);
 }
 
-CrystalPopulation &CrystalPopulationRepository::Get(unsigned int index)
+CrystalPopulation &CrystalPopulationRepository::get(unsigned int index)
 {
     return mCrystals[index];
 }
 
-double CrystalPopulationRepository::GetProbability(unsigned int index) const
+double CrystalPopulationRepository::getProbability(unsigned int index) const
 {
     unsigned int totalWeights = std::accumulate(mWeights.cbegin(), mWeights.cend(), 0);
     return static_cast<double>(mWeights[index]) / totalWeights;
 }
 
-unsigned int CrystalPopulationRepository::GetWeight(unsigned int index) const
+unsigned int CrystalPopulationRepository::getWeight(unsigned int index) const
 {
     return mWeights[index];
 }
 
-void CrystalPopulationRepository::SetWeight(unsigned int index, unsigned int weight)
+void CrystalPopulationRepository::setWeight(unsigned int index, unsigned int weight)
 {
     mWeights[index] = weight;
 }

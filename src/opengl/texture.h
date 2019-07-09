@@ -16,13 +16,13 @@ public:
     Texture(unsigned int width, unsigned int height, unsigned int textureUnit, TextureType type);
     ~Texture();
 
-    const unsigned int GetHandle() const;
-    const unsigned int GetTextureUnit() const;
+    const unsigned int getHandle() const;
+    const unsigned int getTextureUnit() const;
 
 private:
     Texture operator=(const Texture &);
     Texture(const Texture &);
-    void InitializeTextureImage();
+    void initializeTextureImage();
 
     unsigned int mTextureHandle;
     unsigned int mWidth;

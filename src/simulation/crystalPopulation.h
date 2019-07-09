@@ -16,7 +16,7 @@ struct CrystalPopulation
     float rotationAverage;
     float rotationStd;
 
-    static CrystalPopulation CreateLowitz();
+    static CrystalPopulation createLowitz();
 };
 
 } // namespace HaloSim

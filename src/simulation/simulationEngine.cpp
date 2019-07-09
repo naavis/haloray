@@ -32,83 +32,83 @@ SimulationEngine::SimulationEngine(
 {
 }
 
-bool SimulationEngine::IsRunning() const
+bool SimulationEngine::isRunning() const
 {
     return mRunning;
 }
 
-Camera SimulationEngine::GetCamera() const
+Camera SimulationEngine::getCamera() const
 {
     return mCamera;
 }
 
-void SimulationEngine::SetCamera(const Camera camera)
+void SimulationEngine::setCamera(const Camera camera)
 {
-    Clear();
+    clear();
     mCamera = camera;
     if (mCameraLockedToLightSource)
     {
-        PointCameraToLightSource();
+        pointCameraToLightSource();
     }
 }
 
-LightSource SimulationEngine::GetLightSource() const
+LightSource SimulationEngine::getLightSource() const
 {
     return mLight;
 }
 
-void SimulationEngine::SetLightSource(const LightSource light)
+void SimulationEngine::setLightSource(const LightSource light)
 {
-    Clear();
+    clear();
     mLight = light;
     if (mCameraLockedToLightSource)
     {
-        PointCameraToLightSource();
+        pointCameraToLightSource();
     }
 }
 
-const unsigned int SimulationEngine::GetOutputTextureHandle() const
+const unsigned int SimulationEngine::getOutputTextureHandle() const
 {
-    return mSimulationTexture->GetHandle();
+    return mSimulationTexture->getHandle();
 }
 
-unsigned int SimulationEngine::GetIteration() const
+unsigned int SimulationEngine::getIteration() const
 {
     return mIteration;
 }
 
-void SimulationEngine::Start()
+void SimulationEngine::start()
 {
-    if (IsRunning())
+    if (isRunning())
         return;
-    Clear();
+    clear();
     mRunning = true;
     mIteration = 0;
 }
 
-void SimulationEngine::Stop()
+void SimulationEngine::stop()
 {
     mRunning = false;
 }
 
-void SimulationEngine::Step()
+void SimulationEngine::step()
 {
     ++mIteration;
 
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-    glBindImageTexture(mSimulationTexture->GetTextureUnit(), mSimulationTexture->GetHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-    glClearTexImage(mSpinlockTexture->GetHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
-    glBindImageTexture(mSpinlockTexture->GetTextureUnit(), mSpinlockTexture->GetHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+    glBindImageTexture(mSimulationTexture->getTextureUnit(), mSimulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glClearTexImage(mSpinlockTexture->getHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
+    glBindImageTexture(mSpinlockTexture->getTextureUnit(), mSpinlockTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 
     mSimulationShader->bind();
 
-    for (auto i = 0u; i < mCrystalRepository->GetCount(); ++i)
+    for (auto i = 0u; i < mCrystalRepository->getCount(); ++i)
     {
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         unsigned int seed = mUniformDistribution(mMersenneTwister);
 
-        auto crystals = mCrystalRepository->Get(i);
-        auto probability = mCrystalRepository->GetProbability(i);
+        auto crystals = mCrystalRepository->get(i);
+        auto probability = mCrystalRepository->getProbability(i);
         auto numRays = static_cast<unsigned int>(mRaysPerStep * probability);
 
         /*
@@ -141,40 +141,40 @@ void SimulationEngine::Step()
     }
 }
 
-void SimulationEngine::Clear()
+void SimulationEngine::clear()
 {
     if (!mInitialized)
         return;
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-    glClearTexImage(mSimulationTexture->GetHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
-    glBindImageTexture(mSimulationTexture->GetTextureUnit(), mSimulationTexture->GetHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-    glClearTexImage(mSpinlockTexture->GetHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
-    glBindImageTexture(mSpinlockTexture->GetTextureUnit(), mSpinlockTexture->GetHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+    glClearTexImage(mSimulationTexture->getHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
+    glBindImageTexture(mSimulationTexture->getTextureUnit(), mSimulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glClearTexImage(mSpinlockTexture->getHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
+    glBindImageTexture(mSpinlockTexture->getTextureUnit(), mSpinlockTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
     mIteration = 0;
 }
 
-unsigned int SimulationEngine::GetRaysPerStep() const
+unsigned int SimulationEngine::getRaysPerStep() const
 {
     return mRaysPerStep;
 }
 
-void SimulationEngine::SetRaysPerStep(unsigned int rays)
+void SimulationEngine::setRaysPerStep(unsigned int rays)
 {
-    Clear();
+    clear();
     mRaysPerStep = rays;
 }
 
-void SimulationEngine::Initialize()
+void SimulationEngine::initialize()
 {
     if (mInitialized)
         return;
     initializeOpenGLFunctions();
-    InitializeShader();
-    InitializeTextures();
+    initializeShader();
+    initializeTextures();
     mInitialized = true;
 }
 
-void SimulationEngine::InitializeShader()
+void SimulationEngine::initializeShader()
 {
     mSimulationShader = std::make_unique<QOpenGLShaderProgram>();
     mSimulationShader->addCacheableShaderFromSourceCode(QOpenGLShader::ShaderTypeBit::Compute, computeShaderSource.c_str());
@@ -184,13 +184,13 @@ void SimulationEngine::InitializeShader()
     }
 }
 
-void SimulationEngine::InitializeTextures()
+void SimulationEngine::initializeTextures()
 {
     mSimulationTexture = std::make_unique<OpenGL::Texture>(mOutputWidth, mOutputHeight, 0, OpenGL::TextureType::Color);
     mSpinlockTexture = std::make_unique<OpenGL::Texture>(mOutputWidth, mOutputHeight, 1, OpenGL::TextureType::Monochrome);
 }
 
-void SimulationEngine::ResizeOutputTextureCallback(const unsigned int width, const unsigned int height)
+void SimulationEngine::resizeOutputTextureCallback(const unsigned int width, const unsigned int height)
 {
     mOutputWidth = width;
     mOutputHeight = height;
@@ -198,19 +198,19 @@ void SimulationEngine::ResizeOutputTextureCallback(const unsigned int width, con
     mSimulationTexture.reset();
     mSpinlockTexture.reset();
 
-    InitializeTextures();
-    Clear();
+    initializeTextures();
+    clear();
 }
 
-void SimulationEngine::LockCameraToLightSource(bool locked)
+void SimulationEngine::lockCameraToLightSource(bool locked)
 {
     mCameraLockedToLightSource = locked;
-    PointCameraToLightSource();
+    pointCameraToLightSource();
 }
 
-void SimulationEngine::PointCameraToLightSource()
+void SimulationEngine::pointCameraToLightSource()
 {
-    Clear();
+    clear();
     mCamera.yaw = 0.0f;
     mCamera.pitch = mLight.altitude;
 }
