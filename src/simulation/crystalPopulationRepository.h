@@ -9,7 +9,7 @@ class CrystalPopulationRepository
 {
 public:
     CrystalPopulationRepository();
-    void add();
+    void add(CrystalPopulationPreset preset = Random);
     void remove(unsigned int index);
     CrystalPopulation &get(unsigned int index);
     double getProbability(unsigned int index) const;

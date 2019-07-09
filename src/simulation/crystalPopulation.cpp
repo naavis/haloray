@@ -88,4 +88,23 @@ CrystalPopulation CrystalPopulation::createRandom()
     return crystal;
 }
 
+CrystalPopulation CrystalPopulation::presetPopulation(CrystalPopulationPreset preset)
+{
+    switch (preset)
+    {
+    case Random:
+        return CrystalPopulation::createRandom();
+    case Plate:
+        return CrystalPopulation::createPlate();
+    case Column:
+        return CrystalPopulation::createColumn();
+    case Parry:
+        return CrystalPopulation::createParry();
+    case Lowitz:
+        return CrystalPopulation::createLowitz();
+    default:
+        return CrystalPopulation::createRandom();
+    }
+}
+
 } // namespace HaloSim

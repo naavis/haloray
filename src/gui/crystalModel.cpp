@@ -104,11 +104,11 @@ Qt::ItemFlags CrystalModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEditable | QAbstractTableModel::flags(index);
 }
 
-void CrystalModel::addRow()
+void CrystalModel::addRow(HaloSim::CrystalPopulationPreset preset)
 {
     auto row = mCrystals->getCount();
     beginInsertRows(QModelIndex(), row, row);
-    mCrystals->add();
+    mCrystals->add(preset);
     endInsertRows();
 }
 

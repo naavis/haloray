@@ -14,21 +14,21 @@ unsigned int CrystalPopulationRepository::getCount() const
     return (unsigned int)mCrystals.size();
 }
 
-void CrystalPopulationRepository::add()
+void CrystalPopulationRepository::add(CrystalPopulationPreset preset)
 {
-    mCrystals.push_back(CrystalPopulation::createRandom());
+    mCrystals.push_back(CrystalPopulation::presetPopulation(preset));
     mWeights.push_back(1);
 }
 
 void CrystalPopulationRepository::addDefaults()
 {
-    mCrystals.push_back(CrystalPopulation::createColumn());
+    mCrystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Column));
     mWeights.push_back(1);
 
-    mCrystals.push_back(CrystalPopulation::createPlate());
+    mCrystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Plate));
     mWeights.push_back(1);
 
-    mCrystals.push_back(CrystalPopulation::createRandom());
+    mCrystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Random));
     mWeights.push_back(1);
 }
 

@@ -17,7 +17,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    void addRow();
+    void addRow(HaloSim::CrystalPopulationPreset preset = HaloSim::CrystalPopulationPreset::Random);
     bool removeRow(int row);
 
 private:
