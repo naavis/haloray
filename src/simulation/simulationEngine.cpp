@@ -4,7 +4,6 @@
 #include <limits>
 #include <QOpenGLShaderProgram>
 #include "../opengl/texture.h"
-#include "defaults.h"
 #include "camera.h"
 #include "lightSource.h"
 #include "crystalPopulation.h"
@@ -25,8 +24,8 @@ SimulationEngine::SimulationEngine(
       mRaysPerStep(500000),
       mIteration(0),
       mInitialized(false),
-      mCamera(DefaultCamera()),
-      mLight(DefaultLightSource()),
+      mCamera(Camera::createDefaultCamera()),
+      mLight(LightSource::createDefaultLightSource()),
       mCameraLockedToLightSource(false),
       mCrystalRepository(crystalRepository)
 {

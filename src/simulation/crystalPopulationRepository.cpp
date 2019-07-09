@@ -1,6 +1,5 @@
 #include "crystalPopulationRepository.h"
 #include <numeric>
-#include "defaults.h"
 
 namespace HaloSim
 {

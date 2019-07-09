@@ -1,5 +1,4 @@
 #include "crystalModel.h"
-#include "../simulation/defaults.h"
 
 CrystalModel::CrystalModel(std::shared_ptr<HaloSim::CrystalPopulationRepository> crystalRepository, QWidget *parent)
     : QAbstractTableModel(parent),

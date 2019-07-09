@@ -19,7 +19,7 @@ set(HALORAY_SOURCES
     gui/crystalModel.cpp
     simulation/simulationEngine.cpp
     simulation/camera.cpp
-    simulation/defaults.cpp
+    simulation/lightSource.cpp
     simulation/crystalPopulation.cpp
     simulation/crystalPopulationRepository.cpp
     opengl/texture.cpp
