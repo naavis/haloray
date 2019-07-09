@@ -17,6 +17,10 @@ struct CrystalPopulation
     float rotationStd;
 
     static CrystalPopulation createLowitz();
+    static CrystalPopulation createPlate();
+    static CrystalPopulation createColumn();
+    static CrystalPopulation createParry();
+    static CrystalPopulation createRandom();
 };
 
 } // namespace HaloSim
