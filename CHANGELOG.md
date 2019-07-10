@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added possibility to add preset crystal populations
 
 ### Changed
-- Disabled "Add population" button when there is only one population in simulation
+- Disabled "Remove population" button when there is only one population in simulation
 - Added multiple crystal populations by default
 
 ## 2.1.1 - 2019-07-08
