@@ -1,0 +1,9 @@
+[Icon Theme]
+Name=HaloRayTheme
+Comment=Custom icons for HaloRay
+Directories=actions/24
+
+[actions/24]
+Size=24
+Context=Actions
+Type=Fixed

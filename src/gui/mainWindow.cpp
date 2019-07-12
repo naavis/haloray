@@ -6,6 +6,7 @@
 #include <QString>
 #include <QScrollBar>
 #include <QIcon>
+#include <QDebug>
 #include "../simulation/crystalPopulation.h"
 #include "sliderSpinBox.h"
 
@@ -14,6 +15,11 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    if (QIcon::themeName().isEmpty())
+    {
+        QIcon::setThemeName("HaloRayTheme");
+    }
+
     mCrystalRepository = std::make_shared<HaloSim::CrystalPopulationRepository>();
 
     /*

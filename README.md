@@ -139,6 +139,7 @@ resulting executable:
 - Qt5Core.dll
 - Qt5Widgets.dll
 - Qt5Gui.dll
+- Qt5Svg.dll
 
 You can also do this automatically with the
 [windeployqt](https://doc.qt.io/qt-5/windows-deployment.html) tool, which is
