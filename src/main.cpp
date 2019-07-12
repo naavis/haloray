@@ -43,5 +43,7 @@ int main(int argc, char *argv[])
     MainWindow mainWindow;
     mainWindow.show();
 
+    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
     return app.exec();
 }

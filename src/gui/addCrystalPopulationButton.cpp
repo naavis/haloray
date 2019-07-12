@@ -3,7 +3,7 @@
 AddCrystalPopulationButton::AddCrystalPopulationButton(QWidget *parent)
     : QToolButton(parent)
 {
-    setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
+    //setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
 
     mMenu = new QMenu(this);
 
@@ -20,7 +20,8 @@ AddCrystalPopulationButton::AddCrystalPopulationButton(QWidget *parent)
                        mAddLowitz});
 
     setPopupMode(QToolButton::ToolButtonPopupMode::MenuButtonPopup);
-    setText("Add population");
+    setIcon(QIcon::fromTheme("list-add"));
+
     setMenu(mMenu);
 
     connect(this, &AddCrystalPopulationButton::clicked, [this]() { emit addPopulation(HaloSim::CrystalPopulationPreset::Random); });

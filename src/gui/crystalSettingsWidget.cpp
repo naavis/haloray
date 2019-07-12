@@ -4,7 +4,7 @@
 #include "../simulation/crystalPopulation.h"
 
 CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPopulationRepository> crystalRepository, QWidget *parent)
-    : QGroupBox("Crystal settings", parent),
+    : QGroupBox("Crystal population settings", parent),
       mModel(new CrystalModel(crystalRepository)),
       mNextPopulationId(1)
 {
@@ -66,7 +66,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPop
         updateRemovePopulationButtonState();
     });
 
-    connect(mRemovePopulationButton, &QPushButton::clicked, [this]() {
+    connect(mRemovePopulationButton, &QToolButton::clicked, [this]() {
         int index = mMapper->currentIndex();
         if (index == 0)
             mMapper->toNext();
@@ -112,11 +112,11 @@ void CrystalSettingsWidget::setupUi()
     mPopulationComboBox->setDuplicatesEnabled(true);
 
     mAddPopulationButton = new AddCrystalPopulationButton();
-    mAddPopulationButton->setMinimumHeight(30);
+    mAddPopulationButton->setIconSize(QSize(24, 24));
 
-    mRemovePopulationButton = new QPushButton("Remove population");
-    mRemovePopulationButton->setMinimumHeight(30);
-    mRemovePopulationButton->setStyleSheet("padding: 10px;");
+    mRemovePopulationButton = new QToolButton();
+    mRemovePopulationButton->setIcon(QIcon::fromTheme("list-remove"));
+    mRemovePopulationButton->setIconSize(QSize(24, 24));
 
     mCaRatioSlider = new SliderSpinBox(0.0, 15.0);
 
@@ -145,9 +145,10 @@ void CrystalSettingsWidget::setupUi()
     mWeightSpinBox->setMaximum(10000);
 
     auto mainLayout = new QFormLayout(this);
-    mainLayout->addRow("Crystal population", mPopulationComboBox);
+    //mainLayout->addRow("Crystal population", mPopulationComboBox);
 
     auto populationButtonLayout = new QHBoxLayout();
+    populationButtonLayout->addWidget(mPopulationComboBox);
     populationButtonLayout->addWidget(mAddPopulationButton);
     populationButtonLayout->addWidget(mRemovePopulationButton);
 

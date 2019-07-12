@@ -14,6 +14,10 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+#if _WIN32
+    QIcon::setThemeName("HaloRayTheme");
+#endif
+
     mCrystalRepository = std::make_shared<HaloSim::CrystalPopulationRepository>();
 
     /*

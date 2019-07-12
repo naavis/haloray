@@ -3,7 +3,7 @@
 #include <QGroupBox>
 #include <QComboBox>
 #include <QLabel>
-#include <QPushButton>
+#include <QToolButton>
 #include <QSpinBox>
 #include <QDataWidgetMapper>
 #include "addCrystalPopulationButton.h"
@@ -31,7 +31,7 @@ private:
     void setRotationVisibility(bool);
 
     AddCrystalPopulationButton *mAddPopulationButton;
-    QPushButton *mRemovePopulationButton;
+    QToolButton *mRemovePopulationButton;
 
     SliderSpinBox *mCaRatioSlider;
     SliderSpinBox *mCaRatioStdSlider;
