@@ -4,8 +4,8 @@
 RenderButton::RenderButton(QWidget *parent)
     : QPushButton(parent), mRendering(false)
 {
-    const QString renderText = "Render";
-    const QString stopText = "Stop";
+    const QString renderText = tr("Render");
+    const QString stopText = tr("Stop");
 
     setText(renderText);
     setStyleSheet("font: bold;");

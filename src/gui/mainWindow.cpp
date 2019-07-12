@@ -6,6 +6,11 @@
 #include <QString>
 #include <QScrollBar>
 #include <QIcon>
+#include <QMenu>
+#include <QMenuBar>
+#include <QApplication>
+#include <QFileDialog>
+#include <QDateTime>
 #include "../simulation/crystalPopulation.h"
 #include "sliderSpinBox.h"
 
@@ -73,6 +78,25 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
                                              mEngine->getLightSource().altitude,
                                              mEngine->getRaysPerStep(),
                                              600);
+
+    // Signals for menu bar
+    connect(mQuitAction, &QAction::triggered, QApplication::instance(), &QApplication::quit);
+    connect(mSaveImageAction, &QAction::triggered, [this]() {
+        auto image = mOpenGLWidget->grabFramebuffer();
+        auto currentTime = QDateTime::currentDateTimeUtc().toString(Qt::DateFormat::ISODate);
+        auto defaultFilename = QString("haloray_%1.png")
+                                   .arg(currentTime)
+                                   .replace(":", "-");
+        QString filename = QFileDialog::getSaveFileName(this,
+                                                        tr("Save File"),
+                                                        defaultFilename,
+                                                        tr("Images (*.png)"));
+
+        if (!filename.isNull())
+        {
+            image.save(filename, "PNG", 50);
+        }
+    });
 }
 
 void MainWindow::setupUi()
@@ -86,6 +110,8 @@ void MainWindow::setupUi()
 #endif
 
     setWindowIcon(QIcon(":/haloray.ico"));
+
+    setupMenuBar();
 
     mOpenGLWidget = new OpenGLWidget();
     mProgressBar = setupProgressBar();
@@ -103,6 +129,14 @@ void MainWindow::setupUi()
 
     topLayout->addLayout(sideBarLayout);
     topLayout->addWidget(mOpenGLWidget);
+}
+
+void MainWindow::setupMenuBar()
+{
+    auto fileMenu = menuBar()->addMenu(tr("&File"));
+    mSaveImageAction = fileMenu->addAction(tr("Save image"));
+    fileMenu->addSeparator();
+    mQuitAction = fileMenu->addAction(tr("&Quit"));
 }
 
 QScrollArea *MainWindow::setupSideBarScrollArea()

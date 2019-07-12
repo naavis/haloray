@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- Added menu bar with option to save simulation result as image
+
 ### Changed
 - Replaced Add Population and Remove Population texts with icons
 
