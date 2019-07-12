@@ -66,10 +66,10 @@ void GeneralSettingsWidget::setupUi()
     mMaximumFramesSpinBox->setGroupSeparatorShown(true);
 
     auto layout = new QFormLayout(this);
-    layout->addRow("Sun altitude", mSunAltitudeSlider);
-    layout->addRow("Sun diameter", mSunDiameterSpinBox);
-    layout->addRow("Rays per frame", mRaysPerFrameSpinBox);
-    layout->addRow("Maximum frames", mMaximumFramesSpinBox);
+    layout->addRow(tr("Sun altitude"), mSunAltitudeSlider);
+    layout->addRow(tr("Sun diameter"), mSunDiameterSpinBox);
+    layout->addRow(tr("Rays per frame"), mRaysPerFrameSpinBox);
+    layout->addRow(tr("Maximum frames"), mMaximumFramesSpinBox);
 }
 
 HaloSim::LightSource GeneralSettingsWidget::stateToLightSource() const

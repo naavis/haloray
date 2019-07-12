@@ -27,11 +27,11 @@ void ViewSettingsWidget::setupUi()
     setMaximumWidth(400);
 
     mCameraProjectionComboBox = new QComboBox();
-    mCameraProjectionComboBox->addItems({"Stereographic",
-                                         "Rectilinear",
-                                         "Equidistant",
-                                         "Equal area",
-                                         "Orthographic"});
+    mCameraProjectionComboBox->addItems({tr("Stereographic"),
+                                         tr("Rectilinear"),
+                                         tr("Equidistant"),
+                                         tr("Equal area"),
+                                         tr("Orthographic")});
 
     mPitchSlider = new SliderSpinBox();
     mPitchSlider->setMinimum(-90.0);
@@ -58,13 +58,13 @@ void ViewSettingsWidget::setupUi()
     mLockToLightSource = new QCheckBox();
 
     auto layout = new QFormLayout(this);
-    layout->addRow("Camera projection", mCameraProjectionComboBox);
-    layout->addRow("Field of view", mFieldOfViewSlider);
-    layout->addRow("Pitch", mPitchSlider);
-    layout->addRow("Yaw", mYawSlider);
-    layout->addRow("Brightness", mBrightnessSlider);
-    layout->addRow("Hide sub-horizon", mHideSubHorizonCheckBox);
-    layout->addRow("Lock to light source", mLockToLightSource);
+    layout->addRow(tr("Camera projection"), mCameraProjectionComboBox);
+    layout->addRow(tr("Field of view"), mFieldOfViewSlider);
+    layout->addRow(tr("Pitch"), mPitchSlider);
+    layout->addRow(tr("Yaw"), mYawSlider);
+    layout->addRow(tr("Brightness"), mBrightnessSlider);
+    layout->addRow(tr("Hide sub-horizon"), mHideSubHorizonCheckBox);
+    layout->addRow(tr("Lock to light source"), mLockToLightSource);
 }
 
 HaloSim::Camera ViewSettingsWidget::stateToCamera() const
