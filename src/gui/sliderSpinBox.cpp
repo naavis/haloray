@@ -66,3 +66,10 @@ double SliderSpinBox::value() const
 {
     return mSpinBox->value();
 }
+
+SliderSpinBox *SliderSpinBox::createAngleSlider(double min, double max)
+{
+    auto slider = new SliderSpinBox(min, max);
+    slider->setSuffix("°");
+    return slider;
+}

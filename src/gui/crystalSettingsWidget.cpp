@@ -126,19 +126,19 @@ void CrystalSettingsWidget::setupUi()
     mTiltDistributionComboBox->addItems({tr("Uniform"), tr("Gaussian")});
 
     mTiltAverageLabel = new QLabel(tr("Average"));
-    mTiltAverageSlider = createAngleSlider(0.0, 180.0);
+    mTiltAverageSlider = SliderSpinBox::createAngleSlider(0.0, 180.0);
 
     mTiltStdLabel = new QLabel(tr("Standard deviation"));
-    mTiltStdSlider = createAngleSlider(0.0, 360.0);
+    mTiltStdSlider = SliderSpinBox::createAngleSlider(0.0, 360.0);
 
     mRotationDistributionComboBox = new QComboBox();
     mRotationDistributionComboBox->addItems({tr("Uniform"), tr("Gaussian")});
 
     mRotationAverageLabel = new QLabel(tr("Average"));
-    mRotationAverageSlider = createAngleSlider(0.0, 180.0);
+    mRotationAverageSlider = SliderSpinBox::createAngleSlider(0.0, 180.0);
 
     mRotationStdLabel = new QLabel(tr("Standard deviation"));
-    mRotationStdSlider = createAngleSlider(0.0, 360.0);
+    mRotationStdSlider = SliderSpinBox::createAngleSlider(0.0, 360.0);
 
     mWeightSpinBox = new QSpinBox();
     mWeightSpinBox->setMinimum(0);
@@ -170,13 +170,6 @@ void CrystalSettingsWidget::setupUi()
     rotationLayout->addRow(tr("Distribution"), mRotationDistributionComboBox);
     rotationLayout->addRow(mRotationAverageLabel, mRotationAverageSlider);
     rotationLayout->addRow(mRotationStdLabel, mRotationStdSlider);
-}
-
-SliderSpinBox *CrystalSettingsWidget::createAngleSlider(double min, double max)
-{
-    auto slider = new SliderSpinBox(min, max);
-    slider->setSuffix("°");
-    return slider;
 }
 
 void CrystalSettingsWidget::setTiltVisibility(bool visible)
