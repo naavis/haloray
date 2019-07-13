@@ -33,21 +33,12 @@ void ViewSettingsWidget::setupUi()
                                          tr("Equal area"),
                                          tr("Orthographic")});
 
-    mPitchSlider = new SliderSpinBox();
-    mPitchSlider->setMinimum(-90.0);
-    mPitchSlider->setMaximum(90.0);
-    mPitchSlider->setSuffix("°");
+    mPitchSlider = SliderSpinBox::createAngleSlider(-90.0, 90.0);
 
-    mYawSlider = new SliderSpinBox();
-    mYawSlider->setMinimum(-360.0);
-    mYawSlider->setMaximum(360.0);
+    mYawSlider = SliderSpinBox::createAngleSlider(-360.0, 360.0);
     mYawSlider->setWrapping(true);
-    mYawSlider->setSuffix("°");
 
-    mFieldOfViewSlider = new SliderSpinBox();
-    mFieldOfViewSlider->setMinimum(10.0);
-    mFieldOfViewSlider->setMaximum(360.0);
-    mFieldOfViewSlider->setSuffix("°");
+    mFieldOfViewSlider = SliderSpinBox::createAngleSlider(10.0, 360.0);
 
     mBrightnessSlider = new SliderSpinBox();
     mBrightnessSlider->setMinimum(0.1);

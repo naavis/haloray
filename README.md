@@ -37,9 +37,14 @@ Here are some general settings for the whole simulation.
 - **Rays per frame:** Number of rays traced through individual crystals per
     rendered frame
   - If the user interface slows down a lot during rendering, lower this value
-  - On an NVIDIA GeForce GTX 1070 a good value seems to be 500 000 - 1 000 000
+  - On an NVIDIA GeForce GTX 1070 a good value seems to be around 500 000
   - The maximum value for this parameter may be limited by your GPU
 - **Maximum frames:** Simulation stops after rendering this many frames
+- **Double scattering:** Probability of a single light ray to scatter from two
+  different ice crystals
+  - Note that this slows down the simulation significantly!
+  - A value of 0.0 means no rays are scattered twice, and 1.0 means all rays
+    are scattered twice
 
 ### Crystal settings
 
