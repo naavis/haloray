@@ -37,6 +37,9 @@ public:
 
     void lockCameraToLightSource(bool locked);
 
+    void setMultipleScatteringProbability(double);
+    double getMultipleScatteringProbability() const;
+
     const unsigned int getOutputTextureHandle() const;
 
     void resizeOutputTextureCallback(const unsigned int width, const unsigned int height);
@@ -62,6 +65,7 @@ private:
     unsigned int mRaysPerStep;
     unsigned int mIteration;
     bool mCameraLockedToLightSource;
+    float mMultipleScatteringProbability;
     std::shared_ptr<CrystalPopulationRepository> mCrystalRepository;
 };
 

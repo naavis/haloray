@@ -26,6 +26,7 @@ SimulationEngine::SimulationEngine(
       mCamera(Camera::createDefaultCamera()),
       mLight(LightSource::createDefaultLightSource()),
       mCameraLockedToLightSource(false),
+      mMultipleScatteringProbability(0.0),
       mCrystalRepository(crystalRepository)
 {
 }
@@ -135,6 +136,8 @@ void SimulationEngine::step()
         mSimulationShader->setUniformValue("camera.projection", mCamera.projection);
         mSimulationShader->setUniformValue("camera.hideSubHorizon", mCamera.hideSubHorizon ? 1 : 0);
 
+        mSimulationShader->setUniformValue("multipleScatteringProbability", mMultipleScatteringProbability);
+
         glDispatchCompute(numRays, 1, 1);
     }
 }
@@ -211,6 +214,17 @@ void SimulationEngine::pointCameraToLightSource()
     clear();
     mCamera.yaw = 0.0f;
     mCamera.pitch = mLight.altitude;
+}
+
+void SimulationEngine::setMultipleScatteringProbability(double probability)
+{
+    clear();
+    mMultipleScatteringProbability = static_cast<float>(std::min(std::max(probability, 0.0), 1.0));
+}
+
+double SimulationEngine::getMultipleScatteringProbability() const
+{
+    return static_cast<double>(mMultipleScatteringProbability);
 }
 
 } // namespace HaloSim

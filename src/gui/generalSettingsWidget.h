@@ -14,12 +14,14 @@ public:
     void setInitialValues(double sunDiameter,
                           double sunAltitude,
                           unsigned int raysPerFrame,
-                          unsigned int maxNumFrames);
+                          unsigned int maxNumFrames,
+                          double multipleScatteringProbability);
 
 signals:
     void lightSourceChanged(HaloSim::LightSource light);
     void numRaysChanged(unsigned int rays);
     void maximumNumberOfIterationsChanged(unsigned int iterations);
+    void multipleScatteringProbabilityChanged(double probability);
 
 public slots:
     void toggleMaxIterationsSpinBoxStatus();
@@ -33,4 +35,5 @@ private:
     QDoubleSpinBox *mSunDiameterSpinBox;
     QSpinBox *mRaysPerFrameSpinBox;
     QSpinBox *mMaximumFramesSpinBox;
+    SliderSpinBox *mMultipleScattering;
 };

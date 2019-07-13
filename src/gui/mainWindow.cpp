@@ -73,11 +73,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     });
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, mOpenGLWidget, &OpenGLWidget::setMaxIterations);
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, mProgressBar, &QProgressBar::setMaximum);
+    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::multipleScatteringProbabilityChanged, [this](double value) {
+        mEngine->setMultipleScatteringProbability(value);
+    });
 
     mGeneralSettingsWidget->setInitialValues(mEngine->getLightSource().diameter,
                                              mEngine->getLightSource().altitude,
                                              mEngine->getRaysPerStep(),
-                                             600);
+                                             600,
+                                             mEngine->getMultipleScatteringProbability());
 
     // Signals for menu bar
     connect(mQuitAction, &QAction::triggered, QApplication::instance(), &QApplication::quit);

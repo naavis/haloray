@@ -7,31 +7,35 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
     setupUi();
 
     connect(mSunAltitudeSlider, &SliderSpinBox::valueChanged, [this]() {
-        lightSourceChanged(stateToLightSource());
+        emit lightSourceChanged(stateToLightSource());
     });
 
     connect(mSunDiameterSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this]() {
-        lightSourceChanged(stateToLightSource());
+        emit lightSourceChanged(stateToLightSource());
     });
 
     connect(mRaysPerFrameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
-        numRaysChanged((unsigned int)value);
+        emit numRaysChanged((unsigned int)value);
     });
 
     connect(mMaximumFramesSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
-        maximumNumberOfIterationsChanged((unsigned int)value);
+        emit maximumNumberOfIterationsChanged((unsigned int)value);
     });
+
+    connect(mMultipleScattering, &SliderSpinBox::valueChanged, this, &GeneralSettingsWidget::multipleScatteringProbabilityChanged);
 }
 
 void GeneralSettingsWidget::setInitialValues(double sunDiameter,
                                              double sunAltitude,
                                              unsigned int raysPerFrame,
-                                             unsigned int maxNumFrames)
+                                             unsigned int maxNumFrames,
+                                             double multipleScatteringProbability)
 {
     mSunDiameterSpinBox->setValue(sunDiameter);
     mSunAltitudeSlider->setValue(sunAltitude);
     mRaysPerFrameSpinBox->setValue(raysPerFrame);
     mMaximumFramesSpinBox->setValue(maxNumFrames);
+    mMultipleScattering->setValue(multipleScatteringProbability);
 }
 
 void GeneralSettingsWidget::setupUi()
@@ -39,10 +43,7 @@ void GeneralSettingsWidget::setupUi()
     setMaximumWidth(400);
 
     mSunAltitudeSlider = new SliderSpinBox();
-    mSunAltitudeSlider->setSuffix("­°");
-    mSunAltitudeSlider->setMinimum(-90.0);
-    mSunAltitudeSlider->setMaximum(90.0);
-    mSunAltitudeSlider->setValue(0.0);
+    mSunAltitudeSlider = SliderSpinBox::createAngleSlider(-90.0, 90.0);
 
     mSunDiameterSpinBox = new QDoubleSpinBox();
     mSunDiameterSpinBox->setSuffix("­°");
@@ -65,11 +66,16 @@ void GeneralSettingsWidget::setupUi()
     mMaximumFramesSpinBox->setValue(100000000);
     mMaximumFramesSpinBox->setGroupSeparatorShown(true);
 
+    mMultipleScattering = new SliderSpinBox();
+    mMultipleScattering->setMinimum(0.0);
+    mMultipleScattering->setMaximum(1.0);
+
     auto layout = new QFormLayout(this);
     layout->addRow(tr("Sun altitude"), mSunAltitudeSlider);
     layout->addRow(tr("Sun diameter"), mSunDiameterSpinBox);
     layout->addRow(tr("Rays per frame"), mRaysPerFrameSpinBox);
     layout->addRow(tr("Maximum frames"), mMaximumFramesSpinBox);
+    layout->addRow(tr("Double scattering"), mMultipleScattering);
 }
 
 HaloSim::LightSource GeneralSettingsWidget::stateToLightSource() const

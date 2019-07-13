@@ -44,6 +44,8 @@ uniform struct camera_t
     int hideSubHorizon;
 } camera;
 
+uniform float multipleScatteringProbability;
+
 const float PI = 3.1415926535;
 
 struct intersection {
@@ -463,12 +465,28 @@ void main(void)
 
     if (length(resultRay) < 0.0001) return;
 
-    resultRay = -rotationMatrix * resultRay;
+    resultRay = rotationMatrix * resultRay;
+
+    if (multipleScatteringProbability != 0.0 && multipleScatteringProbability > rand())
+    {
+        // Rotation matrix to orient ray/crystal
+        rotationMatrix = getRotationMatrix();
+
+        /* The inverse rotation matrix must be applied because we are
+        rotating the incoming ray and not the crystal itself. */
+        rotatedRayDirection = resultRay * rotationMatrix;
+
+        resultRay = castRayThroughCrystal(rotatedRayDirection, wavelength);
+
+        if (length(resultRay) < 0.0001) return;
+
+        resultRay = rotationMatrix * resultRay;
+    }
 
     // Hide subhorizon rays
     if (camera.hideSubHorizon == 1 && resultRay.y < 0.0) return;
 
-    resultRay = getCameraOrientationMatrix() * resultRay;
+    resultRay = -getCameraOrientationMatrix() * resultRay;
 
     ivec2 resolution = imageSize(outputImage);
     float aspectRatio = float(resolution.y) / float(resolution.x);
