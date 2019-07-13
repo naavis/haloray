@@ -1,10 +1,3 @@
-#pragma once
-#include <string>
-
-namespace HaloSim
-{
-
-const std::string computeShaderSource = R""(
 #version 440 core
 
 #define DISTRIBUTION_UNIFORM 0
@@ -514,6 +507,4 @@ void main(void)
     ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.x, resolution.y * normalizedCoordinates.y);
     vec3 cieXYZ = daylightEstimate(wavelength) * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
     storePixel(pixelCoordinates, cieXYZ);
-}
-)"";
 }

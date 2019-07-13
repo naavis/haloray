@@ -7,7 +7,6 @@
 #include "camera.h"
 #include "lightSource.h"
 #include "crystalPopulation.h"
-#include "shaders/raytrace.glsl"
 
 namespace HaloSim
 {
@@ -176,7 +175,7 @@ void SimulationEngine::initialize()
 void SimulationEngine::initializeShader()
 {
     mSimulationShader = std::make_unique<QOpenGLShaderProgram>();
-    mSimulationShader->addCacheableShaderFromSourceCode(QOpenGLShader::ShaderTypeBit::Compute, computeShaderSource.c_str());
+    mSimulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
     if (mSimulationShader->link() == false)
     {
         throw std::runtime_error(mSimulationShader->log().toUtf8());
