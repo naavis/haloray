@@ -4,7 +4,7 @@
 #include "../simulation/crystalPopulation.h"
 
 CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPopulationRepository> crystalRepository, QWidget *parent)
-    : QGroupBox("Crystal settings", parent),
+    : QGroupBox("Crystal population settings", parent),
       mModel(new CrystalModel(crystalRepository)),
       mNextPopulationId(1)
 {
@@ -66,7 +66,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPop
         updateRemovePopulationButtonState();
     });
 
-    connect(mRemovePopulationButton, &QPushButton::clicked, [this]() {
+    connect(mRemovePopulationButton, &QToolButton::clicked, [this]() {
         int index = mMapper->currentIndex();
         if (index == 0)
             mMapper->toNext();
@@ -112,71 +112,64 @@ void CrystalSettingsWidget::setupUi()
     mPopulationComboBox->setDuplicatesEnabled(true);
 
     mAddPopulationButton = new AddCrystalPopulationButton();
-    mAddPopulationButton->setMinimumHeight(30);
+    mAddPopulationButton->setIconSize(QSize(24, 24));
 
-    mRemovePopulationButton = new QPushButton("Remove population");
-    mRemovePopulationButton->setMinimumHeight(30);
-    mRemovePopulationButton->setStyleSheet("padding: 10px;");
+    mRemovePopulationButton = new QToolButton();
+    mRemovePopulationButton->setIcon(QIcon::fromTheme("list-remove"));
+    mRemovePopulationButton->setIconSize(QSize(24, 24));
 
     mCaRatioSlider = new SliderSpinBox(0.0, 15.0);
 
     mCaRatioStdSlider = new SliderSpinBox(0.0, 10.0);
 
     mTiltDistributionComboBox = new QComboBox();
-    mTiltDistributionComboBox->addItems({"Uniform", "Gaussian"});
+    mTiltDistributionComboBox->addItems({tr("Uniform"), tr("Gaussian")});
 
-    mTiltAverageLabel = new QLabel("Average");
-    mTiltAverageSlider = createAngleSlider(0.0, 180.0);
+    mTiltAverageLabel = new QLabel(tr("Average"));
+    mTiltAverageSlider = SliderSpinBox::createAngleSlider(0.0, 180.0);
 
-    mTiltStdLabel = new QLabel("Standard deviation");
-    mTiltStdSlider = createAngleSlider(0.0, 360.0);
+    mTiltStdLabel = new QLabel(tr("Standard deviation"));
+    mTiltStdSlider = SliderSpinBox::createAngleSlider(0.0, 360.0);
 
     mRotationDistributionComboBox = new QComboBox();
-    mRotationDistributionComboBox->addItems({"Uniform", "Gaussian"});
+    mRotationDistributionComboBox->addItems({tr("Uniform"), tr("Gaussian")});
 
-    mRotationAverageLabel = new QLabel("Average");
-    mRotationAverageSlider = createAngleSlider(0.0, 180.0);
+    mRotationAverageLabel = new QLabel(tr("Average"));
+    mRotationAverageSlider = SliderSpinBox::createAngleSlider(0.0, 180.0);
 
-    mRotationStdLabel = new QLabel("Standard deviation");
-    mRotationStdSlider = createAngleSlider(0.0, 360.0);
+    mRotationStdLabel = new QLabel(tr("Standard deviation"));
+    mRotationStdSlider = SliderSpinBox::createAngleSlider(0.0, 360.0);
 
     mWeightSpinBox = new QSpinBox();
     mWeightSpinBox->setMinimum(0);
     mWeightSpinBox->setMaximum(10000);
 
     auto mainLayout = new QFormLayout(this);
-    mainLayout->addRow("Crystal population", mPopulationComboBox);
 
     auto populationButtonLayout = new QHBoxLayout();
+    populationButtonLayout->addWidget(mPopulationComboBox);
     populationButtonLayout->addWidget(mAddPopulationButton);
     populationButtonLayout->addWidget(mRemovePopulationButton);
 
     mainLayout->addRow(populationButtonLayout);
-    mainLayout->addRow("Population weight", mWeightSpinBox);
+    mainLayout->addRow(tr("Population weight"), mWeightSpinBox);
     mainLayout->addItem(new QSpacerItem(0, 10));
-    mainLayout->addRow("C/A ratio average", mCaRatioSlider);
-    mainLayout->addRow("C/A ratio std.", mCaRatioStdSlider);
+    mainLayout->addRow(tr("C/A ratio average"), mCaRatioSlider);
+    mainLayout->addRow(tr("C/A ratio std."), mCaRatioStdSlider);
 
-    auto tiltGroupBox = new QGroupBox("C-axis tilt");
+    auto tiltGroupBox = new QGroupBox(tr("C-axis tilt"));
     auto tiltLayout = new QFormLayout(tiltGroupBox);
     mainLayout->addRow(tiltGroupBox);
-    tiltLayout->addRow("Distribution", mTiltDistributionComboBox);
+    tiltLayout->addRow(tr("Distribution"), mTiltDistributionComboBox);
     tiltLayout->addRow(mTiltAverageLabel, mTiltAverageSlider);
     tiltLayout->addRow(mTiltStdLabel, mTiltStdSlider);
 
-    auto rotationGroupBox = new QGroupBox("Rotation around C-axis");
+    auto rotationGroupBox = new QGroupBox(tr("Rotation around C-axis"));
     auto rotationLayout = new QFormLayout(rotationGroupBox);
     mainLayout->addRow(rotationGroupBox);
-    rotationLayout->addRow("Distribution", mRotationDistributionComboBox);
+    rotationLayout->addRow(tr("Distribution"), mRotationDistributionComboBox);
     rotationLayout->addRow(mRotationAverageLabel, mRotationAverageSlider);
     rotationLayout->addRow(mRotationStdLabel, mRotationStdSlider);
-}
-
-SliderSpinBox *CrystalSettingsWidget::createAngleSlider(double min, double max)
-{
-    auto slider = new SliderSpinBox(min, max);
-    slider->setSuffix("°");
-    return slider;
 }
 
 void CrystalSettingsWidget::setTiltVisibility(bool visible)

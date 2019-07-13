@@ -4,6 +4,7 @@
 #include <QDoubleSpinBox>
 #include <QProgressBar>
 #include <QScrollArea>
+#include <QAction>
 #include <memory>
 #include "renderButton.h"
 #include "openGLWidget.h"
@@ -25,6 +26,7 @@ private:
     void setupUi();
     QScrollArea *setupSideBarScrollArea();
     QProgressBar *setupProgressBar();
+    void setupMenuBar();
 
     GeneralSettingsWidget *mGeneralSettingsWidget;
     CrystalSettingsWidget *mCrystalSettingsWidget;
@@ -32,6 +34,9 @@ private:
     QProgressBar *mProgressBar;
     RenderButton *mRenderButton;
     OpenGLWidget *mOpenGLWidget;
+
+    QAction *mSaveImageAction;
+    QAction *mQuitAction;
 
     std::shared_ptr<HaloSim::CrystalPopulationRepository> mCrystalRepository;
     std::shared_ptr<HaloSim::SimulationEngine> mEngine;

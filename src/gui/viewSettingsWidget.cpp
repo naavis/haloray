@@ -27,27 +27,18 @@ void ViewSettingsWidget::setupUi()
     setMaximumWidth(400);
 
     mCameraProjectionComboBox = new QComboBox();
-    mCameraProjectionComboBox->addItems({"Stereographic",
-                                         "Rectilinear",
-                                         "Equidistant",
-                                         "Equal area",
-                                         "Orthographic"});
+    mCameraProjectionComboBox->addItems({tr("Stereographic"),
+                                         tr("Rectilinear"),
+                                         tr("Equidistant"),
+                                         tr("Equal area"),
+                                         tr("Orthographic")});
 
-    mPitchSlider = new SliderSpinBox();
-    mPitchSlider->setMinimum(-90.0);
-    mPitchSlider->setMaximum(90.0);
-    mPitchSlider->setSuffix("°");
+    mPitchSlider = SliderSpinBox::createAngleSlider(-90.0, 90.0);
 
-    mYawSlider = new SliderSpinBox();
-    mYawSlider->setMinimum(-360.0);
-    mYawSlider->setMaximum(360.0);
+    mYawSlider = SliderSpinBox::createAngleSlider(-360.0, 360.0);
     mYawSlider->setWrapping(true);
-    mYawSlider->setSuffix("°");
 
-    mFieldOfViewSlider = new SliderSpinBox();
-    mFieldOfViewSlider->setMinimum(10.0);
-    mFieldOfViewSlider->setMaximum(360.0);
-    mFieldOfViewSlider->setSuffix("°");
+    mFieldOfViewSlider = SliderSpinBox::createAngleSlider(10.0, 360.0);
 
     mBrightnessSlider = new SliderSpinBox();
     mBrightnessSlider->setMinimum(0.1);
@@ -58,13 +49,13 @@ void ViewSettingsWidget::setupUi()
     mLockToLightSource = new QCheckBox();
 
     auto layout = new QFormLayout(this);
-    layout->addRow("Camera projection", mCameraProjectionComboBox);
-    layout->addRow("Field of view", mFieldOfViewSlider);
-    layout->addRow("Pitch", mPitchSlider);
-    layout->addRow("Yaw", mYawSlider);
-    layout->addRow("Brightness", mBrightnessSlider);
-    layout->addRow("Hide sub-horizon", mHideSubHorizonCheckBox);
-    layout->addRow("Lock to light source", mLockToLightSource);
+    layout->addRow(tr("Camera projection"), mCameraProjectionComboBox);
+    layout->addRow(tr("Field of view"), mFieldOfViewSlider);
+    layout->addRow(tr("Pitch"), mPitchSlider);
+    layout->addRow(tr("Yaw"), mYawSlider);
+    layout->addRow(tr("Brightness"), mBrightnessSlider);
+    layout->addRow(tr("Hide sub-horizon"), mHideSubHorizonCheckBox);
+    layout->addRow(tr("Lock to light source"), mLockToLightSource);
 }
 
 HaloSim::Camera ViewSettingsWidget::stateToCamera() const

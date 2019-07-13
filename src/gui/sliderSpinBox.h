@@ -14,6 +14,8 @@ public:
     void setSuffix(const QString &suffix);
     double value() const;
 
+    static SliderSpinBox *createAngleSlider(double min, double max);
+
 public slots:
     void setValue(double value);
     void setMinimum(double minimum);

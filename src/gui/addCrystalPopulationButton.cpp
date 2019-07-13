@@ -3,15 +3,13 @@
 AddCrystalPopulationButton::AddCrystalPopulationButton(QWidget *parent)
     : QToolButton(parent)
 {
-    setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
-
     mMenu = new QMenu(this);
 
-    mAddRandom = new QAction("Add random", this);
-    mAddPlate = new QAction("Add plate", this);
-    mAddColumn = new QAction("Add column", this);
-    mAddParry = new QAction("Add Parry", this);
-    mAddLowitz = new QAction("Add Lowitz", this);
+    mAddRandom = new QAction(tr("Add random"), this);
+    mAddPlate = new QAction(tr("Add plate"), this);
+    mAddColumn = new QAction(tr("Add column"), this);
+    mAddParry = new QAction(tr("Add Parry"), this);
+    mAddLowitz = new QAction(tr("Add Lowitz"), this);
 
     mMenu->addActions({mAddRandom,
                        mAddPlate,
@@ -20,7 +18,8 @@ AddCrystalPopulationButton::AddCrystalPopulationButton(QWidget *parent)
                        mAddLowitz});
 
     setPopupMode(QToolButton::ToolButtonPopupMode::MenuButtonPopup);
-    setText("Add population");
+    setIcon(QIcon::fromTheme("list-add"));
+
     setMenu(mMenu);
 
     connect(this, &AddCrystalPopulationButton::clicked, [this]() { emit addPopulation(HaloSim::CrystalPopulationPreset::Random); });

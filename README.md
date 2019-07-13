@@ -1,4 +1,4 @@
-# HaloRay
+# HaloRay ![](images/hexagon_small.png)
 [![Build status](https://ci.appveyor.com/api/projects/status/5k9laekby84x2ex1/branch/develop?svg=true)](https://ci.appveyor.com/project/naavis/haloray/branch/develop)
 
 HaloRay simulates the reflection and refraction of sun light inside hexagonal
@@ -37,9 +37,14 @@ Here are some general settings for the whole simulation.
 - **Rays per frame:** Number of rays traced through individual crystals per
     rendered frame
   - If the user interface slows down a lot during rendering, lower this value
-  - On an NVIDIA GeForce GTX 1070 a good value seems to be 500 000 - 1 000 000
+  - On an NVIDIA GeForce GTX 1070 a good value seems to be around 500 000
   - The maximum value for this parameter may be limited by your GPU
 - **Maximum frames:** Simulation stops after rendering this many frames
+- **Double scattering:** Probability of a single light ray to scatter from two
+  different ice crystals
+  - Note that this slows down the simulation significantly!
+  - A value of 0.0 means no rays are scattered twice, and 1.0 means all rays
+    are scattered twice
 
 ### Crystal settings
 
@@ -139,6 +144,7 @@ resulting executable:
 - Qt5Core.dll
 - Qt5Widgets.dll
 - Qt5Gui.dll
+- Qt5Svg.dll
 
 You can also do this automatically with the
 [windeployqt](https://doc.qt.io/qt-5/windows-deployment.html) tool, which is
