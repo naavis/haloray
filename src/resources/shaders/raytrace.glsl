@@ -484,7 +484,7 @@ void main(void)
     }
 
     // Hide subhorizon rays
-    if (camera.hideSubHorizon == 1 && resultRay.y < 0.0) return;
+    if (camera.hideSubHorizon == 1 && resultRay.y > 0.0) return;
 
     resultRay = -getCameraOrientationMatrix() * resultRay;
 
