@@ -3,8 +3,6 @@
 AddCrystalPopulationButton::AddCrystalPopulationButton(QWidget *parent)
     : QToolButton(parent)
 {
-    //setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Expanding);
-
     mMenu = new QMenu(this);
 
     mAddRandom = new QAction(tr("Add random"), this);
