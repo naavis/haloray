@@ -3,6 +3,7 @@ branches:
   only:
     - master
     - develop
+    - feature/add-tests
 image: Visual Studio 2017
 clone_depth: 1
 environment:
@@ -12,6 +13,8 @@ build_script:
   - ps: scripts\build.ps1
 after_build:
   - ps: scripts\package.ps1
+test_script:
+  - ps: scripts\test.ps1
 artifacts:
   - path: '*.zip'
 deploy:

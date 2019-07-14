@@ -12,6 +12,8 @@ $extraParameters = if ($gitBranch -eq "master") {
 pushd
 mkdir build
 cd build
+
+pushd
 cmake .. -G "Visual Studio 15 2017 Win64" $extraParameters
 cmake --build . --config Release
 cd .\src\Release\
@@ -26,8 +28,10 @@ cd .\src\Release\
     --no-system-d3d-compiler `
     --release `
     haloray.exe
+popd
 
-cd ..\tests\Release\
+pushd
+cd .\tests\Release\
 & "${env:Qt5_DIR}\bin\windeployqt.exe" `
     --no-quick-import `
     --no-translations `
@@ -37,4 +41,6 @@ cd ..\tests\Release\
     --no-system-d3d-compiler `
     --release `
     halorayTests.exe
+popd
+
 popd
