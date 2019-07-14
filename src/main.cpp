@@ -1,6 +1,7 @@
 #include <QtGlobal>
 #include <QApplication>
 #include <QSurfaceFormat>
+#include <QDir>
 #include "gui/mainWindow.h"
 
 void logHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
@@ -30,6 +31,7 @@ void logHandler(QtMsgType type, const QMessageLogContext &context, const QString
 
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(haloray);
     qInstallMessageHandler(logHandler);
     QApplication app(argc, argv);
 
