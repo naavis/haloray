@@ -75,6 +75,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, mProgressBar, &QProgressBar::setMaximum);
     connect(mGeneralSettingsWidget, &GeneralSettingsWidget::multipleScatteringProbabilityChanged, [this](double value) {
         mEngine->setMultipleScatteringProbability(value);
+        mOpenGLWidget->update();
     });
 
     mGeneralSettingsWidget->setInitialValues(mEngine->getLightSource().diameter,
