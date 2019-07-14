@@ -32,7 +32,7 @@ set(RESOURCE_FILES resources/haloray.qrc resources/haloray.rc)
 IF (WIN32)
     add_executable(haloray WIN32 ${HALORAY_SOURCES} ${RESOURCE_FILES})
 ELSE()
-    add_executable(haloray ${HALORAY_SOURCES})
+    add_executable(haloray ${HALORAY_SOURCES} ${RESOURCE_FILES})
 ENDIF()
 
 target_link_libraries(haloray Qt5::Core Qt5::Widgets Qt5::Gui)
