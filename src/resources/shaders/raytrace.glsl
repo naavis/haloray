@@ -8,6 +8,7 @@ layout(binding = 0, rgba32f) uniform coherent image2D outputImage;
 layout(binding = 1, r32ui) uniform coherent uimage2D spinlock;
 
 uniform uint rngSeed;
+uniform float multipleScatter;
 
 uniform struct sunProperties_t
 {
@@ -43,8 +44,6 @@ uniform struct camera_t
     int projection;
     int hideSubHorizon;
 } camera;
-
-uniform float multipleScatteringProbability;
 
 const float PI = 3.1415926535;
 
@@ -467,7 +466,7 @@ void main(void)
 
     resultRay = rotationMatrix * resultRay;
 
-    if (multipleScatteringProbability != 0.0 && multipleScatteringProbability > rand())
+    if (multipleScatter != 0.0 && multipleScatter > rand())
     {
         // Rotation matrix to orient ray/crystal
         rotationMatrix = getRotationMatrix();

@@ -136,7 +136,7 @@ void SimulationEngine::step()
         mSimulationShader->setUniformValue("camera.projection", mCamera.projection);
         mSimulationShader->setUniformValue("camera.hideSubHorizon", mCamera.hideSubHorizon ? 1 : 0);
 
-        mSimulationShader->setUniformValue("multipleScatteringProbability", mMultipleScatteringProbability);
+        mSimulationShader->setUniformValue("multipleScatter", mMultipleScatteringProbability);
 
         glDispatchCompute(numRays, 1, 1);
     }
@@ -178,7 +178,11 @@ void SimulationEngine::initialize()
 void SimulationEngine::initializeShader()
 {
     mSimulationShader = std::make_unique<QOpenGLShaderProgram>();
+#ifdef _WIN32
     mSimulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
+#else
+    mSimulationShader->addShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
+#endif
     if (mSimulationShader->link() == false)
     {
         throw std::runtime_error(mSimulationShader->log().toUtf8());

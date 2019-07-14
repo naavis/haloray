@@ -8,13 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Fixed
-- Fixed bug where changing multiple scattering probability did not trigger a new
+- Bug where changing multiple scattering probability did not trigger a new
   render if maximum iterations were reached
+- Crashing on Intel GPUs with Linux and Mesa3D
+
 
 ## 2.3.1 - 2019-07-14
 
 ### Fixed
-- Fixed build configuration bug where resources were not being linked on Linux
+- Build configuration bug where resources were not being linked on Linux
 
 ## 2.3.0 - 2019-07-13
 
