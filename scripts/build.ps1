@@ -23,7 +23,7 @@ cd .\src\Release\
     --no-webkit2 `
     --no-angle `
     --no-opengl-sw `
-    -no-system-d3d-compiler `
+    --no-system-d3d-compiler `
     --release `
     haloray.exe
 popd
