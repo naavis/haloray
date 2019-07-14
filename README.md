@@ -43,6 +43,8 @@ Here are some general settings for the whole simulation.
 - **Double scattering:** Probability of a single light ray to scatter from two
   different ice crystals
   - Note that this slows down the simulation significantly!
+  - The current implementation only does double scattering inside one crystal
+    population
   - A value of 0.0 means no rays are scattered twice, and 1.0 means all rays
     are scattered twice
 

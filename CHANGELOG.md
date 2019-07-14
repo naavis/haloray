@@ -5,11 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.3.1 - 2019-07-14
+
+### Fixed
+- Fixed build configuration bug where resources were not being linked on Linux
+
 ## 2.3.0 - 2019-07-13
 
 ### Added
 - Added menu bar with option to save simulation result as image
-- Added slider for setting the probability of double scattering
+- Added slider for setting the probability of simple double scattering
 
 ### Changed
 - Replaced Add Population and Remove Population texts with icons
