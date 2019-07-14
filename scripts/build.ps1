@@ -26,4 +26,15 @@ cd .\src\Release\
     --no-system-d3d-compiler `
     --release `
     haloray.exe
+
+cd ..\tests\Release\
+& "${env:Qt5_DIR}\bin\windeployqt.exe" `
+    --no-quick-import `
+    --no-translations `
+    --no-webkit2 `
+    --no-angle `
+    --no-opengl-sw `
+    --no-system-d3d-compiler `
+    --release `
+    halorayTests.exe
 popd
