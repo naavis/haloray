@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added menu bar with option to save simulation result as image
-- Added slider for setting the probability of double scattering
+- Added slider for setting the probability of simple double scattering
 
 ### Changed
 - Replaced Add Population and Remove Population texts with icons
