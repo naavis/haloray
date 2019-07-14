@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(HaloRay)
+include(Dart)
 
 # Get the current working branch
 execute_process(
