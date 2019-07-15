@@ -16,6 +16,8 @@ $XSLInputElement.Transform($(Resolve-Path $testReport.FullName), (Join-Path (Res
 $wc = New-Object 'System.Net.WebClient'
 $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\ctest-to-junit-results.xml))
 
+$wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", $(Resolve-Path $testReport.FullName))
+
 if ($res.FailedCount -gt 0) {
     throw "$($res.FailedCount) tests failed."
 }
