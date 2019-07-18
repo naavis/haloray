@@ -3,7 +3,7 @@ project(HaloRay)
 include(Dart)
 
 # Optionally set the git branch in AppVeyor
-option(GIT_BRANCH "Current git branch" HEAD)
+set(GIT_BRANCH "Local build" CACHE STRING "Git branch to show in dev builds")
 
 # Get the latest abbreviated commit hash of the working branch
 execute_process(
