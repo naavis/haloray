@@ -1,6 +1,10 @@
 #include <QtGlobal>
 #include <QApplication>
 #include <QSurfaceFormat>
+#include <QMessageBox>
+#include <QOpenGLContext>
+#include <QString>
+#include <QObject>
 #include "gui/mainWindow.h"
 
 void logHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
@@ -28,17 +32,39 @@ void logHandler(QtMsgType type, const QMessageLogContext &context, const QString
     }
 }
 
+bool supportsOpenGL(int requiredMajorVersion, int requiredMinorVersion)
+{
+    auto testContext = new QOpenGLContext();
+    auto majorVersion = testContext->format().majorVersion();
+    auto minorVersion = testContext->format().minorVersion();
+    delete testContext;
+    return majorVersion > requiredMajorVersion ||
+           (majorVersion == requiredMajorVersion && minorVersion >= requiredMinorVersion);
+}
+
 int main(int argc, char *argv[])
 {
     qInstallMessageHandler(logHandler);
     QApplication app(argc, argv);
 
+    const int requiredOpenGLMajorVersion = 4;
+    const int requiredOpenGLMinorVersion = 4;
+
     QSurfaceFormat format;
-    format.setVersion(4, 4);
+    format.setVersion(requiredOpenGLMajorVersion, requiredOpenGLMinorVersion);
     format.setProfile(QSurfaceFormat::OpenGLContextProfile::CoreProfile);
     format.setSwapBehavior(QSurfaceFormat::SwapBehavior::DoubleBuffer);
     format.setSwapInterval(1);
     QSurfaceFormat::setDefaultFormat(format);
+
+    if (!supportsOpenGL(requiredOpenGLMajorVersion, requiredOpenGLMinorVersion))
+    {
+        QString errorMessage = QString(QObject::tr("Your graphics processing unit does not support OpenGL %1.%2, which is required to run HaloRay."))
+                                   .arg(requiredOpenGLMajorVersion)
+                                   .arg(requiredOpenGLMinorVersion);
+        QMessageBox::critical(nullptr, QObject::tr("Incompatible GPU"), errorMessage);
+        return 1;
+    }
 
     MainWindow mainWindow;
     mainWindow.show();
