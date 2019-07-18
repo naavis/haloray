@@ -6,7 +6,7 @@ $gitBranch = $env:APPVEYOR_REPO_BRANCH
 $extraParameters = if ($gitBranch -eq "master") {
     "-DHALORAY_VERSION='${env:APPVEYOR_BUILD_VERSION}'"
 } else {
-    ""
+    "-DGIT_BRANCH='${gitBranch}'"
 }
 
 pushd

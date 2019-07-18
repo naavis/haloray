@@ -1,13 +1,8 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(HaloRay)
 
-# Get the current working branch
-execute_process(
-    COMMAND git rev-parse --abbrev-ref HEAD
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_BRANCH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+# Optionally set the git branch in AppVeyor
+option(GIT_BRANCH "Current git branch" HEAD)
 
 # Get the latest abbreviated commit hash of the working branch
 execute_process(
