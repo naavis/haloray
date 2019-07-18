@@ -40,7 +40,7 @@ cd .\tests\Release\
     --no-opengl-sw `
     --no-system-d3d-compiler `
     --release `
-    halorayTests.exe
+    .
 popd
 
 popd
