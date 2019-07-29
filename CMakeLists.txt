@@ -1,13 +1,9 @@
 cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
 project(HaloRay)
+include(Dart)
 
-# Get the current working branch
-execute_process(
-    COMMAND git rev-parse --abbrev-ref HEAD
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_BRANCH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+# Optionally set the git branch in AppVeyor
+set(GIT_BRANCH "Local build" CACHE STRING "Git branch to show in dev builds")
 
 # Get the latest abbreviated commit hash of the working branch
 execute_process(
@@ -30,8 +26,20 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+enable_testing()
+
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
+# find includes in the corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed
+set(CMAKE_AUTOMOC ON)
+# Instruct CMake to run Qt RCC for resource files
+set(CMAKE_AUTORCC ON)
+
+find_package(Qt5 COMPONENTS REQUIRED Core Widgets Gui Test)
+
 add_subdirectory(src)
+add_subdirectory(tests)
