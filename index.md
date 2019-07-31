@@ -5,7 +5,7 @@ title: HaloRay
 
 HaloRay simulates the reflection and refraction of sun light inside hexagonal
 ice crystals present in high altitude clouds in the atmosphere. These ice
-crystals produce various optical phenomena in the sky, including bright spots,
+crystals produce various optical phenomena in the sky, including spots,
 circles and arcs. These are all called ice crystal halos.
 
 ![Screenshot of HaloRay](images/screenshot.png)
