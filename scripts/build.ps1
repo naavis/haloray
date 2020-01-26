@@ -12,7 +12,7 @@ mkdir build
 cd build
 
 pushd
-cmake .. -G "Visual Studio 15 2017 Win64" -DCMAKE_PREFIX_PATH=$env:Qt5_DIR $extraParameters
+cmake .. -G "Visual Studio 15 2017 Win64" $extraParameters
 cmake --build . --config Release
 cd .\src\Release\
 & "${env:Qt5_DIR}\bin\qtenv2.bat"

@@ -7,6 +7,7 @@ image: Visual Studio 2017
 clone_depth: 1
 environment:
   Qt5_DIR: C:\Qt\5.14.0\msvc2017_64\
+  CMAKE_PREFIX_PATH: C:\Qt\5.14.0\msvc2017_64\
   VCINSTALLDIR: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\
 build_script:
   - ps: scripts\build.ps1
