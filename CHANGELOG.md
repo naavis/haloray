@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Changed
-- Include ANGLE and software rendering related DLLs in build packages
+- Force application to use native desktop OpenGL instead of ANGLE or software renderer
 
 ## 2.4.0 - 2019-07-29
 
