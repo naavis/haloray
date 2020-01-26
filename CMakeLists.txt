@@ -32,8 +32,11 @@ if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
-# find includes in the corresponding build directories
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+if(CMAKE_VERSION VERSION_LESS "3.7.0")
+    # find includes in the corresponding build directories
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+endif()
+
 # Instruct CMake to run moc automatically when needed
 set(CMAKE_AUTOMOC ON)
 # Instruct CMake to run Qt RCC for resource files
