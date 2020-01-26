@@ -3,10 +3,11 @@ branches:
   only:
     - master
     - develop
+    - fix-qt5-appveyor
 image: Visual Studio 2017
 clone_depth: 1
 environment:
-  Qt5_DIR: C:\Qt\5.13\msvc2017_64\
+  Qt5_DIR: C:\Qt\5.12\msvc2017_64\
   VCINSTALLDIR: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\
 build_script:
   - ps: scripts\build.ps1

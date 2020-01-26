@@ -7,6 +7,8 @@ $extraParameters = if ($gitBranch -eq "master") {
     "-DGIT_BRANCH='${gitBranch}'"
 }
 
+ls $env:Qt5_DIR
+
 pushd
 mkdir build
 cd build
