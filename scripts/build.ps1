@@ -1,7 +1,5 @@
 # Windows build script for Appveyor
 
-$ErrorActionPreference = "Stop";
-
 $gitBranch = $env:APPVEYOR_REPO_BRANCH
 $extraParameters = if ($gitBranch -eq "master") {
     "-DHALORAY_VERSION='${env:APPVEYOR_BUILD_VERSION}'"
