@@ -45,6 +45,7 @@ bool supportsOpenGL(int requiredMajorVersion, int requiredMinorVersion)
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(haloray);
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     qInstallMessageHandler(logHandler);
     QApplication app(argc, argv);
 

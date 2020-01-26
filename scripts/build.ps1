@@ -21,6 +21,8 @@ cd .\src\Release\
     --no-quick-import `
     --no-translations `
     --no-webkit2 `
+    --no-angle `
+    --no-opengl-sw `
     --no-system-d3d-compiler `
     --release `
     haloray.exe
@@ -32,6 +34,8 @@ cd .\tests\Release\
     --no-quick-import `
     --no-translations `
     --no-webkit2 `
+    --no-angle `
+    --no-opengl-sw `
     --no-system-d3d-compiler `
     --release `
     .
