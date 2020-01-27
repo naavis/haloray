@@ -3,7 +3,6 @@ branches:
   only:
     - master
     - develop
-    - fix-qt5-appveyor
 image: Visual Studio 2017
 clone_depth: 1
 environment:
