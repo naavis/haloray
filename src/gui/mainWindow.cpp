@@ -24,14 +24,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 #endif
 
     mCrystalRepository = std::make_shared<HaloSim::CrystalPopulationRepository>();
+    mEngine = std::make_shared<HaloSim::SimulationEngine>(mCrystalRepository);
 
-    /*
-    setupUi must be called before mEngine is constructed, since OpenGLWidget
-    initializes OpenGL for the whole application, and mEngine depends on OpenGL
-    */
     setupUi();
-    mEngine = std::make_shared<HaloSim::SimulationEngine>(mOpenGLWidget->width(), mOpenGLWidget->height(), mCrystalRepository);
-    mOpenGLWidget->setEngine(mEngine);
 
     // Signals from render button
     connect(mRenderButton, &RenderButton::clicked, mOpenGLWidget, &OpenGLWidget::toggleRendering);
@@ -118,7 +113,7 @@ void MainWindow::setupUi()
 
     setupMenuBar();
 
-    mOpenGLWidget = new OpenGLWidget();
+    mOpenGLWidget = new OpenGLWidget(mEngine);
     mProgressBar = setupProgressBar();
     mRenderButton = new RenderButton();
 

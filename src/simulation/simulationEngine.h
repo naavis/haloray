@@ -15,7 +15,7 @@ namespace HaloSim
 class SimulationEngine : protected QOpenGLFunctions_4_4_Core
 {
 public:
-    SimulationEngine(unsigned int outputWidth, unsigned int outputHeight, std::shared_ptr<CrystalPopulationRepository> crystalRepository);
+    SimulationEngine(std::shared_ptr<CrystalPopulationRepository> crystalRepository);
     void initialize();
     void start();
     void step();

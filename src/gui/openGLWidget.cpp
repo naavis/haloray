@@ -9,20 +9,16 @@
 #include "../simulation/crystalPopulation.h"
 #include "../opengl/textureRenderer.h"
 
-OpenGLWidget::OpenGLWidget(QWidget *parent)
+OpenGLWidget::OpenGLWidget(enginePtr engine, QWidget *parent)
     : QOpenGLWidget(parent),
       mDragging(false),
       mPreviousDragPoint(QPoint(0, 0)),
       mExposure(1.0f),
-      mMaxIterations(1)
+      mMaxIterations(1),
+      mEngine(engine)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     setUpdateBehavior(UpdateBehavior::PartialUpdate);
-}
-
-void OpenGLWidget::setEngine(enginePtr engine)
-{
-    mEngine = engine;
 }
 
 void OpenGLWidget::toggleRendering()

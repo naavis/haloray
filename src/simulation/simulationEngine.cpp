@@ -12,11 +12,9 @@ namespace HaloSim
 {
 
 SimulationEngine::SimulationEngine(
-    unsigned int outputWidth,
-    unsigned int outputHeight,
     std::shared_ptr<CrystalPopulationRepository> crystalRepository)
-    : mOutputWidth(outputWidth),
-      mOutputHeight(outputHeight),
+    : mOutputWidth(800),
+      mOutputHeight(600),
       mMersenneTwister(std::mt19937(std::random_device()())),
       mUniformDistribution(std::uniform_int_distribution<unsigned int>(0, std::numeric_limits<unsigned int>::max())),
       mRunning(false),

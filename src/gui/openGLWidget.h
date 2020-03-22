@@ -16,8 +16,7 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Core
     typedef std::shared_ptr<HaloSim::SimulationEngine> enginePtr;
 
 public:
-    explicit OpenGLWidget(QWidget *parent = 0);
-    void setEngine(enginePtr engine);
+    explicit OpenGLWidget(enginePtr engine, QWidget *parent = nullptr);
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
