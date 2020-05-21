@@ -1,5 +1,5 @@
 #include <QtTest/QtTest>
-#include "../src/simulation/crystalPopulationRepository.h"
+#include "../haloray-core/simulation/crystalPopulationRepository.h"
 
 class CrystalPopulationRepositoryTests : public QObject
 {

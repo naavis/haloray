@@ -1,5 +1,5 @@
 #include <QtTest/QtTest>
-#include "../src/simulation/camera.h"
+#include "simulation/camera.h"
 
 Q_DECLARE_METATYPE(HaloSim::Projection)
 

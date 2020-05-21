@@ -1,8 +1,8 @@
-TARGET = HaloRay
-TEMPLATE = app
+TARGET = HaloRayCore
+TEMPLATE = lib
 
 QT += core gui widgets
-CONFIG += c++17
+CONFIG += c++17 static
 win32:CONFIG += windows
 
 DEFINES += QT_DEPRECATED_WARNINGS
@@ -26,7 +26,6 @@ HEADERS += \
     simulation/simulationEngine.h
 
 SOURCES += \
-    main.cpp \
     gui/addCrystalPopulationButton.cpp \
     gui/crystalModel.cpp \
     gui/crystalSettingsWidget.cpp \
