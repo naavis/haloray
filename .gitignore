@@ -2,3 +2,4 @@ build/*
 .vscode/*
 src/version.h
 Testing/
+**/*.user
