@@ -2,6 +2,7 @@
 #include <memory>
 #include <random>
 #include <limits>
+#include <stdexcept>
 #include <QOpenGLShaderProgram>
 #include "../opengl/texture.h"
 #include "camera.h"
