@@ -111,11 +111,12 @@ These settings affect how the results of the simulation are shown on the screen.
 ## How to build?
 
 HaloRay requires an OpenGL 4.4 compliant GPU.
-The build is done using [CMake](https://cmake.org/).
 
 The user interface is built with [Qt 5](https://www.qt.io/), so you need to
 [download the Qt libraries](https://www.qt.io/download-qt-installer) before
 compiling HaloRay.
+
+The build is handled with Qt's build tool qmake.
 
 On Linux you can also install Qt using your package manager. On Ubuntu Linux
 you can install Qt by running:
@@ -128,16 +129,17 @@ On Windows you need to set either `Qt5_DIR` or `CMAKE_PREFIX_PATH` environment
 variable to point to the Qt prefix path, e.g.
 `C:\Qt\5.12.3\msvc2017_64\`
 
-Otherwise CMake won't be able to find the Qt libraries.
-
 Finally build the project by running:
 
 ```bash
 mkdir build
-cd build
-cmake ..
-cmake --build . --config Release
+cd src
+qmake.exe main.pro -o ..\build\
+cd ..\build
+make
 ```
+
+You can use `nmake` instead of `make` on Windows.
 
 On Windows you need to add the Qt5 binary directory to your PATH environment
 variable or copy at least the following Qt DLL files to the same folder as the
@@ -161,5 +163,4 @@ Appveyor CI server.
 - [Panu Lahtinen](https://github.com/pnuu) for additional Linux support
 - Jukka Ruoskanen for making HaloPoint 2.0 back in the day and inspiring me to start working on HaloRay
 - [Jaakko Lehtinen](https://users.aalto.fi/~lehtinj7/) for super valuable lessons in computer graphics
-- [Nuklear](https://github.com/vurtun/nuklear/) for enabling me get this project
-   off the ground
+
