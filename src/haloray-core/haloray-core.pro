@@ -7,6 +7,22 @@ win32:CONFIG += windows
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
+GIT_COMMIT_HASH=$$system(git log -1 --format=%h)
+
+DEFINES += "GIT_COMMIT_HASH=\"$$GIT_COMMIT_HASH\""
+GIT_BRANCH = $$(APPVEYOR_REPO_BRANCH)
+isEmpty(GIT_BRANCH) {
+    LOCAL_GIT_BRANCH=$$system(git rev-parse --abbrev-ref HEAD)
+    DEFINES += "GIT_BRANCH=\"$$LOCAL_GIT_BRANCH\""
+} else {
+    DEFINES += "GIT_BRANCH=\"$$GIT_BRANCH\""
+}
+
+HALORAY_VERSION = $$(HALORAY_VERSION)
+!isEmpty(HALORAY_VERSION) {
+    DEFINES += "HALORAY_VERSION=\"$(HALORAY_VERSION)\""
+}
+
 HEADERS += \
     gui/addCrystalPopulationButton.h \
     gui/crystalModel.h \

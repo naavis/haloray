@@ -1,4 +1,5 @@
 build/*
+build-*/
 .vscode/*
 src/version.h
 Testing/
