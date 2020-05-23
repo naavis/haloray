@@ -37,12 +37,12 @@ Texture::~Texture()
     glDeleteTextures(1, &mTextureHandle);
 }
 
-const unsigned int Texture::getHandle() const
+unsigned int Texture::getHandle() const
 {
     return mTextureHandle;
 }
 
-const unsigned int Texture::getTextureUnit() const
+unsigned int Texture::getTextureUnit() const
 {
     return mTextureUnit;
 }

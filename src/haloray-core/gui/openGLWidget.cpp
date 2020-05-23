@@ -11,11 +11,11 @@
 
 OpenGLWidget::OpenGLWidget(enginePtr engine, QWidget *parent)
     : QOpenGLWidget(parent),
+      mEngine(engine),
       mDragging(false),
       mPreviousDragPoint(QPoint(0, 0)),
       mExposure(1.0f),
-      mMaxIterations(1),
-      mEngine(engine)
+      mMaxIterations(1)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     setUpdateBehavior(UpdateBehavior::PartialUpdate);

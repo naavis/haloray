@@ -16,8 +16,8 @@ public:
     Texture(unsigned int width, unsigned int height, unsigned int textureUnit, TextureType type);
     ~Texture();
 
-    const unsigned int getHandle() const;
-    const unsigned int getTextureUnit() const;
+    unsigned int getHandle() const;
+    unsigned int getTextureUnit() const;
 
 private:
     Texture operator=(const Texture &);
