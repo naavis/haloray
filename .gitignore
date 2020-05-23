@@ -1,6 +1,7 @@
 build/*
 build-*/
 .vscode/*
-src/version.h
-Testing/
+.vs/*
 **/*.user
+*.json
+**/.qmake.stash
