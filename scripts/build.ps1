@@ -11,14 +11,14 @@ popd
 Write-Host "`nVisual Studio 2017 Command Prompt variables set." -ForegroundColor Yellow
 
 $extraParameters = if ($gitBranch -eq "master") {
-    $version = ${env:APPVEYOR_BUILD_VERSION}.Split('-')[0]
-    "-DHALORAY_VERSION='${version}'"
+  $version = ${env:APPVEYOR_BUILD_VERSION}.Split('-')[0]
+  "-DHALORAY_VERSION='${version}'"
 }
 
 pushd
 mkdir build
 cd src
-& "${env:Qt5_DIR}\bin\qmake.exe" main.pro -o ..\build\
+& "${env:Qt5_DIR}\bin\qmake.exe" main.pro -o ..\build\ -config release
 cd ..\build
 nmake 2>$null
 popd
@@ -26,12 +26,12 @@ popd
 pushd
 cd build\haloray\release
 & "${env:Qt5_DIR}\bin\windeployqt.exe" `
-    --no-quick-import `
-    --no-translations `
-    --no-webkit2 `
-    --no-angle `
-    --no-opengl-sw `
-    --no-system-d3d-compiler `
-    --release `
-    haloray.exe
+  --no-quick-import `
+  --no-translations `
+  --no-webkit2 `
+  --no-angle `
+  --no-opengl-sw `
+  --no-system-d3d-compiler `
+  --release `
+  haloray.exe
 popd
