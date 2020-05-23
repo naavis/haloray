@@ -65,7 +65,7 @@ void SimulationEngine::setLightSource(const LightSource light)
     }
 }
 
-const unsigned int SimulationEngine::getOutputTextureHandle() const
+unsigned int SimulationEngine::getOutputTextureHandle() const
 {
     return mSimulationTexture->getHandle();
 }

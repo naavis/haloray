@@ -40,7 +40,7 @@ public:
     void setMultipleScatteringProbability(double);
     double getMultipleScatteringProbability() const;
 
-    const unsigned int getOutputTextureHandle() const;
+    unsigned int getOutputTextureHandle() const;
 
     void resizeOutputTextureCallback(const unsigned int width, const unsigned int height);
 

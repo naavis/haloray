@@ -7,12 +7,12 @@ CrystalModel::CrystalModel(std::shared_ptr<HaloSim::CrystalPopulationRepository>
 {
 }
 
-int CrystalModel::rowCount(const QModelIndex &parent) const
+int CrystalModel::rowCount(const QModelIndex&) const
 {
     return static_cast<int>(mCrystals->getCount());
 }
 
-int CrystalModel::columnCount(const QModelIndex &parent) const
+int CrystalModel::columnCount(const QModelIndex&) const
 {
     return 9;
 }
