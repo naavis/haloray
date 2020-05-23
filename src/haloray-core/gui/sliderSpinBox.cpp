@@ -59,6 +59,7 @@ void SliderSpinBox::setWrapping(bool wrapping)
 
 void SliderSpinBox::setValue(double value)
 {
+    if (mSpinBox->value() == value) return;
     mSpinBox->setValue(value);
 }
 
