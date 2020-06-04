@@ -16,9 +16,6 @@ public:
     ~TextureRenderer();
 
 private:
-    TextureRenderer(const TextureRenderer &) = default;
-    TextureRenderer &operator=(const TextureRenderer &) = default;
-
     static std::unique_ptr<QOpenGLShaderProgram> initializeTexDrawShaderProgram();
     std::unique_ptr<QOpenGLShaderProgram> mTexDrawProgram;
     unsigned int mQuadVao;
