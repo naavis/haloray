@@ -1,8 +1,9 @@
 #pragma once
 #include <QWidget>
-#include <QSlider>
-#include <QDoubleSpinBox>
-#include <QString>
+
+class QSlider;
+class QDoubleSpinBox;
+class QString;
 
 class SliderSpinBox : public QWidget
 {

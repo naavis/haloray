@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
 #include <string>
-#include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions_4_4_Core>
+#include <QOpenGLShaderProgram>
 
 namespace OpenGL
 {

@@ -1,7 +1,15 @@
 #include "crystalSettingsWidget.h"
 #include <QFormLayout>
 #include <QHBoxLayout>
+#include <QDataWidgetMapper>
+#include <QToolButton>
+#include <QComboBox>
+#include <QLabel>
+#include <QSpinBox>
+#include "sliderSpinBox.h"
+#include "addCrystalPopulationButton.h"
 #include "../simulation/crystalPopulation.h"
+#include "crystalModel.h"
 
 CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPopulationRepository> crystalRepository, QWidget *parent)
     : QGroupBox("Crystal population settings", parent),

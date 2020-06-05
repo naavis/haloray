@@ -1,5 +1,7 @@
 #include "sliderSpinBox.h"
 #include <QHBoxLayout>
+#include <QSlider>
+#include <QDoubleSpinBox>
 
 const double sliderMultiplier = 100.0;
 

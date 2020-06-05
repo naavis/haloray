@@ -1,5 +1,9 @@
 #include "viewSettingsWidget.h"
 #include <QFormLayout>
+#include <QComboBox>
+#include <QCheckBox>
+#include "sliderSpinBox.h"
+#include "../simulation/camera.h"
 
 ViewSettingsWidget::ViewSettingsWidget(QWidget *parent)
     : QGroupBox("View settings", parent)

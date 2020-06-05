@@ -1,16 +1,20 @@
 #pragma once
-#include <QWidget>
 #include <QGroupBox>
-#include <QComboBox>
-#include <QLabel>
-#include <QToolButton>
-#include <QSpinBox>
-#include <QDataWidgetMapper>
-#include "addCrystalPopulationButton.h"
-#include "sliderSpinBox.h"
-#include "crystalModel.h"
-#include "../simulation/crystalPopulation.h"
-#include "../simulation/crystalPopulationRepository.h"
+#include <memory>
+
+namespace HaloSim
+{
+class CrystalPopulationRepository;
+}
+
+class QToolButton;
+class AddCrystalPopulationButton;
+class SliderSpinBox;
+class QComboBox;
+class QLabel;
+class QSpinBox;
+class CrystalModel;
+class QDataWidgetMapper;
 
 class CrystalSettingsWidget : public QGroupBox
 {

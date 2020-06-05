@@ -1,13 +1,22 @@
 #pragma once
 #include <QOpenGLWidget>
-#include <QWidget>
-#include <QMouseEvent>
-#include <QWheelEvent>
 #include <QOpenGLFunctions_4_4_Core>
-#include <QSize>
 #include <memory>
-#include "../simulation/simulationEngine.h"
-#include "../opengl/textureRenderer.h"
+
+namespace HaloSim
+{
+class SimulationEngine;
+}
+
+namespace OpenGL
+{
+class TextureRenderer;
+}
+
+class QMouseEvent;
+class QWheelEvent;
+class QSize;
+class QPoint;
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Core
 {

@@ -1,18 +1,22 @@
 #pragma once
 #include <QMainWindow>
-#include <QWidget>
-#include <QDoubleSpinBox>
-#include <QProgressBar>
-#include <QScrollArea>
-#include <QAction>
 #include <memory>
-#include "renderButton.h"
-#include "openGLWidget.h"
-#include "generalSettingsWidget.h"
-#include "crystalSettingsWidget.h"
-#include "viewSettingsWidget.h"
-#include "../simulation/simulationEngine.h"
-#include "../simulation/crystalPopulationRepository.h"
+
+namespace HaloSim
+{
+class CrystalPopulationRepository;
+class SimulationEngine;
+}
+
+class QDoubleSpinBox;
+class QProgressBar;
+class QScrollArea;
+class QAction;
+class OpenGLWidget;
+class RenderButton;
+class ViewSettingsWidget;
+class GeneralSettingsWidget;
+class CrystalSettingsWidget;
 
 class MainWindow : public QMainWindow
 {

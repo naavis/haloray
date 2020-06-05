@@ -1,9 +1,11 @@
 #pragma once
 #include <QToolButton>
-#include <QMenu>
-#include <QWidget>
-#include <QAction>
 #include "../simulation/crystalPopulation.h"
+
+class QWidget;
+class QMenu;
+class QAction;
+class QToolButton;
 
 class AddCrystalPopulationButton : public QToolButton
 {

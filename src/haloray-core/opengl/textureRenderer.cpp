@@ -2,7 +2,6 @@
 #include <memory>
 #include <string>
 #include <stdexcept>
-#include <QOpenGLShaderProgram>
 
 namespace OpenGL
 {

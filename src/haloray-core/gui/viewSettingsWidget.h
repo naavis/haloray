@@ -1,10 +1,10 @@
 #pragma once
 #include <QGroupBox>
-#include <QWidget>
-#include <QComboBox>
-#include <QCheckBox>
-#include "sliderSpinBox.h"
 #include "../simulation/camera.h"
+
+class QComboBox;
+class QCheckBox;
+class SliderSpinBox;
 
 class ViewSettingsWidget : public QGroupBox
 {

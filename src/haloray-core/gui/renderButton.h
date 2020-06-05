@@ -1,6 +1,5 @@
 #pragma once
 #include <QPushButton>
-#include <QWidget>
 
 class RenderButton : public QPushButton
 {

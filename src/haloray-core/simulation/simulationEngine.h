@@ -1,13 +1,14 @@
 #pragma once
 #include <random>
 #include <memory>
-#include <QOpenGLShaderProgram>
 #include <QOpenGLFunctions_4_4_Core>
 #include "../opengl/texture.h"
 #include "camera.h"
 #include "lightSource.h"
 #include "crystalPopulation.h"
 #include "crystalPopulationRepository.h"
+
+class QOpenGLShaderProgram;
 
 namespace HaloSim
 {

@@ -1,10 +1,16 @@
 #pragma once
 #include <QAbstractTableModel>
-#include <QWidget>
-#include <vector>
 #include <memory>
 #include "../simulation/crystalPopulation.h"
-#include "../simulation/crystalPopulationRepository.h"
+
+namespace HaloSim
+{
+class CrystalPopulationRepository;
+}
+
+class QWidget;
+class QVariant;
+class QModelIndex;
 
 class CrystalModel : public QAbstractTableModel
 {

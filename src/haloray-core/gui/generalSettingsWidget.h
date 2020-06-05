@@ -1,10 +1,10 @@
 #pragma once
-#include <QWidget>
-#include <QDoubleSpinBox>
-#include <QSpinBox>
 #include <QGroupBox>
-#include "sliderSpinBox.h"
 #include "../simulation/lightSource.h"
+
+class QDoubleSpinBox;
+class QSpinBox;
+class SliderSpinBox;
 
 class GeneralSettingsWidget : public QGroupBox
 {

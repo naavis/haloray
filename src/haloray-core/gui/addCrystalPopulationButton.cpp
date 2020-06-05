@@ -1,4 +1,7 @@
 #include "addCrystalPopulationButton.h"
+#include <QMenu>
+#include <QAction>
+
 
 AddCrystalPopulationButton::AddCrystalPopulationButton(QWidget *parent)
     : QToolButton(parent)

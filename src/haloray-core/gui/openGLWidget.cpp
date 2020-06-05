@@ -1,6 +1,7 @@
 #include "openGLWidget.h"
 #include <QWidget>
 #include <QOpenGLWidget>
+#include <QMouseEvent>
 #include <memory>
 #include <algorithm>
 #include "../simulation/simulationEngine.h"

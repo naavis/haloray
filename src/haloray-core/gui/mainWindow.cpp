@@ -11,8 +11,16 @@
 #include <QApplication>
 #include <QFileDialog>
 #include <QDateTime>
-#include "../simulation/crystalPopulation.h"
+#include <QProgressBar>
+#include <QScrollArea>
+#include "openGLWidget.h"
+#include "generalSettingsWidget.h"
+#include "crystalSettingsWidget.h"
+#include "viewSettingsWidget.h"
 #include "sliderSpinBox.h"
+#include "renderButton.h"
+#include "../simulation/crystalPopulation.h"
+#include "../simulation/simulationEngine.h"
 
 #define STRINGIFY0(v) #v
 #define STRINGIFY(v) STRINGIFY0(v)

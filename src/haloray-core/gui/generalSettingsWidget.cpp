@@ -1,5 +1,8 @@
 #include "generalSettingsWidget.h"
 #include <QFormLayout>
+#include <QDoubleSpinBox>
+#include "sliderSpinBox.h"
+#include "../simulation/lightSource.h"
 
 GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
     : QGroupBox("General settings", parent)
