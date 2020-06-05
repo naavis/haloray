@@ -3,6 +3,8 @@
 #include <QSlider>
 #include <QDoubleSpinBox>
 
+namespace HaloRay {
+
 const double sliderMultiplier = 100.0;
 
 SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
@@ -75,4 +77,6 @@ SliderSpinBox *SliderSpinBox::createAngleSlider(double min, double max)
     auto slider = new SliderSpinBox(min, max);
     slider->setSuffix("°");
     return slider;
+}
+
 }

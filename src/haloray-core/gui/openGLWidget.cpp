@@ -10,6 +10,9 @@
 #include "../simulation/crystalPopulation.h"
 #include "../opengl/textureRenderer.h"
 
+namespace HaloRay
+{
+
 OpenGLWidget::OpenGLWidget(enginePtr engine, QWidget *parent)
     : QOpenGLWidget(parent),
       mEngine(engine),
@@ -171,4 +174,6 @@ QSize OpenGLWidget::sizeHint() const
 QSize OpenGLWidget::minimumSizeHint() const
 {
     return QSize(320, 320);
+}
+
 }

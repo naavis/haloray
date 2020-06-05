@@ -4,6 +4,9 @@
 #include "sliderSpinBox.h"
 #include "../simulation/lightSource.h"
 
+namespace HaloRay
+{
+
 GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
     : QGroupBox("General settings", parent)
 {
@@ -81,9 +84,9 @@ void GeneralSettingsWidget::setupUi()
     layout->addRow(tr("Double scattering"), mMultipleScattering);
 }
 
-HaloSim::LightSource GeneralSettingsWidget::stateToLightSource() const
+HaloRay::LightSource GeneralSettingsWidget::stateToLightSource() const
 {
-    HaloSim::LightSource light;
+    HaloRay::LightSource light;
     light.altitude = mSunAltitudeSlider->value();
     light.diameter = mSunDiameterSpinBox->value();
     return light;
@@ -97,4 +100,6 @@ void GeneralSettingsWidget::toggleMaxIterationsSpinBoxStatus()
 void GeneralSettingsWidget::setMaxRaysPerFrame(unsigned int maxRays)
 {
     mRaysPerFrameSpinBox->setMaximum((int)maxRays);
+}
+
 }

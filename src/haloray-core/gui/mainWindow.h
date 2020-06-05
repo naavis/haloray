@@ -2,16 +2,17 @@
 #include <QMainWindow>
 #include <memory>
 
-namespace HaloSim
-{
-class CrystalPopulationRepository;
-class SimulationEngine;
-}
 
 class QDoubleSpinBox;
 class QProgressBar;
 class QScrollArea;
 class QAction;
+
+namespace HaloRay
+{
+
+class CrystalPopulationRepository;
+class SimulationEngine;
 class OpenGLWidget;
 class RenderButton;
 class ViewSettingsWidget;
@@ -42,6 +43,8 @@ private:
     QAction *mSaveImageAction;
     QAction *mQuitAction;
 
-    std::shared_ptr<HaloSim::CrystalPopulationRepository> mCrystalRepository;
-    std::shared_ptr<HaloSim::SimulationEngine> mEngine;
+    std::shared_ptr<HaloRay::CrystalPopulationRepository> mCrystalRepository;
+    std::shared_ptr<HaloRay::SimulationEngine> mEngine;
 };
+
+}

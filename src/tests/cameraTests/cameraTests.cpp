@@ -1,9 +1,9 @@
 #include <QtTest/QtTest>
 #include "simulation/camera.h"
 
-Q_DECLARE_METATYPE(HaloSim::Projection)
+Q_DECLARE_METATYPE(HaloRay::Projection)
 
-using namespace HaloSim;
+using namespace HaloRay;
 
 class CameraTests : public QObject
 {

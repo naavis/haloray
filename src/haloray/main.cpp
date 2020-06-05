@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    MainWindow mainWindow;
+    HaloRay::MainWindow mainWindow;
     mainWindow.show();
 
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);

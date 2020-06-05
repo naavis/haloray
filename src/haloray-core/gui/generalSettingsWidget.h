@@ -4,6 +4,10 @@
 
 class QDoubleSpinBox;
 class QSpinBox;
+
+namespace HaloRay
+{
+
 class SliderSpinBox;
 
 class GeneralSettingsWidget : public QGroupBox
@@ -18,7 +22,7 @@ public:
                           double multipleScatteringProbability);
 
 signals:
-    void lightSourceChanged(HaloSim::LightSource light);
+    void lightSourceChanged(HaloRay::LightSource light);
     void numRaysChanged(unsigned int rays);
     void maximumNumberOfIterationsChanged(unsigned int iterations);
     void multipleScatteringProbabilityChanged(double probability);
@@ -28,7 +32,7 @@ public slots:
     void setMaxRaysPerFrame(unsigned int maxRays);
 
 private:
-    HaloSim::LightSource stateToLightSource() const;
+    HaloRay::LightSource stateToLightSource() const;
     void setupUi();
 
     SliderSpinBox *mSunAltitudeSlider;
@@ -37,3 +41,5 @@ private:
     QSpinBox *mMaximumFramesSpinBox;
     SliderSpinBox *mMultipleScattering;
 };
+
+}

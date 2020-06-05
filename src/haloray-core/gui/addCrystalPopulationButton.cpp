@@ -2,6 +2,8 @@
 #include <QMenu>
 #include <QAction>
 
+namespace HaloRay
+{
 
 AddCrystalPopulationButton::AddCrystalPopulationButton(QWidget *parent)
     : QToolButton(parent)
@@ -25,10 +27,12 @@ AddCrystalPopulationButton::AddCrystalPopulationButton(QWidget *parent)
 
     setMenu(mMenu);
 
-    connect(this, &AddCrystalPopulationButton::clicked, [this]() { emit addPopulation(HaloSim::CrystalPopulationPreset::Random); });
-    connect(mAddRandom, &QAction::triggered, [this]() { emit addPopulation(HaloSim::CrystalPopulationPreset::Random); });
-    connect(mAddPlate, &QAction::triggered, [this]() { emit addPopulation(HaloSim::CrystalPopulationPreset::Plate); });
-    connect(mAddColumn, &QAction::triggered, [this]() { emit addPopulation(HaloSim::CrystalPopulationPreset::Column); });
-    connect(mAddParry, &QAction::triggered, [this]() { emit addPopulation(HaloSim::CrystalPopulationPreset::Parry); });
-    connect(mAddLowitz, &QAction::triggered, [this]() { emit addPopulation(HaloSim::CrystalPopulationPreset::Lowitz); });
+    connect(this, &AddCrystalPopulationButton::clicked, [this]() { emit addPopulation(HaloRay::CrystalPopulationPreset::Random); });
+    connect(mAddRandom, &QAction::triggered, [this]() { emit addPopulation(HaloRay::CrystalPopulationPreset::Random); });
+    connect(mAddPlate, &QAction::triggered, [this]() { emit addPopulation(HaloRay::CrystalPopulationPreset::Plate); });
+    connect(mAddColumn, &QAction::triggered, [this]() { emit addPopulation(HaloRay::CrystalPopulationPreset::Column); });
+    connect(mAddParry, &QAction::triggered, [this]() { emit addPopulation(HaloRay::CrystalPopulationPreset::Parry); });
+    connect(mAddLowitz, &QAction::triggered, [this]() { emit addPopulation(HaloRay::CrystalPopulationPreset::Lowitz); });
+}
+
 }

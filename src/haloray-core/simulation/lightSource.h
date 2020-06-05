@@ -1,6 +1,6 @@
 #pragma once
 
-namespace HaloSim
+namespace HaloRay
 {
 
 struct LightSource
@@ -11,4 +11,4 @@ struct LightSource
     static LightSource createDefaultLightSource();
 };
 
-} // namespace HaloSim
+} // namespace HaloRay

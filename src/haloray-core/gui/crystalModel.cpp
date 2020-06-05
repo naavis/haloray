@@ -3,7 +3,10 @@
 #include <QWidget>
 #include "../simulation/crystalPopulationRepository.h"
 
-CrystalModel::CrystalModel(std::shared_ptr<HaloSim::CrystalPopulationRepository> crystalRepository, QWidget *parent)
+namespace HaloRay
+{
+
+CrystalModel::CrystalModel(std::shared_ptr<HaloRay::CrystalPopulationRepository> crystalRepository, QWidget *parent)
     : QAbstractTableModel(parent),
       mCrystals(crystalRepository)
 {
@@ -26,7 +29,7 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
 
     auto col = index.column();
     auto row = index.row();
-    const HaloSim::CrystalPopulation &crystal = mCrystals->get(row);
+    const HaloRay::CrystalPopulation &crystal = mCrystals->get(row);
 
     switch (col)
     {
@@ -63,7 +66,7 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
 
     auto row = index.row();
     auto col = index.column();
-    HaloSim::CrystalPopulation &crystal = mCrystals->get(row);
+    HaloRay::CrystalPopulation &crystal = mCrystals->get(row);
     switch (col)
     {
     case 0:
@@ -107,7 +110,7 @@ Qt::ItemFlags CrystalModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEditable | QAbstractTableModel::flags(index);
 }
 
-void CrystalModel::addRow(HaloSim::CrystalPopulationPreset preset)
+void CrystalModel::addRow(HaloRay::CrystalPopulationPreset preset)
 {
     auto row = mCrystals->getCount();
     beginInsertRows(QModelIndex(), row, row);
@@ -125,4 +128,6 @@ bool CrystalModel::removeRow(int row)
     endRemoveRows();
 
     return true;
+}
+
 }

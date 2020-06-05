@@ -5,6 +5,9 @@
 #include "sliderSpinBox.h"
 #include "../simulation/camera.h"
 
+namespace HaloRay
+{
+
 ViewSettingsWidget::ViewSettingsWidget(QWidget *parent)
     : QGroupBox("View settings", parent)
 {
@@ -62,10 +65,10 @@ void ViewSettingsWidget::setupUi()
     layout->addRow(tr("Lock to light source"), mLockToLightSource);
 }
 
-HaloSim::Camera ViewSettingsWidget::stateToCamera() const
+HaloRay::Camera ViewSettingsWidget::stateToCamera() const
 {
-    HaloSim::Camera camera;
-    camera.projection = (HaloSim::Projection)mCameraProjectionComboBox->currentIndex();
+    HaloRay::Camera camera;
+    camera.projection = (HaloRay::Projection)mCameraProjectionComboBox->currentIndex();
     camera.fov = (float)mFieldOfViewSlider->value();
     camera.hideSubHorizon = mHideSubHorizonCheckBox->isChecked();
     camera.yaw = (float)mYawSlider->value();
@@ -73,7 +76,7 @@ HaloSim::Camera ViewSettingsWidget::stateToCamera() const
     return camera;
 }
 
-void ViewSettingsWidget::setCamera(HaloSim::Camera camera)
+void ViewSettingsWidget::setCamera(HaloRay::Camera camera)
 {
     mCameraProjectionComboBox->setCurrentIndex((int)camera.projection);
     mFieldOfViewSlider->setValue(camera.fov);
@@ -96,4 +99,6 @@ void ViewSettingsWidget::setCameraOrientation(double pitch, double yaw)
 void ViewSettingsWidget::setBrightness(double brightness)
 {
     mBrightnessSlider->setValue(brightness);
+}
+
 }

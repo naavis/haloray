@@ -1,6 +1,6 @@
 #include "crystalPopulation.h"
 
-namespace HaloSim
+namespace HaloRay
 {
 
 CrystalPopulation CrystalPopulation::createLowitz()
@@ -107,4 +107,4 @@ CrystalPopulation CrystalPopulation::presetPopulation(CrystalPopulationPreset pr
     }
 }
 
-} // namespace HaloSim
+} // namespace HaloRay

@@ -5,6 +5,9 @@ class QSlider;
 class QDoubleSpinBox;
 class QString;
 
+namespace HaloRay
+{
+
 class SliderSpinBox : public QWidget
 {
     Q_OBJECT
@@ -30,3 +33,5 @@ private:
     QSlider *mSlider;
     QDoubleSpinBox *mSpinBox;
 };
+
+}

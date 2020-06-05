@@ -2,25 +2,26 @@
 #include <QGroupBox>
 #include <memory>
 
-namespace HaloSim
-{
-class CrystalPopulationRepository;
-}
 
 class QToolButton;
-class AddCrystalPopulationButton;
-class SliderSpinBox;
 class QComboBox;
 class QLabel;
 class QSpinBox;
-class CrystalModel;
 class QDataWidgetMapper;
+
+namespace HaloRay
+{
+
+class CrystalPopulationRepository;
+class AddCrystalPopulationButton;
+class SliderSpinBox;
+class CrystalModel;
 
 class CrystalSettingsWidget : public QGroupBox
 {
     Q_OBJECT
 public:
-    CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPopulationRepository> crystalRepository, QWidget *parent = nullptr);
+    CrystalSettingsWidget(std::shared_ptr<HaloRay::CrystalPopulationRepository> crystalRepository, QWidget *parent = nullptr);
 
 signals:
     void crystalChanged();
@@ -60,3 +61,5 @@ private:
 
     unsigned int mNextPopulationId;
 };
+
+}

@@ -1,6 +1,9 @@
 #include "renderButton.h"
 #include <QString>
 
+namespace HaloRay
+{
+
 RenderButton::RenderButton(QWidget *parent)
     : QPushButton(parent), mRendering(false)
 {
@@ -18,4 +21,6 @@ RenderButton::RenderButton(QWidget *parent)
             this->setText(stopText);
         mRendering = !mRendering;
     });
+}
+
 }

@@ -25,14 +25,17 @@
 #define STRINGIFY0(v) #v
 #define STRINGIFY(v) STRINGIFY0(v)
 
+namespace HaloRay
+{
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
 #if _WIN32
     QIcon::setThemeName("HaloRayTheme");
 #endif
 
-    mCrystalRepository = std::make_shared<HaloSim::CrystalPopulationRepository>();
-    mEngine = std::make_shared<HaloSim::SimulationEngine>(mCrystalRepository);
+    mCrystalRepository = std::make_shared<HaloRay::CrystalPopulationRepository>();
+    mEngine = std::make_shared<HaloRay::SimulationEngine>(mCrystalRepository);
 
     setupUi();
 
@@ -47,7 +50,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     });
 
     // Signals from view settings
-    connect(mViewSettingsWidget, &ViewSettingsWidget::cameraChanged, [this](HaloSim::Camera camera) {
+    connect(mViewSettingsWidget, &ViewSettingsWidget::cameraChanged, [this](HaloRay::Camera camera) {
         mEngine->setCamera(camera);
         mOpenGLWidget->update();
     });
@@ -66,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(mOpenGLWidget, &OpenGLWidget::nextIteration, mProgressBar, &QProgressBar::setValue);
 
     // Signals from general settings
-    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [this](HaloSim::LightSource light) {
+    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [this](HaloRay::LightSource light) {
         mEngine->setLightSource(light);
         mOpenGLWidget->update();
     });
@@ -184,4 +187,6 @@ QProgressBar *MainWindow::setupProgressBar()
 QSize MainWindow::sizeHint() const
 {
     return QSize(1920, 1080);
+}
+
 }

@@ -1,6 +1,9 @@
 #pragma once
 #include <QPushButton>
 
+namespace HaloRay
+{
+
 class RenderButton : public QPushButton
 {
     Q_OBJECT
@@ -10,3 +13,5 @@ public:
 private:
     bool mRendering;
 };
+
+}

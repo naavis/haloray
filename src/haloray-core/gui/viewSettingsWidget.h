@@ -4,6 +4,10 @@
 
 class QComboBox;
 class QCheckBox;
+
+namespace HaloRay
+{
+
 class SliderSpinBox;
 
 class ViewSettingsWidget : public QGroupBox
@@ -12,19 +16,19 @@ class ViewSettingsWidget : public QGroupBox
 public:
     ViewSettingsWidget(QWidget *parent = nullptr);
 
-    void setCamera(HaloSim::Camera camera);
+    void setCamera(HaloRay::Camera camera);
     void setFieldOfView(double fov);
     void setCameraOrientation(double pitch, double yaw);
     void setBrightness(double brightness);
 
 signals:
-    void cameraChanged(HaloSim::Camera camera);
+    void cameraChanged(HaloRay::Camera camera);
     void brightnessChanged(double brightness);
     void lockToLightSource(bool locked);
 
 private:
     void setupUi();
-    HaloSim::Camera stateToCamera() const;
+    HaloRay::Camera stateToCamera() const;
     SliderSpinBox *mFieldOfViewSlider;
     SliderSpinBox *mPitchSlider;
     SliderSpinBox *mYawSlider;
@@ -33,3 +37,5 @@ private:
     SliderSpinBox *mBrightnessSlider;
     QCheckBox *mLockToLightSource;
 };
+
+}

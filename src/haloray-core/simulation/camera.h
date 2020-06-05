@@ -1,6 +1,6 @@
 #pragma once
 
-namespace HaloSim
+namespace HaloRay
 {
 
 enum Projection
@@ -24,4 +24,4 @@ struct Camera
     static Camera createDefaultCamera();
 };
 
-} // namespace HaloSim
+}

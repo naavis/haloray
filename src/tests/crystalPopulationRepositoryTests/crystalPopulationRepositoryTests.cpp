@@ -7,30 +7,30 @@ class CrystalPopulationRepositoryTests : public QObject
 private slots:
     void hasThreePopulationsByDefault()
     {
-        auto repository = HaloSim::CrystalPopulationRepository();
+        auto repository = HaloRay::CrystalPopulationRepository();
         QCOMPARE(repository.getCount(), 3);
     }
 
     void addingPopulationIncreasesCount()
     {
-        auto repository = HaloSim::CrystalPopulationRepository();
+        auto repository = HaloRay::CrystalPopulationRepository();
         auto originalCount = repository.getCount();
-        repository.add(HaloSim::CrystalPopulationPreset::Random);
+        repository.add(HaloRay::CrystalPopulationPreset::Random);
         QCOMPARE(repository.getCount(), originalCount + 1);
     }
 
     void removingPopulationDecreasesCount()
     {
-        auto repository = HaloSim::CrystalPopulationRepository();
+        auto repository = HaloRay::CrystalPopulationRepository();
         auto originalCount = repository.getCount();
-        repository.add(HaloSim::CrystalPopulationPreset::Random);
+        repository.add(HaloRay::CrystalPopulationPreset::Random);
         repository.remove(0);
         QCOMPARE(repository.getCount(), originalCount);
     }
 
     void evenProbabilitiesByDefault()
     {
-        auto repository = HaloSim::CrystalPopulationRepository();
+        auto repository = HaloRay::CrystalPopulationRepository();
         QCOMPARE(repository.getProbability(0), 1.0 / 3.0);
         QCOMPARE(repository.getProbability(1), 1.0 / 3.0);
         QCOMPARE(repository.getProbability(2), 1.0 / 3.0);
@@ -38,7 +38,7 @@ private slots:
 
     void evenWeightsByDefault()
     {
-        auto repository = HaloSim::CrystalPopulationRepository();
+        auto repository = HaloRay::CrystalPopulationRepository();
         QCOMPARE(repository.getWeight(0), 1);
         QCOMPARE(repository.getWeight(1), 1);
         QCOMPARE(repository.getWeight(2), 1);

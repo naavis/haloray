@@ -3,10 +3,6 @@
 #include <QOpenGLFunctions_4_4_Core>
 #include <memory>
 
-namespace HaloSim
-{
-class SimulationEngine;
-}
 
 namespace OpenGL
 {
@@ -18,11 +14,15 @@ class QWheelEvent;
 class QSize;
 class QPoint;
 
+namespace HaloRay
+{
+class SimulationEngine;
+
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Core
 {
     Q_OBJECT
 
-    typedef std::shared_ptr<HaloSim::SimulationEngine> enginePtr;
+    typedef std::shared_ptr<HaloRay::SimulationEngine> enginePtr;
 
 public:
     explicit OpenGLWidget(enginePtr engine, QWidget *parent = nullptr);
@@ -59,3 +59,5 @@ private:
     float mExposure;
     unsigned int mMaxIterations;
 };
+
+}

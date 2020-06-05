@@ -1,6 +1,6 @@
 #include "lightSource.h"
 
-namespace HaloSim
+namespace HaloRay
 {
 
 LightSource LightSource::createDefaultLightSource()
@@ -11,4 +11,4 @@ LightSource LightSource::createDefaultLightSource()
     return sun;
 }
 
-} // namespace HaloSim
+} // namespace HaloRay

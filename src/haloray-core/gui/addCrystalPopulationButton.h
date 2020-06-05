@@ -7,6 +7,9 @@ class QMenu;
 class QAction;
 class QToolButton;
 
+namespace HaloRay
+{
+
 class AddCrystalPopulationButton : public QToolButton
 {
     Q_OBJECT
@@ -14,7 +17,7 @@ public:
     AddCrystalPopulationButton(QWidget *parent = nullptr);
 
 signals:
-    void addPopulation(HaloSim::CrystalPopulationPreset);
+    void addPopulation(HaloRay::CrystalPopulationPreset);
 
 private:
     QMenu *mMenu;
@@ -24,3 +27,5 @@ private:
     QAction *mAddParry;
     QAction *mAddLowitz;
 };
+
+}

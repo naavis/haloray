@@ -9,7 +9,7 @@
 #include "lightSource.h"
 #include "crystalPopulation.h"
 
-namespace HaloSim
+namespace HaloRay
 {
 
 SimulationEngine::SimulationEngine(
@@ -230,4 +230,4 @@ double SimulationEngine::getMultipleScatteringProbability() const
     return static_cast<double>(mMultipleScatteringProbability);
 }
 
-} // namespace HaloSim
+} // namespace HaloRay

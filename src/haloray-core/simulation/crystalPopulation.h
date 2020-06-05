@@ -1,6 +1,6 @@
 #pragma once
 
-namespace HaloSim
+namespace HaloRay
 {
 
 enum CrystalPopulationPreset
@@ -33,4 +33,4 @@ struct CrystalPopulation
     static CrystalPopulation createRandom();
 };
 
-} // namespace HaloSim
+} // namespace HaloRay

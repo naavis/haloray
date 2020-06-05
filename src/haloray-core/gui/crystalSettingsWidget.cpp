@@ -11,7 +11,10 @@
 #include "../simulation/crystalPopulation.h"
 #include "crystalModel.h"
 
-CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPopulationRepository> crystalRepository, QWidget *parent)
+namespace HaloRay
+{
+
+CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloRay::CrystalPopulationRepository> crystalRepository, QWidget *parent)
     : QGroupBox("Crystal population settings", parent),
       mModel(new CrystalModel(crystalRepository)),
       mNextPopulationId(1)
@@ -67,7 +70,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloSim::CrystalPop
     tiltVisibilityHandler(mTiltDistributionComboBox->currentIndex());
     rotationVisibilityHandler(mRotationDistributionComboBox->currentIndex());
 
-    connect(mAddPopulationButton, &AddCrystalPopulationButton::addPopulation, [this](HaloSim::CrystalPopulationPreset preset) {
+    connect(mAddPopulationButton, &AddCrystalPopulationButton::addPopulation, [this](HaloRay::CrystalPopulationPreset preset) {
         mModel->addRow(preset);
         addPopulationComboBoxItem();
         mMapper->toLast();
@@ -194,4 +197,6 @@ void CrystalSettingsWidget::setRotationVisibility(bool visible)
     mRotationStdSlider->setVisible(visible);
     mRotationAverageLabel->setVisible(visible);
     mRotationStdLabel->setVisible(visible);
+}
+
 }

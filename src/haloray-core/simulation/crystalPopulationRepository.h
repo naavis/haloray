@@ -2,7 +2,7 @@
 #include <vector>
 #include "crystalPopulation.h"
 
-namespace HaloSim
+namespace HaloRay
 {
 
 class CrystalPopulationRepository
@@ -23,4 +23,4 @@ private:
     std::vector<unsigned int> mWeights;
 };
 
-} // namespace HaloSim
+} // namespace HaloRay

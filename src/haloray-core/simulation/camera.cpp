@@ -1,6 +1,6 @@
 #include "camera.h"
 
-namespace HaloSim
+namespace HaloRay
 {
 
 float Camera::getMaximumFov() const
@@ -24,9 +24,9 @@ Camera Camera::createDefaultCamera()
     camera.pitch = 0.0f;
     camera.yaw = 0.0f;
     camera.fov = 75.0f;
-    camera.projection = HaloSim::Projection::Stereographic;
+    camera.projection = HaloRay::Projection::Stereographic;
     camera.hideSubHorizon = false;
     return camera;
 }
 
-} // namespace HaloSim
+} // namespace HaloRay

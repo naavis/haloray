@@ -1,7 +1,7 @@
 #include "crystalPopulationRepository.h"
 #include <numeric>
 
-namespace HaloSim
+namespace HaloRay
 {
 
 CrystalPopulationRepository::CrystalPopulationRepository()
@@ -59,4 +59,4 @@ void CrystalPopulationRepository::setWeight(unsigned int index, unsigned int wei
     mWeights[index] = weight;
 }
 
-} // namespace HaloSim
+} // namespace HaloRay

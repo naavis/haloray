@@ -10,7 +10,7 @@
 
 class QOpenGLShaderProgram;
 
-namespace HaloSim
+namespace HaloRay
 {
 
 class SimulationEngine : protected QOpenGLFunctions_4_4_Core
@@ -70,4 +70,4 @@ private:
     std::shared_ptr<CrystalPopulationRepository> mCrystalRepository;
 };
 
-} // namespace HaloSim
+} // namespace HaloRay
