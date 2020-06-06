@@ -29,13 +29,14 @@ signals:
 private:
     void setupUi();
     HaloRay::Camera stateToCamera() const;
-    SliderSpinBox *mFieldOfViewSlider;
-    SliderSpinBox *mPitchSlider;
-    SliderSpinBox *mYawSlider;
-    QComboBox *mCameraProjectionComboBox;
-    QCheckBox *mHideSubHorizonCheckBox;
-    SliderSpinBox *mBrightnessSlider;
-    QCheckBox *mLockToLightSource;
+
+    SliderSpinBox *m_fieldOfViewSlider;
+    SliderSpinBox *m_pitchSlider;
+    SliderSpinBox *m_yawSlider;
+    QComboBox *m_cameraProjectionComboBox;
+    QCheckBox *m_hideSubHorizonCheckBox;
+    SliderSpinBox *m_brightnessSlider;
+    QCheckBox *m_lockToLightSource;
 };
 
 }

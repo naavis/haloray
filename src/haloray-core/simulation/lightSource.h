@@ -1,4 +1,5 @@
 #pragma once
+#include <QObject>
 
 namespace HaloRay
 {
@@ -11,4 +12,6 @@ struct LightSource
     static LightSource createDefaultLightSource();
 };
 
-} // namespace HaloRay
+}
+
+Q_DECLARE_METATYPE(HaloRay::LightSource)

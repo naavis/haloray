@@ -52,12 +52,12 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    enginePtr mEngine;
-    std::unique_ptr<OpenGL::TextureRenderer> mTextureRenderer;
-    bool mDragging;
-    QPoint mPreviousDragPoint;
-    float mExposure;
-    unsigned int mMaxIterations;
+    enginePtr m_engine;
+    std::unique_ptr<OpenGL::TextureRenderer> m_textureRenderer;
+    bool m_dragging;
+    QPoint m_previousDragPoint;
+    float m_exposure;
+    unsigned int m_maxIterations;
 };
 
 }

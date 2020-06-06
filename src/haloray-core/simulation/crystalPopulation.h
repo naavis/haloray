@@ -33,4 +33,4 @@ struct CrystalPopulation
     static CrystalPopulation createRandom();
 };
 
-} // namespace HaloRay
+}

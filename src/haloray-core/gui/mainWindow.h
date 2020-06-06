@@ -33,18 +33,18 @@ private:
     QProgressBar *setupProgressBar();
     void setupMenuBar();
 
-    GeneralSettingsWidget *mGeneralSettingsWidget;
-    CrystalSettingsWidget *mCrystalSettingsWidget;
-    ViewSettingsWidget *mViewSettingsWidget;
-    QProgressBar *mProgressBar;
-    RenderButton *mRenderButton;
-    OpenGLWidget *mOpenGLWidget;
+    GeneralSettingsWidget *m_generalSettingsWidget;
+    CrystalSettingsWidget *m_crystalSettingsWidget;
+    ViewSettingsWidget *m_viewSettingsWidget;
+    QProgressBar *m_progressBar;
+    RenderButton *m_renderButton;
+    OpenGLWidget *m_openGLWidget;
 
-    QAction *mSaveImageAction;
-    QAction *mQuitAction;
+    QAction *m_saveImageAction;
+    QAction *m_quitAction;
 
-    std::shared_ptr<HaloRay::CrystalPopulationRepository> mCrystalRepository;
-    std::shared_ptr<HaloRay::SimulationEngine> mEngine;
+    std::shared_ptr<HaloRay::CrystalPopulationRepository> m_crystalRepository;
+    std::shared_ptr<HaloRay::SimulationEngine> m_engine;
 };
 
 }

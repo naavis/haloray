@@ -12,23 +12,23 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
 {
     setupUi();
 
-    connect(mSunAltitudeSlider, &SliderSpinBox::valueChanged, [this]() {
+    connect(m_sunAltitudeSlider, &SliderSpinBox::valueChanged, [this]() {
         emit lightSourceChanged(stateToLightSource());
     });
 
-    connect(mSunDiameterSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this]() {
+    connect(m_sunDiameterSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this]() {
         emit lightSourceChanged(stateToLightSource());
     });
 
-    connect(mRaysPerFrameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
+    connect(m_raysPerFrameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
         emit numRaysChanged((unsigned int)value);
     });
 
-    connect(mMaximumFramesSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
+    connect(m_maximumFramesSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
         emit maximumNumberOfIterationsChanged((unsigned int)value);
     });
 
-    connect(mMultipleScattering, &SliderSpinBox::valueChanged, this, &GeneralSettingsWidget::multipleScatteringProbabilityChanged);
+    connect(m_multipleScattering, &SliderSpinBox::valueChanged, this, &GeneralSettingsWidget::multipleScatteringProbabilityChanged);
 }
 
 void GeneralSettingsWidget::setInitialValues(double sunDiameter,
@@ -37,69 +37,69 @@ void GeneralSettingsWidget::setInitialValues(double sunDiameter,
                                              unsigned int maxNumFrames,
                                              double multipleScatteringProbability)
 {
-    mSunDiameterSpinBox->setValue(sunDiameter);
-    mSunAltitudeSlider->setValue(sunAltitude);
-    mRaysPerFrameSpinBox->setValue(raysPerFrame);
-    mMaximumFramesSpinBox->setValue(maxNumFrames);
-    mMultipleScattering->setValue(multipleScatteringProbability);
+    m_sunDiameterSpinBox->setValue(sunDiameter);
+    m_sunAltitudeSlider->setValue(sunAltitude);
+    m_raysPerFrameSpinBox->setValue(raysPerFrame);
+    m_maximumFramesSpinBox->setValue(maxNumFrames);
+    m_multipleScattering->setValue(multipleScatteringProbability);
 }
 
 void GeneralSettingsWidget::setupUi()
 {
     setMaximumWidth(400);
 
-    mSunAltitudeSlider = new SliderSpinBox();
-    mSunAltitudeSlider = SliderSpinBox::createAngleSlider(-90.0, 90.0);
+    m_sunAltitudeSlider = new SliderSpinBox();
+    m_sunAltitudeSlider = SliderSpinBox::createAngleSlider(-90.0, 90.0);
 
-    mSunDiameterSpinBox = new QDoubleSpinBox();
-    mSunDiameterSpinBox->setSuffix("­°");
-    mSunDiameterSpinBox->setSingleStep(0.1);
-    mSunDiameterSpinBox->setMinimum(0.01);
-    mSunDiameterSpinBox->setMaximum(30.0);
-    mSunDiameterSpinBox->setValue(0.5);
+    m_sunDiameterSpinBox = new QDoubleSpinBox();
+    m_sunDiameterSpinBox->setSuffix("­°");
+    m_sunDiameterSpinBox->setSingleStep(0.1);
+    m_sunDiameterSpinBox->setMinimum(0.01);
+    m_sunDiameterSpinBox->setMaximum(30.0);
+    m_sunDiameterSpinBox->setValue(0.5);
 
-    mRaysPerFrameSpinBox = new QSpinBox();
-    mRaysPerFrameSpinBox->setSingleStep(1000);
-    mRaysPerFrameSpinBox->setMinimum(1);
-    mRaysPerFrameSpinBox->setMaximum(2000000000);
-    mRaysPerFrameSpinBox->setValue(500000);
-    mRaysPerFrameSpinBox->setGroupSeparatorShown(true);
+    m_raysPerFrameSpinBox = new QSpinBox();
+    m_raysPerFrameSpinBox->setSingleStep(1000);
+    m_raysPerFrameSpinBox->setMinimum(1);
+    m_raysPerFrameSpinBox->setMaximum(2000000000);
+    m_raysPerFrameSpinBox->setValue(500000);
+    m_raysPerFrameSpinBox->setGroupSeparatorShown(true);
 
-    mMaximumFramesSpinBox = new QSpinBox();
-    mRaysPerFrameSpinBox->setSingleStep(60);
-    mMaximumFramesSpinBox->setMinimum(100);
-    mMaximumFramesSpinBox->setMaximum(1000000000);
-    mMaximumFramesSpinBox->setValue(100000000);
-    mMaximumFramesSpinBox->setGroupSeparatorShown(true);
+    m_maximumFramesSpinBox = new QSpinBox();
+    m_raysPerFrameSpinBox->setSingleStep(60);
+    m_maximumFramesSpinBox->setMinimum(100);
+    m_maximumFramesSpinBox->setMaximum(1000000000);
+    m_maximumFramesSpinBox->setValue(100000000);
+    m_maximumFramesSpinBox->setGroupSeparatorShown(true);
 
-    mMultipleScattering = new SliderSpinBox();
-    mMultipleScattering->setMinimum(0.0);
-    mMultipleScattering->setMaximum(1.0);
+    m_multipleScattering = new SliderSpinBox();
+    m_multipleScattering->setMinimum(0.0);
+    m_multipleScattering->setMaximum(1.0);
 
     auto layout = new QFormLayout(this);
-    layout->addRow(tr("Sun altitude"), mSunAltitudeSlider);
-    layout->addRow(tr("Sun diameter"), mSunDiameterSpinBox);
-    layout->addRow(tr("Rays per frame"), mRaysPerFrameSpinBox);
-    layout->addRow(tr("Maximum frames"), mMaximumFramesSpinBox);
-    layout->addRow(tr("Double scattering"), mMultipleScattering);
+    layout->addRow(tr("Sun altitude"), m_sunAltitudeSlider);
+    layout->addRow(tr("Sun diameter"), m_sunDiameterSpinBox);
+    layout->addRow(tr("Rays per frame"), m_raysPerFrameSpinBox);
+    layout->addRow(tr("Maximum frames"), m_maximumFramesSpinBox);
+    layout->addRow(tr("Double scattering"), m_multipleScattering);
 }
 
 HaloRay::LightSource GeneralSettingsWidget::stateToLightSource() const
 {
     HaloRay::LightSource light;
-    light.altitude = mSunAltitudeSlider->value();
-    light.diameter = mSunDiameterSpinBox->value();
+    light.altitude = m_sunAltitudeSlider->value();
+    light.diameter = m_sunDiameterSpinBox->value();
     return light;
 }
 
 void GeneralSettingsWidget::toggleMaxIterationsSpinBoxStatus()
 {
-    mMaximumFramesSpinBox->setEnabled(!mMaximumFramesSpinBox->isEnabled());
+    m_maximumFramesSpinBox->setEnabled(!m_maximumFramesSpinBox->isEnabled());
 }
 
 void GeneralSettingsWidget::setMaxRaysPerFrame(unsigned int maxRays)
 {
-    mRaysPerFrameSpinBox->setMaximum((int)maxRays);
+    m_raysPerFrameSpinBox->setMaximum((int)maxRays);
 }
 
 }

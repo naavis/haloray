@@ -14,37 +14,37 @@ namespace HaloRay
 
 SimulationEngine::SimulationEngine(
     std::shared_ptr<CrystalPopulationRepository> crystalRepository)
-    : mOutputWidth(800),
-      mOutputHeight(600),
-      mMersenneTwister(std::mt19937(std::random_device()())),
-      mUniformDistribution(std::uniform_int_distribution<unsigned int>(0, std::numeric_limits<unsigned int>::max())),
-      mCamera(Camera::createDefaultCamera()),
-      mLight(LightSource::createDefaultLightSource()),
-      mRunning(false),
-      mInitialized(false),
-      mRaysPerStep(500000),
-      mIteration(0),
-      mCameraLockedToLightSource(false),
-      mMultipleScatteringProbability(0.0),
-      mCrystalRepository(crystalRepository)
+    : m_outputWidth(800),
+      m_outputHeight(600),
+      m_mersenneTwister(std::mt19937(std::random_device()())),
+      m_uniformDistribution(std::uniform_int_distribution<unsigned int>(0, std::numeric_limits<unsigned int>::max())),
+      m_camera(Camera::createDefaultCamera()),
+      m_light(LightSource::createDefaultLightSource()),
+      m_running(false),
+      m_initialized(false),
+      m_raysPerStep(500000),
+      m_iteration(0),
+      m_cameraLockedToLightSource(false),
+      m_multipleScatteringProbability(0.0),
+      m_crystalRepository(crystalRepository)
 {
 }
 
 bool SimulationEngine::isRunning() const
 {
-    return mRunning;
+    return m_running;
 }
 
 Camera SimulationEngine::getCamera() const
 {
-    return mCamera;
+    return m_camera;
 }
 
 void SimulationEngine::setCamera(const Camera camera)
 {
     clear();
-    mCamera = camera;
-    if (mCameraLockedToLightSource)
+    m_camera = camera;
+    if (m_cameraLockedToLightSource)
     {
         pointCameraToLightSource();
     }
@@ -52,14 +52,14 @@ void SimulationEngine::setCamera(const Camera camera)
 
 LightSource SimulationEngine::getLightSource() const
 {
-    return mLight;
+    return m_light;
 }
 
 void SimulationEngine::setLightSource(const LightSource light)
 {
     clear();
-    mLight = light;
-    if (mCameraLockedToLightSource)
+    m_light = light;
+    if (m_cameraLockedToLightSource)
     {
         pointCameraToLightSource();
     }
@@ -67,12 +67,12 @@ void SimulationEngine::setLightSource(const LightSource light)
 
 unsigned int SimulationEngine::getOutputTextureHandle() const
 {
-    return mSimulationTexture->getHandle();
+    return m_simulationTexture->getHandle();
 }
 
 unsigned int SimulationEngine::getIteration() const
 {
-    return mIteration;
+    return m_iteration;
 }
 
 void SimulationEngine::start()
@@ -80,62 +80,62 @@ void SimulationEngine::start()
     if (isRunning())
         return;
     clear();
-    mRunning = true;
-    mIteration = 0;
+    m_running = true;
+    m_iteration = 0;
 }
 
 void SimulationEngine::stop()
 {
-    mRunning = false;
+    m_running = false;
 }
 
 void SimulationEngine::step()
 {
-    ++mIteration;
+    ++m_iteration;
 
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-    glBindImageTexture(mSimulationTexture->getTextureUnit(), mSimulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-    glClearTexImage(mSpinlockTexture->getHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
-    glBindImageTexture(mSpinlockTexture->getTextureUnit(), mSpinlockTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+    glBindImageTexture(m_simulationTexture->getTextureUnit(), m_simulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glClearTexImage(m_spinlockTexture->getHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
+    glBindImageTexture(m_spinlockTexture->getTextureUnit(), m_spinlockTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 
-    mSimulationShader->bind();
+    m_simulationShader->bind();
 
-    for (auto i = 0u; i < mCrystalRepository->getCount(); ++i)
+    for (auto i = 0u; i < m_crystalRepository->getCount(); ++i)
     {
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-        unsigned int seed = mUniformDistribution(mMersenneTwister);
+        unsigned int seed = m_uniformDistribution(m_mersenneTwister);
 
-        auto crystals = mCrystalRepository->get(i);
-        auto probability = mCrystalRepository->getProbability(i);
-        auto numRays = static_cast<unsigned int>(mRaysPerStep * probability);
+        auto crystals = m_crystalRepository->get(i);
+        auto probability = m_crystalRepository->getProbability(i);
+        auto numRays = static_cast<unsigned int>(m_raysPerStep * probability);
 
         /*
         The following line needs to use glUniform1ui instead of the
         setUniformValue method because of a bug in Qt:
         https://bugreports.qt.io/browse/QTBUG-45507
         */
-        glUniform1ui(glGetUniformLocation(mSimulationShader->programId(), "rngSeed"), seed);
-        mSimulationShader->setUniformValue("sun.altitude", mLight.altitude);
-        mSimulationShader->setUniformValue("sun.diameter", mLight.diameter);
+        glUniform1ui(glGetUniformLocation(m_simulationShader->programId(), "rngSeed"), seed);
+        m_simulationShader->setUniformValue("sun.altitude", m_light.altitude);
+        m_simulationShader->setUniformValue("sun.diameter", m_light.diameter);
 
-        mSimulationShader->setUniformValue("crystalProperties.caRatioAverage", crystals.caRatioAverage);
-        mSimulationShader->setUniformValue("crystalProperties.caRatioStd", crystals.caRatioStd);
+        m_simulationShader->setUniformValue("crystalProperties.caRatioAverage", crystals.caRatioAverage);
+        m_simulationShader->setUniformValue("crystalProperties.caRatioStd", crystals.caRatioStd);
 
-        mSimulationShader->setUniformValue("crystalProperties.tiltDistribution", crystals.tiltDistribution);
-        mSimulationShader->setUniformValue("crystalProperties.tiltAverage", crystals.tiltAverage);
-        mSimulationShader->setUniformValue("crystalProperties.tiltStd", crystals.tiltStd);
+        m_simulationShader->setUniformValue("crystalProperties.tiltDistribution", crystals.tiltDistribution);
+        m_simulationShader->setUniformValue("crystalProperties.tiltAverage", crystals.tiltAverage);
+        m_simulationShader->setUniformValue("crystalProperties.tiltStd", crystals.tiltStd);
 
-        mSimulationShader->setUniformValue("crystalProperties.rotationDistribution", crystals.rotationDistribution);
-        mSimulationShader->setUniformValue("crystalProperties.rotationAverage", crystals.rotationAverage);
-        mSimulationShader->setUniformValue("crystalProperties.rotationStd", crystals.rotationStd);
+        m_simulationShader->setUniformValue("crystalProperties.rotationDistribution", crystals.rotationDistribution);
+        m_simulationShader->setUniformValue("crystalProperties.rotationAverage", crystals.rotationAverage);
+        m_simulationShader->setUniformValue("crystalProperties.rotationStd", crystals.rotationStd);
 
-        mSimulationShader->setUniformValue("camera.pitch", mCamera.pitch);
-        mSimulationShader->setUniformValue("camera.yaw", mCamera.yaw);
-        mSimulationShader->setUniformValue("camera.fov", mCamera.fov);
-        mSimulationShader->setUniformValue("camera.projection", mCamera.projection);
-        mSimulationShader->setUniformValue("camera.hideSubHorizon", mCamera.hideSubHorizon ? 1 : 0);
+        m_simulationShader->setUniformValue("camera.pitch", m_camera.pitch);
+        m_simulationShader->setUniformValue("camera.yaw", m_camera.yaw);
+        m_simulationShader->setUniformValue("camera.fov", m_camera.fov);
+        m_simulationShader->setUniformValue("camera.projection", m_camera.projection);
+        m_simulationShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
 
-        mSimulationShader->setUniformValue("multipleScatter", mMultipleScatteringProbability);
+        m_simulationShader->setUniformValue("multipleScatter", m_multipleScatteringProbability);
 
         glDispatchCompute(numRays, 1, 1);
     }
@@ -143,64 +143,64 @@ void SimulationEngine::step()
 
 void SimulationEngine::clear()
 {
-    if (!mInitialized)
+    if (!m_initialized)
         return;
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-    glClearTexImage(mSimulationTexture->getHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
-    glBindImageTexture(mSimulationTexture->getTextureUnit(), mSimulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-    glClearTexImage(mSpinlockTexture->getHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
-    glBindImageTexture(mSpinlockTexture->getTextureUnit(), mSpinlockTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
-    mIteration = 0;
+    glClearTexImage(m_simulationTexture->getHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
+    glBindImageTexture(m_simulationTexture->getTextureUnit(), m_simulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glClearTexImage(m_spinlockTexture->getHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
+    glBindImageTexture(m_spinlockTexture->getTextureUnit(), m_spinlockTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+    m_iteration = 0;
 }
 
 unsigned int SimulationEngine::getRaysPerStep() const
 {
-    return mRaysPerStep;
+    return m_raysPerStep;
 }
 
 void SimulationEngine::setRaysPerStep(unsigned int rays)
 {
     clear();
-    mRaysPerStep = rays;
+    m_raysPerStep = rays;
 }
 
 void SimulationEngine::initialize()
 {
-    if (mInitialized)
+    if (m_initialized)
         return;
     initializeOpenGLFunctions();
     initializeShader();
     initializeTextures();
-    mInitialized = true;
+    m_initialized = true;
 }
 
 void SimulationEngine::initializeShader()
 {
-    mSimulationShader = std::make_unique<QOpenGLShaderProgram>();
+    m_simulationShader = std::make_unique<QOpenGLShaderProgram>();
 #ifdef _WIN32
-    mSimulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
+    m_simulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
 #else
     mSimulationShader->addShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
 #endif
-    if (mSimulationShader->link() == false)
+    if (m_simulationShader->link() == false)
     {
-        throw std::runtime_error(mSimulationShader->log().toUtf8());
+        throw std::runtime_error(m_simulationShader->log().toUtf8());
     }
 }
 
 void SimulationEngine::initializeTextures()
 {
-    mSimulationTexture = std::make_unique<OpenGL::Texture>(mOutputWidth, mOutputHeight, 0, OpenGL::TextureType::Color);
-    mSpinlockTexture = std::make_unique<OpenGL::Texture>(mOutputWidth, mOutputHeight, 1, OpenGL::TextureType::Monochrome);
+    m_simulationTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 0, OpenGL::TextureType::Color);
+    m_spinlockTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 1, OpenGL::TextureType::Monochrome);
 }
 
 void SimulationEngine::resizeOutputTextureCallback(const unsigned int width, const unsigned int height)
 {
-    mOutputWidth = width;
-    mOutputHeight = height;
+    m_outputWidth = width;
+    m_outputHeight = height;
 
-    mSimulationTexture.reset();
-    mSpinlockTexture.reset();
+    m_simulationTexture.reset();
+    m_spinlockTexture.reset();
 
     initializeTextures();
     clear();
@@ -208,26 +208,26 @@ void SimulationEngine::resizeOutputTextureCallback(const unsigned int width, con
 
 void SimulationEngine::lockCameraToLightSource(bool locked)
 {
-    mCameraLockedToLightSource = locked;
+    m_cameraLockedToLightSource = locked;
     pointCameraToLightSource();
 }
 
 void SimulationEngine::pointCameraToLightSource()
 {
     clear();
-    mCamera.yaw = 0.0f;
-    mCamera.pitch = mLight.altitude;
+    m_camera.yaw = 0.0f;
+    m_camera.pitch = m_light.altitude;
 }
 
 void SimulationEngine::setMultipleScatteringProbability(double probability)
 {
     clear();
-    mMultipleScatteringProbability = static_cast<float>(std::min(std::max(probability, 0.0), 1.0));
+    m_multipleScatteringProbability = static_cast<float>(std::min(std::max(probability, 0.0), 1.0));
 }
 
 double SimulationEngine::getMultipleScatteringProbability() const
 {
-    return static_cast<double>(mMultipleScatteringProbability);
+    return static_cast<double>(m_multipleScatteringProbability);
 }
 
-} // namespace HaloRay
+}

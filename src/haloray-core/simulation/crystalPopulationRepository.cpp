@@ -11,36 +11,36 @@ CrystalPopulationRepository::CrystalPopulationRepository()
 
 unsigned int CrystalPopulationRepository::getCount() const
 {
-    return (unsigned int)mCrystals.size();
+    return (unsigned int)m_crystals.size();
 }
 
 void CrystalPopulationRepository::add(CrystalPopulationPreset preset)
 {
-    mCrystals.push_back(CrystalPopulation::presetPopulation(preset));
+    m_crystals.push_back(CrystalPopulation::presetPopulation(preset));
     mWeights.push_back(1);
 }
 
 void CrystalPopulationRepository::addDefaults()
 {
-    mCrystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Column));
+    m_crystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Column));
     mWeights.push_back(1);
 
-    mCrystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Plate));
+    m_crystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Plate));
     mWeights.push_back(1);
 
-    mCrystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Random));
+    m_crystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Random));
     mWeights.push_back(1);
 }
 
 void CrystalPopulationRepository::remove(unsigned int index)
 {
-    mCrystals.erase(mCrystals.begin() + index);
+    m_crystals.erase(m_crystals.begin() + index);
     mWeights.erase(mWeights.begin() + index);
 }
 
 CrystalPopulation &CrystalPopulationRepository::get(unsigned int index)
 {
-    return mCrystals[index];
+    return m_crystals[index];
 }
 
 double CrystalPopulationRepository::getProbability(unsigned int index) const
@@ -59,4 +59,4 @@ void CrystalPopulationRepository::setWeight(unsigned int index, unsigned int wei
     mWeights[index] = weight;
 }
 
-} // namespace HaloRay
+}

@@ -54,17 +54,17 @@ void TextureRenderer::initialize()
         1.0f,
     };
 
-    glGenVertexArrays(1, &mQuadVao);
-    glBindVertexArray(mQuadVao);
+    glGenVertexArrays(1, &m_quadVao);
+    glBindVertexArray(m_quadVao);
     glEnableVertexAttribArray(0);
 
-    glGenBuffers(1, &mQuadVbo);
-    glBindBuffer(GL_ARRAY_BUFFER, mQuadVbo);
+    glGenBuffers(1, &m_quadVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_quadVbo);
     glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(float), points, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-    mTexDrawProgram = initializeTexDrawShaderProgram();
+    m_texDrawProgram = initializeTexDrawShaderProgram();
 }
 
 void TextureRenderer::render(unsigned int textureHandle)
@@ -73,27 +73,27 @@ void TextureRenderer::render(unsigned int textureHandle)
 
     /* Render simulation result texture */
 
-    mTexDrawProgram->bind();
+    m_texDrawProgram->bind();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    glBindVertexArray(mQuadVao);
+    glBindVertexArray(m_quadVao);
     glBindTexture(GL_TEXTURE_2D, textureHandle);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 void TextureRenderer::setUniformFloat(std::string name, float value)
 {
-    mTexDrawProgram->bind();
-    mTexDrawProgram->setUniformValue(name.c_str(), value);
+    m_texDrawProgram->bind();
+    m_texDrawProgram->setUniformValue(name.c_str(), value);
 }
 
 TextureRenderer::~TextureRenderer()
 {
     glBindVertexArray(0);
-    glDeleteVertexArrays(1, &mQuadVao);
+    glDeleteVertexArrays(1, &m_quadVao);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &mQuadVbo);
+    glDeleteBuffers(1, &m_quadVbo);
 }
 
-} // namespace OpenGL
+}

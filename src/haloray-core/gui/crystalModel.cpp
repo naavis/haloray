@@ -8,13 +8,13 @@ namespace HaloRay
 
 CrystalModel::CrystalModel(std::shared_ptr<HaloRay::CrystalPopulationRepository> crystalRepository, QWidget *parent)
     : QAbstractTableModel(parent),
-      mCrystals(crystalRepository)
+      m_crystals(crystalRepository)
 {
 }
 
 int CrystalModel::rowCount(const QModelIndex&) const
 {
-    return static_cast<int>(mCrystals->getCount());
+    return static_cast<int>(m_crystals->getCount());
 }
 
 int CrystalModel::columnCount(const QModelIndex&) const
@@ -29,7 +29,7 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
 
     auto col = index.column();
     auto row = index.row();
-    const HaloRay::CrystalPopulation &crystal = mCrystals->get(row);
+    const HaloRay::CrystalPopulation &crystal = m_crystals->get(row);
 
     switch (col)
     {
@@ -50,7 +50,7 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
     case 7:
         return crystal.rotationStd;
     case 8:
-        return mCrystals->getWeight(row);
+        return m_crystals->getWeight(row);
     }
 
     return QVariant();
@@ -66,7 +66,7 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
 
     auto row = index.row();
     auto col = index.column();
-    HaloRay::CrystalPopulation &crystal = mCrystals->get(row);
+    HaloRay::CrystalPopulation &crystal = m_crystals->get(row);
     switch (col)
     {
     case 0:
@@ -94,7 +94,7 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
         crystal.rotationStd = value.toFloat();
         break;
     case 8:
-        mCrystals->setWeight(row, value.toUInt());
+        m_crystals->setWeight(row, value.toUInt());
         break;
     default:
         break;
@@ -112,19 +112,19 @@ Qt::ItemFlags CrystalModel::flags(const QModelIndex &index) const
 
 void CrystalModel::addRow(HaloRay::CrystalPopulationPreset preset)
 {
-    auto row = mCrystals->getCount();
+    auto row = m_crystals->getCount();
     beginInsertRows(QModelIndex(), row, row);
-    mCrystals->add(preset);
+    m_crystals->add(preset);
     endInsertRows();
 }
 
 bool CrystalModel::removeRow(int row)
 {
-    if (mCrystals->getCount() <= 1)
+    if (m_crystals->getCount() <= 1)
         return false;
 
     beginRemoveRows(QModelIndex(), row, row);
-    mCrystals->remove(row);
+    m_crystals->remove(row);
     endRemoveRows();
 
     return true;

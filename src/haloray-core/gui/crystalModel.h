@@ -27,7 +27,7 @@ public:
     bool removeRow(int row);
 
 private:
-    std::shared_ptr<HaloRay::CrystalPopulationRepository> mCrystals;
+    std::shared_ptr<HaloRay::CrystalPopulationRepository> m_crystals;
 };
 
 }

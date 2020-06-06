@@ -29,4 +29,4 @@ Camera Camera::createDefaultCamera()
     return camera;
 }
 
-} // namespace HaloRay
+}

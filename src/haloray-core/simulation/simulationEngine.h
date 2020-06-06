@@ -50,24 +50,24 @@ private:
     void initializeTextures();
     void pointCameraToLightSource();
 
-    unsigned int mOutputWidth;
-    unsigned int mOutputHeight;
-    std::mt19937 mMersenneTwister;
-    std::uniform_int_distribution<unsigned int> mUniformDistribution;
-    std::unique_ptr<QOpenGLShaderProgram> mSimulationShader;
-    std::unique_ptr<OpenGL::Texture> mSimulationTexture;
-    std::unique_ptr<OpenGL::Texture> mSpinlockTexture;
+    unsigned int m_outputWidth;
+    unsigned int m_outputHeight;
+    std::mt19937 m_mersenneTwister;
+    std::uniform_int_distribution<unsigned int> m_uniformDistribution;
+    std::unique_ptr<QOpenGLShaderProgram> m_simulationShader;
+    std::unique_ptr<OpenGL::Texture> m_simulationTexture;
+    std::unique_ptr<OpenGL::Texture> m_spinlockTexture;
 
-    Camera mCamera;
-    LightSource mLight;
+    Camera m_camera;
+    LightSource m_light;
 
-    bool mRunning;
-    bool mInitialized;
-    unsigned int mRaysPerStep;
-    unsigned int mIteration;
-    bool mCameraLockedToLightSource;
-    float mMultipleScatteringProbability;
-    std::shared_ptr<CrystalPopulationRepository> mCrystalRepository;
+    bool m_running;
+    bool m_initialized;
+    unsigned int m_raysPerStep;
+    unsigned int m_iteration;
+    bool m_cameraLockedToLightSource;
+    float m_multipleScatteringProbability;
+    std::shared_ptr<CrystalPopulationRepository> m_crystalRepository;
 };
 
-} // namespace HaloRay
+}

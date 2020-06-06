@@ -11,4 +11,4 @@ LightSource LightSource::createDefaultLightSource()
     return sun;
 }
 
-} // namespace HaloRay
+}

@@ -35,31 +35,31 @@ private:
     void setTiltVisibility(bool);
     void setRotationVisibility(bool);
 
-    AddCrystalPopulationButton *mAddPopulationButton;
-    QToolButton *mRemovePopulationButton;
+    AddCrystalPopulationButton *m_AddPopulationButton;
+    QToolButton *m_removePopulationButton;
 
-    SliderSpinBox *mCaRatioSlider;
-    SliderSpinBox *mCaRatioStdSlider;
+    SliderSpinBox *m_caRatioSlider;
+    SliderSpinBox *m_caRatioStdSlider;
 
-    QComboBox *mTiltDistributionComboBox;
-    SliderSpinBox *mTiltAverageSlider;
-    QLabel *mTiltAverageLabel;
-    SliderSpinBox *mTiltStdSlider;
-    QLabel *mTiltStdLabel;
+    QComboBox *m_tiltDistributionComboBox;
+    SliderSpinBox *m_tiltAverageSlider;
+    QLabel *m_tiltAverageLabel;
+    SliderSpinBox *m_tiltStdSlider;
+    QLabel *m_tiltStdLabel;
 
-    QComboBox *mRotationDistributionComboBox;
-    SliderSpinBox *mRotationAverageSlider;
-    QLabel *mRotationAverageLabel;
-    SliderSpinBox *mRotationStdSlider;
-    QLabel *mRotationStdLabel;
+    QComboBox *m_rotationDistributionComboBox;
+    SliderSpinBox *m_rotationAverageSlider;
+    QLabel *m_rotationAverageLabel;
+    SliderSpinBox *m_rotationStdSlider;
+    QLabel *m_rotationStdLabel;
 
-    QSpinBox *mWeightSpinBox;
+    QSpinBox *m_weightSpinBox;
 
-    CrystalModel *mModel;
-    QDataWidgetMapper *mMapper;
-    QComboBox *mPopulationComboBox;
+    CrystalModel *m_model;
+    QDataWidgetMapper *m_mapper;
+    QComboBox *m_populationComboBox;
 
-    unsigned int mNextPopulationId;
+    unsigned int m_nextPopulationId;
 };
 
 }

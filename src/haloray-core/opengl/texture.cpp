@@ -5,12 +5,12 @@ namespace OpenGL
 {
 
 Texture::Texture(unsigned int width, unsigned int height, unsigned int textureUnit, TextureType type)
-    : mWidth(width), mHeight(height), mTextureUnit(textureUnit), mType(type)
+    : m_width(width), m_height(height), m_textureUnit(textureUnit), m_type(type)
 {
     initializeOpenGLFunctions();
-    glGenTextures(1, &mTextureHandle);
+    glGenTextures(1, &m_textureHandle);
     glActiveTexture(GL_TEXTURE0 + textureUnit);
-    glBindTexture(GL_TEXTURE_2D, mTextureHandle);
+    glBindTexture(GL_TEXTURE_2D, m_textureHandle);
     initializeTextureImage();
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -18,13 +18,13 @@ Texture::Texture(unsigned int width, unsigned int height, unsigned int textureUn
 
 void Texture::initializeTextureImage()
 {
-    switch (mType)
+    switch (m_type)
     {
     case Color:
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, mWidth, mHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
         break;
     case Monochrome:
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, mWidth, mHeight, 0, GL_RED, GL_UNSIGNED_INT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, m_width, m_height, 0, GL_RED, GL_UNSIGNED_INT, NULL);
         break;
     default:
         throw std::runtime_error("Invalid texture type");
@@ -34,17 +34,17 @@ void Texture::initializeTextureImage()
 Texture::~Texture()
 {
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDeleteTextures(1, &mTextureHandle);
+    glDeleteTextures(1, &m_textureHandle);
 }
 
 unsigned int Texture::getHandle() const
 {
-    return mTextureHandle;
+    return m_textureHandle;
 }
 
 unsigned int Texture::getTextureUnit() const
 {
-    return mTextureUnit;
+    return m_textureUnit;
 }
 
-} // namespace OpenGL
+}

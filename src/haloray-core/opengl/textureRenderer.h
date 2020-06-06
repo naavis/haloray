@@ -17,8 +17,9 @@ public:
 
 private:
     static std::unique_ptr<QOpenGLShaderProgram> initializeTexDrawShaderProgram();
-    std::unique_ptr<QOpenGLShaderProgram> mTexDrawProgram;
-    unsigned int mQuadVao;
-    unsigned int mQuadVbo;
+
+    std::unique_ptr<QOpenGLShaderProgram> m_texDrawProgram;
+    unsigned int m_quadVao;
+    unsigned int m_quadVbo;
 };
-} // namespace OpenGL
+}

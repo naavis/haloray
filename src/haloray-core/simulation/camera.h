@@ -1,4 +1,5 @@
 #pragma once
+#include <QObject>
 
 namespace HaloRay
 {
@@ -25,3 +26,5 @@ struct Camera
 };
 
 }
+
+Q_DECLARE_METATYPE(HaloRay::Camera)

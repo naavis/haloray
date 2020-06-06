@@ -107,4 +107,4 @@ CrystalPopulation CrystalPopulation::presetPopulation(CrystalPopulationPreset pr
     }
 }
 
-} // namespace HaloRay
+}

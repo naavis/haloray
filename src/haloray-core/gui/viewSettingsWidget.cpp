@@ -15,90 +15,90 @@ ViewSettingsWidget::ViewSettingsWidget(QWidget *parent)
 
     auto cameraChangeHandler = [this]() {
         auto camera = stateToCamera();
-        mFieldOfViewSlider->setMaximum(camera.getMaximumFov());
-        camera.fov = mFieldOfViewSlider->value();
+        m_fieldOfViewSlider->setMaximum(camera.getMaximumFov());
+        camera.fov = m_fieldOfViewSlider->value();
         cameraChanged(camera);
     };
 
-    connect(mCameraProjectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), cameraChangeHandler);
-    connect(mFieldOfViewSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);
-    connect(mPitchSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);
-    connect(mYawSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);
-    connect(mHideSubHorizonCheckBox, &QCheckBox::stateChanged, cameraChangeHandler);
-    connect(mBrightnessSlider, &SliderSpinBox::valueChanged, this, &ViewSettingsWidget::brightnessChanged);
-    connect(mLockToLightSource, &QCheckBox::stateChanged, this, &ViewSettingsWidget::lockToLightSource);
+    connect(m_cameraProjectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), cameraChangeHandler);
+    connect(m_fieldOfViewSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);
+    connect(m_pitchSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);
+    connect(m_yawSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);
+    connect(m_hideSubHorizonCheckBox, &QCheckBox::stateChanged, cameraChangeHandler);
+    connect(m_brightnessSlider, &SliderSpinBox::valueChanged, this, &ViewSettingsWidget::brightnessChanged);
+    connect(m_lockToLightSource, &QCheckBox::stateChanged, this, &ViewSettingsWidget::lockToLightSource);
 }
 
 void ViewSettingsWidget::setupUi()
 {
     setMaximumWidth(400);
 
-    mCameraProjectionComboBox = new QComboBox();
-    mCameraProjectionComboBox->addItems({tr("Stereographic"),
+    m_cameraProjectionComboBox = new QComboBox();
+    m_cameraProjectionComboBox->addItems({tr("Stereographic"),
                                          tr("Rectilinear"),
                                          tr("Equidistant"),
                                          tr("Equal area"),
                                          tr("Orthographic")});
 
-    mPitchSlider = SliderSpinBox::createAngleSlider(-90.0, 90.0);
+    m_pitchSlider = SliderSpinBox::createAngleSlider(-90.0, 90.0);
 
-    mYawSlider = SliderSpinBox::createAngleSlider(-360.0, 360.0);
-    mYawSlider->setWrapping(true);
+    m_yawSlider = SliderSpinBox::createAngleSlider(-360.0, 360.0);
+    m_yawSlider->setWrapping(true);
 
-    mFieldOfViewSlider = SliderSpinBox::createAngleSlider(10.0, 360.0);
+    m_fieldOfViewSlider = SliderSpinBox::createAngleSlider(10.0, 360.0);
 
-    mBrightnessSlider = new SliderSpinBox();
-    mBrightnessSlider->setMinimum(0.1);
-    mBrightnessSlider->setMaximum(15.0);
+    m_brightnessSlider = new SliderSpinBox();
+    m_brightnessSlider->setMinimum(0.1);
+    m_brightnessSlider->setMaximum(15.0);
 
-    mHideSubHorizonCheckBox = new QCheckBox();
+    m_hideSubHorizonCheckBox = new QCheckBox();
 
-    mLockToLightSource = new QCheckBox();
+    m_lockToLightSource = new QCheckBox();
 
     auto layout = new QFormLayout(this);
-    layout->addRow(tr("Camera projection"), mCameraProjectionComboBox);
-    layout->addRow(tr("Field of view"), mFieldOfViewSlider);
-    layout->addRow(tr("Pitch"), mPitchSlider);
-    layout->addRow(tr("Yaw"), mYawSlider);
-    layout->addRow(tr("Brightness"), mBrightnessSlider);
-    layout->addRow(tr("Hide sub-horizon"), mHideSubHorizonCheckBox);
-    layout->addRow(tr("Lock to light source"), mLockToLightSource);
+    layout->addRow(tr("Camera projection"), m_cameraProjectionComboBox);
+    layout->addRow(tr("Field of view"), m_fieldOfViewSlider);
+    layout->addRow(tr("Pitch"), m_pitchSlider);
+    layout->addRow(tr("Yaw"), m_yawSlider);
+    layout->addRow(tr("Brightness"), m_brightnessSlider);
+    layout->addRow(tr("Hide sub-horizon"), m_hideSubHorizonCheckBox);
+    layout->addRow(tr("Lock to light source"), m_lockToLightSource);
 }
 
 HaloRay::Camera ViewSettingsWidget::stateToCamera() const
 {
     HaloRay::Camera camera;
-    camera.projection = (HaloRay::Projection)mCameraProjectionComboBox->currentIndex();
-    camera.fov = (float)mFieldOfViewSlider->value();
-    camera.hideSubHorizon = mHideSubHorizonCheckBox->isChecked();
-    camera.yaw = (float)mYawSlider->value();
-    camera.pitch = (float)mPitchSlider->value();
+    camera.projection = (HaloRay::Projection)m_cameraProjectionComboBox->currentIndex();
+    camera.fov = (float)m_fieldOfViewSlider->value();
+    camera.hideSubHorizon = m_hideSubHorizonCheckBox->isChecked();
+    camera.yaw = (float)m_yawSlider->value();
+    camera.pitch = (float)m_pitchSlider->value();
     return camera;
 }
 
 void ViewSettingsWidget::setCamera(HaloRay::Camera camera)
 {
-    mCameraProjectionComboBox->setCurrentIndex((int)camera.projection);
-    mFieldOfViewSlider->setValue(camera.fov);
-    mYawSlider->setValue(camera.yaw);
-    mPitchSlider->setValue(camera.pitch);
-    mHideSubHorizonCheckBox->setChecked(camera.hideSubHorizon);
+    m_cameraProjectionComboBox->setCurrentIndex((int)camera.projection);
+    m_fieldOfViewSlider->setValue(camera.fov);
+    m_yawSlider->setValue(camera.yaw);
+    m_pitchSlider->setValue(camera.pitch);
+    m_hideSubHorizonCheckBox->setChecked(camera.hideSubHorizon);
 }
 
 void ViewSettingsWidget::setFieldOfView(double fov)
 {
-    mFieldOfViewSlider->setValue(fov);
+    m_fieldOfViewSlider->setValue(fov);
 }
 
 void ViewSettingsWidget::setCameraOrientation(double pitch, double yaw)
 {
-    mPitchSlider->setValue(pitch);
-    mYawSlider->setValue(yaw);
+    m_pitchSlider->setValue(pitch);
+    m_yawSlider->setValue(yaw);
 }
 
 void ViewSettingsWidget::setBrightness(double brightness)
 {
-    mBrightnessSlider->setValue(brightness);
+    m_brightnessSlider->setValue(brightness);
 }
 
 }

@@ -19,8 +19,8 @@ public:
 
 private:
     void addDefaults();
-    std::vector<CrystalPopulation> mCrystals;
+    std::vector<CrystalPopulation> m_crystals;
     std::vector<unsigned int> mWeights;
 };
 
-} // namespace HaloRay
+}

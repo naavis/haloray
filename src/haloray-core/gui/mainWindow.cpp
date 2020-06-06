@@ -34,66 +34,66 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QIcon::setThemeName("HaloRayTheme");
 #endif
 
-    mCrystalRepository = std::make_shared<HaloRay::CrystalPopulationRepository>();
-    mEngine = std::make_shared<HaloRay::SimulationEngine>(mCrystalRepository);
+    m_crystalRepository = std::make_shared<HaloRay::CrystalPopulationRepository>();
+    m_engine = std::make_shared<HaloRay::SimulationEngine>(m_crystalRepository);
 
     setupUi();
 
     // Signals from render button
-    connect(mRenderButton, &RenderButton::clicked, mOpenGLWidget, &OpenGLWidget::toggleRendering);
-    connect(mRenderButton, &RenderButton::clicked, mGeneralSettingsWidget, &GeneralSettingsWidget::toggleMaxIterationsSpinBoxStatus);
+    connect(m_renderButton, &RenderButton::clicked, m_openGLWidget, &OpenGLWidget::toggleRendering);
+    connect(m_renderButton, &RenderButton::clicked, m_generalSettingsWidget, &GeneralSettingsWidget::toggleMaxIterationsSpinBoxStatus);
 
     // Signals from crystal settings
-    connect(mCrystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [this]() {
-        mEngine->clear();
-        mOpenGLWidget->update();
+    connect(m_crystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [this]() {
+        m_engine->clear();
+        m_openGLWidget->update();
     });
 
     // Signals from view settings
-    connect(mViewSettingsWidget, &ViewSettingsWidget::cameraChanged, [this](HaloRay::Camera camera) {
-        mEngine->setCamera(camera);
-        mOpenGLWidget->update();
+    connect(m_viewSettingsWidget, &ViewSettingsWidget::cameraChanged, [this](HaloRay::Camera camera) {
+        m_engine->setCamera(camera);
+        m_openGLWidget->update();
     });
-    connect(mViewSettingsWidget, &ViewSettingsWidget::brightnessChanged, mOpenGLWidget, &OpenGLWidget::setBrightness);
-    connect(mViewSettingsWidget, &ViewSettingsWidget::lockToLightSource, [this](bool locked) {
-        mEngine->lockCameraToLightSource(locked);
-        mOpenGLWidget->update();
+    connect(m_viewSettingsWidget, &ViewSettingsWidget::brightnessChanged, m_openGLWidget, &OpenGLWidget::setBrightness);
+    connect(m_viewSettingsWidget, &ViewSettingsWidget::lockToLightSource, [this](bool locked) {
+        m_engine->lockCameraToLightSource(locked);
+        m_openGLWidget->update();
     });
-    mViewSettingsWidget->setCamera(mEngine->getCamera());
-    mViewSettingsWidget->setBrightness(1.0);
+    m_viewSettingsWidget->setCamera(m_engine->getCamera());
+    m_viewSettingsWidget->setBrightness(1.0);
 
     // Signals from OpenGL widget
-    connect(mOpenGLWidget, &OpenGLWidget::fieldOfViewChanged, mViewSettingsWidget, &ViewSettingsWidget::setFieldOfView);
-    connect(mOpenGLWidget, &OpenGLWidget::cameraOrientationChanged, mViewSettingsWidget, &ViewSettingsWidget::setCameraOrientation);
-    connect(mOpenGLWidget, &OpenGLWidget::maxRaysPerFrameChanged, mGeneralSettingsWidget, &GeneralSettingsWidget::setMaxRaysPerFrame);
-    connect(mOpenGLWidget, &OpenGLWidget::nextIteration, mProgressBar, &QProgressBar::setValue);
+    connect(m_openGLWidget, &OpenGLWidget::fieldOfViewChanged, m_viewSettingsWidget, &ViewSettingsWidget::setFieldOfView);
+    connect(m_openGLWidget, &OpenGLWidget::cameraOrientationChanged, m_viewSettingsWidget, &ViewSettingsWidget::setCameraOrientation);
+    connect(m_openGLWidget, &OpenGLWidget::maxRaysPerFrameChanged, m_generalSettingsWidget, &GeneralSettingsWidget::setMaxRaysPerFrame);
+    connect(m_openGLWidget, &OpenGLWidget::nextIteration, m_progressBar, &QProgressBar::setValue);
 
     // Signals from general settings
-    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [this](HaloRay::LightSource light) {
-        mEngine->setLightSource(light);
-        mOpenGLWidget->update();
+    connect(m_generalSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [this](HaloRay::LightSource light) {
+        m_engine->setLightSource(light);
+        m_openGLWidget->update();
     });
-    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [this](unsigned int value) {
-        mEngine->setRaysPerStep(value);
-        mOpenGLWidget->update();
+    connect(m_generalSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [this](unsigned int value) {
+        m_engine->setRaysPerStep(value);
+        m_openGLWidget->update();
     });
-    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, mOpenGLWidget, &OpenGLWidget::setMaxIterations);
-    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, mProgressBar, &QProgressBar::setMaximum);
-    connect(mGeneralSettingsWidget, &GeneralSettingsWidget::multipleScatteringProbabilityChanged, [this](double value) {
-        mEngine->setMultipleScatteringProbability(value);
-        mOpenGLWidget->update();
+    connect(m_generalSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, m_openGLWidget, &OpenGLWidget::setMaxIterations);
+    connect(m_generalSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, m_progressBar, &QProgressBar::setMaximum);
+    connect(m_generalSettingsWidget, &GeneralSettingsWidget::multipleScatteringProbabilityChanged, [this](double value) {
+        m_engine->setMultipleScatteringProbability(value);
+        m_openGLWidget->update();
     });
 
-    mGeneralSettingsWidget->setInitialValues(mEngine->getLightSource().diameter,
-                                             mEngine->getLightSource().altitude,
-                                             mEngine->getRaysPerStep(),
+    m_generalSettingsWidget->setInitialValues(m_engine->getLightSource().diameter,
+                                             m_engine->getLightSource().altitude,
+                                             m_engine->getRaysPerStep(),
                                              600,
-                                             mEngine->getMultipleScatteringProbability());
+                                             m_engine->getMultipleScatteringProbability());
 
     // Signals for menu bar
-    connect(mQuitAction, &QAction::triggered, QApplication::instance(), &QApplication::quit);
-    connect(mSaveImageAction, &QAction::triggered, [this]() {
-        auto image = mOpenGLWidget->grabFramebuffer();
+    connect(m_quitAction, &QAction::triggered, QApplication::instance(), &QApplication::quit);
+    connect(m_saveImageAction, &QAction::triggered, [this]() {
+        auto image = m_openGLWidget->grabFramebuffer();
         auto currentTime = QDateTime::currentDateTimeUtc().toString(Qt::DateFormat::ISODate);
         auto defaultFilename = QString("haloray_%1.png")
                                    .arg(currentTime)
@@ -124,9 +124,9 @@ void MainWindow::setupUi()
 
     setupMenuBar();
 
-    mOpenGLWidget = new OpenGLWidget(mEngine);
-    mProgressBar = setupProgressBar();
-    mRenderButton = new RenderButton();
+    m_openGLWidget = new OpenGLWidget(m_engine);
+    m_progressBar = setupProgressBar();
+    m_renderButton = new RenderButton();
 
     auto mainWidget = new QWidget();
     auto topLayout = new QHBoxLayout(mainWidget);
@@ -135,34 +135,34 @@ void MainWindow::setupUi()
     auto sideBarLayout = new QVBoxLayout();
     auto sideBarScrollArea = setupSideBarScrollArea();
     sideBarLayout->addWidget(sideBarScrollArea);
-    sideBarLayout->addWidget(mProgressBar);
-    sideBarLayout->addWidget(mRenderButton);
+    sideBarLayout->addWidget(m_progressBar);
+    sideBarLayout->addWidget(m_renderButton);
 
     topLayout->addLayout(sideBarLayout);
-    topLayout->addWidget(mOpenGLWidget);
+    topLayout->addWidget(m_openGLWidget);
 }
 
 void MainWindow::setupMenuBar()
 {
     auto fileMenu = menuBar()->addMenu(tr("&File"));
-    mSaveImageAction = fileMenu->addAction(tr("Save image"));
+    m_saveImageAction = fileMenu->addAction(tr("Save image"));
     fileMenu->addSeparator();
-    mQuitAction = fileMenu->addAction(tr("&Quit"));
+    m_quitAction = fileMenu->addAction(tr("&Quit"));
 }
 
 QScrollArea *MainWindow::setupSideBarScrollArea()
 {
-    mGeneralSettingsWidget = new GeneralSettingsWidget();
-    mCrystalSettingsWidget = new CrystalSettingsWidget(mCrystalRepository);
-    mViewSettingsWidget = new ViewSettingsWidget();
+    m_generalSettingsWidget = new GeneralSettingsWidget();
+    m_crystalSettingsWidget = new CrystalSettingsWidget(m_crystalRepository);
+    m_viewSettingsWidget = new ViewSettingsWidget();
 
     auto scrollContainer = new QWidget();
     auto scrollableLayout = new QVBoxLayout(scrollContainer);
     scrollableLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
-    scrollableLayout->addWidget(mGeneralSettingsWidget);
-    scrollableLayout->addWidget(mCrystalSettingsWidget);
-    scrollableLayout->addWidget(mViewSettingsWidget);
+    scrollableLayout->addWidget(m_generalSettingsWidget);
+    scrollableLayout->addWidget(m_crystalSettingsWidget);
+    scrollableLayout->addWidget(m_viewSettingsWidget);
     scrollableLayout->addStretch();
 
     auto scrollArea = new QScrollArea();

@@ -30,8 +30,8 @@ signals:
     void valueChanged(double value);
 
 private:
-    QSlider *mSlider;
-    QDoubleSpinBox *mSpinBox;
+    QSlider *m_slider;
+    QDoubleSpinBox *m_spinBox;
 };
 
 }

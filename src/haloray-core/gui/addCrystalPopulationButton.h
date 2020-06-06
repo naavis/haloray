@@ -20,12 +20,12 @@ signals:
     void addPopulation(HaloRay::CrystalPopulationPreset);
 
 private:
-    QMenu *mMenu;
-    QAction *mAddRandom;
-    QAction *mAddPlate;
-    QAction *mAddColumn;
-    QAction *mAddParry;
-    QAction *mAddLowitz;
+    QMenu *m_menu;
+    QAction *m_addRandom;
+    QAction *m_addPlate;
+    QAction *m_addColumn;
+    QAction *m_addParry;
+    QAction *m_addLowitz;
 };
 
 }

@@ -16,8 +16,8 @@ namespace HaloRay
 
 CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloRay::CrystalPopulationRepository> crystalRepository, QWidget *parent)
     : QGroupBox("Crystal population settings", parent),
-      mModel(new CrystalModel(crystalRepository)),
-      mNextPopulationId(1)
+      m_model(new CrystalModel(crystalRepository)),
+      m_nextPopulationId(1)
 {
     setupUi();
 
@@ -25,73 +25,73 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloRay::CrystalPop
         bool showControls = index != 0;
         setTiltVisibility(showControls);
     };
-    connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), tiltVisibilityHandler);
+    connect(m_tiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), tiltVisibilityHandler);
 
     auto rotationVisibilityHandler = [this](int index) {
         bool showControls = index != 0;
         setRotationVisibility(showControls);
     };
-    connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), rotationVisibilityHandler);
+    connect(m_rotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), rotationVisibilityHandler);
 
-    mMapper = new QDataWidgetMapper();
-    mMapper->setModel(mModel);
-    mMapper->addMapping(mCaRatioSlider, 0);
-    mMapper->addMapping(mCaRatioStdSlider, 1);
-    mMapper->addMapping(mTiltDistributionComboBox, 2, "currentIndex");
-    mMapper->addMapping(mTiltAverageSlider, 3);
-    mMapper->addMapping(mTiltStdSlider, 4);
-    mMapper->addMapping(mRotationDistributionComboBox, 5, "currentIndex");
-    mMapper->addMapping(mRotationAverageSlider, 6);
-    mMapper->addMapping(mRotationStdSlider, 7);
-    mMapper->addMapping(mWeightSpinBox, 8);
-    mMapper->toFirst();
-    mMapper->setSubmitPolicy(QDataWidgetMapper::SubmitPolicy::AutoSubmit);
+    m_mapper = new QDataWidgetMapper();
+    m_mapper->setModel(m_model);
+    m_mapper->addMapping(m_caRatioSlider, 0);
+    m_mapper->addMapping(m_caRatioStdSlider, 1);
+    m_mapper->addMapping(m_tiltDistributionComboBox, 2, "currentIndex");
+    m_mapper->addMapping(m_tiltAverageSlider, 3);
+    m_mapper->addMapping(m_tiltStdSlider, 4);
+    m_mapper->addMapping(m_rotationDistributionComboBox, 5, "currentIndex");
+    m_mapper->addMapping(m_rotationAverageSlider, 6);
+    m_mapper->addMapping(m_rotationStdSlider, 7);
+    m_mapper->addMapping(m_weightSpinBox, 8);
+    m_mapper->toFirst();
+    m_mapper->setSubmitPolicy(QDataWidgetMapper::SubmitPolicy::AutoSubmit);
 
-    connect(mModel, &CrystalModel::dataChanged, this, &CrystalSettingsWidget::crystalChanged);
+    connect(m_model, &CrystalModel::dataChanged, this, &CrystalSettingsWidget::crystalChanged);
 
     /*
     QDataWidgetMapper only submits data when Enter is pressed, or when a text
     box loses focus, so the sliders and comboboxes must still be manually connected
     to the submit slot of the mapper.
     */
-    connect(mWeightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), mMapper, &QDataWidgetMapper::submit);
-    connect(mCaRatioSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
-    connect(mCaRatioStdSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
-    connect(mTiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), mMapper, &QDataWidgetMapper::submit);
-    connect(mTiltAverageSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
-    connect(mTiltStdSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
-    connect(mRotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), mMapper, &QDataWidgetMapper::submit);
-    connect(mRotationAverageSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
-    connect(mRotationStdSlider, &SliderSpinBox::valueChanged, mMapper, &QDataWidgetMapper::submit);
+    connect(m_weightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), m_mapper, &QDataWidgetMapper::submit);
+    connect(m_caRatioSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit);
+    connect(m_caRatioStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit);
+    connect(m_tiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), m_mapper, &QDataWidgetMapper::submit);
+    connect(m_tiltAverageSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit);
+    connect(m_tiltStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit);
+    connect(m_rotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), m_mapper, &QDataWidgetMapper::submit);
+    connect(m_rotationAverageSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit);
+    connect(m_rotationStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit);
 
-    connect(mPopulationComboBox, QOverload<int>::of(&QComboBox::activated), mMapper, &QDataWidgetMapper::setCurrentIndex);
-    connect(mMapper, &QDataWidgetMapper::currentIndexChanged, mPopulationComboBox, QOverload<int>::of(&QComboBox::setCurrentIndex));
+    connect(m_populationComboBox, QOverload<int>::of(&QComboBox::activated), m_mapper, &QDataWidgetMapper::setCurrentIndex);
+    connect(m_mapper, &QDataWidgetMapper::currentIndexChanged, m_populationComboBox, QOverload<int>::of(&QComboBox::setCurrentIndex));
 
-    tiltVisibilityHandler(mTiltDistributionComboBox->currentIndex());
-    rotationVisibilityHandler(mRotationDistributionComboBox->currentIndex());
+    tiltVisibilityHandler(m_tiltDistributionComboBox->currentIndex());
+    rotationVisibilityHandler(m_rotationDistributionComboBox->currentIndex());
 
-    connect(mAddPopulationButton, &AddCrystalPopulationButton::addPopulation, [this](HaloRay::CrystalPopulationPreset preset) {
-        mModel->addRow(preset);
+    connect(m_AddPopulationButton, &AddCrystalPopulationButton::addPopulation, [this](HaloRay::CrystalPopulationPreset preset) {
+        m_model->addRow(preset);
         addPopulationComboBoxItem();
-        mMapper->toLast();
+        m_mapper->toLast();
         updateRemovePopulationButtonState();
     });
 
-    connect(mRemovePopulationButton, &QToolButton::clicked, [this]() {
-        int index = mMapper->currentIndex();
+    connect(m_removePopulationButton, &QToolButton::clicked, [this]() {
+        int index = m_mapper->currentIndex();
         if (index == 0)
-            mMapper->toNext();
+            m_mapper->toNext();
         else
-            mMapper->toPrevious();
-        bool success = mModel->removeRow(index);
+            m_mapper->toPrevious();
+        bool success = m_model->removeRow(index);
         if (success)
-            mPopulationComboBox->removeItem(index);
+            m_populationComboBox->removeItem(index);
 
         updateRemovePopulationButtonState();
     });
 
-    connect(mPopulationComboBox, &QComboBox::editTextChanged, [this](const QString &text) {
-        mPopulationComboBox->setItemText(mPopulationComboBox->currentIndex(), text);
+    connect(m_populationComboBox, &QComboBox::editTextChanged, [this](const QString &text) {
+        m_populationComboBox->setItemText(m_populationComboBox->currentIndex(), text);
     });
 
     fillPopulationComboBox();
@@ -100,103 +100,103 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloRay::CrystalPop
 
 void CrystalSettingsWidget::addPopulationComboBoxItem()
 {
-    mPopulationComboBox->addItem(QString("Population %1").arg(mNextPopulationId++));
+    m_populationComboBox->addItem(QString("Population %1").arg(m_nextPopulationId++));
 }
 
 void CrystalSettingsWidget::fillPopulationComboBox()
 {
-    mPopulationComboBox->addItems({"Columns", "Plates", "Random"});
+    m_populationComboBox->addItems({"Columns", "Plates", "Random"});
 }
 
 void CrystalSettingsWidget::updateRemovePopulationButtonState()
 {
-    mRemovePopulationButton->setEnabled(mModel->rowCount() > 1);
+    m_removePopulationButton->setEnabled(m_model->rowCount() > 1);
 }
 
 void CrystalSettingsWidget::setupUi()
 {
     setMaximumWidth(400);
 
-    mPopulationComboBox = new QComboBox();
-    mPopulationComboBox->setEditable(true);
-    mPopulationComboBox->setInsertPolicy(QComboBox::InsertPolicy::NoInsert);
-    mPopulationComboBox->setDuplicatesEnabled(true);
+    m_populationComboBox = new QComboBox();
+    m_populationComboBox->setEditable(true);
+    m_populationComboBox->setInsertPolicy(QComboBox::InsertPolicy::NoInsert);
+    m_populationComboBox->setDuplicatesEnabled(true);
 
-    mAddPopulationButton = new AddCrystalPopulationButton();
-    mAddPopulationButton->setIconSize(QSize(24, 24));
+    m_AddPopulationButton = new AddCrystalPopulationButton();
+    m_AddPopulationButton->setIconSize(QSize(24, 24));
 
-    mRemovePopulationButton = new QToolButton();
-    mRemovePopulationButton->setIcon(QIcon::fromTheme("list-remove"));
-    mRemovePopulationButton->setIconSize(QSize(24, 24));
+    m_removePopulationButton = new QToolButton();
+    m_removePopulationButton->setIcon(QIcon::fromTheme("list-remove"));
+    m_removePopulationButton->setIconSize(QSize(24, 24));
 
-    mCaRatioSlider = new SliderSpinBox(0.0, 15.0);
+    m_caRatioSlider = new SliderSpinBox(0.0, 15.0);
 
-    mCaRatioStdSlider = new SliderSpinBox(0.0, 10.0);
+    m_caRatioStdSlider = new SliderSpinBox(0.0, 10.0);
 
-    mTiltDistributionComboBox = new QComboBox();
-    mTiltDistributionComboBox->addItems({tr("Uniform"), tr("Gaussian")});
+    m_tiltDistributionComboBox = new QComboBox();
+    m_tiltDistributionComboBox->addItems({tr("Uniform"), tr("Gaussian")});
 
-    mTiltAverageLabel = new QLabel(tr("Average"));
-    mTiltAverageSlider = SliderSpinBox::createAngleSlider(0.0, 180.0);
+    m_tiltAverageLabel = new QLabel(tr("Average"));
+    m_tiltAverageSlider = SliderSpinBox::createAngleSlider(0.0, 180.0);
 
-    mTiltStdLabel = new QLabel(tr("Standard deviation"));
-    mTiltStdSlider = SliderSpinBox::createAngleSlider(0.0, 360.0);
+    m_tiltStdLabel = new QLabel(tr("Standard deviation"));
+    m_tiltStdSlider = SliderSpinBox::createAngleSlider(0.0, 360.0);
 
-    mRotationDistributionComboBox = new QComboBox();
-    mRotationDistributionComboBox->addItems({tr("Uniform"), tr("Gaussian")});
+    m_rotationDistributionComboBox = new QComboBox();
+    m_rotationDistributionComboBox->addItems({tr("Uniform"), tr("Gaussian")});
 
-    mRotationAverageLabel = new QLabel(tr("Average"));
-    mRotationAverageSlider = SliderSpinBox::createAngleSlider(0.0, 180.0);
+    m_rotationAverageLabel = new QLabel(tr("Average"));
+    m_rotationAverageSlider = SliderSpinBox::createAngleSlider(0.0, 180.0);
 
-    mRotationStdLabel = new QLabel(tr("Standard deviation"));
-    mRotationStdSlider = SliderSpinBox::createAngleSlider(0.0, 360.0);
+    m_rotationStdLabel = new QLabel(tr("Standard deviation"));
+    m_rotationStdSlider = SliderSpinBox::createAngleSlider(0.0, 360.0);
 
-    mWeightSpinBox = new QSpinBox();
-    mWeightSpinBox->setMinimum(0);
-    mWeightSpinBox->setMaximum(10000);
+    m_weightSpinBox = new QSpinBox();
+    m_weightSpinBox->setMinimum(0);
+    m_weightSpinBox->setMaximum(10000);
 
     auto mainLayout = new QFormLayout(this);
 
     auto populationButtonLayout = new QHBoxLayout();
-    populationButtonLayout->addWidget(mPopulationComboBox);
-    populationButtonLayout->addWidget(mAddPopulationButton);
-    populationButtonLayout->addWidget(mRemovePopulationButton);
+    populationButtonLayout->addWidget(m_populationComboBox);
+    populationButtonLayout->addWidget(m_AddPopulationButton);
+    populationButtonLayout->addWidget(m_removePopulationButton);
 
     mainLayout->addRow(populationButtonLayout);
-    mainLayout->addRow(tr("Population weight"), mWeightSpinBox);
+    mainLayout->addRow(tr("Population weight"), m_weightSpinBox);
     mainLayout->addItem(new QSpacerItem(0, 10));
-    mainLayout->addRow(tr("C/A ratio average"), mCaRatioSlider);
-    mainLayout->addRow(tr("C/A ratio std."), mCaRatioStdSlider);
+    mainLayout->addRow(tr("C/A ratio average"), m_caRatioSlider);
+    mainLayout->addRow(tr("C/A ratio std."), m_caRatioStdSlider);
 
     auto tiltGroupBox = new QGroupBox(tr("C-axis tilt"));
     auto tiltLayout = new QFormLayout(tiltGroupBox);
     mainLayout->addRow(tiltGroupBox);
-    tiltLayout->addRow(tr("Distribution"), mTiltDistributionComboBox);
-    tiltLayout->addRow(mTiltAverageLabel, mTiltAverageSlider);
-    tiltLayout->addRow(mTiltStdLabel, mTiltStdSlider);
+    tiltLayout->addRow(tr("Distribution"), m_tiltDistributionComboBox);
+    tiltLayout->addRow(m_tiltAverageLabel, m_tiltAverageSlider);
+    tiltLayout->addRow(m_tiltStdLabel, m_tiltStdSlider);
 
     auto rotationGroupBox = new QGroupBox(tr("Rotation around C-axis"));
     auto rotationLayout = new QFormLayout(rotationGroupBox);
     mainLayout->addRow(rotationGroupBox);
-    rotationLayout->addRow(tr("Distribution"), mRotationDistributionComboBox);
-    rotationLayout->addRow(mRotationAverageLabel, mRotationAverageSlider);
-    rotationLayout->addRow(mRotationStdLabel, mRotationStdSlider);
+    rotationLayout->addRow(tr("Distribution"), m_rotationDistributionComboBox);
+    rotationLayout->addRow(m_rotationAverageLabel, m_rotationAverageSlider);
+    rotationLayout->addRow(m_rotationStdLabel, m_rotationStdSlider);
 }
 
 void CrystalSettingsWidget::setTiltVisibility(bool visible)
 {
-    mTiltAverageSlider->setVisible(visible);
-    mTiltStdSlider->setVisible(visible);
-    mTiltAverageLabel->setVisible(visible);
-    mTiltStdLabel->setVisible(visible);
+    m_tiltAverageSlider->setVisible(visible);
+    m_tiltStdSlider->setVisible(visible);
+    m_tiltAverageLabel->setVisible(visible);
+    m_tiltStdLabel->setVisible(visible);
 }
 
 void CrystalSettingsWidget::setRotationVisibility(bool visible)
 {
-    mRotationAverageSlider->setVisible(visible);
-    mRotationStdSlider->setVisible(visible);
-    mRotationAverageLabel->setVisible(visible);
-    mRotationStdLabel->setVisible(visible);
+    m_rotationAverageSlider->setVisible(visible);
+    m_rotationStdSlider->setVisible(visible);
+    m_rotationAverageLabel->setVisible(visible);
+    m_rotationStdLabel->setVisible(visible);
 }
 
 }

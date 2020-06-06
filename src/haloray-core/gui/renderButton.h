@@ -11,7 +11,7 @@ public:
     RenderButton(QWidget *parent = nullptr);
 
 private:
-    bool mRendering;
+    bool m_rendering;
 };
 
 }

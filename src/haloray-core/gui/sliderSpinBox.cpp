@@ -9,27 +9,27 @@ const double sliderMultiplier = 100.0;
 
 SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
 {
-    mSlider = new QSlider();
-    mSlider->setOrientation(Qt::Orientation::Horizontal);
-    mSlider->setSingleStep((int)sliderMultiplier);
-    mSlider->setPageStep((int)(10 * sliderMultiplier));
-    mSlider->setMinimumWidth(100);
+    m_slider = new QSlider();
+    m_slider->setOrientation(Qt::Orientation::Horizontal);
+    m_slider->setSingleStep((int)sliderMultiplier);
+    m_slider->setPageStep((int)(10 * sliderMultiplier));
+    m_slider->setMinimumWidth(100);
 
-    mSpinBox = new QDoubleSpinBox();
-    mSpinBox->setSingleStep(0.1);
+    m_spinBox = new QDoubleSpinBox();
+    m_spinBox->setSingleStep(0.1);
 
     auto layout = new QHBoxLayout(this);
-    layout->addWidget(mSlider);
-    layout->addWidget(mSpinBox);
+    layout->addWidget(m_slider);
+    layout->addWidget(m_spinBox);
     layout->setMargin(0);
 
-    connect(mSlider, &QSlider::valueChanged, [this](int value) {
-        mSpinBox->setValue((double)value / sliderMultiplier);
+    connect(m_slider, &QSlider::valueChanged, [this](int value) {
+        m_spinBox->setValue((double)value / sliderMultiplier);
     });
-    connect(mSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double value) {
-        mSlider->setValue((int)(value * sliderMultiplier));
+    connect(m_spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double value) {
+        m_slider->setValue((int)(value * sliderMultiplier));
     });
-    connect(mSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SliderSpinBox::valueChanged);
+    connect(m_spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SliderSpinBox::valueChanged);
 }
 
 SliderSpinBox::SliderSpinBox(double min, double max, QWidget *parent)
@@ -41,35 +41,35 @@ SliderSpinBox::SliderSpinBox(double min, double max, QWidget *parent)
 
 void SliderSpinBox::setSuffix(const QString &suffix)
 {
-    mSpinBox->setSuffix(suffix);
+    m_spinBox->setSuffix(suffix);
 }
 
 void SliderSpinBox::setMinimum(double minimum)
 {
-    mSlider->setMinimum((int)(minimum * sliderMultiplier));
-    mSpinBox->setMinimum(minimum);
+    m_slider->setMinimum((int)(minimum * sliderMultiplier));
+    m_spinBox->setMinimum(minimum);
 }
 
 void SliderSpinBox::setMaximum(double maximum)
 {
-    mSlider->setMaximum((int)(maximum * sliderMultiplier));
-    mSpinBox->setMaximum(maximum);
+    m_slider->setMaximum((int)(maximum * sliderMultiplier));
+    m_spinBox->setMaximum(maximum);
 }
 
 void SliderSpinBox::setWrapping(bool wrapping)
 {
-    mSpinBox->setWrapping(wrapping);
+    m_spinBox->setWrapping(wrapping);
 }
 
 void SliderSpinBox::setValue(double value)
 {
-    if (mSpinBox->value() == value) return;
-    mSpinBox->setValue(value);
+    if (m_spinBox->value() == value) return;
+    m_spinBox->setValue(value);
 }
 
 double SliderSpinBox::value() const
 {
-    return mSpinBox->value();
+    return m_spinBox->value();
 }
 
 SliderSpinBox *SliderSpinBox::createAngleSlider(double min, double max)

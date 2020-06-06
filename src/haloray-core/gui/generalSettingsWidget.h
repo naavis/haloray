@@ -35,11 +35,11 @@ private:
     HaloRay::LightSource stateToLightSource() const;
     void setupUi();
 
-    SliderSpinBox *mSunAltitudeSlider;
-    QDoubleSpinBox *mSunDiameterSpinBox;
-    QSpinBox *mRaysPerFrameSpinBox;
-    QSpinBox *mMaximumFramesSpinBox;
-    SliderSpinBox *mMultipleScattering;
+    SliderSpinBox *m_sunAltitudeSlider;
+    QDoubleSpinBox *m_sunDiameterSpinBox;
+    QSpinBox *m_raysPerFrameSpinBox;
+    QSpinBox *m_maximumFramesSpinBox;
+    SliderSpinBox *m_multipleScattering;
 };
 
 }

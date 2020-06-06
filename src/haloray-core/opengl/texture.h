@@ -24,11 +24,11 @@ private:
     Texture(const Texture &);
     void initializeTextureImage();
 
-    unsigned int mTextureHandle;
-    unsigned int mWidth;
-    unsigned int mHeight;
-    unsigned int mTextureUnit;
-    unsigned int mType;
+    unsigned int m_textureHandle;
+    unsigned int m_width;
+    unsigned int m_height;
+    unsigned int m_textureUnit;
+    unsigned int m_type;
 };
 
-} // namespace OpenGL
+}

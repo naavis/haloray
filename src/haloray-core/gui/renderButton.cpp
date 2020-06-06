@@ -5,7 +5,7 @@ namespace HaloRay
 {
 
 RenderButton::RenderButton(QWidget *parent)
-    : QPushButton(parent), mRendering(false)
+    : QPushButton(parent), m_rendering(false)
 {
     const QString renderText = tr("Render");
     const QString stopText = tr("Stop");
@@ -15,11 +15,11 @@ RenderButton::RenderButton(QWidget *parent)
     setMinimumHeight(100);
 
     connect(this, &RenderButton::clicked, [this, renderText, stopText]() {
-        if (mRendering)
+        if (m_rendering)
             this->setText(renderText);
         else
             this->setText(stopText);
-        mRendering = !mRendering;
+        m_rendering = !m_rendering;
     });
 }
 
