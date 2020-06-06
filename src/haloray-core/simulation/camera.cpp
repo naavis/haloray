@@ -18,6 +18,20 @@ float Camera::getMaximumFov() const
     }
 }
 
+bool Camera::operator==(const Camera &other) const
+{
+    return pitch == other.pitch
+            && yaw == other.yaw
+            && fov == other.fov
+            && projection == other.projection
+            && hideSubHorizon == other.hideSubHorizon;
+}
+
+bool Camera::operator!=(const Camera &other) const
+{
+    return !(*this == other);
+}
+
 Camera Camera::createDefaultCamera()
 {
     Camera camera;

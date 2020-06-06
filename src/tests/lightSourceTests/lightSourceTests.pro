@@ -1,13 +1,13 @@
-TARGET = crystalPopulationRepositoryTests
+TARGET = lightSourceTests
 TEMPLATE = app
 QT += testlib
 QT -= gui
 
-CONFIG += testcase c++17
+CONFIG += qt console warn_on depend_includepath testcase c++17
 win32:CONFIG += windows
 
-SOURCES += \
-    crystalPopulationRepositoryTests.cpp
+SOURCES +=  \
+    lightSourceTests.cpp
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../haloray-core/release/ -lHaloRayCore
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../haloray-core/debug/ -lHaloRayCore

@@ -1,2 +1,5 @@
 TEMPLATE = subdirs
-SUBDIRS = cameraTests crystalPopulationRepositoryTests
+SUBDIRS = \
+    cameraTests \
+    crystalPopulationRepositoryTests \
+    lightSourceTests

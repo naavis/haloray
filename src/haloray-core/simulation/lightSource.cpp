@@ -3,6 +3,17 @@
 namespace HaloRay
 {
 
+bool LightSource::operator==(const LightSource &other) const
+{
+    return altitude == other.altitude
+            && diameter == other.diameter;
+}
+
+bool LightSource::operator!=(const LightSource &other) const
+{
+    return !(*this == other);
+}
+
 LightSource LightSource::createDefaultLightSource()
 {
     LightSource sun;

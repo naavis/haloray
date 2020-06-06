@@ -15,13 +15,15 @@ enum Projection
 
 struct Camera
 {
-    float pitch;
-    float yaw;
-    float fov;
-    Projection projection;
-    bool hideSubHorizon;
+    float pitch = 0.0f;
+    float yaw = 0.0f;
+    float fov = 75.0f;
+    Projection projection = Projection::Stereographic;
+    bool hideSubHorizon = false;
 
     float getMaximumFov() const;
+    bool operator==(const Camera&) const;
+    bool operator!=(const Camera&) const;
     static Camera createDefaultCamera();
 };
 
