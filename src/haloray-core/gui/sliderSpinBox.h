@@ -32,6 +32,7 @@ signals:
 private:
     QSlider *m_slider;
     QDoubleSpinBox *m_spinBox;
+    double m_value;
 };
 
 }

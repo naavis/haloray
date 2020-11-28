@@ -7,7 +7,7 @@ namespace HaloRay {
 
 const double sliderMultiplier = 100.0;
 
-SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
+SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent), m_value(0.0)
 {
     m_slider = new QSlider();
     m_slider->setOrientation(Qt::Orientation::Horizontal);
@@ -24,12 +24,9 @@ SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent)
     layout->setMargin(0);
 
     connect(m_slider, &QSlider::valueChanged, [this](int value) {
-        m_spinBox->setValue((double)value / sliderMultiplier);
+        setValue((double)value / sliderMultiplier);
     });
-    connect(m_spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this](double value) {
-        m_slider->setValue((int)(value * sliderMultiplier));
-    });
-    connect(m_spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SliderSpinBox::valueChanged);
+    connect(m_spinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SliderSpinBox::setValue);
 }
 
 SliderSpinBox::SliderSpinBox(double min, double max, QWidget *parent)
@@ -48,12 +45,14 @@ void SliderSpinBox::setMinimum(double minimum)
 {
     m_slider->setMinimum((int)(minimum * sliderMultiplier));
     m_spinBox->setMinimum(minimum);
+    if (m_value < minimum) setValue(minimum);
 }
 
 void SliderSpinBox::setMaximum(double maximum)
 {
     m_slider->setMaximum((int)(maximum * sliderMultiplier));
     m_spinBox->setMaximum(maximum);
+    if (m_value > maximum) setValue(maximum);
 }
 
 void SliderSpinBox::setWrapping(bool wrapping)
@@ -63,13 +62,16 @@ void SliderSpinBox::setWrapping(bool wrapping)
 
 void SliderSpinBox::setValue(double value)
 {
-    if (m_spinBox->value() == value) return;
+    if (value == m_value) return;
     m_spinBox->setValue(value);
+    m_slider->setValue((int)(value * sliderMultiplier));
+    m_value = value;
+    emit valueChanged(m_value);
 }
 
 double SliderSpinBox::value() const
 {
-    return m_spinBox->value();
+    return m_value;
 }
 
 SliderSpinBox *SliderSpinBox::createAngleSlider(double min, double max)
