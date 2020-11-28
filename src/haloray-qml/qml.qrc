@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>PlaceholderControls.qml</file>
+        <file>PlaceholderSkyWidget.qml</file>
+        <file>SliderSpinBox.qml</file>
+    </qresource>
+</RCC>

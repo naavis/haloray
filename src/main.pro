@@ -1,5 +1,6 @@
 TEMPLATE = subdirs
 SUBDIRS += \
+    haloray-qml \
     haloray \
     haloray-core \
     tests
