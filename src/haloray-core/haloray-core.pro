@@ -31,6 +31,7 @@ HEADERS += \
     gui/mainWindow.h \
     gui/openGLWidget.h \
     gui/renderButton.h \
+    gui/simulationStateViewModel.h \
     gui/sliderSpinBox.h \
     gui/viewSettingsWidget.h \
     opengl/texture.h \
@@ -49,6 +50,7 @@ SOURCES += \
     gui/mainWindow.cpp \
     gui/openGLWidget.cpp \
     gui/renderButton.cpp \
+    gui/simulationStateViewModel.cpp \
     gui/sliderSpinBox.cpp \
     gui/viewSettingsWidget.cpp \
     opengl/texture.cpp \
