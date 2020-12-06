@@ -13,8 +13,10 @@ namespace HaloRay
 {
 
 SimulationEngine::SimulationEngine(
-    std::shared_ptr<CrystalPopulationRepository> crystalRepository)
-    : m_outputWidth(800),
+    std::shared_ptr<CrystalPopulationRepository> crystalRepository,
+    QObject *parent)
+    : QObject(parent),
+      m_outputWidth(800),
       m_outputHeight(600),
       m_mersenneTwister(std::mt19937(std::random_device()())),
       m_uniformDistribution(std::uniform_int_distribution<unsigned int>(0, std::numeric_limits<unsigned int>::max())),

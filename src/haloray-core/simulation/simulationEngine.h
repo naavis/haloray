@@ -14,11 +14,11 @@ class QOpenGLShaderProgram;
 namespace HaloRay
 {
 
-class SimulationEngine : protected QObject, protected QOpenGLFunctions_4_4_Core
+class SimulationEngine : public QObject, protected QOpenGLFunctions_4_4_Core
 {
     Q_OBJECT
 public:
-    SimulationEngine(std::shared_ptr<CrystalPopulationRepository> crystalRepository);
+    SimulationEngine(std::shared_ptr<CrystalPopulationRepository> crystalRepository, QObject *parent = nullptr);
     void initialize();
     void start();
     void step();
