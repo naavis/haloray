@@ -1,6 +1,7 @@
 #pragma once
 #include <QMainWindow>
 #include <memory>
+#include "simulationStateViewModel.h"
 
 
 class QDoubleSpinBox;
@@ -45,6 +46,8 @@ private:
 
     std::shared_ptr<HaloRay::CrystalPopulationRepository> m_crystalRepository;
     std::shared_ptr<HaloRay::SimulationEngine> m_engine;
+
+    SimulationStateViewModel *m_simulationStateViewModel;
 };
 
 }

@@ -226,11 +226,13 @@ void SimulationEngine::lockCameraToLightSource(bool locked)
     m_cameraLockedToLightSource = locked;
     pointCameraToLightSource();
 
+    emit cameraChanged(m_camera);
     emit lockCameraToLightSourceChanged(m_cameraLockedToLightSource);
 }
 
 void SimulationEngine::pointCameraToLightSource()
 {
+    if (m_camera.yaw == 0.0f && m_camera.pitch == m_light.altitude) return;
     clear();
     m_camera.yaw = 0.0f;
     m_camera.pitch = m_light.altitude;

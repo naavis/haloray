@@ -1,23 +1,26 @@
 #include "simulationStateViewModel.h"
 #include "simulation/simulationEngine.h"
 
-SimulationStateViewModel::SimulationStateViewModel(HaloRay::SimulationEngine *engine, QObject *parent)
+namespace HaloRay
+{
+
+SimulationStateViewModel::SimulationStateViewModel(SimulationEngine *engine, QObject *parent)
     : QAbstractTableModel(parent),
       m_simulationEngine(engine)
 {
-    connect(m_simulationEngine, &HaloRay::SimulationEngine::cameraChanged, this, [this]() {
+    connect(m_simulationEngine, &SimulationEngine::cameraChanged, [this]() {
         emit dataChanged(createIndex(0, CameraProjection), createIndex(0, HideSubHorizon));
     });
 
-    connect(m_simulationEngine, &HaloRay::SimulationEngine::lightSourceChanged, this, [this]() {
+    connect(m_simulationEngine, &SimulationEngine::lightSourceChanged, [this]() {
         emit dataChanged(createIndex(0, SunAltitude), createIndex(0, SunDiameter));
     });
 
-    connect(m_simulationEngine, &HaloRay::SimulationEngine::lockCameraToLightSourceChanged, this, [this]() {
+    connect(m_simulationEngine, &SimulationEngine::lockCameraToLightSourceChanged, [this]() {
         emit dataChanged(createIndex(0, CameraProjection), createIndex(0, HideSubHorizon));
     });
 
-    connect(m_simulationEngine, &HaloRay::SimulationEngine::multipleScatteringProbabilityChanged, this, [this]() {
+    connect(m_simulationEngine, &SimulationEngine::multipleScatteringProbabilityChanged, [this]() {
         emit dataChanged(createIndex(0, MultipleScatteringProbability), createIndex(0, MultipleScatteringProbability));
     });
 }
@@ -36,6 +39,8 @@ QVariant SimulationStateViewModel::headerData(int section, Qt::Orientation orien
             return "Camera projection";
         case CameraFov:
             return "Camera field-of-view";
+        case CameraMaxFov:
+            return "Camera maximum field-of-view";
         case CameraPitch:
             return "Camera pitch";
         case CameraYaw:
@@ -69,7 +74,7 @@ QVariant SimulationStateViewModel::data(const QModelIndex &index, int role) cons
     if (!index.isValid())
         return QVariant();
 
-    if (role != Qt::DisplayRole)
+    if (role != Qt::DisplayRole && role != Qt::EditRole)
         return QVariant();
 
     switch (index.column())
@@ -82,6 +87,8 @@ QVariant SimulationStateViewModel::data(const QModelIndex &index, int role) cons
         return m_simulationEngine->getCamera().projection;
     case CameraFov:
         return m_simulationEngine->getCamera().fov;
+    case CameraMaxFov:
+        return m_simulationEngine->getCamera().getMaximumFov();
     case CameraPitch:
         return m_simulationEngine->getCamera().pitch;
     case CameraYaw:
@@ -101,47 +108,49 @@ bool SimulationStateViewModel::setData(const QModelIndex &index, const QVariant 
 {
     if (role != Qt::EditRole) return false;
 
-    if (data(index, role) != value) {
-        switch (index.column())
-        {
-        case SunAltitude:
-            setSunAltitude(value.toFloat());
-            break;
-        case SunDiameter:
-            setSunDiameter(value.toFloat());
-            break;
-        case CameraProjection:
-            setCameraProjection(static_cast<HaloRay::Projection>(value.toInt()));
-            break;
-        case CameraFov:
-            setCameraFov(value.toFloat());
-            break;
-        case CameraPitch:
-            setCameraPitch(value.toFloat());
-            break;
-        case CameraYaw:
-            setCameraYaw(value.toFloat());
-            break;
-        case HideSubHorizon:
-            setHideSubHorizon(value.toBool());
-            break;
-        case MultipleScatteringProbability:
-            m_simulationEngine->setMultipleScatteringProbability(value.toDouble());
-            break;
-        default:
-            break;
-        }
+    if (data(index, role) == value) return false;
 
-        emit dataChanged(index, index, QVector<int>() << role);
-        return true;
+    switch (index.column())
+    {
+    case SunAltitude:
+        setSunAltitude(value.toFloat());
+        break;
+    case SunDiameter:
+        setSunDiameter(value.toFloat());
+        break;
+    case CameraProjection:
+        setCameraProjection(static_cast<Projection>(value.toInt()));
+        break;
+    case CameraFov:
+        setCameraFov(value.toFloat());
+        break;
+    case CameraPitch:
+        setCameraPitch(value.toFloat());
+        break;
+    case CameraYaw:
+        setCameraYaw(value.toFloat());
+        break;
+    case HideSubHorizon:
+        setHideSubHorizon(value.toBool());
+        break;
+    case MultipleScatteringProbability:
+        m_simulationEngine->setMultipleScatteringProbability(value.toDouble());
+        break;
+    default:
+        return false;
     }
-    return false;
+
+    emit dataChanged(index, index);
+    return true;
 }
 
 Qt::ItemFlags SimulationStateViewModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
         return Qt::NoItemFlags;
+
+    if (index.column() == CameraMaxFov)
+        return Qt::ItemIsEnabled;
 
     return Qt::ItemIsEditable | Qt::ItemIsEnabled;
 }
@@ -160,7 +169,7 @@ void SimulationStateViewModel::setSunDiameter(float diameter)
     m_simulationEngine->setLightSource(lightSource);
 }
 
-void SimulationStateViewModel::setCameraProjection(HaloRay::Projection projection)
+void SimulationStateViewModel::setCameraProjection(Projection projection)
 {
     auto camera = m_simulationEngine->getCamera();
     camera.projection = projection;
@@ -193,4 +202,6 @@ void SimulationStateViewModel::setHideSubHorizon(bool hide)
     auto camera = m_simulationEngine->getCamera();
     camera.hideSubHorizon = hide;
     m_simulationEngine->setCamera(camera);
+}
+
 }

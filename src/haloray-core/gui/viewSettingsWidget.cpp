@@ -2,29 +2,46 @@
 #include <QFormLayout>
 #include <QComboBox>
 #include <QCheckBox>
+#include <QDataWidgetMapper>
+#include "simulationStateViewModel.h"
 #include "sliderSpinBox.h"
 #include "../simulation/camera.h"
 
 namespace HaloRay
 {
 
-ViewSettingsWidget::ViewSettingsWidget(QWidget *parent)
-    : QGroupBox("View settings", parent)
+ViewSettingsWidget::ViewSettingsWidget(SimulationStateViewModel *viewModel, QWidget *parent)
+    : QGroupBox("View settings", parent),
+      m_viewModel(viewModel)
 {
     setupUi();
 
-    auto cameraChangeHandler = [this]() {
-        auto camera = stateToCamera();
-        m_fieldOfViewSlider->setMaximum(camera.getMaximumFov());
-        camera.fov = m_fieldOfViewSlider->value();
-        cameraChanged(camera);
-    };
+    m_mapper = new QDataWidgetMapper(this);
+    m_mapper->setModel(m_viewModel);
+    m_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
+    m_mapper->addMapping(m_cameraProjectionComboBox, SimulationStateViewModel::CameraProjection, "currentIndex");
+    m_mapper->addMapping(m_fieldOfViewSlider, SimulationStateViewModel::CameraFov);
+    m_mapper->addMapping(m_pitchSlider, SimulationStateViewModel::CameraPitch);
+    m_mapper->addMapping(m_yawSlider, SimulationStateViewModel::CameraYaw);
+    m_mapper->addMapping(m_hideSubHorizonCheckBox, SimulationStateViewModel::HideSubHorizon);
+    m_mapper->toFirst();
 
-    connect(m_cameraProjectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), cameraChangeHandler);
-    connect(m_fieldOfViewSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);
-    connect(m_pitchSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);
-    connect(m_yawSlider, &SliderSpinBox::valueChanged, cameraChangeHandler);
-    connect(m_hideSubHorizonCheckBox, &QCheckBox::stateChanged, cameraChangeHandler);
+    connect(m_cameraProjectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_fieldOfViewSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_pitchSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_yawSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_hideSubHorizonCheckBox, &QCheckBox::stateChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+
+    /*
+     * It is not possible to map multiple model columns to different properties
+     * of the same widget with QDataWidgetMapper, so a second instance is needed
+     * to update the maximum value of the FOV slider.
+     */
+    m_maximumFovMapper = new QDataWidgetMapper(this);
+    m_maximumFovMapper->setModel(m_viewModel);
+    m_maximumFovMapper->addMapping(m_fieldOfViewSlider, SimulationStateViewModel::CameraMaxFov, "maximum");
+    m_maximumFovMapper->toFirst();
+
     connect(m_brightnessSlider, &SliderSpinBox::valueChanged, this, &ViewSettingsWidget::brightnessChanged);
     connect(m_lockToLightSource, &QCheckBox::stateChanged, this, &ViewSettingsWidget::lockToLightSource);
 }
@@ -63,37 +80,6 @@ void ViewSettingsWidget::setupUi()
     layout->addRow(tr("Brightness"), m_brightnessSlider);
     layout->addRow(tr("Hide sub-horizon"), m_hideSubHorizonCheckBox);
     layout->addRow(tr("Lock to light source"), m_lockToLightSource);
-}
-
-HaloRay::Camera ViewSettingsWidget::stateToCamera() const
-{
-    HaloRay::Camera camera;
-    camera.projection = (HaloRay::Projection)m_cameraProjectionComboBox->currentIndex();
-    camera.fov = (float)m_fieldOfViewSlider->value();
-    camera.hideSubHorizon = m_hideSubHorizonCheckBox->isChecked();
-    camera.yaw = (float)m_yawSlider->value();
-    camera.pitch = (float)m_pitchSlider->value();
-    return camera;
-}
-
-void ViewSettingsWidget::setCamera(HaloRay::Camera camera)
-{
-    m_cameraProjectionComboBox->setCurrentIndex((int)camera.projection);
-    m_fieldOfViewSlider->setValue(camera.fov);
-    m_yawSlider->setValue(camera.yaw);
-    m_pitchSlider->setValue(camera.pitch);
-    m_hideSubHorizonCheckBox->setChecked(camera.hideSubHorizon);
-}
-
-void ViewSettingsWidget::setFieldOfView(double fov)
-{
-    m_fieldOfViewSlider->setValue(fov);
-}
-
-void ViewSettingsWidget::setCameraOrientation(double pitch, double yaw)
-{
-    m_pitchSlider->setValue(pitch);
-    m_yawSlider->setValue(yaw);
 }
 
 void ViewSettingsWidget::setBrightness(double brightness)

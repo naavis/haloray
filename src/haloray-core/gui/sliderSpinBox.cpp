@@ -53,6 +53,7 @@ void SliderSpinBox::setMaximum(double maximum)
     m_slider->setMaximum((int)(maximum * sliderMultiplier));
     m_spinBox->setMaximum(maximum);
     if (m_value > maximum) setValue(maximum);
+    emit maximumChanged(maximum);
 }
 
 void SliderSpinBox::setWrapping(bool wrapping)
@@ -72,6 +73,11 @@ void SliderSpinBox::setValue(double value)
 double SliderSpinBox::value() const
 {
     return m_value;
+}
+
+double SliderSpinBox::maximum() const
+{
+    return m_spinBox->maximum();
 }
 
 SliderSpinBox *SliderSpinBox::createAngleSlider(double min, double max)

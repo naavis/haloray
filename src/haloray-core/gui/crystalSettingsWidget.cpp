@@ -54,15 +54,15 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloRay::CrystalPop
     box loses focus, so the sliders and comboboxes must still be manually connected
     to the submit slot of the mapper.
     */
-    connect(m_weightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), m_mapper, &QDataWidgetMapper::submit);
-    connect(m_caRatioSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit);
-    connect(m_caRatioStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit);
-    connect(m_tiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), m_mapper, &QDataWidgetMapper::submit);
-    connect(m_tiltAverageSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit);
-    connect(m_tiltStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit);
-    connect(m_rotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), m_mapper, &QDataWidgetMapper::submit);
-    connect(m_rotationAverageSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit);
-    connect(m_rotationStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit);
+    connect(m_weightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_caRatioSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_caRatioStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_tiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_tiltAverageSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_tiltStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_rotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_rotationAverageSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_rotationStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
 
     connect(m_populationComboBox, QOverload<int>::of(&QComboBox::activated), m_mapper, &QDataWidgetMapper::setCurrentIndex);
     connect(m_mapper, &QDataWidgetMapper::currentIndexChanged, m_populationComboBox, QOverload<int>::of(&QComboBox::setCurrentIndex));

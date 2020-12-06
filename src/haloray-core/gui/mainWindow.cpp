@@ -1,4 +1,5 @@
 #include "mainWindow.h"
+#include "simulationStateViewModel.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
@@ -33,9 +34,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 #if _WIN32
     QIcon::setThemeName("HaloRayTheme");
 #endif
-
     m_crystalRepository = std::make_shared<HaloRay::CrystalPopulationRepository>();
     m_engine = std::make_shared<HaloRay::SimulationEngine>(m_crystalRepository);
+
+    m_simulationStateViewModel = new SimulationStateViewModel(m_engine.get(), this);
 
     setupUi();
 
@@ -50,21 +52,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     });
 
     // Signals from view settings
-    connect(m_viewSettingsWidget, &ViewSettingsWidget::cameraChanged, [this](HaloRay::Camera camera) {
-        m_engine->setCamera(camera);
-        m_openGLWidget->update();
-    });
     connect(m_viewSettingsWidget, &ViewSettingsWidget::brightnessChanged, m_openGLWidget, &OpenGLWidget::setBrightness);
     connect(m_viewSettingsWidget, &ViewSettingsWidget::lockToLightSource, [this](bool locked) {
         m_engine->lockCameraToLightSource(locked);
         m_openGLWidget->update();
     });
-    m_viewSettingsWidget->setCamera(m_engine->getCamera());
     m_viewSettingsWidget->setBrightness(1.0);
 
     // Signals from OpenGL widget
-    connect(m_openGLWidget, &OpenGLWidget::fieldOfViewChanged, m_viewSettingsWidget, &ViewSettingsWidget::setFieldOfView);
-    connect(m_openGLWidget, &OpenGLWidget::cameraOrientationChanged, m_viewSettingsWidget, &ViewSettingsWidget::setCameraOrientation);
     connect(m_openGLWidget, &OpenGLWidget::maxRaysPerFrameChanged, m_generalSettingsWidget, &GeneralSettingsWidget::setMaxRaysPerFrame);
     connect(m_openGLWidget, &OpenGLWidget::nextIteration, m_progressBar, &QProgressBar::setValue);
 
@@ -154,7 +149,7 @@ QScrollArea *MainWindow::setupSideBarScrollArea()
 {
     m_generalSettingsWidget = new GeneralSettingsWidget();
     m_crystalSettingsWidget = new CrystalSettingsWidget(m_crystalRepository);
-    m_viewSettingsWidget = new ViewSettingsWidget();
+    m_viewSettingsWidget = new ViewSettingsWidget(m_simulationStateViewModel);
 
     auto scrollContainer = new QWidget();
     auto scrollableLayout = new QVBoxLayout(scrollContainer);

@@ -5,27 +5,27 @@
 
 namespace HaloRay {
 class SimulationEngine;
-}
 
 class SimulationStateViewModel : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    explicit SimulationStateViewModel(HaloRay::SimulationEngine *engine, QObject *parent = nullptr);
+    explicit SimulationStateViewModel(SimulationEngine *engine, QObject *parent = nullptr);
 
-    enum
+    enum Columns
     {
         SunAltitude,
         SunDiameter,
         CameraProjection,
         CameraFov,
+        CameraMaxFov,
         CameraPitch,
         CameraYaw,
         HideSubHorizon,
         MultipleScatteringProbability,
         NUM_COLUMNS
-    } Columns;
+    };
 
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
@@ -43,10 +43,11 @@ private:
     HaloRay::SimulationEngine *m_simulationEngine;
     void setSunAltitude(float altitude);
     void setSunDiameter(float diameter);
-    void setCameraProjection(HaloRay::Projection projection);
+    void setCameraProjection(Projection projection);
     void setCameraFov(float fov);
     void setCameraPitch(float pitch);
     void setCameraYaw(float yaw);
     void setHideSubHorizon(bool hide);
 };
 
+}
