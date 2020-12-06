@@ -42,12 +42,15 @@ Camera SimulationEngine::getCamera() const
 
 void SimulationEngine::setCamera(const Camera camera)
 {
+    if (m_camera == camera) return;
+
     clear();
     m_camera = camera;
     if (m_cameraLockedToLightSource)
     {
         pointCameraToLightSource();
     }
+    emit cameraChanged(m_camera);
 }
 
 LightSource SimulationEngine::getLightSource() const
@@ -57,12 +60,16 @@ LightSource SimulationEngine::getLightSource() const
 
 void SimulationEngine::setLightSource(const LightSource light)
 {
+    if (m_light == light) return;
+
     clear();
     m_light = light;
     if (m_cameraLockedToLightSource)
     {
         pointCameraToLightSource();
     }
+
+    emit lightSourceChanged(m_light);
 }
 
 unsigned int SimulationEngine::getOutputTextureHandle() const
@@ -160,8 +167,12 @@ unsigned int SimulationEngine::getRaysPerStep() const
 
 void SimulationEngine::setRaysPerStep(unsigned int rays)
 {
+    if (m_raysPerStep == rays) return;
+
     clear();
     m_raysPerStep = rays;
+
+    emit raysPerStepChanged(m_raysPerStep);
 }
 
 void SimulationEngine::initialize()
@@ -208,8 +219,12 @@ void SimulationEngine::resizeOutputTextureCallback(const unsigned int width, con
 
 void SimulationEngine::lockCameraToLightSource(bool locked)
 {
+    if (m_cameraLockedToLightSource == locked) return;
+
     m_cameraLockedToLightSource = locked;
     pointCameraToLightSource();
+
+    emit lockCameraToLightSourceChanged(m_cameraLockedToLightSource);
 }
 
 void SimulationEngine::pointCameraToLightSource()
@@ -221,8 +236,12 @@ void SimulationEngine::pointCameraToLightSource()
 
 void SimulationEngine::setMultipleScatteringProbability(double probability)
 {
+    if (m_multipleScatteringProbability == probability) return;
+
     clear();
     m_multipleScatteringProbability = static_cast<float>(std::min(std::max(probability, 0.0), 1.0));
+
+    emit multipleScatteringProbabilityChanged(m_multipleScatteringProbability);
 }
 
 double SimulationEngine::getMultipleScatteringProbability() const

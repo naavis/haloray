@@ -1,6 +1,7 @@
 #pragma once
 #include <random>
 #include <memory>
+#include <QObject>
 #include <QOpenGLFunctions_4_4_Core>
 #include "../opengl/texture.h"
 #include "camera.h"
@@ -13,8 +14,9 @@ class QOpenGLShaderProgram;
 namespace HaloRay
 {
 
-class SimulationEngine : protected QOpenGLFunctions_4_4_Core
+class SimulationEngine : protected QObject, protected QOpenGLFunctions_4_4_Core
 {
+    Q_OBJECT
 public:
     SimulationEngine(std::shared_ptr<CrystalPopulationRepository> crystalRepository);
     void initialize();
@@ -44,6 +46,13 @@ public:
     unsigned int getOutputTextureHandle() const;
 
     void resizeOutputTextureCallback(const unsigned int width, const unsigned int height);
+
+signals:
+    void raysPerStepChanged(unsigned int);
+    void cameraChanged(Camera);
+    void lightSourceChanged(LightSource);
+    void lockCameraToLightSourceChanged(bool);
+    void multipleScatteringProbabilityChanged(double);
 
 private:
     void initializeShader();
