@@ -1,13 +1,18 @@
 #pragma once
 
 #include <QAbstractTableModel>
+#include "simulation/camera.h"
+
+namespace HaloRay {
+class SimulationEngine;
+}
 
 class SimulationStateViewModel : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    explicit SimulationStateViewModel(QObject *parent = nullptr);
+    explicit SimulationStateViewModel(HaloRay::SimulationEngine *engine, QObject *parent = nullptr);
 
     enum
     {
@@ -18,7 +23,7 @@ public:
         CameraPitch,
         CameraYaw,
         HideSubHorizon,
-        DoubleScattering,
+        MultipleScatteringProbability,
         NUM_COLUMNS
     } Columns;
 
@@ -33,5 +38,15 @@ public:
                  int role = Qt::EditRole) override;
 
     Qt::ItemFlags flags(const QModelIndex& index) const override;
+
+private:
+    HaloRay::SimulationEngine *m_simulationEngine;
+    void setSunAltitude(float altitude);
+    void setSunDiameter(float diameter);
+    void setCameraProjection(HaloRay::Projection projection);
+    void setCameraFov(float fov);
+    void setCameraPitch(float pitch);
+    void setCameraYaw(float yaw);
+    void setHideSubHorizon(bool hide);
 };
 

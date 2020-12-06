@@ -1,8 +1,25 @@
 #include "simulationStateViewModel.h"
+#include "simulation/simulationEngine.h"
 
-SimulationStateViewModel::SimulationStateViewModel(QObject *parent)
-    : QAbstractTableModel(parent)
+SimulationStateViewModel::SimulationStateViewModel(HaloRay::SimulationEngine *engine, QObject *parent)
+    : QAbstractTableModel(parent),
+      m_simulationEngine(engine)
 {
+    connect(m_simulationEngine, &HaloRay::SimulationEngine::cameraChanged, this, [this]() {
+        emit dataChanged(createIndex(0, CameraProjection), createIndex(0, HideSubHorizon));
+    });
+
+    connect(m_simulationEngine, &HaloRay::SimulationEngine::lightSourceChanged, this, [this]() {
+        emit dataChanged(createIndex(0, SunAltitude), createIndex(0, SunDiameter));
+    });
+
+    connect(m_simulationEngine, &HaloRay::SimulationEngine::lockCameraToLightSourceChanged, this, [this]() {
+        emit dataChanged(createIndex(0, CameraProjection), createIndex(0, HideSubHorizon));
+    });
+
+    connect(m_simulationEngine, &HaloRay::SimulationEngine::multipleScatteringProbabilityChanged, this, [this]() {
+        emit dataChanged(createIndex(0, MultipleScatteringProbability), createIndex(0, MultipleScatteringProbability));
+    });
 }
 
 QVariant SimulationStateViewModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -25,8 +42,8 @@ QVariant SimulationStateViewModel::headerData(int section, Qt::Orientation orien
             return "Camera yaw";
         case HideSubHorizon:
             return "Hide sub-horizon";
-        case DoubleScattering:
-            return "Double-scattering probability";
+        case MultipleScatteringProbability:
+            return "Multiple scattering probability";
         }
     }
 
@@ -58,20 +75,25 @@ QVariant SimulationStateViewModel::data(const QModelIndex &index, int role) cons
     switch (index.column())
     {
     case SunAltitude:
+        return m_simulationEngine->getLightSource().altitude;
     case SunDiameter:
+        return m_simulationEngine->getLightSource().diameter;
     case CameraProjection:
+        return m_simulationEngine->getCamera().projection;
     case CameraFov:
+        return m_simulationEngine->getCamera().fov;
     case CameraPitch:
+        return m_simulationEngine->getCamera().pitch;
     case CameraYaw:
+        return m_simulationEngine->getCamera().yaw;
     case HideSubHorizon:
-    case DoubleScattering:
+        return m_simulationEngine->getCamera().hideSubHorizon;
+    case MultipleScatteringProbability:
+        return m_simulationEngine->getMultipleScatteringProbability();
     default:
         break;
-        // TODO: Implement all columns
     }
 
-
-    // FIXME: Implement me!
     return QVariant();
 }
 
@@ -83,19 +105,33 @@ bool SimulationStateViewModel::setData(const QModelIndex &index, const QVariant 
         switch (index.column())
         {
         case SunAltitude:
+            setSunAltitude(value.toFloat());
+            break;
         case SunDiameter:
+            setSunDiameter(value.toFloat());
+            break;
         case CameraProjection:
+            setCameraProjection(static_cast<HaloRay::Projection>(value.toInt()));
+            break;
         case CameraFov:
+            setCameraFov(value.toFloat());
+            break;
         case CameraPitch:
+            setCameraPitch(value.toFloat());
+            break;
         case CameraYaw:
+            setCameraYaw(value.toFloat());
+            break;
         case HideSubHorizon:
-        case DoubleScattering:
+            setHideSubHorizon(value.toBool());
+            break;
+        case MultipleScatteringProbability:
+            m_simulationEngine->setMultipleScatteringProbability(value.toDouble());
+            break;
         default:
             break;
-            // TODO: Implement all columns
         }
 
-        // FIXME: Implement me!
         emit dataChanged(index, index, QVector<int>() << role);
         return true;
     }
@@ -108,4 +144,53 @@ Qt::ItemFlags SimulationStateViewModel::flags(const QModelIndex &index) const
         return Qt::NoItemFlags;
 
     return Qt::ItemIsEditable | Qt::ItemIsEnabled;
+}
+
+void SimulationStateViewModel::setSunAltitude(float altitude)
+{
+    auto lightSource = m_simulationEngine->getLightSource();
+    lightSource.altitude = altitude;
+    m_simulationEngine->setLightSource(lightSource);
+}
+
+void SimulationStateViewModel::setSunDiameter(float diameter)
+{
+    auto lightSource = m_simulationEngine->getLightSource();
+    lightSource.diameter = diameter;
+    m_simulationEngine->setLightSource(lightSource);
+}
+
+void SimulationStateViewModel::setCameraProjection(HaloRay::Projection projection)
+{
+    auto camera = m_simulationEngine->getCamera();
+    camera.projection = projection;
+    m_simulationEngine->setCamera(camera);
+}
+
+void SimulationStateViewModel::setCameraFov(float fov)
+{
+    auto camera = m_simulationEngine->getCamera();
+    camera.fov = fov;
+    m_simulationEngine->setCamera(camera);
+}
+
+void SimulationStateViewModel::setCameraPitch(float pitch)
+{
+    auto camera = m_simulationEngine->getCamera();
+    camera.pitch = pitch;
+    m_simulationEngine->setCamera(camera);
+}
+
+void SimulationStateViewModel::setCameraYaw(float yaw)
+{
+    auto camera = m_simulationEngine->getCamera();
+    camera.yaw = yaw;
+    m_simulationEngine->setCamera(camera);
+}
+
+void SimulationStateViewModel::setHideSubHorizon(bool hide)
+{
+    auto camera = m_simulationEngine->getCamera();
+    camera.hideSubHorizon = hide;
+    m_simulationEngine->setCamera(camera);
 }
