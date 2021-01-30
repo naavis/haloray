@@ -1,6 +1,8 @@
 #pragma once
 #include <QGroupBox>
+#include <QDataWidgetMapper>
 #include "../simulation/lightSource.h"
+#include "simulationStateViewModel.h"
 
 class QDoubleSpinBox;
 class QSpinBox;
@@ -14,18 +16,14 @@ class GeneralSettingsWidget : public QGroupBox
 {
     Q_OBJECT
 public:
-    GeneralSettingsWidget(QWidget *parent = nullptr);
-    void setInitialValues(double sunDiameter,
-                          double sunAltitude,
-                          unsigned int raysPerFrame,
-                          unsigned int maxNumFrames,
-                          double multipleScatteringProbability);
+    GeneralSettingsWidget(SimulationStateViewModel *viewModel, QWidget *parent = nullptr);
+    void setInitialValues(unsigned int raysPerFrame,
+                          unsigned int maxNumFrames);
+
 
 signals:
-    void lightSourceChanged(HaloRay::LightSource light);
     void numRaysChanged(unsigned int rays);
     void maximumNumberOfIterationsChanged(unsigned int iterations);
-    void multipleScatteringProbabilityChanged(double probability);
 
 public slots:
     void toggleMaxIterationsSpinBoxStatus();
@@ -39,7 +37,10 @@ private:
     QDoubleSpinBox *m_sunDiameterSpinBox;
     QSpinBox *m_raysPerFrameSpinBox;
     QSpinBox *m_maximumFramesSpinBox;
-    SliderSpinBox *m_multipleScattering;
+    SliderSpinBox *m_multipleScatteringSlider;
+
+    QDataWidgetMapper *m_mapper;
+    SimulationStateViewModel *m_viewModel;
 };
 
 }

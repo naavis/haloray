@@ -63,27 +63,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(m_openGLWidget, &OpenGLWidget::maxRaysPerFrameChanged, m_generalSettingsWidget, &GeneralSettingsWidget::setMaxRaysPerFrame);
     connect(m_openGLWidget, &OpenGLWidget::nextIteration, m_progressBar, &QProgressBar::setValue);
 
-    // Signals from general settings
-    connect(m_generalSettingsWidget, &GeneralSettingsWidget::lightSourceChanged, [this](HaloRay::LightSource light) {
-        m_engine->setLightSource(light);
-        m_openGLWidget->update();
-    });
     connect(m_generalSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [this](unsigned int value) {
         m_engine->setRaysPerStep(value);
         m_openGLWidget->update();
     });
     connect(m_generalSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, m_openGLWidget, &OpenGLWidget::setMaxIterations);
     connect(m_generalSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, m_progressBar, &QProgressBar::setMaximum);
-    connect(m_generalSettingsWidget, &GeneralSettingsWidget::multipleScatteringProbabilityChanged, [this](double value) {
-        m_engine->setMultipleScatteringProbability(value);
-        m_openGLWidget->update();
-    });
 
-    m_generalSettingsWidget->setInitialValues(m_engine->getLightSource().diameter,
-                                             m_engine->getLightSource().altitude,
-                                             m_engine->getRaysPerStep(),
-                                             600,
-                                             m_engine->getMultipleScatteringProbability());
+    m_generalSettingsWidget->setInitialValues(m_engine->getRaysPerStep(), 600);
 
     // Signals for menu bar
     connect(m_quitAction, &QAction::triggered, QApplication::instance(), &QApplication::quit);
@@ -147,7 +134,7 @@ void MainWindow::setupMenuBar()
 
 QScrollArea *MainWindow::setupSideBarScrollArea()
 {
-    m_generalSettingsWidget = new GeneralSettingsWidget();
+    m_generalSettingsWidget = new GeneralSettingsWidget(m_simulationStateViewModel);
     m_crystalSettingsWidget = new CrystalSettingsWidget(m_crystalRepository);
     m_viewSettingsWidget = new ViewSettingsWidget(m_simulationStateViewModel);
 

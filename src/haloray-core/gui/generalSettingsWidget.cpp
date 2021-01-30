@@ -7,18 +7,23 @@
 namespace HaloRay
 {
 
-GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
-    : QGroupBox("General settings", parent)
+GeneralSettingsWidget::GeneralSettingsWidget(SimulationStateViewModel *viewModel, QWidget *parent)
+    : QGroupBox("General settings", parent),
+      m_viewModel(viewModel)
 {
     setupUi();
 
-    connect(m_sunAltitudeSlider, &SliderSpinBox::valueChanged, [this]() {
-        emit lightSourceChanged(stateToLightSource());
-    });
+    m_mapper = new QDataWidgetMapper(this);
+    m_mapper->setModel(m_viewModel);
+    m_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
+    m_mapper->addMapping(m_sunAltitudeSlider, SimulationStateViewModel::SunAltitude);
+    m_mapper->addMapping(m_sunDiameterSpinBox, SimulationStateViewModel::SunDiameter);
+    m_mapper->addMapping(m_multipleScatteringSlider, SimulationStateViewModel::MultipleScatteringProbability);
+    m_mapper->toFirst();
 
-    connect(m_sunDiameterSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this]() {
-        emit lightSourceChanged(stateToLightSource());
-    });
+    connect(m_sunAltitudeSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_sunDiameterSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_multipleScatteringSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
 
     connect(m_raysPerFrameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
         emit numRaysChanged((unsigned int)value);
@@ -27,21 +32,13 @@ GeneralSettingsWidget::GeneralSettingsWidget(QWidget *parent)
     connect(m_maximumFramesSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](int value) {
         emit maximumNumberOfIterationsChanged((unsigned int)value);
     });
-
-    connect(m_multipleScattering, &SliderSpinBox::valueChanged, this, &GeneralSettingsWidget::multipleScatteringProbabilityChanged);
 }
 
-void GeneralSettingsWidget::setInitialValues(double sunDiameter,
-                                             double sunAltitude,
-                                             unsigned int raysPerFrame,
-                                             unsigned int maxNumFrames,
-                                             double multipleScatteringProbability)
+void GeneralSettingsWidget::setInitialValues(unsigned int raysPerFrame,
+                                             unsigned int maxNumFrames)
 {
-    m_sunDiameterSpinBox->setValue(sunDiameter);
-    m_sunAltitudeSlider->setValue(sunAltitude);
     m_raysPerFrameSpinBox->setValue(raysPerFrame);
     m_maximumFramesSpinBox->setValue(maxNumFrames);
-    m_multipleScattering->setValue(multipleScatteringProbability);
 }
 
 void GeneralSettingsWidget::setupUi()
@@ -72,16 +69,16 @@ void GeneralSettingsWidget::setupUi()
     m_maximumFramesSpinBox->setValue(100000000);
     m_maximumFramesSpinBox->setGroupSeparatorShown(true);
 
-    m_multipleScattering = new SliderSpinBox();
-    m_multipleScattering->setMinimum(0.0);
-    m_multipleScattering->setMaximum(1.0);
+    m_multipleScatteringSlider = new SliderSpinBox();
+    m_multipleScatteringSlider->setMinimum(0.0);
+    m_multipleScatteringSlider->setMaximum(1.0);
 
     auto layout = new QFormLayout(this);
     layout->addRow(tr("Sun altitude"), m_sunAltitudeSlider);
     layout->addRow(tr("Sun diameter"), m_sunDiameterSpinBox);
     layout->addRow(tr("Rays per frame"), m_raysPerFrameSpinBox);
     layout->addRow(tr("Maximum frames"), m_maximumFramesSpinBox);
-    layout->addRow(tr("Double scattering"), m_multipleScattering);
+    layout->addRow(tr("Double scattering"), m_multipleScatteringSlider);
 }
 
 HaloRay::LightSource GeneralSettingsWidget::stateToLightSource() const

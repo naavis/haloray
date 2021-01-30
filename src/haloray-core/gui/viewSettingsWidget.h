@@ -33,6 +33,7 @@ private:
     QCheckBox *m_hideSubHorizonCheckBox;
     SliderSpinBox *m_brightnessSlider;
     QCheckBox *m_lockToLightSource;
+
     SimulationStateViewModel *m_viewModel;
     QDataWidgetMapper *m_mapper;
     QDataWidgetMapper *m_maximumFovMapper;
