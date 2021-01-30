@@ -35,19 +35,21 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloRay::CrystalPop
 
     m_mapper = new QDataWidgetMapper();
     m_mapper->setModel(m_model);
-    m_mapper->addMapping(m_caRatioSlider, 0);
-    m_mapper->addMapping(m_caRatioStdSlider, 1);
-    m_mapper->addMapping(m_tiltDistributionComboBox, 2, "currentIndex");
-    m_mapper->addMapping(m_tiltAverageSlider, 3);
-    m_mapper->addMapping(m_tiltStdSlider, 4);
-    m_mapper->addMapping(m_rotationDistributionComboBox, 5, "currentIndex");
-    m_mapper->addMapping(m_rotationAverageSlider, 6);
-    m_mapper->addMapping(m_rotationStdSlider, 7);
-    m_mapper->addMapping(m_weightSpinBox, 8);
+    m_mapper->addMapping(m_caRatioSlider, CrystalModel::CaRatioAverage);
+    m_mapper->addMapping(m_caRatioStdSlider, CrystalModel::CaRatioStd);
+    m_mapper->addMapping(m_tiltDistributionComboBox, CrystalModel::TiltDistribution, "currentIndex");
+    m_mapper->addMapping(m_tiltAverageSlider, CrystalModel::TiltAverage);
+    m_mapper->addMapping(m_tiltStdSlider, CrystalModel::TiltStd);
+    m_mapper->addMapping(m_rotationDistributionComboBox, CrystalModel::RotationDistribution, "currentIndex");
+    m_mapper->addMapping(m_rotationAverageSlider, CrystalModel::RotationAverage);
+    m_mapper->addMapping(m_rotationStdSlider, CrystalModel::RotationStd);
+    m_mapper->addMapping(m_weightSpinBox, CrystalModel::PopulationWeight);
     m_mapper->toFirst();
     m_mapper->setSubmitPolicy(QDataWidgetMapper::SubmitPolicy::AutoSubmit);
 
     connect(m_model, &CrystalModel::dataChanged, this, &CrystalSettingsWidget::crystalChanged);
+    connect(m_model, &CrystalModel::rowsInserted, this, &CrystalSettingsWidget::crystalChanged);
+    connect(m_model, &CrystalModel::rowsRemoved, this, &CrystalSettingsWidget::crystalChanged);
 
     /*
     QDataWidgetMapper only submits data when Enter is pressed, or when a text

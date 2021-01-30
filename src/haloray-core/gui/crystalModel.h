@@ -16,7 +16,22 @@ class CrystalModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    CrystalModel(std::shared_ptr<HaloRay::CrystalPopulationRepository> crystalRepository, QWidget *parent = nullptr);
+    explicit CrystalModel(std::shared_ptr<HaloRay::CrystalPopulationRepository> crystalRepository, QWidget *parent = nullptr);
+
+    enum Columns
+    {
+        CaRatioAverage,
+        CaRatioStd,
+        TiltDistribution,
+        TiltAverage,
+        TiltStd,
+        RotationDistribution,
+        RotationAverage,
+        RotationStd,
+        PopulationWeight,
+        NUM_COLUMNS
+    };
+
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;

@@ -12,44 +12,50 @@ CrystalModel::CrystalModel(std::shared_ptr<HaloRay::CrystalPopulationRepository>
 {
 }
 
-int CrystalModel::rowCount(const QModelIndex&) const
+int CrystalModel::rowCount(const QModelIndex &parent) const
 {
+    if (parent.isValid()) return 0;
+
     return static_cast<int>(m_crystals->getCount());
 }
 
-int CrystalModel::columnCount(const QModelIndex&) const
+int CrystalModel::columnCount(const QModelIndex &parent) const
 {
-    return 9;
+    if (parent.isValid()) return 0;
+
+    return NUM_COLUMNS;
 }
 
 QVariant CrystalModel::data(const QModelIndex &index, int role) const
 {
+    if (!index.isValid())
+        return QVariant();
+
     if (role != Qt::DisplayRole && role != Qt::EditRole)
         return QVariant();
 
-    auto col = index.column();
     auto row = index.row();
     const HaloRay::CrystalPopulation &crystal = m_crystals->get(row);
 
-    switch (col)
+    switch (index.column())
     {
-    case 0:
+    case CaRatioAverage:
         return crystal.caRatioAverage;
-    case 1:
+    case CaRatioStd:
         return crystal.caRatioStd;
-    case 2:
+    case TiltDistribution:
         return crystal.tiltDistribution;
-    case 3:
+    case TiltAverage:
         return crystal.tiltAverage;
-    case 4:
+    case TiltStd:
         return crystal.tiltStd;
-    case 5:
+    case RotationDistribution:
         return crystal.rotationDistribution;
-    case 6:
+    case RotationAverage:
         return crystal.rotationAverage;
-    case 7:
+    case RotationStd:
         return crystal.rotationStd;
-    case 8:
+    case PopulationWeight:
         return m_crystals->getWeight(row);
     }
 
@@ -64,49 +70,53 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
     if (!checkIndex(index))
         return false;
 
+    if (data(index, role) == value) return false;
+
     auto row = index.row();
-    auto col = index.column();
     HaloRay::CrystalPopulation &crystal = m_crystals->get(row);
-    switch (col)
+    switch (index.column())
     {
-    case 0:
+    case CaRatioAverage:
         crystal.caRatioAverage = value.toFloat();
         break;
-    case 1:
+    case CaRatioStd:
         crystal.caRatioStd = value.toFloat();
         break;
-    case 2:
+    case TiltDistribution:
         crystal.tiltDistribution = value.toInt();
         break;
-    case 3:
+    case TiltAverage:
         crystal.tiltAverage = value.toFloat();
         break;
-    case 4:
+    case TiltStd:
         crystal.tiltStd = value.toFloat();
         break;
-    case 5:
+    case RotationDistribution:
         crystal.rotationDistribution = value.toInt();
         break;
-    case 6:
+    case RotationAverage:
         crystal.rotationAverage = value.toFloat();
         break;
-    case 7:
+    case RotationStd:
         crystal.rotationStd = value.toFloat();
         break;
-    case 8:
+    case PopulationWeight:
         m_crystals->setWeight(row, value.toUInt());
         break;
     default:
         break;
     }
 
-    emit dataChanged(createIndex(0, 0), createIndex(0, 0), {Qt::DisplayRole});
+    emit dataChanged(index, index);
 
     return true;
 }
 
 Qt::ItemFlags CrystalModel::flags(const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return Qt::NoItemFlags;
+
     return Qt::ItemIsEditable | QAbstractTableModel::flags(index);
 }
 
