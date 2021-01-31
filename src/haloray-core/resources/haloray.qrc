@@ -1,8 +1,8 @@
-<!DOCTYPE RCC>
-<RCC version="1.0">
+<RCC>
     <qresource prefix="/">
         <file>haloray.ico</file>
         <file>shaders/raytrace.glsl</file>
+        <file>shaders/sky.glsl</file>
     </qresource>
     <qresource prefix="/icons">
         <file alias="actions/24/list-add.svg">icons/custom-icons/actions/24/list-add.svg</file>

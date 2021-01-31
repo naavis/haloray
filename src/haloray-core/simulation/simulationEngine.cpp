@@ -103,6 +103,21 @@ void SimulationEngine::step()
 {
     ++m_iteration;
 
+    if (m_iteration == 1) {
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        glBindImageTexture(m_simulationTexture->getTextureUnit(), m_simulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        m_skyShader->bind();
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        m_skyShader->setUniformValue("sun.altitude", m_light.altitude);
+        m_skyShader->setUniformValue("sun.diameter", m_light.diameter);
+        m_skyShader->setUniformValue("camera.pitch", m_camera.pitch);
+        m_skyShader->setUniformValue("camera.yaw", m_camera.yaw);
+        m_skyShader->setUniformValue("camera.fov", m_camera.fov);
+        m_skyShader->setUniformValue("camera.projection", m_camera.projection);
+        m_skyShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
+        glDispatchCompute(m_outputWidth, m_outputHeight, 1);
+    }
+
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     glBindImageTexture(m_simulationTexture->getTextureUnit(), m_simulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glClearTexImage(m_spinlockTexture->getHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
@@ -183,22 +198,25 @@ void SimulationEngine::initialize()
     if (m_initialized)
         return;
     initializeOpenGLFunctions();
-    initializeShader();
+    initializeShaders();
     initializeTextures();
     m_initialized = true;
 }
 
-void SimulationEngine::initializeShader()
+void SimulationEngine::initializeShaders()
 {
     m_simulationShader = std::make_unique<QOpenGLShaderProgram>();
-#ifdef _WIN32
     m_simulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
-#else
-    mSimulationShader->addShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
-#endif
     if (m_simulationShader->link() == false)
     {
         throw std::runtime_error(m_simulationShader->log().toUtf8());
+    }
+
+    m_skyShader = new QOpenGLShaderProgram(this);
+    m_skyShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/sky.glsl");
+    if (m_skyShader->link() == false)
+    {
+        throw std::runtime_error(m_skyShader->log().toUtf8());
     }
 }
 
