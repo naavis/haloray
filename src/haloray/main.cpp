@@ -7,6 +7,9 @@
 #include <QObject>
 #include "gui/mainWindow.h"
 
+const int RequiredOpenGLMajorVersion = 4;
+const int RequiredOpenGLMinorVersion = 4;
+
 void logHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QByteArray localMsg = msg.toLocal8Bit();
@@ -42,28 +45,29 @@ bool supportsOpenGL(int requiredMajorVersion, int requiredMinorVersion)
            (majorVersion == requiredMajorVersion && minorVersion >= requiredMinorVersion);
 }
 
-int main(int argc, char *argv[])
+void setDefaultSurfaceFormat()
 {
-    Q_INIT_RESOURCE(haloray);
-    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-    qInstallMessageHandler(logHandler);
-    QApplication app(argc, argv);
-
-    const int requiredOpenGLMajorVersion = 4;
-    const int requiredOpenGLMinorVersion = 4;
-
     QSurfaceFormat format;
-    format.setVersion(requiredOpenGLMajorVersion, requiredOpenGLMinorVersion);
+    format.setVersion(RequiredOpenGLMajorVersion, RequiredOpenGLMinorVersion);
     format.setProfile(QSurfaceFormat::OpenGLContextProfile::CoreProfile);
     format.setSwapBehavior(QSurfaceFormat::SwapBehavior::DoubleBuffer);
     format.setSwapInterval(1);
     QSurfaceFormat::setDefaultFormat(format);
+}
 
-    if (!supportsOpenGL(requiredOpenGLMajorVersion, requiredOpenGLMinorVersion))
+int main(int argc, char *argv[])
+{
+    Q_INIT_RESOURCE(haloray);
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+    setDefaultSurfaceFormat();
+    qInstallMessageHandler(logHandler);
+    QApplication app(argc, argv);
+
+    if (!supportsOpenGL(RequiredOpenGLMajorVersion, RequiredOpenGLMinorVersion))
     {
         QString errorMessage = QString(QObject::tr("Your graphics processing unit does not support OpenGL %1.%2, which is required to run HaloRay."))
-                                   .arg(requiredOpenGLMajorVersion)
-                                   .arg(requiredOpenGLMinorVersion);
+                                   .arg(RequiredOpenGLMajorVersion)
+                                   .arg(RequiredOpenGLMinorVersion);
         QMessageBox::critical(nullptr, QObject::tr("Incompatible GPU"), errorMessage);
         return 1;
     }
