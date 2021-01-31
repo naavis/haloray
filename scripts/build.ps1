@@ -1,6 +1,6 @@
 # Windows build script for Appveyor
 
-pushd "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build"
+pushd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build"
 cmd /c "vcvars64.bat&set" |
 foreach {
   if ($_ -match "=") {
@@ -8,7 +8,7 @@ foreach {
   }
 }
 popd
-Write-Host "`nVisual Studio 2017 Command Prompt variables set." -ForegroundColor Yellow
+Write-Host "`nVisual Studio 2019 Command Prompt variables set." -ForegroundColor Yellow
 
 $extraParameters = if ($gitBranch -eq "master") {
   $version = ${env:APPVEYOR_BUILD_VERSION}.Split('-')[0]

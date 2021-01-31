@@ -1,13 +1,13 @@
-version: '2.4.0-{build}'
+version: "2.4.0-{build}"
 branches:
   only:
     - master
     - develop
-image: Visual Studio 2017
+image: Visual Studio 2019
 clone_depth: 1
 environment:
-  Qt5_DIR: C:\Qt\5.12\msvc2017_64\
-  VCINSTALLDIR: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\
+  Qt5_DIR: C:\Qt\5.15.0\msvc2019_64
+  VCINSTALLDIR: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\
 build_script:
   - ps: scripts\build.ps1
 after_build:
@@ -15,13 +15,13 @@ after_build:
 test_script:
   - ps: scripts\test.ps1
 artifacts:
-  - path: '*.zip'
+  - path: "*.zip"
 deploy:
   - provider: GitHub
     release: HaloRay $(appveyor_build_version)
     artifact: /.*\.zip/
     draft: true
-    description: ''
+    description: ""
     skip_tags: true
     auth_token:
       secure: pb9keaNklmNgmLaw1doReZDdP5Oh/pLZPdwjt+anpcoi34MyqAbFoJbiHJMcWkgD
