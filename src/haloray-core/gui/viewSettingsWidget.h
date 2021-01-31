@@ -10,13 +10,13 @@ namespace HaloRay
 {
 
 class SliderSpinBox;
-class SimulationStateViewModel;
+class SimulationStateModel;
 
 class ViewSettingsWidget : public QGroupBox
 {
     Q_OBJECT
 public:
-    ViewSettingsWidget(SimulationStateViewModel *viewModel, QWidget *parent = nullptr);
+    ViewSettingsWidget(SimulationStateModel *viewModel, QWidget *parent = nullptr);
     void setBrightness(double brightness);
 
 signals:
@@ -34,7 +34,7 @@ private:
     SliderSpinBox *m_brightnessSlider;
     QCheckBox *m_lockToLightSource;
 
-    SimulationStateViewModel *m_viewModel;
+    SimulationStateModel *m_viewModel;
     QDataWidgetMapper *m_mapper;
     QDataWidgetMapper *m_maximumFovMapper;
 };

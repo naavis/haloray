@@ -7,7 +7,7 @@
 namespace HaloRay
 {
 
-GeneralSettingsWidget::GeneralSettingsWidget(SimulationStateViewModel *viewModel, QWidget *parent)
+GeneralSettingsWidget::GeneralSettingsWidget(SimulationStateModel *viewModel, QWidget *parent)
     : QGroupBox("General settings", parent),
       m_viewModel(viewModel)
 {
@@ -16,9 +16,9 @@ GeneralSettingsWidget::GeneralSettingsWidget(SimulationStateViewModel *viewModel
     m_mapper = new QDataWidgetMapper(this);
     m_mapper->setModel(m_viewModel);
     m_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
-    m_mapper->addMapping(m_sunAltitudeSlider, SimulationStateViewModel::SunAltitude);
-    m_mapper->addMapping(m_sunDiameterSpinBox, SimulationStateViewModel::SunDiameter);
-    m_mapper->addMapping(m_multipleScatteringSlider, SimulationStateViewModel::MultipleScatteringProbability);
+    m_mapper->addMapping(m_sunAltitudeSlider, SimulationStateModel::SunAltitude);
+    m_mapper->addMapping(m_sunDiameterSpinBox, SimulationStateModel::SunDiameter);
+    m_mapper->addMapping(m_multipleScatteringSlider, SimulationStateModel::MultipleScatteringProbability);
     m_mapper->toFirst();
 
     connect(m_sunAltitudeSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);

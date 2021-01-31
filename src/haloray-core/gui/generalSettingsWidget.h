@@ -2,7 +2,7 @@
 #include <QGroupBox>
 #include <QDataWidgetMapper>
 #include "../simulation/lightSource.h"
-#include "simulationStateViewModel.h"
+#include "simulationStateModel.h"
 
 class QDoubleSpinBox;
 class QSpinBox;
@@ -16,7 +16,7 @@ class GeneralSettingsWidget : public QGroupBox
 {
     Q_OBJECT
 public:
-    GeneralSettingsWidget(SimulationStateViewModel *viewModel, QWidget *parent = nullptr);
+    GeneralSettingsWidget(SimulationStateModel *viewModel, QWidget *parent = nullptr);
     void setInitialValues(unsigned int raysPerFrame,
                           unsigned int maxNumFrames);
 
@@ -40,7 +40,7 @@ private:
     SliderSpinBox *m_multipleScatteringSlider;
 
     QDataWidgetMapper *m_mapper;
-    SimulationStateViewModel *m_viewModel;
+    SimulationStateModel *m_viewModel;
 };
 
 }

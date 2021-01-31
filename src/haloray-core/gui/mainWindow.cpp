@@ -1,5 +1,5 @@
 #include "mainWindow.h"
-#include "simulationStateViewModel.h"
+#include "simulationStateModel.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_crystalRepository = std::make_shared<CrystalPopulationRepository>();
     m_engine = new SimulationEngine(m_crystalRepository, this);
 
-    m_simulationStateViewModel = new SimulationStateViewModel(m_engine, this);
+    m_simulationStateModel = new SimulationStateModel(m_engine, this);
 
     setupUi();
 
@@ -134,9 +134,9 @@ void MainWindow::setupMenuBar()
 
 QScrollArea *MainWindow::setupSideBarScrollArea()
 {
-    m_generalSettingsWidget = new GeneralSettingsWidget(m_simulationStateViewModel);
+    m_generalSettingsWidget = new GeneralSettingsWidget(m_simulationStateModel);
     m_crystalSettingsWidget = new CrystalSettingsWidget(m_crystalRepository);
-    m_viewSettingsWidget = new ViewSettingsWidget(m_simulationStateViewModel);
+    m_viewSettingsWidget = new ViewSettingsWidget(m_simulationStateModel);
 
     auto scrollContainer = new QWidget();
     auto scrollableLayout = new QVBoxLayout(scrollContainer);

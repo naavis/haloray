@@ -6,12 +6,12 @@
 namespace HaloRay {
 class SimulationEngine;
 
-class SimulationStateViewModel : public QAbstractTableModel
+class SimulationStateModel : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    explicit SimulationStateViewModel(SimulationEngine *engine, QObject *parent = nullptr);
+    explicit SimulationStateModel(SimulationEngine *engine, QObject *parent = nullptr);
 
     enum Columns
     {

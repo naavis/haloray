@@ -1,7 +1,7 @@
 #pragma once
 #include <QMainWindow>
 #include <memory>
-#include "simulationStateViewModel.h"
+#include "simulationStateModel.h"
 
 
 class QDoubleSpinBox;
@@ -47,7 +47,7 @@ private:
     std::shared_ptr<CrystalPopulationRepository> m_crystalRepository;
     SimulationEngine *m_engine;
 
-    SimulationStateViewModel *m_simulationStateViewModel;
+    SimulationStateModel *m_simulationStateModel;
 };
 
 }

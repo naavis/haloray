@@ -1,10 +1,10 @@
-#include "simulationStateViewModel.h"
+#include "simulationStateModel.h"
 #include "simulation/simulationEngine.h"
 
 namespace HaloRay
 {
 
-SimulationStateViewModel::SimulationStateViewModel(SimulationEngine *engine, QObject *parent)
+SimulationStateModel::SimulationStateModel(SimulationEngine *engine, QObject *parent)
     : QAbstractTableModel(parent),
       m_simulationEngine(engine)
 {
@@ -25,7 +25,7 @@ SimulationStateViewModel::SimulationStateViewModel(SimulationEngine *engine, QOb
     });
 }
 
-QVariant SimulationStateViewModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant SimulationStateModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
     {
@@ -55,21 +55,21 @@ QVariant SimulationStateViewModel::headerData(int section, Qt::Orientation orien
     return QVariant();
 }
 
-int SimulationStateViewModel::rowCount(const QModelIndex &parent) const
+int SimulationStateModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) return 0;
 
     return 1;
 }
 
-int SimulationStateViewModel::columnCount(const QModelIndex &parent) const
+int SimulationStateModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) return 0;
 
     return NUM_COLUMNS;
 }
 
-QVariant SimulationStateViewModel::data(const QModelIndex &index, int role) const
+QVariant SimulationStateModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -104,7 +104,7 @@ QVariant SimulationStateViewModel::data(const QModelIndex &index, int role) cons
     return QVariant();
 }
 
-bool SimulationStateViewModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool SimulationStateModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (role != Qt::EditRole) return false;
 
@@ -144,7 +144,7 @@ bool SimulationStateViewModel::setData(const QModelIndex &index, const QVariant 
     return true;
 }
 
-Qt::ItemFlags SimulationStateViewModel::flags(const QModelIndex &index) const
+Qt::ItemFlags SimulationStateModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
         return Qt::NoItemFlags;
@@ -155,49 +155,49 @@ Qt::ItemFlags SimulationStateViewModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEditable | Qt::ItemIsEnabled;
 }
 
-void SimulationStateViewModel::setSunAltitude(float altitude)
+void SimulationStateModel::setSunAltitude(float altitude)
 {
     auto lightSource = m_simulationEngine->getLightSource();
     lightSource.altitude = altitude;
     m_simulationEngine->setLightSource(lightSource);
 }
 
-void SimulationStateViewModel::setSunDiameter(float diameter)
+void SimulationStateModel::setSunDiameter(float diameter)
 {
     auto lightSource = m_simulationEngine->getLightSource();
     lightSource.diameter = diameter;
     m_simulationEngine->setLightSource(lightSource);
 }
 
-void SimulationStateViewModel::setCameraProjection(Projection projection)
+void SimulationStateModel::setCameraProjection(Projection projection)
 {
     auto camera = m_simulationEngine->getCamera();
     camera.projection = projection;
     m_simulationEngine->setCamera(camera);
 }
 
-void SimulationStateViewModel::setCameraFov(float fov)
+void SimulationStateModel::setCameraFov(float fov)
 {
     auto camera = m_simulationEngine->getCamera();
     camera.fov = fov;
     m_simulationEngine->setCamera(camera);
 }
 
-void SimulationStateViewModel::setCameraPitch(float pitch)
+void SimulationStateModel::setCameraPitch(float pitch)
 {
     auto camera = m_simulationEngine->getCamera();
     camera.pitch = pitch;
     m_simulationEngine->setCamera(camera);
 }
 
-void SimulationStateViewModel::setCameraYaw(float yaw)
+void SimulationStateModel::setCameraYaw(float yaw)
 {
     auto camera = m_simulationEngine->getCamera();
     camera.yaw = yaw;
     m_simulationEngine->setCamera(camera);
 }
 
-void SimulationStateViewModel::setHideSubHorizon(bool hide)
+void SimulationStateModel::setHideSubHorizon(bool hide)
 {
     auto camera = m_simulationEngine->getCamera();
     camera.hideSubHorizon = hide;

@@ -3,14 +3,14 @@
 #include <QComboBox>
 #include <QCheckBox>
 #include <QDataWidgetMapper>
-#include "simulationStateViewModel.h"
+#include "simulationStateModel.h"
 #include "sliderSpinBox.h"
 #include "../simulation/camera.h"
 
 namespace HaloRay
 {
 
-ViewSettingsWidget::ViewSettingsWidget(SimulationStateViewModel *viewModel, QWidget *parent)
+ViewSettingsWidget::ViewSettingsWidget(SimulationStateModel *viewModel, QWidget *parent)
     : QGroupBox("View settings", parent),
       m_viewModel(viewModel)
 {
@@ -19,11 +19,11 @@ ViewSettingsWidget::ViewSettingsWidget(SimulationStateViewModel *viewModel, QWid
     m_mapper = new QDataWidgetMapper(this);
     m_mapper->setModel(m_viewModel);
     m_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
-    m_mapper->addMapping(m_cameraProjectionComboBox, SimulationStateViewModel::CameraProjection, "currentIndex");
-    m_mapper->addMapping(m_fieldOfViewSlider, SimulationStateViewModel::CameraFov);
-    m_mapper->addMapping(m_pitchSlider, SimulationStateViewModel::CameraPitch);
-    m_mapper->addMapping(m_yawSlider, SimulationStateViewModel::CameraYaw);
-    m_mapper->addMapping(m_hideSubHorizonCheckBox, SimulationStateViewModel::HideSubHorizon);
+    m_mapper->addMapping(m_cameraProjectionComboBox, SimulationStateModel::CameraProjection, "currentIndex");
+    m_mapper->addMapping(m_fieldOfViewSlider, SimulationStateModel::CameraFov);
+    m_mapper->addMapping(m_pitchSlider, SimulationStateModel::CameraPitch);
+    m_mapper->addMapping(m_yawSlider, SimulationStateModel::CameraYaw);
+    m_mapper->addMapping(m_hideSubHorizonCheckBox, SimulationStateModel::HideSubHorizon);
     m_mapper->toFirst();
 
     connect(m_cameraProjectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
@@ -39,7 +39,7 @@ ViewSettingsWidget::ViewSettingsWidget(SimulationStateViewModel *viewModel, QWid
      */
     m_maximumFovMapper = new QDataWidgetMapper(this);
     m_maximumFovMapper->setModel(m_viewModel);
-    m_maximumFovMapper->addMapping(m_fieldOfViewSlider, SimulationStateViewModel::CameraMaxFov, "maximum");
+    m_maximumFovMapper->addMapping(m_fieldOfViewSlider, SimulationStateModel::CameraMaxFov, "maximum");
     m_maximumFovMapper->toFirst();
 
     connect(m_brightnessSlider, &SliderSpinBox::valueChanged, this, &ViewSettingsWidget::brightnessChanged);
