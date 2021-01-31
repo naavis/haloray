@@ -66,9 +66,9 @@ void OpenGLWidget::initializeGL()
 
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
-    const int absoluteMaxRaysPerFrame = 500000;
+    const int absoluteMaxRaysPerFrame = 5000000;
     int maxRaysPerFrame = std::min(absoluteMaxRaysPerFrame, maxComputeGroups);
-    m_viewModel->setMaxRaysPerFrame(maxRaysPerFrame);
+    m_viewModel->setRaysPerFrameUpperLimit(maxRaysPerFrame);
 }
 
 void OpenGLWidget::mousePressEvent(QMouseEvent *event)

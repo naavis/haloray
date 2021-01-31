@@ -28,6 +28,12 @@ GeneralSettingsWidget::GeneralSettingsWidget(SimulationStateModel *viewModel, QW
     connect(m_multipleScatteringSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_raysPerFrameSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_maximumFramesSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+
+    connect(m_viewModel, &SimulationStateModel::dataChanged, [this](const QModelIndex &topLeft, const QModelIndex &bottomRight) {
+        if (topLeft.row() == 0 && topLeft.column() <= SimulationStateModel::RaysPerFrameUpperLimit && bottomRight.column() >= SimulationStateModel::RaysPerFrameUpperLimit) {
+            m_raysPerFrameSpinBox->setMaximum(m_viewModel->getRaysPerFrameUpperLimit());
+        }
+    });
 }
 
 void GeneralSettingsWidget::setupUi()
@@ -46,7 +52,7 @@ void GeneralSettingsWidget::setupUi()
     m_raysPerFrameSpinBox = new QSpinBox();
     m_raysPerFrameSpinBox->setSingleStep(1000);
     m_raysPerFrameSpinBox->setMinimum(1);
-    m_raysPerFrameSpinBox->setMaximum(2000000000);
+    m_raysPerFrameSpinBox->setMaximum(m_viewModel->getRaysPerFrameUpperLimit());
     m_raysPerFrameSpinBox->setGroupSeparatorShown(true);
 
     m_maximumFramesSpinBox = new QSpinBox();

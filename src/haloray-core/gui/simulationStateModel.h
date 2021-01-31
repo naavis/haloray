@@ -26,6 +26,7 @@ public:
         MultipleScatteringProbability,
         MaximumRaysPerFrame,
         MaximumIterations,
+        RaysPerFrameUpperLimit,
         NUM_COLUMNS
     };
 
@@ -43,6 +44,8 @@ public:
 
     // Convenience methods
     void setMaxRaysPerFrame(unsigned int maxRaysPerFrame);
+    void setRaysPerFrameUpperLimit(unsigned int upperLimit);
+    unsigned int getRaysPerFrameUpperLimit() const;
     unsigned int getMaxIterations() const;
 
 private:
@@ -56,6 +59,7 @@ private:
     void setHideSubHorizon(bool hide);
 
     unsigned int m_maximumIterations;
+    unsigned int m_raysPerFrameUpperLimit;
 };
 
 }

@@ -7,7 +7,8 @@ namespace HaloRay
 SimulationStateModel::SimulationStateModel(SimulationEngine *engine, QObject *parent)
     : QAbstractTableModel(parent),
       m_simulationEngine(engine),
-      m_maximumIterations(600)
+      m_maximumIterations(600),
+      m_raysPerFrameUpperLimit(50000000)
 {
     connect(m_simulationEngine, &SimulationEngine::cameraChanged, [this]() {
         emit dataChanged(createIndex(0, CameraProjection), createIndex(0, HideSubHorizon));
@@ -54,6 +55,8 @@ QVariant SimulationStateModel::headerData(int section, Qt::Orientation orientati
             return "Maximum rays per frame";
         case MaximumIterations:
             return "Maximum iterations";
+        case RaysPerFrameUpperLimit:
+            return "Rays per frame upper limit";
         }
     }
 
@@ -106,6 +109,8 @@ QVariant SimulationStateModel::data(const QModelIndex &index, int role) const
         return m_simulationEngine->getRaysPerStep();
     case MaximumIterations:
         return m_maximumIterations;
+    case RaysPerFrameUpperLimit:
+        return m_raysPerFrameUpperLimit;
     default:
         break;
     }
@@ -151,6 +156,9 @@ bool SimulationStateModel::setData(const QModelIndex &index, const QVariant &val
     case MaximumIterations:
         m_maximumIterations = value.toUInt();
         break;
+    case RaysPerFrameUpperLimit:
+        m_raysPerFrameUpperLimit = value.toUInt();
+        break;
     default:
         return false;
     }
@@ -173,6 +181,16 @@ Qt::ItemFlags SimulationStateModel::flags(const QModelIndex &index) const
 void SimulationStateModel::setMaxRaysPerFrame(unsigned int maxRaysPerFrame)
 {
     setData(index(0, MaximumRaysPerFrame), maxRaysPerFrame);
+}
+
+void SimulationStateModel::setRaysPerFrameUpperLimit(unsigned int upperLimit)
+{
+    setData(index(0, RaysPerFrameUpperLimit), upperLimit);
+}
+
+unsigned int SimulationStateModel::getRaysPerFrameUpperLimit() const
+{
+    return m_raysPerFrameUpperLimit;
 }
 
 unsigned int SimulationStateModel::getMaxIterations() const
