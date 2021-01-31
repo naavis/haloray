@@ -30,6 +30,7 @@ SimulationEngine::SimulationEngine(
       m_multipleScatteringProbability(0.0),
       m_crystalRepository(crystalRepository)
 {
+    initialize();
 }
 
 bool SimulationEngine::isRunning() const

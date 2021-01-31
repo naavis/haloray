@@ -3,6 +3,7 @@
 #include <QSurfaceFormat>
 #include <QMessageBox>
 #include <QOpenGLContext>
+#include <QOffscreenSurface>
 #include <QString>
 #include <QObject>
 #include "gui/mainWindow.h"
@@ -58,7 +59,9 @@ void setDefaultSurfaceFormat()
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(haloray);
-    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+    QGuiApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+    QGuiApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     setDefaultSurfaceFormat();
     qInstallMessageHandler(logHandler);
     QApplication app(argc, argv);
@@ -72,10 +75,16 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    auto openGLContext = QOpenGLContext();
+    openGLContext.setShareContext(QOpenGLContext::globalShareContext());
+    openGLContext.create();
+    auto surface = QOffscreenSurface(nullptr);
+    surface.create();
+    openGLContext.makeCurrent(&surface);
+
     HaloRay::MainWindow mainWindow;
     mainWindow.show();
 
-    QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
     return app.exec();
 }

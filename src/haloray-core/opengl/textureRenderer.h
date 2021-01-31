@@ -9,7 +9,7 @@ namespace OpenGL
 class TextureRenderer : protected QOpenGLFunctions_4_4_Core
 {
 public:
-    TextureRenderer() = default;
+    explicit TextureRenderer();
     void initialize();
     void setUniformFloat(std::string name, float value);
     void render(unsigned int textureHandle);

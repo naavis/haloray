@@ -61,8 +61,6 @@ void OpenGLWidget::initializeGL()
     initializeOpenGLFunctions();
 
     m_textureRenderer = std::make_unique<OpenGL::TextureRenderer>();
-    m_engine->initialize();
-    m_textureRenderer->initialize();
 
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);

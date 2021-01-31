@@ -40,6 +40,11 @@ std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::initializeTexDrawShaderPr
     return program;
 }
 
+TextureRenderer::TextureRenderer()
+{
+    initialize();
+}
+
 void TextureRenderer::initialize()
 {
     initializeOpenGLFunctions();
