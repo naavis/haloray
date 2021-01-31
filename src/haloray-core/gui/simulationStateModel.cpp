@@ -6,7 +6,8 @@ namespace HaloRay
 
 SimulationStateModel::SimulationStateModel(SimulationEngine *engine, QObject *parent)
     : QAbstractTableModel(parent),
-      m_simulationEngine(engine)
+      m_simulationEngine(engine),
+      m_maximumIterations(600)
 {
     connect(m_simulationEngine, &SimulationEngine::cameraChanged, [this]() {
         emit dataChanged(createIndex(0, CameraProjection), createIndex(0, HideSubHorizon));
@@ -49,6 +50,10 @@ QVariant SimulationStateModel::headerData(int section, Qt::Orientation orientati
             return "Hide sub-horizon";
         case MultipleScatteringProbability:
             return "Multiple scattering probability";
+        case MaximumRaysPerFrame:
+            return "Maximum rays per frame";
+        case MaximumIterations:
+            return "Maximum iterations";
         }
     }
 
@@ -97,6 +102,10 @@ QVariant SimulationStateModel::data(const QModelIndex &index, int role) const
         return m_simulationEngine->getCamera().hideSubHorizon;
     case MultipleScatteringProbability:
         return m_simulationEngine->getMultipleScatteringProbability();
+    case MaximumRaysPerFrame:
+        return m_simulationEngine->getRaysPerStep();
+    case MaximumIterations:
+        return m_maximumIterations;
     default:
         break;
     }
@@ -136,6 +145,12 @@ bool SimulationStateModel::setData(const QModelIndex &index, const QVariant &val
     case MultipleScatteringProbability:
         m_simulationEngine->setMultipleScatteringProbability(value.toDouble());
         break;
+    case MaximumRaysPerFrame:
+        m_simulationEngine->setRaysPerStep(value.toUInt());
+        break;
+    case MaximumIterations:
+        m_maximumIterations = value.toUInt();
+        break;
     default:
         return false;
     }
@@ -153,6 +168,16 @@ Qt::ItemFlags SimulationStateModel::flags(const QModelIndex &index) const
         return Qt::ItemIsEnabled;
 
     return Qt::ItemIsEditable | Qt::ItemIsEnabled;
+}
+
+void SimulationStateModel::setMaxRaysPerFrame(unsigned int maxRaysPerFrame)
+{
+    setData(index(0, MaximumRaysPerFrame), maxRaysPerFrame);
+}
+
+unsigned int SimulationStateModel::getMaxIterations() const
+{
+    return m_maximumIterations;
 }
 
 void SimulationStateModel::setSunAltitude(float altitude)

@@ -60,17 +60,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_viewSettingsWidget->setBrightness(1.0);
 
     // Signals from OpenGL widget
-    connect(m_openGLWidget, &OpenGLWidget::maxRaysPerFrameChanged, m_generalSettingsWidget, &GeneralSettingsWidget::setMaxRaysPerFrame);
     connect(m_openGLWidget, &OpenGLWidget::nextIteration, m_progressBar, &QProgressBar::setValue);
 
-    connect(m_generalSettingsWidget, &GeneralSettingsWidget::numRaysChanged, [this](unsigned int value) {
-        m_engine->setRaysPerStep(value);
-        m_openGLWidget->update();
+    // Signals from view model
+    connect(m_simulationStateModel, &SimulationStateModel::dataChanged, [this](const QModelIndex &topLeft, const QModelIndex &bottomRight) {
+        if (topLeft.row() != 0 || bottomRight.row() != 0) return;
+        auto maxIterationsChanged = topLeft.column() <= SimulationStateModel::MaximumIterations && bottomRight.column() >= SimulationStateModel::MaximumIterations;
+        if (maxIterationsChanged) {
+            m_progressBar->setMaximum(m_simulationStateModel->getMaxIterations());
+        }
     });
-    connect(m_generalSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, m_openGLWidget, &OpenGLWidget::setMaxIterations);
-    connect(m_generalSettingsWidget, &GeneralSettingsWidget::maximumNumberOfIterationsChanged, m_progressBar, &QProgressBar::setMaximum);
-
-    m_generalSettingsWidget->setInitialValues(m_engine->getRaysPerStep(), 600);
 
     // Signals for menu bar
     connect(m_quitAction, &QAction::triggered, QApplication::instance(), &QApplication::quit);
@@ -106,7 +105,7 @@ void MainWindow::setupUi()
 
     setupMenuBar();
 
-    m_openGLWidget = new OpenGLWidget(m_engine);
+    m_openGLWidget = new OpenGLWidget(m_engine, m_simulationStateModel);
     m_progressBar = setupProgressBar();
     m_renderButton = new RenderButton();
 
@@ -163,6 +162,7 @@ QProgressBar *MainWindow::setupProgressBar()
     auto progressBar = new QProgressBar();
     progressBar->setTextVisible(false);
     progressBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    progressBar->setMaximum(m_simulationStateModel->getMaxIterations());
     return progressBar;
 }
 

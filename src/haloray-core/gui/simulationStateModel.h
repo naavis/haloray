@@ -24,6 +24,8 @@ public:
         CameraYaw,
         HideSubHorizon,
         MultipleScatteringProbability,
+        MaximumRaysPerFrame,
+        MaximumIterations,
         NUM_COLUMNS
     };
 
@@ -39,6 +41,10 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
+    // Convenience methods
+    void setMaxRaysPerFrame(unsigned int maxRaysPerFrame);
+    unsigned int getMaxIterations() const;
+
 private:
     SimulationEngine *m_simulationEngine;
     void setSunAltitude(float altitude);
@@ -48,6 +54,8 @@ private:
     void setCameraPitch(float pitch);
     void setCameraYaw(float yaw);
     void setHideSubHorizon(bool hide);
+
+    unsigned int m_maximumIterations;
 };
 
 }

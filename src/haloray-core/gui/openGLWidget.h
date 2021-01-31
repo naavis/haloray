@@ -1,4 +1,5 @@
 #pragma once
+
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_4_Core>
 #include <memory>
@@ -17,26 +18,25 @@ class QPoint;
 namespace HaloRay
 {
 class SimulationEngine;
+class SimulationStateModel;
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Core
 {
     Q_OBJECT
 
 public:
-    explicit OpenGLWidget(SimulationEngine *engine, QWidget *parent = nullptr);
+    explicit OpenGLWidget(SimulationEngine *engine, SimulationStateModel *viewModel, QWidget *parent = nullptr);
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
 public slots:
     void toggleRendering();
     void setBrightness(double brightness);
-    void setMaxIterations(unsigned int maxIterations);
 
 signals:
     void fieldOfViewChanged(double fieldOfView);
     void cameraOrientationChanged(double pitch, double yaw);
     void nextIteration(unsigned int iteration);
-    void maxRaysPerFrameChanged(unsigned int maxRays);
 
 protected:
     void paintGL() override;
@@ -55,7 +55,7 @@ private:
     bool m_dragging;
     QPoint m_previousDragPoint;
     float m_exposure;
-    unsigned int m_maxIterations;
+    SimulationStateModel *m_viewModel;
 };
 
 }

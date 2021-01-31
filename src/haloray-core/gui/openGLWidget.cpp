@@ -4,6 +4,7 @@
 #include <QMouseEvent>
 #include <memory>
 #include <algorithm>
+#include "simulationStateModel.h"
 #include "../simulation/simulationEngine.h"
 #include "../simulation/camera.h"
 #include "../simulation/lightSource.h"
@@ -13,13 +14,13 @@
 namespace HaloRay
 {
 
-OpenGLWidget::OpenGLWidget(SimulationEngine *engine, QWidget *parent)
+OpenGLWidget::OpenGLWidget(SimulationEngine *engine, SimulationStateModel *viewModel, QWidget *parent)
     : QOpenGLWidget(parent),
       m_engine(engine),
       m_dragging(false),
       m_previousDragPoint(QPoint(0, 0)),
       m_exposure(1.0f),
-      m_maxIterations(1)
+      m_viewModel(viewModel)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     setUpdateBehavior(UpdateBehavior::PartialUpdate);
@@ -36,7 +37,7 @@ void OpenGLWidget::toggleRendering()
 
 void OpenGLWidget::paintGL()
 {
-    if (m_engine->isRunning() && m_engine->getIteration() < m_maxIterations)
+    if (m_engine->isRunning() && m_engine->getIteration() < m_viewModel->getMaxIterations())
     {
         m_engine->step();
         emit nextIteration(m_engine->getIteration());
@@ -65,9 +66,9 @@ void OpenGLWidget::initializeGL()
 
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
-    const int absoluteMaxRaysPerFrame = 5000000;
+    const int absoluteMaxRaysPerFrame = 500000;
     int maxRaysPerFrame = std::min(absoluteMaxRaysPerFrame, maxComputeGroups);
-    emit maxRaysPerFrameChanged(maxRaysPerFrame);
+    m_viewModel->setMaxRaysPerFrame(maxRaysPerFrame);
 }
 
 void OpenGLWidget::mousePressEvent(QMouseEvent *event)
@@ -157,12 +158,6 @@ void OpenGLWidget::wheelEvent(QWheelEvent *event)
 void OpenGLWidget::setBrightness(double brightness)
 {
     m_exposure = (float)brightness;
-    update();
-}
-
-void OpenGLWidget::setMaxIterations(unsigned int maxIterations)
-{
-    m_maxIterations = maxIterations;
     update();
 }
 

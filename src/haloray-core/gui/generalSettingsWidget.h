@@ -17,20 +17,11 @@ class GeneralSettingsWidget : public QGroupBox
     Q_OBJECT
 public:
     GeneralSettingsWidget(SimulationStateModel *viewModel, QWidget *parent = nullptr);
-    void setInitialValues(unsigned int raysPerFrame,
-                          unsigned int maxNumFrames);
-
-
-signals:
-    void numRaysChanged(unsigned int rays);
-    void maximumNumberOfIterationsChanged(unsigned int iterations);
 
 public slots:
     void toggleMaxIterationsSpinBoxStatus();
-    void setMaxRaysPerFrame(unsigned int maxRays);
 
 private:
-    LightSource stateToLightSource() const;
     void setupUi();
 
     SliderSpinBox *m_sunAltitudeSlider;
