@@ -56,8 +56,8 @@ void GeneralSettingsWidget::setupUi()
     m_raysPerFrameSpinBox->setGroupSeparatorShown(true);
 
     m_maximumFramesSpinBox = new QSpinBox();
-    m_raysPerFrameSpinBox->setSingleStep(60);
-    m_maximumFramesSpinBox->setMinimum(100);
+    m_maximumFramesSpinBox->setSingleStep(60);
+    m_maximumFramesSpinBox->setMinimum(1);
     m_maximumFramesSpinBox->setMaximum(1000000000);
     m_maximumFramesSpinBox->setGroupSeparatorShown(true);
 
