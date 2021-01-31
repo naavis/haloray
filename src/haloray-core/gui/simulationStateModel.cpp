@@ -25,6 +25,10 @@ SimulationStateModel::SimulationStateModel(SimulationEngine *engine, QObject *pa
     connect(m_simulationEngine, &SimulationEngine::multipleScatteringProbabilityChanged, [this]() {
         emit dataChanged(createIndex(0, MultipleScatteringProbability), createIndex(0, MultipleScatteringProbability));
     });
+
+    connect(m_simulationEngine, &SimulationEngine::raysPerStepChanged, [this]() {
+        emit dataChanged(createIndex(0, RaysPerFrame), createIndex(0, RaysPerFrame));
+    });
 }
 
 QVariant SimulationStateModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -51,8 +55,8 @@ QVariant SimulationStateModel::headerData(int section, Qt::Orientation orientati
             return "Hide sub-horizon";
         case MultipleScatteringProbability:
             return "Multiple scattering probability";
-        case MaximumRaysPerFrame:
-            return "Maximum rays per frame";
+        case RaysPerFrame:
+            return "Rays per frame";
         case MaximumIterations:
             return "Maximum iterations";
         case RaysPerFrameUpperLimit:
@@ -105,7 +109,7 @@ QVariant SimulationStateModel::data(const QModelIndex &index, int role) const
         return m_simulationEngine->getCamera().hideSubHorizon;
     case MultipleScatteringProbability:
         return m_simulationEngine->getMultipleScatteringProbability();
-    case MaximumRaysPerFrame:
+    case RaysPerFrame:
         return m_simulationEngine->getRaysPerStep();
     case MaximumIterations:
         return m_maximumIterations;
@@ -150,7 +154,7 @@ bool SimulationStateModel::setData(const QModelIndex &index, const QVariant &val
     case MultipleScatteringProbability:
         m_simulationEngine->setMultipleScatteringProbability(value.toDouble());
         break;
-    case MaximumRaysPerFrame:
+    case RaysPerFrame:
         m_simulationEngine->setRaysPerStep(value.toUInt());
         break;
     case MaximumIterations:
@@ -178,9 +182,9 @@ Qt::ItemFlags SimulationStateModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEditable | Qt::ItemIsEnabled;
 }
 
-void SimulationStateModel::setMaxRaysPerFrame(unsigned int maxRaysPerFrame)
+void SimulationStateModel::setRaysPerFrame(unsigned int maxRaysPerFrame)
 {
-    setData(index(0, MaximumRaysPerFrame), maxRaysPerFrame);
+    setData(index(0, RaysPerFrame), maxRaysPerFrame);
 }
 
 void SimulationStateModel::setRaysPerFrameUpperLimit(unsigned int upperLimit)

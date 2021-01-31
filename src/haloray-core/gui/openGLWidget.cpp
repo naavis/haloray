@@ -24,6 +24,9 @@ OpenGLWidget::OpenGLWidget(SimulationEngine *engine, SimulationStateModel *viewM
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     setUpdateBehavior(UpdateBehavior::PartialUpdate);
+    connect(m_viewModel, &SimulationStateModel::dataChanged, [this]() {
+        update();
+    });
 }
 
 void OpenGLWidget::toggleRendering()
@@ -108,7 +111,6 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent *event)
         emit cameraOrientationChanged(camera.pitch, camera.yaw);
 
         m_previousDragPoint = currentMousePosition;
-        update();
     }
 }
 
@@ -152,7 +154,6 @@ void OpenGLWidget::wheelEvent(QWheelEvent *event)
     event->accept();
 
     fieldOfViewChanged(camera.fov);
-    update();
 }
 
 void OpenGLWidget::setBrightness(double brightness)

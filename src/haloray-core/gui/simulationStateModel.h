@@ -24,7 +24,7 @@ public:
         CameraYaw,
         HideSubHorizon,
         MultipleScatteringProbability,
-        MaximumRaysPerFrame,
+        RaysPerFrame,
         MaximumIterations,
         RaysPerFrameUpperLimit,
         NUM_COLUMNS
@@ -43,7 +43,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
     // Convenience methods
-    void setMaxRaysPerFrame(unsigned int maxRaysPerFrame);
+    void setRaysPerFrame(unsigned int maxRaysPerFrame);
     void setRaysPerFrameUpperLimit(unsigned int upperLimit);
     unsigned int getRaysPerFrameUpperLimit() const;
     unsigned int getMaxIterations() const;

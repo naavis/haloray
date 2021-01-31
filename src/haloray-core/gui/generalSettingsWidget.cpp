@@ -19,7 +19,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(SimulationStateModel *viewModel, QW
     m_mapper->addMapping(m_sunAltitudeSlider, SimulationStateModel::SunAltitude);
     m_mapper->addMapping(m_sunDiameterSpinBox, SimulationStateModel::SunDiameter);
     m_mapper->addMapping(m_multipleScatteringSlider, SimulationStateModel::MultipleScatteringProbability);
-    m_mapper->addMapping(m_raysPerFrameSpinBox, SimulationStateModel::MaximumRaysPerFrame);
+    m_mapper->addMapping(m_raysPerFrameSpinBox, SimulationStateModel::RaysPerFrame);
     m_mapper->addMapping(m_maximumFramesSpinBox, SimulationStateModel::MaximumIterations);
     m_mapper->toFirst();
 
