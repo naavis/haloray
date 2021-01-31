@@ -9,9 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Force application to use native desktop OpenGL instead of ANGLE or software renderer
+- Forced application to use native desktop OpenGL instead of ANGLE or software renderer
 - Build system switched to qmake from CMake
-- Rewrite most of the GUI code to use Qt model/view architecture
+- Rewrote most of the GUI code to use Qt model/view architecture
 
 ## 2.4.0 - 2019-07-29
 
