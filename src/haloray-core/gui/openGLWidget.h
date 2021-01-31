@@ -22,10 +22,8 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_4_Core
 {
     Q_OBJECT
 
-    typedef std::shared_ptr<HaloRay::SimulationEngine> enginePtr;
-
 public:
-    explicit OpenGLWidget(enginePtr engine, QWidget *parent = nullptr);
+    explicit OpenGLWidget(SimulationEngine *engine, QWidget *parent = nullptr);
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
@@ -52,7 +50,7 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    enginePtr m_engine;
+    SimulationEngine  *m_engine;
     std::unique_ptr<OpenGL::TextureRenderer> m_textureRenderer;
     bool m_dragging;
     QPoint m_previousDragPoint;

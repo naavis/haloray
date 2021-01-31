@@ -45,7 +45,7 @@ private:
     QAction *m_quitAction;
 
     std::shared_ptr<HaloRay::CrystalPopulationRepository> m_crystalRepository;
-    std::shared_ptr<HaloRay::SimulationEngine> m_engine;
+    HaloRay::SimulationEngine *m_engine;
 
     SimulationStateViewModel *m_simulationStateViewModel;
 };

@@ -35,9 +35,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QIcon::setThemeName("HaloRayTheme");
 #endif
     m_crystalRepository = std::make_shared<HaloRay::CrystalPopulationRepository>();
-    m_engine = std::make_shared<HaloRay::SimulationEngine>(m_crystalRepository);
+    m_engine = new SimulationEngine(m_crystalRepository, this);
 
-    m_simulationStateViewModel = new SimulationStateViewModel(m_engine.get(), this);
+    m_simulationStateViewModel = new SimulationStateViewModel(m_engine, this);
 
     setupUi();
 

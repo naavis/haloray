@@ -13,7 +13,7 @@
 namespace HaloRay
 {
 
-OpenGLWidget::OpenGLWidget(enginePtr engine, QWidget *parent)
+OpenGLWidget::OpenGLWidget(SimulationEngine *engine, QWidget *parent)
     : QOpenGLWidget(parent),
       m_engine(engine),
       m_dragging(false),
