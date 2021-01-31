@@ -1,4 +1,5 @@
 # HaloRay ![](images/hexagon_small.png)
+
 [![Build status](https://ci.appveyor.com/api/projects/status/5k9laekby84x2ex1/branch/develop?svg=true)](https://ci.appveyor.com/project/naavis/haloray/branch/develop)
 
 HaloRay simulates the reflection and refraction of sun light inside hexagonal
@@ -35,7 +36,7 @@ Here are some general settings for the whole simulation.
 - **Sun altitude:** Sun altitude from the horizon in degrees
 - **Sun diameter:** Angular diameter of the sun in degrees
 - **Rays per frame:** Number of rays traced through individual crystals per
-    rendered frame
+  rendered frame
   - If the user interface slows down a lot during rendering, lower this value
   - On an NVIDIA GeForce GTX 1070 a good value seems to be around 500 000
   - The maximum value for this parameter may be limited by your GPU
@@ -74,7 +75,7 @@ The following table shows parameters needed to simulate crystal orientations
 known to happen in nature.
 
 | Orientation | Tilt around a-axis | Rotation around c-axis |
-|-------------|--------------------|------------------------|
+| ----------- | ------------------ | ---------------------- |
 | Column      | 90                 | Uniform                |
 | Plate       | 0                  | Uniform                |
 | Parry       | 90                 | 0                      |
@@ -127,7 +128,7 @@ sudo apt-get install qt5-default
 
 On Windows you need to set either `Qt5_DIR` or `CMAKE_PREFIX_PATH` environment
 variable to point to the Qt prefix path, e.g.
-`C:\Qt\5.12.3\msvc2017_64\`
+`C:\Qt\5.15.2\msvc2019_64\`
 
 Finally build the project by running:
 
@@ -163,4 +164,3 @@ Appveyor CI server.
 - [Panu Lahtinen](https://github.com/pnuu) for additional Linux support
 - Jukka Ruoskanen for making HaloPoint 2.0 back in the day and inspiring me to start working on HaloRay
 - [Jaakko Lehtinen](https://users.aalto.fi/~lehtinj7/) for super valuable lessons in computer graphics
-
