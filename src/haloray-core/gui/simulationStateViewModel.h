@@ -40,7 +40,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 private:
-    HaloRay::SimulationEngine *m_simulationEngine;
+    SimulationEngine *m_simulationEngine;
     void setSunAltitude(float altitude);
     void setSunDiameter(float diameter);
     void setCameraProjection(Projection projection);

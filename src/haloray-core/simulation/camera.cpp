@@ -38,7 +38,7 @@ Camera Camera::createDefaultCamera()
     camera.pitch = 0.0f;
     camera.yaw = 0.0f;
     camera.fov = 75.0f;
-    camera.projection = HaloRay::Projection::Stereographic;
+    camera.projection = Projection::Stereographic;
     camera.hideSubHorizon = false;
     return camera;
 }

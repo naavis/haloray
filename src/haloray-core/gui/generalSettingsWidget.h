@@ -30,7 +30,7 @@ public slots:
     void setMaxRaysPerFrame(unsigned int maxRays);
 
 private:
-    HaloRay::LightSource stateToLightSource() const;
+    LightSource stateToLightSource() const;
     void setupUi();
 
     SliderSpinBox *m_sunAltitudeSlider;

@@ -81,9 +81,9 @@ void GeneralSettingsWidget::setupUi()
     layout->addRow(tr("Double scattering"), m_multipleScatteringSlider);
 }
 
-HaloRay::LightSource GeneralSettingsWidget::stateToLightSource() const
+LightSource GeneralSettingsWidget::stateToLightSource() const
 {
-    HaloRay::LightSource light;
+    LightSource light;
     light.altitude = m_sunAltitudeSlider->value();
     light.diameter = m_sunDiameterSpinBox->value();
     return light;

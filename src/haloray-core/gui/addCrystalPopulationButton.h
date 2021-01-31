@@ -17,7 +17,7 @@ public:
     AddCrystalPopulationButton(QWidget *parent = nullptr);
 
 signals:
-    void addPopulation(HaloRay::CrystalPopulationPreset);
+    void addPopulation(CrystalPopulationPreset);
 
 private:
     QMenu *m_menu;

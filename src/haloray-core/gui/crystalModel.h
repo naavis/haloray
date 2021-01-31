@@ -16,7 +16,7 @@ class CrystalModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit CrystalModel(std::shared_ptr<HaloRay::CrystalPopulationRepository> crystalRepository, QWidget *parent = nullptr);
+    explicit CrystalModel(std::shared_ptr<CrystalPopulationRepository> crystalRepository, QWidget *parent = nullptr);
 
     enum Columns
     {
@@ -38,11 +38,11 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    void addRow(HaloRay::CrystalPopulationPreset preset = HaloRay::CrystalPopulationPreset::Random);
+    void addRow(CrystalPopulationPreset preset = CrystalPopulationPreset::Random);
     bool removeRow(int row);
 
 private:
-    std::shared_ptr<HaloRay::CrystalPopulationRepository> m_crystals;
+    std::shared_ptr<CrystalPopulationRepository> m_crystals;
 };
 
 }

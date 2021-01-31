@@ -14,7 +14,7 @@
 namespace HaloRay
 {
 
-CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloRay::CrystalPopulationRepository> crystalRepository, QWidget *parent)
+CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<CrystalPopulationRepository> crystalRepository, QWidget *parent)
     : QGroupBox("Crystal population settings", parent),
       m_model(new CrystalModel(crystalRepository)),
       m_nextPopulationId(1)
@@ -72,7 +72,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<HaloRay::CrystalPop
     tiltVisibilityHandler(m_tiltDistributionComboBox->currentIndex());
     rotationVisibilityHandler(m_rotationDistributionComboBox->currentIndex());
 
-    connect(m_AddPopulationButton, &AddCrystalPopulationButton::addPopulation, [this](HaloRay::CrystalPopulationPreset preset) {
+    connect(m_AddPopulationButton, &AddCrystalPopulationButton::addPopulation, [this](CrystalPopulationPreset preset) {
         m_model->addRow(preset);
         addPopulationComboBoxItem();
         m_mapper->toLast();

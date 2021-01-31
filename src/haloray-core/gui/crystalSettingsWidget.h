@@ -21,7 +21,7 @@ class CrystalSettingsWidget : public QGroupBox
 {
     Q_OBJECT
 public:
-    CrystalSettingsWidget(std::shared_ptr<HaloRay::CrystalPopulationRepository> crystalRepository, QWidget *parent = nullptr);
+    CrystalSettingsWidget(std::shared_ptr<CrystalPopulationRepository> crystalRepository, QWidget *parent = nullptr);
 
 signals:
     void crystalChanged();

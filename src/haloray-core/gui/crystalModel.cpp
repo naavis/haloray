@@ -6,7 +6,7 @@
 namespace HaloRay
 {
 
-CrystalModel::CrystalModel(std::shared_ptr<HaloRay::CrystalPopulationRepository> crystalRepository, QWidget *parent)
+CrystalModel::CrystalModel(std::shared_ptr<CrystalPopulationRepository> crystalRepository, QWidget *parent)
     : QAbstractTableModel(parent),
       m_crystals(crystalRepository)
 {
@@ -35,7 +35,7 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     auto row = index.row();
-    const HaloRay::CrystalPopulation &crystal = m_crystals->get(row);
+    const CrystalPopulation &crystal = m_crystals->get(row);
 
     switch (index.column())
     {
@@ -73,7 +73,7 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
     if (data(index, role) == value) return false;
 
     auto row = index.row();
-    HaloRay::CrystalPopulation &crystal = m_crystals->get(row);
+    CrystalPopulation &crystal = m_crystals->get(row);
     switch (index.column())
     {
     case CaRatioAverage:
@@ -120,7 +120,7 @@ Qt::ItemFlags CrystalModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEditable | QAbstractTableModel::flags(index);
 }
 
-void CrystalModel::addRow(HaloRay::CrystalPopulationPreset preset)
+void CrystalModel::addRow(CrystalPopulationPreset preset)
 {
     auto row = m_crystals->getCount();
     beginInsertRows(QModelIndex(), row, row);

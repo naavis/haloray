@@ -27,12 +27,12 @@ AddCrystalPopulationButton::AddCrystalPopulationButton(QWidget *parent)
 
     setMenu(m_menu);
 
-    connect(this, &AddCrystalPopulationButton::clicked, [this]() { emit addPopulation(HaloRay::CrystalPopulationPreset::Random); });
-    connect(m_addRandom, &QAction::triggered, [this]() { emit addPopulation(HaloRay::CrystalPopulationPreset::Random); });
-    connect(m_addPlate, &QAction::triggered, [this]() { emit addPopulation(HaloRay::CrystalPopulationPreset::Plate); });
-    connect(m_addColumn, &QAction::triggered, [this]() { emit addPopulation(HaloRay::CrystalPopulationPreset::Column); });
-    connect(m_addParry, &QAction::triggered, [this]() { emit addPopulation(HaloRay::CrystalPopulationPreset::Parry); });
-    connect(m_addLowitz, &QAction::triggered, [this]() { emit addPopulation(HaloRay::CrystalPopulationPreset::Lowitz); });
+    connect(this, &AddCrystalPopulationButton::clicked, [this]() { emit addPopulation(CrystalPopulationPreset::Random); });
+    connect(m_addRandom, &QAction::triggered, [this]() { emit addPopulation(CrystalPopulationPreset::Random); });
+    connect(m_addPlate, &QAction::triggered, [this]() { emit addPopulation(CrystalPopulationPreset::Plate); });
+    connect(m_addColumn, &QAction::triggered, [this]() { emit addPopulation(CrystalPopulationPreset::Column); });
+    connect(m_addParry, &QAction::triggered, [this]() { emit addPopulation(CrystalPopulationPreset::Parry); });
+    connect(m_addLowitz, &QAction::triggered, [this]() { emit addPopulation(CrystalPopulationPreset::Lowitz); });
 }
 
 }
