@@ -523,5 +523,6 @@ void main(void)
 
     ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.x, resolution.y * normalizedCoordinates.y);
     vec3 cieXYZ = daylightEstimate(wavelength) * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
-    storePixel(pixelCoordinates, cieXYZ);
+    mat3 xyzToSrgb = mat3(3.2406, -0.9689, 0.0557, -1.5372, 1.8758, -0.2040, -0.4986, 0.0415, 1.0570);
+    storePixel(pixelCoordinates, xyzToSrgb * cieXYZ);
 }
