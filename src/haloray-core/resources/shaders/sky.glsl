@@ -110,7 +110,10 @@ float chromaY(float zenithAngle, float sunAngle, float turbidity)
 vec3 getSkyXYZ(vec3 direction, float turbidity)
 {
     float sunAltitudeRadians = radians(sun.altitude);
-    vec3 sunVec = vec3(0.0, sin(sunAltitudeRadians), cos(sunAltitudeRadians));
+    /* NOTE: The sun vector is now in the opposite Z direction
+      than in the crystal raytracing shader. This should probably
+      made the same in all shaders. */
+    vec3 sunVec = vec3(0.0, sin(sunAltitudeRadians), -cos(sunAltitudeRadians));
     float sunAngle = acos(dot(sunVec, direction));
     float zenithAngle = acos(direction.y);
     float Y = luminance(zenithAngle, sunAngle, turbidity);
@@ -120,24 +123,74 @@ vec3 getSkyXYZ(vec3 direction, float turbidity)
     return XYZ;
 }
 
-vec3 imageCoordsToUnitSphere(ivec2 pixelCoordinates, ivec2 resolution)
+vec2 planarToPolar(vec2 point)
 {
-    vec2 zeroToOneCoordinates = vec2(pixelCoordinates) / vec2(resolution);
+    float r = length(point);
+    float angle = atan(point.y, point.x);
+    return vec2(r, angle);
+}
 
-    float latitude = zeroToOneCoordinates.y * 0.5 * PI;
-    float longitude = zeroToOneCoordinates.x * 2.0 * PI - PI;
-    float x = cos(latitude) * sin(longitude);
-    float y = sin(latitude);
-    float z = cos(latitude) * cos(longitude);
-    return normalize(vec3(x, y, z));
+mat3 rotateAroundX(float angle)
+{
+    return mat3(
+        1.0, 0.0, 0.0,
+        0.0, cos(angle), sin(angle),
+        0.0, -sin(angle), cos(angle)
+    );
+}
+
+mat3 rotateAroundY(float angle)
+{
+    return mat3(
+        cos(angle), 0.0, -sin(angle),
+        0.0, 1.0, 0.0,
+        sin(angle), 0.0, cos(angle)
+    );
+}
+
+mat3 getCameraOrientationMatrix()
+{
+    return rotateAroundY(radians(camera.yaw)) * rotateAroundX(radians(camera.pitch));
 }
 
 void main(void)
 {
     ivec2 resolution = imageSize(outputImage);
+    float aspectRatio = float(resolution.y) / float(resolution.x);
     ivec2 pixelCoordinates = ivec2(gl_GlobalInvocationID.xy);
 
-    vec3 dir = imageCoordsToUnitSphere(pixelCoordinates, resolution);
+    vec2 normCoord = vec2(pixelCoordinates) / vec2(resolution) - 0.5;
+    normCoord.x /= aspectRatio;
+    vec2 polar = planarToPolar(normCoord);
+
+    float fovRadians = radians(camera.fov);
+    float projectedAngle;
+
+    if (camera.projection == PROJECTION_STEREOGRAPHIC) {
+        float focalLength = 1.0 / (4.0 * tan(fovRadians / 4.0));
+        projectedAngle = 2.0 * atan(polar.x / 2.0 / focalLength);
+    } else if (camera.projection == PROJECTION_RECTILINEAR) {
+        if (polar.x > 0.5 * PI) return;
+        float focalLength = 1.0 / (2.0 * tan(fovRadians / 2.0));
+        projectedAngle = atan(polar.x / focalLength);
+    } else if (camera.projection == PROJECTION_EQUIDISTANT) {
+        float focalLength = 1.0 / fovRadians;
+        projectedAngle = polar.x / focalLength;
+    } else if (camera.projection == PROJECTION_EQUAL_AREA) {
+        float focalLength = 1.0 / (4.0 * sin(fovRadians / 4.0));
+        projectedAngle = 2.0 * asin(polar.x / 2.0 / focalLength);
+    } else if (camera.projection == PROJECTION_ORTHOGRAPHIC) {
+        if (polar.x > 0.5 * PI) return;
+        float focalLength = 1.0 / (2.0 * sin(fovRadians / 2.0));
+        projectedAngle = asin(polar.x / focalLength);
+    }
+
+    float x = sin(projectedAngle) * cos(polar.y);
+    float y = sin(projectedAngle) * sin(polar.y);
+    float z = -cos(projectedAngle);
+
+    vec3 dir = getCameraOrientationMatrix() * vec3(x, y, z);
+
     if (dir.y < 0.0) return;
     mat3 xyzToSrgb = mat3(3.2406, -0.9689, 0.0557, -1.5372, 1.8758, -0.2040, -0.4986, 0.0415, 1.0570);
     imageStore(outputImage, pixelCoordinates, vec4(0.1 * xyzToSrgb * getSkyXYZ(dir, 2.0), 1.0));
