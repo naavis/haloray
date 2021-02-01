@@ -8,27 +8,9 @@ namespace OpenGL
 
 std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::initializeTexDrawShaderProgram()
 {
-    const std::string vertexShaderSrc =
-        "#version 440 core\n"
-        "in vec2 position;"
-        "void main(void) {"
-        "    gl_Position = vec4(position, 0.0f, 1.0);"
-        "}";
-
-    const std::string fragShaderSrc =
-        "#version 440 core\n"
-        "out vec4 color;"
-        "uniform float exposure;"
-        "uniform sampler2D s;"
-        "void main(void) {"
-        "    vec3 linearSrgb = exposure * texelFetch(s, ivec2(gl_FragCoord.xy), 0).xyz;"
-        "    vec3 gammaCorrected = pow(linearSrgb, vec3(0.42));"
-        "    color = vec4(gammaCorrected, 1.0);"
-        "}";
-
     auto program = std::make_unique<QOpenGLShaderProgram>();
-    program->addCacheableShaderFromSourceCode(QOpenGLShader::ShaderTypeBit::Vertex, vertexShaderSrc.c_str());
-    program->addCacheableShaderFromSourceCode(QOpenGLShader::ShaderTypeBit::Fragment, fragShaderSrc.c_str());
+    program->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Vertex, ":/shaders/renderer.vert");
+    program->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Fragment, ":/shaders/renderer.frag");
 
     if (program->link() == false)
     {
