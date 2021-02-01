@@ -1,7 +1,9 @@
 #version 440 core
 
 layout(local_size_x = 1, local_size_y = 1) in;
-layout(binding = 0, rgba32f) uniform coherent image2D outputImage;
+layout(binding = 2, rgba32f) uniform coherent image2D outputImage;
+
+const float TURBIDITY = 4.0;
 
 uniform struct sunProperties_t
 {
@@ -193,5 +195,5 @@ void main(void)
 
     if (dir.y < 0.0) return;
     mat3 xyzToSrgb = mat3(3.2406, -0.9689, 0.0557, -1.5372, 1.8758, -0.2040, -0.4986, 0.0415, 1.0570);
-    imageStore(outputImage, pixelCoordinates, vec4(0.1 * xyzToSrgb * getSkyXYZ(dir, 2.0), 1.0));
+    imageStore(outputImage, pixelCoordinates, vec4(0.05 * xyzToSrgb * getSkyXYZ(dir, TURBIDITY), 1.0));
 }

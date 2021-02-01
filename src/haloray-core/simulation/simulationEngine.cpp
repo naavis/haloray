@@ -80,6 +80,11 @@ unsigned int SimulationEngine::getOutputTextureHandle() const
     return m_simulationTexture->getHandle();
 }
 
+unsigned int SimulationEngine::getBackgroundTextureHandle() const
+{
+    return m_backgroundTexture->getHandle();
+}
+
 unsigned int SimulationEngine::getIteration() const
 {
     return m_iteration;
@@ -103,9 +108,10 @@ void SimulationEngine::step()
 {
     ++m_iteration;
 
-    if (m_iteration == 1) {
+    if (m_iteration == 1)
+    {
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-        glBindImageTexture(m_simulationTexture->getTextureUnit(), m_simulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        glBindImageTexture(m_backgroundTexture->getTextureUnit(), m_backgroundTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
         m_skyShader->bind();
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         m_skyShader->setUniformValue("sun.altitude", m_light.altitude);
@@ -171,10 +177,15 @@ void SimulationEngine::clear()
     if (!m_initialized)
         return;
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
     glClearTexImage(m_simulationTexture->getHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(m_simulationTexture->getTextureUnit(), m_simulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
     glClearTexImage(m_spinlockTexture->getHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
     glBindImageTexture(m_spinlockTexture->getTextureUnit(), m_spinlockTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+
+    glClearTexImage(m_backgroundTexture->getHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
+    glBindImageTexture(m_backgroundTexture->getTextureUnit(), m_backgroundTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     m_iteration = 0;
 }
 
@@ -224,6 +235,7 @@ void SimulationEngine::initializeTextures()
 {
     m_simulationTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 0, OpenGL::TextureType::Color);
     m_spinlockTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 1, OpenGL::TextureType::Monochrome);
+    m_backgroundTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 2, OpenGL::TextureType::Color);
 }
 
 void SimulationEngine::resizeOutputTextureCallback(const unsigned int width, const unsigned int height)
@@ -233,6 +245,7 @@ void SimulationEngine::resizeOutputTextureCallback(const unsigned int width, con
 
     m_simulationTexture.reset();
     m_spinlockTexture.reset();
+    m_backgroundTexture.reset();
 
     initializeTextures();
     clear();

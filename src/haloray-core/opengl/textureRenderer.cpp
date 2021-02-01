@@ -52,7 +52,7 @@ void TextureRenderer::initialize()
     m_texDrawProgram = initializeTexDrawShaderProgram();
 }
 
-void TextureRenderer::render(unsigned int textureHandle)
+void TextureRenderer::render(unsigned int haloTextureHandle, int backgroundTextureHandle)
 {
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
@@ -62,8 +62,12 @@ void TextureRenderer::render(unsigned int textureHandle)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindVertexArray(m_quadVao);
-    glBindTexture(GL_TEXTURE_2D, textureHandle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, haloTextureHandle);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, backgroundTextureHandle);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void TextureRenderer::setUniformFloat(std::string name, float value)

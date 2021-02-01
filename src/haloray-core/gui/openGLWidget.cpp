@@ -46,9 +46,10 @@ void OpenGLWidget::paintGL()
         emit nextIteration(m_engine->getIteration());
         update();
     }
-    const float exposure = m_exposure / (m_engine->getIteration() + 1) / (m_engine->getCamera().fov / 180.0);
-    m_textureRenderer->setUniformFloat("exposure", exposure);
-    m_textureRenderer->render(m_engine->getOutputTextureHandle());
+    const float adjustedExposure = m_exposure / (m_engine->getIteration() + 1) / (m_engine->getCamera().fov / 180.0);
+    m_textureRenderer->setUniformFloat("adjustedExposure", adjustedExposure);
+    m_textureRenderer->setUniformFloat("baseExposure", m_exposure);
+    m_textureRenderer->render(m_engine->getOutputTextureHandle(), m_engine->getBackgroundTextureHandle());
 }
 
 void OpenGLWidget::resizeGL(int w, int h)

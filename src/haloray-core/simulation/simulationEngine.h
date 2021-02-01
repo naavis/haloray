@@ -44,6 +44,7 @@ public:
     double getMultipleScatteringProbability() const;
 
     unsigned int getOutputTextureHandle() const;
+    unsigned int getBackgroundTextureHandle() const;
 
     void resizeOutputTextureCallback(const unsigned int width, const unsigned int height);
 
@@ -67,6 +68,7 @@ private:
     QOpenGLShaderProgram *m_skyShader;
     std::unique_ptr<OpenGL::Texture> m_simulationTexture;
     std::unique_ptr<OpenGL::Texture> m_spinlockTexture;
+    std::unique_ptr<OpenGL::Texture> m_backgroundTexture;
 
     Camera m_camera;
     LightSource m_light;
