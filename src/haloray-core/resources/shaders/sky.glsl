@@ -238,6 +238,6 @@ void main(void)
     vec3 skyCIEXYZ = hosekSky(dir, skyModelState.turbidity);
 
     if (dir.y < 0.0) return;
-    mat3 xyzToSrgb = mat3(3.2406, -0.9689, 0.0557, -1.5372, 1.8758, -0.2040, -0.4986, 0.0415, 1.0570);
+    mat3 xyzToSrgb = mat3(3.24096994, -0.96924364, 0.05563008, -1.53738318, 1.8759675, -0.20397696, -0.49861076, 0.04155506, 1.05697151);
     imageStore(outputImage, pixelCoordinates, vec4(0.1 * xyzToSrgb * skyCIEXYZ, 1.0));
 }

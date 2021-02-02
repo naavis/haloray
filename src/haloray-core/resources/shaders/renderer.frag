@@ -9,6 +9,7 @@ layout (binding = 1) uniform sampler2D backgroundTexture;
 void main(void) {
     vec3 haloLinearSrgb = adjustedExposure * texelFetch(haloTexture, ivec2(gl_FragCoord.xy), 0).xyz;
     vec3 background = max(vec3(0.0), baseExposure * texelFetch(backgroundTexture, ivec2(gl_FragCoord.xy), 0).xyz);
-    vec3 gammaCorrected = pow(background + haloLinearSrgb, vec3(0.42));
-    color = vec4(gammaCorrected, 1.0);
+    vec3 linearImage = background + haloLinearSrgb;
+    vec3 gammaCorrected = 1.055 * pow(linearImage, vec3(0.417)) - 0.055;
+    color = vec4(clamp(gammaCorrected, 0.0, 1.0), 1.0);
 }
