@@ -194,7 +194,7 @@ void SimulationEngine::initializeShader()
 #ifdef _WIN32
     m_simulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
 #else
-    mSimulationShader->addShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
+    m_simulationShader->addShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
 #endif
     if (m_simulationShader->link() == false)
     {
