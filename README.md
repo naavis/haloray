@@ -135,7 +135,7 @@ Finally build the project by running:
 ```bash
 mkdir build
 cd src
-qmake.exe main.pro -o ..\build\
+qmake main.pro -o ..\build\
 cd ..\build
 make
 ```
