@@ -9,7 +9,6 @@
 #include "../simulation/camera.h"
 #include "../simulation/lightSource.h"
 #include "../simulation/crystalPopulation.h"
-#include "../opengl/textureRenderer.h"
 
 namespace HaloRay
 {

@@ -3,13 +3,12 @@
 #include <memory>
 #include <QObject>
 #include <QOpenGLFunctions_4_4_Core>
+#include <QOpenGLShaderProgram>
 #include "../opengl/texture.h"
 #include "camera.h"
 #include "lightSource.h"
 #include "crystalPopulation.h"
 #include "crystalPopulationRepository.h"
-
-class QOpenGLShaderProgram;
 
 namespace HaloRay
 {
