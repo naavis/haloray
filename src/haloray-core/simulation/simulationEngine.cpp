@@ -2,15 +2,53 @@
 #include <memory>
 #include <random>
 #include <limits>
+#include <cmath>
 #include <stdexcept>
 #include <QOpenGLShaderProgram>
 #include "../opengl/texture.h"
 #include "camera.h"
 #include "lightSource.h"
 #include "crystalPopulation.h"
+#include "backgroundSky/ArHosekSkyModel.h"
 
 namespace HaloRay
 {
+typedef struct SkyModelState
+{
+    float configs[3][9];
+    float radiances[3];
+    float turbidity;
+    float solar_radius;
+    float albedo;
+    float elevation;
+} SkyModelState;
+
+SkyModelState ConvertSkyModelState(ArHosekSkyModelState *originalState)
+{
+    SkyModelState state;
+    state.turbidity = (float)originalState->turbidity;
+    state.solar_radius = (float)originalState->solar_radius;
+    state.albedo = (float)originalState->albedo;
+    state.elevation = (float)originalState->albedo;
+    for (auto channel = 0u; channel < 3; ++channel)
+    {
+        state.radiances[channel] = (float)(originalState->radiances[channel]);
+        for (auto config = 0u; config < 9; ++config)
+        {
+            state.configs[channel][config] = (float)(originalState->configs[channel][config]);
+        }
+    }
+
+    return state;
+}
+
+SkyModelState GetSkyStateModel(double solarElevation, double atmosphericTurbidity, double groundAlbedo)
+{
+    auto tempState = arhosek_xyz_skymodelstate_alloc_init(atmosphericTurbidity, groundAlbedo, solarElevation);
+    auto state = ConvertSkyModelState(tempState);
+    arhosekskymodelstate_free(tempState);
+    return state;
+}
 
 SimulationEngine::SimulationEngine(
     std::shared_ptr<CrystalPopulationRepository> crystalRepository,
@@ -110,6 +148,9 @@ void SimulationEngine::step()
 
     if (m_iteration == 1)
     {
+        const float PI = 3.1415926535897932384626433832795028841971693993751058209749445923078164062;
+        auto skyState = GetSkyStateModel(PI * m_light.altitude / 180.0, 4.0, 0.0);
+
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         glBindImageTexture(m_backgroundTexture->getTextureUnit(), m_backgroundTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
         m_skyShader->bind();
@@ -121,6 +162,18 @@ void SimulationEngine::step()
         m_skyShader->setUniformValue("camera.fov", m_camera.fov);
         m_skyShader->setUniformValue("camera.projection", m_camera.projection);
         m_skyShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
+
+        for (auto channel = 0u; channel < 3; ++channel)
+        {
+            auto configLocation = m_skyShader->uniformLocation(QString("skyModelState.configs[%1]").arg(channel));
+            m_skyShader->setUniformValueArray(configLocation, skyState.configs[channel], 9, 1);
+        }
+        m_skyShader->setUniformValueArray("skyModelState.radiances", skyState.radiances, 3, 1);
+        m_skyShader->setUniformValue("skyModelState.turbidity", skyState.turbidity);
+        m_skyShader->setUniformValue("skyModelState.solar_radius", skyState.solar_radius);
+        m_skyShader->setUniformValue("skyModelState.albedo", skyState.albedo);
+        m_skyShader->setUniformValue("skyModelState.elevation", skyState.elevation);
+
         glDispatchCompute(m_outputWidth, m_outputHeight, 1);
     }
 

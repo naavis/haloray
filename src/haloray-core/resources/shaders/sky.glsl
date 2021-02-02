@@ -3,8 +3,6 @@
 layout(local_size_x = 1, local_size_y = 1) in;
 layout(binding = 2, rgba32f) uniform coherent image2D outputImage;
 
-const float TURBIDITY = 4.0;
-
 uniform struct sunProperties_t
 {
     float altitude;
@@ -20,6 +18,16 @@ uniform struct camera_t
     int hideSubHorizon;
 } camera;
 
+uniform struct hosekSkyModelState_t
+{
+    float configs[3][9];
+    float radiances[3];
+    float turbidity;
+    float solar_radius;
+    float albedo;
+    float elevation;
+} skyModelState;
+
 #define PROJECTION_STEREOGRAPHIC 0
 #define PROJECTION_RECTILINEAR 1
 #define PROJECTION_EQUIDISTANT 2
@@ -28,19 +36,19 @@ uniform struct camera_t
 
 const float PI = 3.1415926535;
 
+/*
+  Sky shading model below based on
+  "A Practical Analytic Model for Daylight" (1999)
+  by A. J. Preetham, Peter Shirley, Brian Smits
+  University of Utah
+*/
+
 float perez(float zenithAngle, float sunAngle, float A, float B, float C, float D, float E)
 {
     float firstTerm = 1.0f + A * exp(B / cos(zenithAngle));
     float secondTerm = 1.0f + C * exp(D * sunAngle) + E * cos(sunAngle) * cos(sunAngle);
     return firstTerm * secondTerm;
 }
-
-/*
-  Sky shading model based on
-  "A Practical Analytic Model for Daylight" (1999)
-  by A. J. Preetham, Peter Shirley, Brian Smits
-  University of Utah
-*/
 
 float luminance(float zenithAngle, float sunAngle, float turbidity)
 {
@@ -109,7 +117,7 @@ float chromaY(float zenithAngle, float sunAngle, float turbidity)
     return yz * upperTerm / lowerTerm;
 }
 
-vec3 getSkyXYZ(vec3 direction, float turbidity)
+vec3 preethamSky(vec3 direction, float turbidity)
 {
     float sunAltitudeRadians = radians(sun.altitude);
     /* NOTE: The sun vector is now in the opposite Z direction
@@ -123,6 +131,41 @@ vec3 getSkyXYZ(vec3 direction, float turbidity)
     float y = chromaY(zenithAngle, sunAngle, turbidity);
     vec3 XYZ = vec3(x * Y/y, Y, (1.0 - x - y) * Y/y);
     return XYZ;
+}
+
+/*
+  Sky shading model below based on
+  "An Analytics Model for Full Spectral Sky-Dome Radiance" (2012)
+  by Lukas Hosek, Alexander Wilkie,
+  Charles University in Prague
+*/
+
+vec3 hosekSky(vec3 direction, float turbidity)
+{
+    float sunAltitudeRadians = radians(sun.altitude);
+    /* NOTE: The sun vector is now in the opposite Z direction
+      than in the crystal raytracing shader. This should probably
+      made the same in all shaders. */
+    vec3 sunVec = vec3(0.0, sin(sunAltitudeRadians), -cos(sunAltitudeRadians));
+    float sunAngle = acos(dot(sunVec, direction));
+    float zenithAngle = acos(direction.y);
+    float theta = zenithAngle;
+    float gamma = sunAngle;
+
+    vec3 skyCIEXYZ;
+    for (int channel = 0; channel < 3; ++channel)
+    {
+        float[9] configuration = skyModelState.configs[channel];
+        float expM = exp(configuration[4] * gamma);
+        float rayM = cos(gamma)*cos(gamma);
+        float mieM = (1.0 + cos(gamma)*cos(gamma)) / pow((1.0 + configuration[8]*configuration[8] - 2.0*configuration[8]*cos(gamma)), 1.5);
+        float zenith = sqrt(cos(theta));
+
+        float temp = (1.0 + configuration[0] * exp(configuration[1] / (cos(theta) + 0.01))) *
+                (configuration[2] + configuration[3] * expM + configuration[5] * rayM + configuration[6] * mieM + configuration[7] * zenith);
+        skyCIEXYZ[channel] = skyModelState.radiances[channel] * temp;
+    }
+    return skyCIEXYZ;
 }
 
 vec2 planarToPolar(vec2 point)
@@ -192,8 +235,9 @@ void main(void)
     float z = -cos(projectedAngle);
 
     vec3 dir = getCameraOrientationMatrix() * vec3(x, y, z);
+    vec3 skyCIEXYZ = hosekSky(dir, skyModelState.turbidity);
 
     if (dir.y < 0.0) return;
     mat3 xyzToSrgb = mat3(3.2406, -0.9689, 0.0557, -1.5372, 1.8758, -0.2040, -0.4986, 0.0415, 1.0570);
-    imageStore(outputImage, pixelCoordinates, vec4(0.05 * xyzToSrgb * getSkyXYZ(dir, TURBIDITY), 1.0));
+    imageStore(outputImage, pixelCoordinates, vec4(0.1 * xyzToSrgb * skyCIEXYZ, 1.0));
 }

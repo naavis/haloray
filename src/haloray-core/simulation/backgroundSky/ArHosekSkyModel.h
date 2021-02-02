@@ -304,6 +304,11 @@ HINT #1:   if you want to model the sky of an earth-like planet that orbits
 #ifndef _ARHOSEK_SKYMODEL_H_
 #define _ARHOSEK_SKYMODEL_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 typedef double ArHosekSkyModelConfiguration[9];
 
 
@@ -447,5 +452,8 @@ double arhosekskymodel_solar_radiance(
         double                      wavelength
         );
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _ARHOSEK_SKYMODEL_H_
