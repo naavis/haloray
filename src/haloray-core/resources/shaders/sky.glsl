@@ -35,6 +35,9 @@ uniform struct hosekSkyModelState_t
 #define PROJECTION_ORTHOGRAPHIC 4
 
 const float PI = 3.1415926535;
+const float minSunElevation = -10.0;
+const float mixingMaxElevation = 3.0;
+const float mixingMinElevation = 0.5;
 
 /*
   Sky shading model below based on
@@ -168,6 +171,28 @@ vec3 hosekSky(vec3 direction, float turbidity)
     return skyCIEXYZ;
 }
 
+vec3 hosekPreethamMix(vec3 direction, float turbidity)
+{
+    vec3 skyCIEXYZ;
+    if (sun.altitude >= mixingMaxElevation)
+    {
+        skyCIEXYZ = hosekSky(direction, turbidity);
+    }
+    else if (sun.altitude < mixingMaxElevation && sun.altitude >= mixingMinElevation)
+    {
+        vec3 preethamCIEXYZ = preethamSky(direction, turbidity);
+        vec3 hosekCIEXYZ = hosekSky(direction, turbidity);
+        float mixingFactor = (sun.altitude - mixingMinElevation) / (mixingMaxElevation - mixingMinElevation);
+        skyCIEXYZ = mix(hosekCIEXYZ, preethamCIEXYZ, mixingFactor);
+    }
+    else
+    {
+        skyCIEXYZ = preethamSky(direction, turbidity);
+    }
+
+    return skyCIEXYZ;
+}
+
 vec2 planarToPolar(vec2 point)
 {
     float r = length(point);
@@ -200,6 +225,8 @@ mat3 getCameraOrientationMatrix()
 
 void main(void)
 {
+    if (sun.altitude < minSunElevation) return;
+
     ivec2 resolution = imageSize(outputImage);
     float aspectRatio = float(resolution.y) / float(resolution.x);
     ivec2 pixelCoordinates = ivec2(gl_GlobalInvocationID.xy);
@@ -235,7 +262,7 @@ void main(void)
     float z = -cos(projectedAngle);
 
     vec3 dir = getCameraOrientationMatrix() * vec3(x, y, z);
-    vec3 skyCIEXYZ = hosekSky(dir, skyModelState.turbidity);
+    vec3 skyCIEXYZ = hosekPreethamMix(dir, skyModelState.turbidity);
 
     if (dir.y < 0.0) return;
     mat3 xyzToSrgb = mat3(3.24096994, -0.96924364, 0.05563008, -1.53738318, 1.8759675, -0.20397696, -0.49861076, 0.04155506, 1.05697151);
