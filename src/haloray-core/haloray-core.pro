@@ -36,6 +36,7 @@ HEADERS += \
     gui/viewSettingsWidget.h \
     opengl/texture.h \
     opengl/textureRenderer.h \
+    simulation/CieXYZ_CMF.h \
     simulation/backgroundSky/ArHosekSkyModel.h \
     simulation/backgroundSky/ArHosekSkyModelData_CIEXYZ.h \
     simulation/backgroundSky/ArHosekSkyModelData_RGB.h \
