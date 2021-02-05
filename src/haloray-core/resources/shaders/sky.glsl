@@ -27,7 +27,6 @@ uniform struct hosekSkyModelState_t
     float albedo;
     float elevation;
     float sunTopCIEXYZ[3];
-    float sunCenterCIEXYZ[3];
     float sunBottomCIEXYZ[3];
 } skyModelState;
 

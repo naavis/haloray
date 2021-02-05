@@ -25,7 +25,6 @@ typedef struct SkyModelState
     float albedo;
     float elevation;
     float sunTopCIEXYZ[3];
-    float sunCenterCIEXYZ[3];
     float sunBottomCIEXYZ[3];
 } SkyModelState;
 
@@ -57,14 +56,12 @@ SkyModelState GetSkyStateModel(double solarElevation, double atmosphericTurbidit
     auto tempSunState = arhosekskymodelstate_alloc_init(solarElevation, atmosphericTurbidity, groundAlbedo);
 
     float solarRadianceTop[31];
-    float solarRadianceCenter[31];
     float solarRadianceBottom[31];
 
     for (auto i = 0; i < 31; ++i)
     {
         float wl = cieWl[i];
         solarRadianceTop[i] = arhosekskymodel_solar_radiance_plain(tempSunState, tempSunState->elevation + tempSunState->solar_radius, (double)wl);
-        solarRadianceCenter[i] = arhosekskymodel_solar_radiance_plain(tempSunState, tempSunState->elevation, (double)wl);
         solarRadianceBottom[i] = arhosekskymodel_solar_radiance_plain(tempSunState, tempSunState->elevation - tempSunState->solar_radius, (double)wl);
     }
 
@@ -73,10 +70,6 @@ SkyModelState GetSkyStateModel(double solarElevation, double atmosphericTurbidit
     state.sunTopCIEXYZ[0] = getCIEX(solarRadianceTop);
     state.sunTopCIEXYZ[1] = getCIEY(solarRadianceTop);
     state.sunTopCIEXYZ[2] = getCIEZ(solarRadianceTop);
-
-    state.sunCenterCIEXYZ[0] = getCIEX(solarRadianceCenter);
-    state.sunCenterCIEXYZ[1] = getCIEY(solarRadianceCenter);
-    state.sunCenterCIEXYZ[2] = getCIEZ(solarRadianceCenter);
 
     state.sunBottomCIEXYZ[0] = getCIEX(solarRadianceBottom);
     state.sunBottomCIEXYZ[1] = getCIEY(solarRadianceBottom);
@@ -208,7 +201,6 @@ void SimulationEngine::step()
         m_skyShader->setUniformValue("skyModelState.albedo", skyState.albedo);
         m_skyShader->setUniformValue("skyModelState.elevation", skyState.elevation);
         m_skyShader->setUniformValueArray("skyModelState.sunTopCIEXYZ", skyState.sunTopCIEXYZ, 3, 1);
-        m_skyShader->setUniformValueArray("skyModelState.sunCenterCIEXYZ", skyState.sunCenterCIEXYZ, 3, 1);
         m_skyShader->setUniformValueArray("skyModelState.sunBottomCIEXYZ", skyState.sunBottomCIEXYZ, 3, 1);
 
         glDispatchCompute(m_outputWidth, m_outputHeight, 1);
