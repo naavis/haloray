@@ -28,6 +28,7 @@ uniform struct hosekSkyModelState_t
     float elevation;
     float sunTopCIEXYZ[3];
     float sunBottomCIEXYZ[3];
+    float limbDarkeningScaler[3];
 } skyModelState;
 
 #define PROJECTION_STEREOGRAPHIC 0
@@ -238,7 +239,8 @@ mat3 getCameraOrientationMatrix()
 
 vec3 renderSun(vec3 direction)
 {
-    if (acos(dot(direction, getSunVector())) > skyModelState.solar_radius)
+    float sunAngle = acos(dot(direction, getSunVector()));
+    if (sunAngle > skyModelState.solar_radius)
     {
         return vec3(0.0);
     }
@@ -249,7 +251,18 @@ vec3 renderSun(vec3 direction)
     float y = mix(skyModelState.sunBottomCIEXYZ[1], skyModelState.sunTopCIEXYZ[1], factor);
     float z = mix(skyModelState.sunBottomCIEXYZ[2], skyModelState.sunTopCIEXYZ[2], factor);
 
-    return vec3(x, y, z);
+    float sol_rad_sin = sin(skyModelState.solar_radius);
+    float ar2 = 1.0 / (sol_rad_sin * sol_rad_sin);
+    float singamma = sin(sunAngle);
+    float sc2 = 1.0 - ar2 * singamma * singamma;
+    if (sc2 < 0.0 ) sc2 = 0.0;
+    float sampleCosine = sqrt(sc2);
+
+    vec3 plainRadiance = vec3(x, y, z);
+    vec3 scaler = vec3(skyModelState.limbDarkeningScaler[0], skyModelState.limbDarkeningScaler[1], skyModelState.limbDarkeningScaler[2]);
+    vec3 withLimbDarkening = mix(scaler * plainRadiance, plainRadiance, sampleCosine);
+
+    return withLimbDarkening;
 }
 
 void main(void)

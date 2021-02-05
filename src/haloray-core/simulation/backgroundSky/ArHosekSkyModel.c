@@ -882,3 +882,19 @@ double arhosekskymodel_solar_radiance_plain(
 
     return direct_radiance;
 }
+
+double arhosekskymodel_solar_radiance_with_limb_darkening(
+        ArHosekSkyModelState  * state,
+        double                  wavelength,
+        double                  elevation,
+        double                  gamma
+        )
+{
+    double direct_radiance = arhosekskymodel_solar_radiance_internal2(
+        state,
+        wavelength,
+        elevation,
+        gamma
+        );
+    return direct_radiance;
+}

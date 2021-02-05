@@ -26,6 +26,7 @@ typedef struct SkyModelState
     float elevation;
     float sunTopCIEXYZ[3];
     float sunBottomCIEXYZ[3];
+    float limbDarkeningScaler[3];
 } SkyModelState;
 
 SkyModelState ConvertSkyModelState(ArHosekSkyModelState *originalState)
@@ -57,12 +58,14 @@ SkyModelState GetSkyStateModel(double solarElevation, double atmosphericTurbidit
 
     float solarRadianceTop[31];
     float solarRadianceBottom[31];
+    float solarRadianceTopWithLimbDarkening[31];
 
     for (auto i = 0; i < 31; ++i)
     {
         float wl = cieWl[i];
         solarRadianceTop[i] = arhosekskymodel_solar_radiance_plain(tempSunState, tempSunState->elevation + tempSunState->solar_radius, (double)wl);
         solarRadianceBottom[i] = arhosekskymodel_solar_radiance_plain(tempSunState, tempSunState->elevation - tempSunState->solar_radius, (double)wl);
+        solarRadianceTopWithLimbDarkening[i] = arhosekskymodel_solar_radiance_with_limb_darkening(tempSunState, (double)wl,  tempSunState->elevation + tempSunState->solar_radius, tempSunState->solar_radius);
     }
 
     arhosekskymodelstate_free(tempSunState);
@@ -74,6 +77,10 @@ SkyModelState GetSkyStateModel(double solarElevation, double atmosphericTurbidit
     state.sunBottomCIEXYZ[0] = getCIEX(solarRadianceBottom);
     state.sunBottomCIEXYZ[1] = getCIEY(solarRadianceBottom);
     state.sunBottomCIEXYZ[2] = getCIEZ(solarRadianceBottom);
+
+    state.limbDarkeningScaler[0] = getCIEX(solarRadianceTopWithLimbDarkening) / state.sunTopCIEXYZ[0];
+    state.limbDarkeningScaler[1] = getCIEY(solarRadianceTopWithLimbDarkening) / state.sunTopCIEXYZ[1];
+    state.limbDarkeningScaler[2] = getCIEZ(solarRadianceTopWithLimbDarkening) / state.sunTopCIEXYZ[2];
 
     return state;
 }
@@ -202,6 +209,7 @@ void SimulationEngine::step()
         m_skyShader->setUniformValue("skyModelState.elevation", skyState.elevation);
         m_skyShader->setUniformValueArray("skyModelState.sunTopCIEXYZ", skyState.sunTopCIEXYZ, 3, 1);
         m_skyShader->setUniformValueArray("skyModelState.sunBottomCIEXYZ", skyState.sunBottomCIEXYZ, 3, 1);
+        m_skyShader->setUniformValueArray("skyModelState.limbDarkeningScaler", skyState.limbDarkeningScaler, 3, 1);
 
         glDispatchCompute(m_outputWidth, m_outputHeight, 1);
     }

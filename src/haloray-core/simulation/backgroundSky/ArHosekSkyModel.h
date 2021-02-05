@@ -459,6 +459,14 @@ double arhosekskymodel_solar_radiance_plain(
         double                  wavelength
         );
 
+// Same as above, but with limb darkening
+double arhosekskymodel_solar_radiance_with_limb_darkening(
+        ArHosekSkyModelState  * state,
+        double                  wavelength,
+        double                  elevation,
+        double                  gamma
+        );
+
 #ifdef __cplusplus
 }
 #endif
