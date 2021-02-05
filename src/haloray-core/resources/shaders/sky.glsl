@@ -195,11 +195,12 @@ vec3 hosekPreethamMix(vec3 direction, float turbidity)
         vec3 preethamCIEXYZ = preethamSky(direction, turbidity);
         vec3 hosekCIEXYZ = hosekSky(direction, turbidity);
         float mixingFactor = (sun.altitude - mixingMinElevation) / (mixingMaxElevation - mixingMinElevation);
-        skyCIEXYZ = mix(hosekCIEXYZ, preethamCIEXYZ, mixingFactor);
+        skyCIEXYZ = mix(preethamCIEXYZ, hosekCIEXYZ, mixingFactor);
     }
     else
     {
-        skyCIEXYZ = preethamSky(direction, turbidity);
+        float mixingFactor = clamp((sun.altitude - minSunElevation) / (-minSunElevation), 0.0, 1.0);
+        skyCIEXYZ = mix(vec3(0.0), preethamSky(direction, turbidity), mixingFactor);
     }
 
     return skyCIEXYZ;
