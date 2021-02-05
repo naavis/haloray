@@ -10,9 +10,12 @@
 #include "lightSource.h"
 #include "crystalPopulation.h"
 #include "backgroundSky/ArHosekSkyModel.h"
+#include "CieXYZ_CMF.h"
 
 namespace HaloRay
 {
+const double PI = 3.1415926535897932384626433832795028841971693993751058209749445923078164062;
+
 typedef struct SkyModelState
 {
     float configs[3][9];
@@ -21,6 +24,9 @@ typedef struct SkyModelState
     float solar_radius;
     float albedo;
     float elevation;
+    float sunTopCIEXYZ[3];
+    float sunCenterCIEXYZ[3];
+    float sunBottomCIEXYZ[3];
 } SkyModelState;
 
 SkyModelState ConvertSkyModelState(ArHosekSkyModelState *originalState)
@@ -44,9 +50,38 @@ SkyModelState ConvertSkyModelState(ArHosekSkyModelState *originalState)
 
 SkyModelState GetSkyStateModel(double solarElevation, double atmosphericTurbidity, double groundAlbedo)
 {
-    auto tempState = arhosek_xyz_skymodelstate_alloc_init(atmosphericTurbidity, groundAlbedo, solarElevation);
-    auto state = ConvertSkyModelState(tempState);
-    arhosekskymodelstate_free(tempState);
+    auto tempSkyState = arhosek_xyz_skymodelstate_alloc_init(atmosphericTurbidity, groundAlbedo, solarElevation);
+    auto state = ConvertSkyModelState(tempSkyState);
+    arhosekskymodelstate_free(tempSkyState);
+
+    auto tempSunState = arhosekskymodelstate_alloc_init(solarElevation, atmosphericTurbidity, groundAlbedo);
+
+    float solarRadianceTop[31];
+    float solarRadianceCenter[31];
+    float solarRadianceBottom[31];
+
+    for (auto i = 0; i < 31; ++i)
+    {
+        float wl = cieWl[i];
+        solarRadianceTop[i] = arhosekskymodel_solar_radiance_plain(tempSunState, tempSunState->elevation + tempSunState->solar_radius, (double)wl);
+        solarRadianceCenter[i] = arhosekskymodel_solar_radiance_plain(tempSunState, tempSunState->elevation, (double)wl);
+        solarRadianceBottom[i] = arhosekskymodel_solar_radiance_plain(tempSunState, tempSunState->elevation - tempSunState->solar_radius, (double)wl);
+    }
+
+    arhosekskymodelstate_free(tempSunState);
+
+    state.sunTopCIEXYZ[0] = getCIEX(solarRadianceTop);
+    state.sunTopCIEXYZ[1] = getCIEY(solarRadianceTop);
+    state.sunTopCIEXYZ[2] = getCIEZ(solarRadianceTop);
+
+    state.sunCenterCIEXYZ[0] = getCIEX(solarRadianceCenter);
+    state.sunCenterCIEXYZ[1] = getCIEY(solarRadianceCenter);
+    state.sunCenterCIEXYZ[2] = getCIEZ(solarRadianceCenter);
+
+    state.sunBottomCIEXYZ[0] = getCIEX(solarRadianceBottom);
+    state.sunBottomCIEXYZ[1] = getCIEY(solarRadianceBottom);
+    state.sunBottomCIEXYZ[2] = getCIEZ(solarRadianceBottom);
+
     return state;
 }
 
@@ -148,8 +183,7 @@ void SimulationEngine::step()
 
     if (m_iteration == 1)
     {
-        const float PI = 3.1415926535897932384626433832795028841971693993751058209749445923078164062;
-        auto skyState = GetSkyStateModel(PI * m_light.altitude / 180.0, 4.0, 0.0);
+        auto skyState = GetSkyStateModel(PI * m_light.altitude / 180.0, 5.0, 0.0);
 
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         glBindImageTexture(m_backgroundTexture->getTextureUnit(), m_backgroundTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
@@ -173,6 +207,9 @@ void SimulationEngine::step()
         m_skyShader->setUniformValue("skyModelState.solar_radius", skyState.solar_radius);
         m_skyShader->setUniformValue("skyModelState.albedo", skyState.albedo);
         m_skyShader->setUniformValue("skyModelState.elevation", skyState.elevation);
+        m_skyShader->setUniformValueArray("skyModelState.sunTopCIEXYZ", skyState.sunTopCIEXYZ, 3, 1);
+        m_skyShader->setUniformValueArray("skyModelState.sunCenterCIEXYZ", skyState.sunCenterCIEXYZ, 3, 1);
+        m_skyShader->setUniformValueArray("skyModelState.sunBottomCIEXYZ", skyState.sunBottomCIEXYZ, 3, 1);
 
         glDispatchCompute(m_outputWidth, m_outputHeight, 1);
     }

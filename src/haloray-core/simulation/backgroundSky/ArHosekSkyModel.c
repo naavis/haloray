@@ -814,3 +814,71 @@ double arhosekskymodel_solar_radiance(
     return  direct_radiance + inscattered_radiance;
 }
 
+
+double arhosekskymodel_solar_radiance_plain(
+        ArHosekSkyModelState  * state,
+        double                  elevation,
+        double                  wavelength
+        )
+{
+    assert(
+           wavelength >= 320.0
+        && wavelength <= 720.0
+        && state->turbidity >= 1.0
+        && state->turbidity <= 10.0
+        );
+
+    int     turb_low  = (int) state->turbidity - 1;
+    double  turb_frac = state->turbidity - (double) (turb_low + 1);
+
+    if ( turb_low == 9 )
+    {
+        turb_low  = 8;
+        turb_frac = 1.0;
+    }
+
+    int    wl_low  = (int) ((wavelength - 320.0) / 40.0);
+    double wl_frac = fmod(wavelength, 40.0) / 40.0;
+
+    if ( wl_low == 10 )
+    {
+        wl_low = 9;
+        wl_frac = 1.0;
+    }
+
+    double direct_radiance =
+          ( 1.0 - turb_frac )
+        * (    (1.0 - wl_frac)
+             * arhosekskymodel_sr_internal(
+                     state,
+                     turb_low,
+                     wl_low,
+                     elevation
+                   )
+           +   wl_frac
+             * arhosekskymodel_sr_internal(
+                     state,
+                     turb_low,
+                     wl_low+1,
+                     elevation
+                   )
+          )
+      +   turb_frac
+        * (    ( 1.0 - wl_frac )
+             * arhosekskymodel_sr_internal(
+                     state,
+                     turb_low+1,
+                     wl_low,
+                     elevation
+                   )
+           +   wl_frac
+             * arhosekskymodel_sr_internal(
+                     state,
+                     turb_low+1,
+                     wl_low+1,
+                     elevation
+                   )
+          );
+
+    return direct_radiance;
+}

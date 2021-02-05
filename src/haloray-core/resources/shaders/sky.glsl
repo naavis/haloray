@@ -26,6 +26,9 @@ uniform struct hosekSkyModelState_t
     float solar_radius;
     float albedo;
     float elevation;
+    float sunTopCIEXYZ[3];
+    float sunCenterCIEXYZ[3];
+    float sunBottomCIEXYZ[3];
 } skyModelState;
 
 #define PROJECTION_STEREOGRAPHIC 0
@@ -36,8 +39,19 @@ uniform struct hosekSkyModelState_t
 
 const float PI = 3.1415926535;
 const float minSunElevation = -10.0;
-const float mixingMaxElevation = 3.0;
-const float mixingMinElevation = 0.5;
+const float mixingMaxElevation = 1.0;
+const float mixingMinElevation = 0.0;
+
+
+
+vec3 getSunVector()
+{
+    float sunAltitudeRadians = radians(sun.altitude);
+    /* NOTE: The sun vector is now in the opposite Z direction
+      than in the crystal raytracing shader. This should probably
+      made the same in all shaders. */
+    return normalize(vec3(0.0, sin(sunAltitudeRadians), -cos(sunAltitudeRadians)));
+}
 
 /*
   Sky shading model below based on
@@ -46,14 +60,14 @@ const float mixingMinElevation = 0.5;
   University of Utah
 */
 
-float perez(float zenithAngle, float sunAngle, float A, float B, float C, float D, float E)
+float perez(float cosZenithAngle, float sunAngle, float A, float B, float C, float D, float E)
 {
-    float firstTerm = 1.0f + A * exp(B / cos(zenithAngle));
+    float firstTerm = 1.0f + A * exp(B / cosZenithAngle);
     float secondTerm = 1.0f + C * exp(D * sunAngle) + E * cos(sunAngle) * cos(sunAngle);
     return firstTerm * secondTerm;
 }
 
-float luminance(float zenithAngle, float sunAngle, float turbidity)
+float luminance(float cosZenithAngle, float sunAngle, float turbidity)
 {
     float sunZenithAngle = radians(90.0 - sun.altitude);
     float ay = 0.1787 * turbidity - 1.4630;
@@ -63,12 +77,12 @@ float luminance(float zenithAngle, float sunAngle, float turbidity)
     float ey = -0.0670 * turbidity + 0.3703;
     float kappa = (4.0 / 9.0 - turbidity / 120.0) * (PI - 2 * sunZenithAngle);
     float Yz = (4.0453 * turbidity - 4.9710) * tan(kappa) - 0.2155 * turbidity + 2.4192;
-    float upperTerm = perez(zenithAngle, sunAngle, ay, by, cy, dy, ey);
-    float lowerTerm = perez(0.0, sunZenithAngle, ay, by, cy, dy, ey);
+    float upperTerm = perez(cosZenithAngle, sunAngle, ay, by, cy, dy, ey);
+    float lowerTerm = perez(1.0, sunZenithAngle, ay, by, cy, dy, ey);
     return Yz * upperTerm / lowerTerm;
 }
 
-float chromaX(float zenithAngle, float sunAngle, float turbidity)
+float chromaX(float cosZenithAngle, float sunAngle, float turbidity)
 {
     float sunZenithAngle = radians(90.0 - sun.altitude);
     float ax = -0.0193 * turbidity - 0.2592;
@@ -89,12 +103,12 @@ float chromaX(float zenithAngle, float sunAngle, float turbidity)
 
     float xz = dot(turbidityVec, coefficientMatrix * sunZenithVec);
 
-    float upperTerm = perez(zenithAngle, sunAngle, ax, bx, cx, dx, ex);
-    float lowerTerm = perez(0.0, sunZenithAngle, ax, bx, cx, dx, ex);
+    float upperTerm = perez(cosZenithAngle, sunAngle, ax, bx, cx, dx, ex);
+    float lowerTerm = perez(1.0, sunZenithAngle, ax, bx, cx, dx, ex);
     return xz * upperTerm / lowerTerm;
 }
 
-float chromaY(float zenithAngle, float sunAngle, float turbidity)
+float chromaY(float cosZenithAngle, float sunAngle, float turbidity)
 {
     float sunZenithAngle = radians(90.0 - sun.altitude);
     float ay = -0.0167 * turbidity - 0.2608;
@@ -115,23 +129,23 @@ float chromaY(float zenithAngle, float sunAngle, float turbidity)
 
     float yz = dot(turbidityVec, coefficientMatrix * sunZenithVec);
 
-    float upperTerm = perez(zenithAngle, sunAngle, ay, by, cy, dy, ey);
-    float lowerTerm = perez(0.0, sunZenithAngle, ay, by, cy, dy, ey);
+    float upperTerm = perez(cosZenithAngle, sunAngle, ay, by, cy, dy, ey);
+    float lowerTerm = perez(1.0, sunZenithAngle, ay, by, cy, dy, ey);
     return yz * upperTerm / lowerTerm;
 }
 
 vec3 preethamSky(vec3 direction, float turbidity)
 {
-    float sunAltitudeRadians = radians(sun.altitude);
-    /* NOTE: The sun vector is now in the opposite Z direction
-      than in the crystal raytracing shader. This should probably
-      made the same in all shaders. */
-    vec3 sunVec = vec3(0.0, sin(sunAltitudeRadians), -cos(sunAltitudeRadians));
+    vec3 sunVec = getSunVector();
     float sunAngle = acos(dot(sunVec, direction));
-    float zenithAngle = acos(direction.y);
-    float Y = luminance(zenithAngle, sunAngle, turbidity);
-    float x = chromaX(zenithAngle, sunAngle, turbidity);
-    float y = chromaY(zenithAngle, sunAngle, turbidity);
+    /*
+      Direction vector's zenith angle or theta equals
+      acos(direction.y)
+      */
+    float cosZenithAngle = direction.y;
+    float Y = luminance(cosZenithAngle, sunAngle, turbidity);
+    float x = chromaX(cosZenithAngle, sunAngle, turbidity);
+    float y = chromaY(cosZenithAngle, sunAngle, turbidity);
     vec3 XYZ = vec3(x * Y/y, Y, (1.0 - x - y) * Y/y);
     return XYZ;
 }
@@ -145,14 +159,13 @@ vec3 preethamSky(vec3 direction, float turbidity)
 
 vec3 hosekSky(vec3 direction, float turbidity)
 {
-    float sunAltitudeRadians = radians(sun.altitude);
-    /* NOTE: The sun vector is now in the opposite Z direction
-      than in the crystal raytracing shader. This should probably
-      made the same in all shaders. */
-    vec3 sunVec = vec3(0.0, sin(sunAltitudeRadians), -cos(sunAltitudeRadians));
+    vec3 sunVec = getSunVector();
     float sunAngle = acos(dot(sunVec, direction));
-    float zenithAngle = acos(direction.y);
-    float theta = zenithAngle;
+    /*
+      Direction vector's zenith angle or theta equals
+      acos(direction.y)
+      */
+    float cosTheta = direction.y;
     float gamma = sunAngle;
 
     vec3 skyCIEXYZ;
@@ -162,9 +175,9 @@ vec3 hosekSky(vec3 direction, float turbidity)
         float expM = exp(configuration[4] * gamma);
         float rayM = cos(gamma)*cos(gamma);
         float mieM = (1.0 + cos(gamma)*cos(gamma)) / pow((1.0 + configuration[8]*configuration[8] - 2.0*configuration[8]*cos(gamma)), 1.5);
-        float zenith = sqrt(cos(theta));
+        float zenith = sqrt(cosTheta);
 
-        float temp = (1.0 + configuration[0] * exp(configuration[1] / (cos(theta) + 0.01))) *
+        float temp = (1.0 + configuration[0] * exp(configuration[1] / (cosTheta + 0.01))) *
                 (configuration[2] + configuration[3] * expM + configuration[5] * rayM + configuration[6] * mieM + configuration[7] * zenith);
         skyCIEXYZ[channel] = skyModelState.radiances[channel] * temp;
     }
@@ -223,6 +236,22 @@ mat3 getCameraOrientationMatrix()
     return rotateAroundY(radians(camera.yaw)) * rotateAroundX(radians(camera.pitch));
 }
 
+vec3 renderSun(vec3 direction)
+{
+    if (acos(dot(direction, getSunVector())) > skyModelState.solar_radius)
+    {
+        return vec3(0.0);
+    }
+
+    float rayElevation = asin(direction.y);
+    float factor = (rayElevation - (skyModelState.elevation - skyModelState.solar_radius)) / (2.0 * skyModelState.solar_radius);
+    float x = mix(skyModelState.sunBottomCIEXYZ[0], skyModelState.sunTopCIEXYZ[0], factor);
+    float y = mix(skyModelState.sunBottomCIEXYZ[1], skyModelState.sunTopCIEXYZ[1], factor);
+    float z = mix(skyModelState.sunBottomCIEXYZ[2], skyModelState.sunTopCIEXYZ[2], factor);
+
+    return vec3(x, y, z);
+}
+
 void main(void)
 {
     if (sun.altitude < minSunElevation) return;
@@ -261,10 +290,13 @@ void main(void)
     float y = sin(projectedAngle) * sin(polar.y);
     float z = -cos(projectedAngle);
 
-    vec3 dir = getCameraOrientationMatrix() * vec3(x, y, z);
-    vec3 skyCIEXYZ = hosekPreethamMix(dir, skyModelState.turbidity);
-
+    vec3 dir = normalize(getCameraOrientationMatrix() * vec3(x, y, z));
     if (dir.y < 0.0) return;
+
+    vec3 skyCIEXYZ = hosekPreethamMix(dir, skyModelState.turbidity);
+    vec3 sunCIEXYZ = renderSun(dir);
+    vec3 resultCIEXYZ = skyCIEXYZ + sunCIEXYZ;
+
     mat3 xyzToSrgb = mat3(3.24096994, -0.96924364, 0.05563008, -1.53738318, 1.8759675, -0.20397696, -0.49861076, 0.04155506, 1.05697151);
-    imageStore(outputImage, pixelCoordinates, vec4(0.1 * xyzToSrgb * skyCIEXYZ, 1.0));
+    imageStore(outputImage, pixelCoordinates, vec4(0.01 * xyzToSrgb * resultCIEXYZ, 1.0));
 }
