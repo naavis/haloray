@@ -298,5 +298,5 @@ void main(void)
     vec3 resultCIEXYZ = skyCIEXYZ + sunCIEXYZ;
 
     mat3 xyzToSrgb = mat3(3.24096994, -0.96924364, 0.05563008, -1.53738318, 1.8759675, -0.20397696, -0.49861076, 0.04155506, 1.05697151);
-    imageStore(outputImage, pixelCoordinates, vec4(0.01 * xyzToSrgb * resultCIEXYZ, 1.0));
+    imageStore(outputImage, pixelCoordinates, vec4(xyzToSrgb * resultCIEXYZ, 1.0));
 }
