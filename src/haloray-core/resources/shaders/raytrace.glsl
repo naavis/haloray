@@ -458,7 +458,7 @@ void main(void)
 
     /* The inverse rotation matrix must be applied because we are
     rotating the incoming ray and not the crystal itself. */
-    vec3 rotatedRayDirection = rayDirection * rotationMatrix;
+    vec3 rotatedRayDirection = normalize(rayDirection * rotationMatrix);
 
     vec3 resultRay = castRayThroughCrystal(rotatedRayDirection, wavelength);
 
@@ -473,7 +473,7 @@ void main(void)
 
         /* The inverse rotation matrix must be applied because we are
         rotating the incoming ray and not the crystal itself. */
-        rotatedRayDirection = resultRay * rotationMatrix;
+        rotatedRayDirection = normalize(resultRay * rotationMatrix);
 
         resultRay = castRayThroughCrystal(rotatedRayDirection, wavelength);
 
@@ -485,11 +485,10 @@ void main(void)
     // Hide subhorizon rays
     if (camera.hideSubHorizon == 1 && resultRay.y > 0.0) return;
 
-    resultRay = -getCameraOrientationMatrix() * resultRay;
-
     ivec2 resolution = imageSize(outputImage);
     float aspectRatio = float(resolution.y) / float(resolution.x);
 
+    resultRay = normalize(-getCameraOrientationMatrix() * resultRay);
     vec2 polar = cartesianToPolar(resultRay);
 
     float fovRadians = radians(camera.fov);
