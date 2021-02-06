@@ -249,13 +249,11 @@ vec3 renderSun(vec3 direction)
     float factor = (rayElevation - (skyModelState.elevation - skyModelState.solar_radius)) / (2.0 * skyModelState.solar_radius);
     vec3 plainRadiance = mix(skyModelState.sunBottomCIEXYZ, skyModelState.sunTopCIEXYZ, factor);
 
-    // TODO: Clean up variable names
-    float sol_rad_sin = sin(skyModelState.solar_radius);
-    float ar2 = 1.0 / (sol_rad_sin * sol_rad_sin);
-    float singamma = sin(sunAngle);
-    float sc2 = 1.0 - ar2 * singamma * singamma;
-    if (sc2 < 0.0 ) sc2 = 0.0;
-    float sampleCosine = sqrt(sc2);
+    float sinSolarRadius = sin(skyModelState.solar_radius);
+    float sinGamma = sin(sunAngle);
+    float squareCosine = 1.0 - sinGamma * sinGamma / (sinSolarRadius * sinSolarRadius);
+    if (squareCosine < 0.0 ) squareCosine = 0.0;
+    float sampleCosine = sqrt(squareCosine);
 
     vec3 withLimbDarkening = mix(skyModelState.limbDarkeningScaler * plainRadiance, plainRadiance, sampleCosine);
 
