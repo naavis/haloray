@@ -67,7 +67,7 @@ SkyModelState GetSkyStateModel(double solarElevation, double atmosphericTurbidit
         solarRadianceTop[i] = arhosekskymodel_solar_radiance_plain(tempSunState, tempSunState->elevation + tempSunState->solar_radius, (double)wl);
         solarRadianceBottom[i] = arhosekskymodel_solar_radiance_plain(tempSunState, std::max(tempSunState->elevation - tempSunState->solar_radius, 0.0), (double)wl);
         solarRadianceTopWithLimbDarkening[i] = arhosekskymodel_solar_radiance_with_limb_darkening(tempSunState, (double)wl,  tempSunState->elevation + tempSunState->solar_radius, tempSunState->solar_radius);
-        state.sunSpectrum[i] = arhosekskymodel_solar_radiance_plain(tempSunState, tempSunState->elevation, (double)wl) / 30663.7;
+        state.sunSpectrum[i] = arhosekskymodel_solar_radiance_plain(tempSunState, std::max(tempSunState->elevation, 0.0), (double)wl) / 30663.7;
     }
 
     arhosekskymodelstate_free(tempSunState);
