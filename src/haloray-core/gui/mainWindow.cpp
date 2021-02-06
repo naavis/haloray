@@ -18,6 +18,7 @@
 #include "generalSettingsWidget.h"
 #include "crystalSettingsWidget.h"
 #include "viewSettingsWidget.h"
+#include "atmosphereSettingsWidget.h"
 #include "sliderSpinBox.h"
 #include "renderButton.h"
 #include "../simulation/crystalPopulation.h"
@@ -137,12 +138,14 @@ QScrollArea *MainWindow::setupSideBarScrollArea()
     m_generalSettingsWidget = new GeneralSettingsWidget(m_simulationStateModel);
     m_crystalSettingsWidget = new CrystalSettingsWidget(m_crystalRepository);
     m_viewSettingsWidget = new ViewSettingsWidget(m_simulationStateModel);
+    m_atmosphereSettingsWidget = new AtmosphereSettingsWidget(m_simulationStateModel);
 
     auto scrollContainer = new QWidget();
     auto scrollableLayout = new QVBoxLayout(scrollContainer);
     scrollableLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
     scrollableLayout->addWidget(m_generalSettingsWidget);
+    scrollableLayout->addWidget(m_atmosphereSettingsWidget);
     scrollableLayout->addWidget(m_crystalSettingsWidget);
     scrollableLayout->addWidget(m_viewSettingsWidget);
     scrollableLayout->addStretch();

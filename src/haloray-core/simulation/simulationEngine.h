@@ -38,6 +38,15 @@ public:
     LightSource getLightSource() const;
     void setLightSource(const LightSource);
 
+    bool getAtmosphereEnabled() const;
+    void setAtmosphereEnabled(bool enabled);
+
+    double getAtmosphereTurbidity() const;
+    void setAtmosphereTurbidity(double turbidity);
+
+    double getGroundAlbedo() const;
+    void setGroundAlbedo(double albedo);
+
     void lockCameraToLightSource(bool locked);
 
     void setMultipleScatteringProbability(double);
@@ -81,6 +90,9 @@ private:
     float m_multipleScatteringProbability;
     std::shared_ptr<CrystalPopulationRepository> m_crystalRepository;
     float m_sunSpectrumCache[31];
+    bool m_atmosphereEnabled;
+    double m_turbidity;
+    double m_groundAlbedo;
 };
 
 }

@@ -22,7 +22,6 @@ typedef struct SkyModelState
     float radiances[3];
     float turbidity;
     float solar_radius;
-    float albedo;
     float elevation;
     float sunTopCIEXYZ[3];
     float sunBottomCIEXYZ[3];
@@ -35,8 +34,7 @@ SkyModelState ConvertSkyModelState(ArHosekSkyModelState *originalState)
     SkyModelState state;
     state.turbidity = (float)originalState->turbidity;
     state.solar_radius = (float)originalState->solar_radius;
-    state.albedo = (float)originalState->albedo;
-    state.elevation = (float)originalState->albedo;
+    state.elevation = (float)originalState->elevation;
     for (auto channel = 0u; channel < 3; ++channel)
     {
         state.radiances[channel] = (float)(originalState->radiances[channel]);
@@ -103,7 +101,10 @@ SimulationEngine::SimulationEngine(
       m_iteration(0),
       m_cameraLockedToLightSource(false),
       m_multipleScatteringProbability(0.0),
-      m_crystalRepository(crystalRepository)
+      m_crystalRepository(crystalRepository),
+      m_atmosphereEnabled(true),
+      m_turbidity(5.0),
+      m_groundAlbedo(0.0)
 {
     initialize();
 }
@@ -150,6 +151,39 @@ void SimulationEngine::setLightSource(const LightSource light)
     emit lightSourceChanged(m_light);
 }
 
+bool SimulationEngine::getAtmosphereEnabled() const
+{
+    return m_atmosphereEnabled;
+}
+
+void SimulationEngine::setAtmosphereEnabled(bool enabled)
+{
+    clear();
+    m_atmosphereEnabled = enabled;
+}
+
+double SimulationEngine::getAtmosphereTurbidity() const
+{
+    return m_turbidity;
+}
+
+void SimulationEngine::setAtmosphereTurbidity(double turbidity)
+{
+    clear();
+    m_turbidity = turbidity;
+}
+
+double SimulationEngine::getGroundAlbedo() const
+{
+    return m_groundAlbedo;
+}
+
+void SimulationEngine::setGroundAlbedo(double albedo)
+{
+    clear();
+    m_groundAlbedo = albedo;
+}
+
 unsigned int SimulationEngine::getOutputTextureHandle() const
 {
     return m_simulationTexture->getHandle();
@@ -183,9 +217,9 @@ void SimulationEngine::step()
 {
     ++m_iteration;
 
-    if (m_iteration == 1)
+    if (m_atmosphereEnabled && m_iteration == 1)
     {
-        auto skyState = GetSkyStateModel(PI * m_light.altitude / 180.0, 5.0, 0.0, PI * m_light.diameter / 2.0 / 180.0);
+        auto skyState = GetSkyStateModel(PI * m_light.altitude / 180.0, m_turbidity, m_groundAlbedo, PI * m_light.diameter / 2.0 / 180.0);
 
         for (auto i = 0u; i < 31; ++i) {
             m_sunSpectrumCache[i] = skyState.sunSpectrum[i];
@@ -211,7 +245,6 @@ void SimulationEngine::step()
         m_skyShader->setUniformValueArray("skyModelState.radiances", skyState.radiances, 3, 1);
         m_skyShader->setUniformValue("skyModelState.turbidity", skyState.turbidity);
         m_skyShader->setUniformValue("skyModelState.solar_radius", skyState.solar_radius);
-        m_skyShader->setUniformValue("skyModelState.albedo", skyState.albedo);
         m_skyShader->setUniformValue("skyModelState.elevation", skyState.elevation);
         m_skyShader->setUniformValue("skyModelState.sunTopCIEXYZ", skyState.sunTopCIEXYZ[0], skyState.sunTopCIEXYZ[1], skyState.sunTopCIEXYZ[2]);
         m_skyShader->setUniformValue("skyModelState.sunBottomCIEXYZ", skyState.sunBottomCIEXYZ[0], skyState.sunBottomCIEXYZ[1], skyState.sunBottomCIEXYZ[2]);
@@ -264,6 +297,7 @@ void SimulationEngine::step()
         m_simulationShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
 
         m_simulationShader->setUniformValue("multipleScatter", m_multipleScatteringProbability);
+        m_simulationShader->setUniformValue("atmosphereEnabled", m_atmosphereEnabled ? 1 : 0);
 
         glDispatchCompute(numRays, 1, 1);
     }

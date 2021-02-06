@@ -24,7 +24,6 @@ uniform struct hosekSkyModelState_t
     float radiances[3];
     float turbidity;
     float solar_radius;
-    float albedo;
     float elevation;
     vec3 sunTopCIEXYZ;
     vec3 sunBottomCIEXYZ;

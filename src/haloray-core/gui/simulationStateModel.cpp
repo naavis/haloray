@@ -61,6 +61,12 @@ QVariant SimulationStateModel::headerData(int section, Qt::Orientation orientati
             return "Maximum iterations";
         case RaysPerFrameUpperLimit:
             return "Rays per frame upper limit";
+        case AtmosphereEnabled:
+            return "Atmosphere enabled";
+        case Turbidity:
+            return "Atmosphere turbidity";
+        case GroundAlbedo:
+            return "Ground albedo";
         }
     }
 
@@ -115,6 +121,12 @@ QVariant SimulationStateModel::data(const QModelIndex &index, int role) const
         return m_maximumIterations;
     case RaysPerFrameUpperLimit:
         return m_raysPerFrameUpperLimit;
+    case AtmosphereEnabled:
+        return m_simulationEngine->getAtmosphereEnabled();
+    case Turbidity:
+        return m_simulationEngine->getAtmosphereTurbidity();
+    case GroundAlbedo:
+        return m_simulationEngine->getGroundAlbedo();
     default:
         break;
     }
@@ -162,6 +174,15 @@ bool SimulationStateModel::setData(const QModelIndex &index, const QVariant &val
         break;
     case RaysPerFrameUpperLimit:
         m_raysPerFrameUpperLimit = value.toUInt();
+        break;
+    case AtmosphereEnabled:
+        m_simulationEngine->setAtmosphereEnabled(value.toBool());
+        break;
+    case Turbidity:
+        m_simulationEngine->setAtmosphereTurbidity(value.toDouble());
+        break;
+    case GroundAlbedo:
+        m_simulationEngine->setGroundAlbedo(value.toDouble());
         break;
     default:
         return false;

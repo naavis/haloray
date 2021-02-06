@@ -46,6 +46,8 @@ uniform struct camera_t
     int hideSubHorizon;
 } camera;
 
+uniform int atmosphereEnabled;
+
 const float PI = 3.1415926535;
 
 struct intersection {
@@ -537,8 +539,16 @@ void main(void)
     if (any(lessThanEqual(normalizedCoordinates, vec2(0.0))) || any(greaterThanEqual(normalizedCoordinates, vec2(1.0))))
         return;
 
+    float sunRadiance;
+    if (atmosphereEnabled == 1)
+    {
+        sunRadiance = sampleSunSpectrum(wavelength);
+    } else {
+        sunRadiance = daylightEstimate(wavelength);
+    }
+
     ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.x, resolution.y * normalizedCoordinates.y);
-    vec3 cieXYZ = sampleSunSpectrum(wavelength) * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
+    vec3 cieXYZ = sunRadiance * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
     mat3 xyzToSrgb = mat3(3.24096994, -0.96924364, 0.05563008, -1.53738318, 1.8759675, -0.20397696, -0.49861076, 0.04155506, 1.05697151);
     storePixel(pixelCoordinates, xyzToSrgb * cieXYZ);
 }

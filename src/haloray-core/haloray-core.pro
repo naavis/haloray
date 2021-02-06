@@ -25,6 +25,7 @@ HALORAY_VERSION = $$(HALORAY_VERSION)
 
 HEADERS += \
     gui/addCrystalPopulationButton.h \
+    gui/atmosphereSettingsWidget.h \
     gui/crystalModel.h \
     gui/crystalSettingsWidget.h \
     gui/generalSettingsWidget.h \
@@ -49,6 +50,7 @@ HEADERS += \
 
 SOURCES += \
     gui/addCrystalPopulationButton.cpp \
+    gui/atmosphereSettingsWidget.cpp \
     gui/crystalModel.cpp \
     gui/crystalSettingsWidget.cpp \
     gui/generalSettingsWidget.cpp \
