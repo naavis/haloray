@@ -48,13 +48,13 @@ SkyModelState ConvertSkyModelState(ArHosekSkyModelState *originalState)
     return state;
 }
 
-SkyModelState GetSkyStateModel(double solarElevation, double atmosphericTurbidity, double groundAlbedo)
+SkyModelState GetSkyStateModel(double solarElevation, double atmosphericTurbidity, double groundAlbedo, double solarRadius)
 {
-    auto tempSkyState = arhosek_xyz_skymodelstate_alloc_init(atmosphericTurbidity, groundAlbedo, solarElevation);
+    auto tempSkyState = arhosek_xyz_skymodelstate_alloc_init(atmosphericTurbidity, groundAlbedo, solarElevation, solarRadius);
     auto state = ConvertSkyModelState(tempSkyState);
     arhosekskymodelstate_free(tempSkyState);
 
-    auto tempSunState = arhosekskymodelstate_alloc_init(solarElevation, atmosphericTurbidity, groundAlbedo);
+    auto tempSunState = arhosekskymodelstate_alloc_init(solarElevation, atmosphericTurbidity, groundAlbedo, solarRadius);
 
     float solarRadianceTop[31];
     float solarRadianceBottom[31];
@@ -183,7 +183,7 @@ void SimulationEngine::step()
 
     if (m_iteration == 1)
     {
-        auto skyState = GetSkyStateModel(PI * m_light.altitude / 180.0, 5.0, 0.0);
+        auto skyState = GetSkyStateModel(PI * m_light.altitude / 180.0, 5.0, 0.0, PI * m_light.diameter / 2.0 / 180.0);
 
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         glBindImageTexture(m_backgroundTexture->getTextureUnit(), m_backgroundTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);

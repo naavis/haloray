@@ -365,7 +365,8 @@ ArHosekSkyModelState;
 ArHosekSkyModelState  * arhosekskymodelstate_alloc_init(
         const double  solar_elevation,
         const double  atmospheric_turbidity,
-        const double  ground_albedo
+        const double  ground_albedo,
+        const double  solar_radius
         );
 
 
@@ -423,7 +424,8 @@ double arhosekskymodel_radiance(
 ArHosekSkyModelState  * arhosek_xyz_skymodelstate_alloc_init(
         const double  turbidity, 
         const double  albedo, 
-        const double  elevation
+        const double  elevation,
+        const double  solar_radius
         );
 
 

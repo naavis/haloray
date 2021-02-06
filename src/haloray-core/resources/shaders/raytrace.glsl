@@ -294,14 +294,19 @@ vec3 traceRay(vec3 rayOrigin, vec3 rayDirection, float indexOfRefraction)
     return vec3(0.0);
 }
 
-vec3 sampleSun(float altitude)
+vec3 getSunDirection(float altitude)
 {
     // X and Z are horizontal, sun moves on the Y-Z plane
-    vec3 sunCenterDirection = vec3(
+    return normalize(vec3(
         0.0,
         sin(altitude),
         cos(altitude)
-    );
+    ));
+}
+
+vec3 sampleSun(float altitude)
+{
+    vec3 sunCenterDirection = getSunDirection(altitude);
 
     // X axis is always perpendicular to the Y-Z plane
     vec3 diskBasis0 = vec3(1.0, 0.0, 0.0);
@@ -481,6 +486,10 @@ void main(void)
 
         resultRay = rotationMatrix * resultRay;
     }
+
+    // Do not render rays coming from the solar disk when the sky model renders a separate sun
+    if (acos(dot(-resultRay, getSunDirection(radians(sun.altitude)))) < 1.05 * radians(sun.diameter / 2.0) && resultRay.y < 0.0)
+        return;
 
     // Hide subhorizon rays
     if (camera.hideSubHorizon == 1 && resultRay.y > 0.0) return;

@@ -308,12 +308,13 @@ double ArHosekSkyModel_GetRadianceInternal(
 ArHosekSkyModelState  * arhosekskymodelstate_alloc_init(
         const double  solar_elevation,
         const double  atmospheric_turbidity,
-        const double  ground_albedo
+        const double  ground_albedo,
+        const double  solar_radius
         )
 {
     ArHosekSkyModelState  * state = ALLOC(ArHosekSkyModelState);
 
-    state->solar_radius = ( 0.51 DEGREES ) / 2.0;
+    state->solar_radius = solar_radius;
     state->turbidity    = atmospheric_turbidity;
     state->albedo       = ground_albedo;
     state->elevation    = solar_elevation;
@@ -566,12 +567,13 @@ double arhosekskymodel_radiance(
 ArHosekSkyModelState  * arhosek_xyz_skymodelstate_alloc_init(
         const double  turbidity, 
         const double  albedo, 
-        const double  elevation
+        const double  elevation,
+        const double  solar_radius
         )
 {
     ArHosekSkyModelState  * state = ALLOC(ArHosekSkyModelState);
 
-    state->solar_radius = TERRESTRIAL_SOLAR_RADIUS;
+    state->solar_radius = solar_radius;
     state->turbidity    = turbidity;
     state->albedo       = albedo;
     state->elevation    = elevation;
