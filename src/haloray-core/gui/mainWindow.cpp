@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         m_engine->lockCameraToLightSource(locked);
         m_openGLWidget->update();
     });
-    m_viewSettingsWidget->setBrightness(1.0);
+    m_viewSettingsWidget->setBrightness(3.0);
 
     // Signals from OpenGL widget
     connect(m_openGLWidget, &OpenGLWidget::nextIteration, m_progressBar, &QProgressBar::setValue);
