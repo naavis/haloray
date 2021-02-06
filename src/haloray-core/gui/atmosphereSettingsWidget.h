@@ -3,7 +3,6 @@
 #include <QGroupBox>
 #include <QObject>
 
-class QSpinBox;
 class QDataWidgetMapper;
 
 namespace HaloRay
@@ -22,7 +21,7 @@ private:
     void setupUi();
 
     SimulationStateModel *m_viewModel;
-    QSpinBox *m_turbiditySpinBox;
+    SliderSpinBox *m_turbiditySlider;
     SliderSpinBox *m_groundAlbedoSlider;
     QDataWidgetMapper *m_mapper;
 };
