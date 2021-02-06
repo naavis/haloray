@@ -23,7 +23,7 @@ uniform struct hosekSkyModelState_t
     float configs[3][9];
     float radiances[3];
     float turbidity;
-    float solar_radius;
+    float solarRadius;
     float elevation;
     vec3 sunTopCIEXYZ;
     vec3 sunBottomCIEXYZ;
@@ -239,17 +239,17 @@ mat3 getCameraOrientationMatrix()
 vec3 renderSun(vec3 direction)
 {
     float sunAngle = acos(dot(direction, getSunVector()));
-    if (sunAngle > skyModelState.solar_radius)
+    if (sunAngle > skyModelState.solarRadius)
     {
         return vec3(0.0);
     }
 
     float rayElevation = asin(direction.y);
     // Calling min and max is necessary in cases where the sun is partly below the horizon
-    float factor = (rayElevation - max(skyModelState.elevation - skyModelState.solar_radius, 0.0)) / min(2.0 * skyModelState.solar_radius, skyModelState.elevation + skyModelState.solar_radius);
+    float factor = (rayElevation - max(skyModelState.elevation - skyModelState.solarRadius, 0.0)) / min(2.0 * skyModelState.solarRadius, skyModelState.elevation + skyModelState.solarRadius);
     vec3 plainRadiance = mix(skyModelState.sunBottomCIEXYZ, skyModelState.sunTopCIEXYZ, factor);
 
-    float sinSolarRadius = sin(skyModelState.solar_radius);
+    float sinSolarRadius = sin(skyModelState.solarRadius);
     float sinGamma = sin(sunAngle);
     float squareCosine = 1.0 - sinGamma * sinGamma / (sinSolarRadius * sinSolarRadius);
     if (squareCosine < 0.0 ) squareCosine = 0.0;

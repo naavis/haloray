@@ -46,7 +46,8 @@ HEADERS += \
     simulation/crystalPopulation.h \
     simulation/crystalPopulationRepository.h \
     simulation/lightSource.h \
-    simulation/simulationEngine.h
+    simulation/simulationEngine.h \
+    simulation/skyModel.h
 
 SOURCES += \
     gui/addCrystalPopulationButton.cpp \
@@ -67,7 +68,8 @@ SOURCES += \
     simulation/crystalPopulation.cpp \
     simulation/crystalPopulationRepository.cpp \
     simulation/lightSource.cpp \
-    simulation/simulationEngine.cpp
+    simulation/simulationEngine.cpp \
+    simulation/skyModel.cpp
 
 RESOURCES = \
     resources/haloray.qrc
