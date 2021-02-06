@@ -49,6 +49,17 @@ Here are some general settings for the whole simulation.
   - A value of 0.0 means no rays are scattered twice, and 1.0 means all rays
     are scattered twice
 
+### Atmosphere settings
+
+HaloRay implements a realistic blend of Hosek-Wilkie and Preetham sky and sun.
+The sky model has only a few adjustable parameters:
+
+- **Atmosphere enabled:** Toggles rendering of the sky and sun
+- **Turbidity:** The amount of aerosols/haze in the atmosphere
+- **Ground albedo:** Albedo of the ground plane
+  - 0.0 means the ground does not reflect any light
+  - 1.0 means the ground reflects all light
+
 ### Crystal settings
 
 HaloRay allows you to simulate multiple different ice crystal populations

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Created a realistic sky and sun model based on Hosek-Wilkie and Preetham papers
+
 ### Changed
 
 - Forced application to use native desktop OpenGL instead of ANGLE or software renderer
