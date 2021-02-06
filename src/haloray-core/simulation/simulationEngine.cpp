@@ -27,6 +27,7 @@ typedef struct SkyModelState
     float sunTopCIEXYZ[3];
     float sunBottomCIEXYZ[3];
     float limbDarkeningScaler[3];
+    float sunSpectrum[31];
 } SkyModelState;
 
 SkyModelState ConvertSkyModelState(ArHosekSkyModelState *originalState)
@@ -60,12 +61,13 @@ SkyModelState GetSkyStateModel(double solarElevation, double atmosphericTurbidit
     float solarRadianceBottom[31];
     float solarRadianceTopWithLimbDarkening[31];
 
-    for (auto i = 0; i < 31; ++i)
+    for (auto i = 0u; i < 31; ++i)
     {
         float wl = cieWl[i];
         solarRadianceTop[i] = arhosekskymodel_solar_radiance_plain(tempSunState, tempSunState->elevation + tempSunState->solar_radius, (double)wl);
         solarRadianceBottom[i] = arhosekskymodel_solar_radiance_plain(tempSunState, std::max(tempSunState->elevation - tempSunState->solar_radius, 0.0), (double)wl);
         solarRadianceTopWithLimbDarkening[i] = arhosekskymodel_solar_radiance_with_limb_darkening(tempSunState, (double)wl,  tempSunState->elevation + tempSunState->solar_radius, tempSunState->solar_radius);
+        state.sunSpectrum[i] = arhosekskymodel_solar_radiance_plain(tempSunState, tempSunState->elevation, (double)wl) / 30663.7;
     }
 
     arhosekskymodelstate_free(tempSunState);
@@ -185,6 +187,10 @@ void SimulationEngine::step()
     {
         auto skyState = GetSkyStateModel(PI * m_light.altitude / 180.0, 5.0, 0.0, PI * m_light.diameter / 2.0 / 180.0);
 
+        for (auto i = 0u; i < 31; ++i) {
+            m_sunSpectrumCache[i] = skyState.sunSpectrum[i];
+        }
+
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         glBindImageTexture(m_backgroundTexture->getTextureUnit(), m_backgroundTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
         m_skyShader->bind();
@@ -238,6 +244,7 @@ void SimulationEngine::step()
         glUniform1ui(glGetUniformLocation(m_simulationShader->programId(), "rngSeed"), seed);
         m_simulationShader->setUniformValue("sun.altitude", m_light.altitude);
         m_simulationShader->setUniformValue("sun.diameter", m_light.diameter);
+        m_simulationShader->setUniformValueArray("sun.spectrum", m_sunSpectrumCache, 31, 1);
 
         m_simulationShader->setUniformValue("crystalProperties.caRatioAverage", crystals.caRatioAverage);
         m_simulationShader->setUniformValue("crystalProperties.caRatioStd", crystals.caRatioStd);

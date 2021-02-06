@@ -80,6 +80,7 @@ private:
     bool m_cameraLockedToLightSource;
     float m_multipleScatteringProbability;
     std::shared_ptr<CrystalPopulationRepository> m_crystalRepository;
+    float m_sunSpectrumCache[31];
 };
 
 }

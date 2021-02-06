@@ -14,6 +14,7 @@ uniform struct sunProperties_t
 {
     float altitude;
     float diameter;
+    float spectrum[31];
 } sun;
 
 uniform struct crystalProperties_t
@@ -409,6 +410,13 @@ float daylightEstimate(float wavelength)
     return 1.0 - 0.0013333 * wavelength;
 }
 
+float sampleSunSpectrum(float wavelength)
+{
+    int index = clamp(int(floor((wavelength - 400.0) / 10.0)), 0, 29);
+    float wavelengthFract = (wavelength - (400.0 + index * 10.0)) / 10.0;
+    return mix(sun.spectrum[index], sun.spectrum[index + 1], wavelengthFract);
+}
+
 void storePixel(ivec2 pixelCoordinates, vec3 value)
 {
     bool keepWaiting = true;
@@ -530,7 +538,7 @@ void main(void)
         return;
 
     ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.x, resolution.y * normalizedCoordinates.y);
-    vec3 cieXYZ = daylightEstimate(wavelength) * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
+    vec3 cieXYZ = sampleSunSpectrum(wavelength) * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
     mat3 xyzToSrgb = mat3(3.24096994, -0.96924364, 0.05563008, -1.53738318, 1.8759675, -0.20397696, -0.49861076, 0.04155506, 1.05697151);
     storePixel(pixelCoordinates, xyzToSrgb * cieXYZ);
 }
