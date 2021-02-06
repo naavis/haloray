@@ -246,7 +246,8 @@ vec3 renderSun(vec3 direction)
     }
 
     float rayElevation = asin(direction.y);
-    float factor = (rayElevation - (skyModelState.elevation - skyModelState.solar_radius)) / (2.0 * skyModelState.solar_radius);
+    // Calling min and max is necessary in cases where the sun is partly below the horizon
+    float factor = (rayElevation - max(skyModelState.elevation - skyModelState.solar_radius, 0.0)) / min(2.0 * skyModelState.solar_radius, skyModelState.elevation + skyModelState.solar_radius);
     vec3 plainRadiance = mix(skyModelState.sunBottomCIEXYZ, skyModelState.sunTopCIEXYZ, factor);
 
     float sinSolarRadius = sin(skyModelState.solar_radius);
