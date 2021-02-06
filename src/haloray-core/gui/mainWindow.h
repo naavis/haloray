@@ -19,6 +19,7 @@ class RenderButton;
 class ViewSettingsWidget;
 class GeneralSettingsWidget;
 class CrystalSettingsWidget;
+class AtmosphereSettingsWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -37,6 +38,7 @@ private:
     GeneralSettingsWidget *m_generalSettingsWidget;
     CrystalSettingsWidget *m_crystalSettingsWidget;
     ViewSettingsWidget *m_viewSettingsWidget;
+    AtmosphereSettingsWidget *m_atmosphereSettingsWidget;
     QProgressBar *m_progressBar;
     RenderButton *m_renderButton;
     OpenGLWidget *m_openGLWidget;

@@ -25,6 +25,7 @@ HALORAY_VERSION = $$(HALORAY_VERSION)
 
 HEADERS += \
     gui/addCrystalPopulationButton.h \
+    gui/atmosphereSettingsWidget.h \
     gui/crystalModel.h \
     gui/crystalSettingsWidget.h \
     gui/generalSettingsWidget.h \
@@ -36,14 +37,21 @@ HEADERS += \
     gui/viewSettingsWidget.h \
     opengl/texture.h \
     opengl/textureRenderer.h \
+    simulation/colorUtilities.h \
+    simulation/hosekWilkie/ArHosekSkyModel.h \
+    simulation/hosekWilkie/ArHosekSkyModelData_CIEXYZ.h \
+    simulation/hosekWilkie/ArHosekSkyModelData_RGB.h \
+    simulation/hosekWilkie/ArHosekSkyModelData_Spectral.h \
     simulation/camera.h \
     simulation/crystalPopulation.h \
     simulation/crystalPopulationRepository.h \
     simulation/lightSource.h \
-    simulation/simulationEngine.h
+    simulation/simulationEngine.h \
+    simulation/skyModel.h
 
 SOURCES += \
     gui/addCrystalPopulationButton.cpp \
+    gui/atmosphereSettingsWidget.cpp \
     gui/crystalModel.cpp \
     gui/crystalSettingsWidget.cpp \
     gui/generalSettingsWidget.cpp \
@@ -55,11 +63,13 @@ SOURCES += \
     gui/viewSettingsWidget.cpp \
     opengl/texture.cpp \
     opengl/textureRenderer.cpp \
+    simulation/hosekWilkie/ArHosekSkyModel.c \
     simulation/camera.cpp \
     simulation/crystalPopulation.cpp \
     simulation/crystalPopulationRepository.cpp \
     simulation/lightSource.cpp \
-    simulation/simulationEngine.cpp
+    simulation/simulationEngine.cpp \
+    simulation/skyModel.cpp
 
 RESOURCES = \
     resources/haloray.qrc

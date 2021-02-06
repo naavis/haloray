@@ -35,11 +35,11 @@ bool Camera::operator!=(const Camera &other) const
 Camera Camera::createDefaultCamera()
 {
     Camera camera;
-    camera.pitch = 0.0f;
-    camera.yaw = 0.0f;
+    camera.pitch = 30.0f;
+    camera.yaw = 15.0f;
     camera.fov = 75.0f;
     camera.projection = Projection::Stereographic;
-    camera.hideSubHorizon = false;
+    camera.hideSubHorizon = true;
     return camera;
 }
 

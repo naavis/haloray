@@ -37,12 +37,22 @@ public:
     LightSource getLightSource() const;
     void setLightSource(const LightSource);
 
+    bool getAtmosphereEnabled() const;
+    void setAtmosphereEnabled(bool enabled);
+
+    double getAtmosphereTurbidity() const;
+    void setAtmosphereTurbidity(double turbidity);
+
+    double getGroundAlbedo() const;
+    void setGroundAlbedo(double albedo);
+
     void lockCameraToLightSource(bool locked);
 
     void setMultipleScatteringProbability(double);
     double getMultipleScatteringProbability() const;
 
     unsigned int getOutputTextureHandle() const;
+    unsigned int getBackgroundTextureHandle() const;
 
     void resizeOutputTextureCallback(const unsigned int width, const unsigned int height);
 
@@ -54,7 +64,7 @@ signals:
     void multipleScatteringProbabilityChanged(double);
 
 private:
-    void initializeShader();
+    void initializeShaders();
     void initializeTextures();
     void pointCameraToLightSource();
 
@@ -63,8 +73,10 @@ private:
     std::mt19937 m_mersenneTwister;
     std::uniform_int_distribution<unsigned int> m_uniformDistribution;
     std::unique_ptr<QOpenGLShaderProgram> m_simulationShader;
+    QOpenGLShaderProgram *m_skyShader;
     std::unique_ptr<OpenGL::Texture> m_simulationTexture;
     std::unique_ptr<OpenGL::Texture> m_spinlockTexture;
+    std::unique_ptr<OpenGL::Texture> m_backgroundTexture;
 
     Camera m_camera;
     LightSource m_light;
@@ -76,6 +88,10 @@ private:
     bool m_cameraLockedToLightSource;
     float m_multipleScatteringProbability;
     std::shared_ptr<CrystalPopulationRepository> m_crystalRepository;
+    float m_sunSpectrumCache[31];
+    bool m_atmosphereEnabled;
+    double m_turbidity;
+    double m_groundAlbedo;
 };
 
 }

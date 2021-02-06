@@ -27,6 +27,9 @@ public:
         RaysPerFrame,
         MaximumIterations,
         RaysPerFrameUpperLimit,
+        AtmosphereEnabled,
+        Turbidity,
+        GroundAlbedo,
         NUM_COLUMNS
     };
 

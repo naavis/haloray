@@ -62,7 +62,7 @@ void ViewSettingsWidget::setupUi()
     m_yawSlider = SliderSpinBox::createAngleSlider(-360.0, 360.0);
     m_yawSlider->setWrapping(true);
 
-    m_fieldOfViewSlider = SliderSpinBox::createAngleSlider(10.0, 360.0);
+    m_fieldOfViewSlider = SliderSpinBox::createAngleSlider(1.5, 360.0);
 
     m_brightnessSlider = new SliderSpinBox();
     m_brightnessSlider->setMinimum(0.1);

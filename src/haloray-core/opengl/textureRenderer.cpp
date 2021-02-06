@@ -8,29 +8,9 @@ namespace OpenGL
 
 std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::initializeTexDrawShaderProgram()
 {
-    const std::string vertexShaderSrc =
-        "#version 440 core\n"
-        "in vec2 position;"
-        "void main(void) {"
-        "    gl_Position = vec4(position, 0.0f, 1.0);"
-        "}";
-
-    const std::string fragShaderSrc =
-        "#version 440 core\n"
-        "out vec4 color;"
-        "uniform float exposure;"
-        "uniform sampler2D s;"
-        "void main(void) {"
-        "    vec3 xyz = texelFetch(s, ivec2(gl_FragCoord.xy), 0).xyz;"
-        "    mat3 xyzToSrgb = mat3(3.2406, -0.9689, 0.0557, -1.5372, 1.8758, -0.2040, -0.4986, 0.0415, 1.0570);"
-        "    vec3 linearSrgb = xyzToSrgb * xyz * exposure;"
-        "    vec3 gammaCorrected = pow(linearSrgb, vec3(0.42));"
-        "    color = vec4(gammaCorrected, 1.0);"
-        "}";
-
     auto program = std::make_unique<QOpenGLShaderProgram>();
-    program->addCacheableShaderFromSourceCode(QOpenGLShader::ShaderTypeBit::Vertex, vertexShaderSrc.c_str());
-    program->addCacheableShaderFromSourceCode(QOpenGLShader::ShaderTypeBit::Fragment, fragShaderSrc.c_str());
+    program->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Vertex, ":/shaders/renderer.vert");
+    program->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Fragment, ":/shaders/renderer.frag");
 
     if (program->link() == false)
     {
@@ -72,7 +52,7 @@ void TextureRenderer::initialize()
     m_texDrawProgram = initializeTexDrawShaderProgram();
 }
 
-void TextureRenderer::render(unsigned int textureHandle)
+void TextureRenderer::render(unsigned int haloTextureHandle, int backgroundTextureHandle)
 {
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
@@ -82,8 +62,12 @@ void TextureRenderer::render(unsigned int textureHandle)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindVertexArray(m_quadVao);
-    glBindTexture(GL_TEXTURE_2D, textureHandle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, haloTextureHandle);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, backgroundTextureHandle);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void TextureRenderer::setUniformFloat(std::string name, float value)

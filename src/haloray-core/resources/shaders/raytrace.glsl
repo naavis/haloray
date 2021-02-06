@@ -14,6 +14,7 @@ uniform struct sunProperties_t
 {
     float altitude;
     float diameter;
+    float spectrum[31];
 } sun;
 
 uniform struct crystalProperties_t
@@ -44,6 +45,8 @@ uniform struct camera_t
     int projection;
     int hideSubHorizon;
 } camera;
+
+uniform int atmosphereEnabled;
 
 const float PI = 3.1415926535;
 
@@ -294,14 +297,19 @@ vec3 traceRay(vec3 rayOrigin, vec3 rayDirection, float indexOfRefraction)
     return vec3(0.0);
 }
 
-vec3 sampleSun(float altitude)
+vec3 getSunDirection(float altitude)
 {
     // X and Z are horizontal, sun moves on the Y-Z plane
-    vec3 sunCenterDirection = vec3(
+    return normalize(vec3(
         0.0,
         sin(altitude),
         cos(altitude)
-    );
+    ));
+}
+
+vec3 sampleSun(float altitude)
+{
+    vec3 sunCenterDirection = getSunDirection(altitude);
 
     // X axis is always perpendicular to the Y-Z plane
     vec3 diskBasis0 = vec3(1.0, 0.0, 0.0);
@@ -404,6 +412,13 @@ float daylightEstimate(float wavelength)
     return 1.0 - 0.0013333 * wavelength;
 }
 
+float sampleSunSpectrum(float wavelength)
+{
+    int index = clamp(int(floor((wavelength - 400.0) / 10.0)), 0, 29);
+    float wavelengthFract = (wavelength - (400.0 + index * 10.0)) / 10.0;
+    return mix(sun.spectrum[index], sun.spectrum[index + 1], wavelengthFract);
+}
+
 void storePixel(ivec2 pixelCoordinates, vec3 value)
 {
     bool keepWaiting = true;
@@ -458,7 +473,7 @@ void main(void)
 
     /* The inverse rotation matrix must be applied because we are
     rotating the incoming ray and not the crystal itself. */
-    vec3 rotatedRayDirection = rayDirection * rotationMatrix;
+    vec3 rotatedRayDirection = normalize(rayDirection * rotationMatrix);
 
     vec3 resultRay = castRayThroughCrystal(rotatedRayDirection, wavelength);
 
@@ -473,7 +488,7 @@ void main(void)
 
         /* The inverse rotation matrix must be applied because we are
         rotating the incoming ray and not the crystal itself. */
-        rotatedRayDirection = resultRay * rotationMatrix;
+        rotatedRayDirection = normalize(resultRay * rotationMatrix);
 
         resultRay = castRayThroughCrystal(rotatedRayDirection, wavelength);
 
@@ -482,14 +497,17 @@ void main(void)
         resultRay = rotationMatrix * resultRay;
     }
 
+    // Do not render rays coming from the solar disk when the sky model renders a separate sun
+    if (atmosphereEnabled == 1 && acos(dot(-resultRay, getSunDirection(radians(sun.altitude)))) < 1.05 * radians(sun.diameter / 2.0) && resultRay.y < 0.0)
+        return;
+
     // Hide subhorizon rays
     if (camera.hideSubHorizon == 1 && resultRay.y > 0.0) return;
-
-    resultRay = -getCameraOrientationMatrix() * resultRay;
 
     ivec2 resolution = imageSize(outputImage);
     float aspectRatio = float(resolution.y) / float(resolution.x);
 
+    resultRay = normalize(-getCameraOrientationMatrix() * resultRay);
     vec2 polar = cartesianToPolar(resultRay);
 
     float fovRadians = radians(camera.fov);
@@ -521,7 +539,16 @@ void main(void)
     if (any(lessThanEqual(normalizedCoordinates, vec2(0.0))) || any(greaterThanEqual(normalizedCoordinates, vec2(1.0))))
         return;
 
+    float sunRadiance;
+    if (atmosphereEnabled == 1)
+    {
+        sunRadiance = sampleSunSpectrum(wavelength);
+    } else {
+        sunRadiance = daylightEstimate(wavelength);
+    }
+
     ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.x, resolution.y * normalizedCoordinates.y);
-    vec3 cieXYZ = daylightEstimate(wavelength) * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
-    storePixel(pixelCoordinates, cieXYZ);
+    vec3 cieXYZ = sunRadiance * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
+    mat3 xyzToSrgb = mat3(3.24096994, -0.96924364, 0.05563008, -1.53738318, 1.8759675, -0.20397696, -0.49861076, 0.04155506, 1.05697151);
+    storePixel(pixelCoordinates, xyzToSrgb * cieXYZ);
 }

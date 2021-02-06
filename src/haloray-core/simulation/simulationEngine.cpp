@@ -2,14 +2,18 @@
 #include <memory>
 #include <random>
 #include <limits>
+#include <cmath>
 #include <stdexcept>
 #include "../opengl/texture.h"
 #include "camera.h"
 #include "lightSource.h"
 #include "crystalPopulation.h"
+#include "hosekWilkie/ArHosekSkyModel.h"
+#include "skyModel.h"
 
 namespace HaloRay
 {
+const double PI = 3.1415926535897932384626433832795028841971693993751058209749445923078164062;
 
 SimulationEngine::SimulationEngine(
     std::shared_ptr<CrystalPopulationRepository> crystalRepository,
@@ -27,7 +31,10 @@ SimulationEngine::SimulationEngine(
       m_iteration(0),
       m_cameraLockedToLightSource(false),
       m_multipleScatteringProbability(0.0),
-      m_crystalRepository(crystalRepository)
+      m_crystalRepository(crystalRepository),
+      m_atmosphereEnabled(true),
+      m_turbidity(5.0),
+      m_groundAlbedo(0.0)
 {
     initialize();
 }
@@ -74,9 +81,47 @@ void SimulationEngine::setLightSource(const LightSource light)
     emit lightSourceChanged(m_light);
 }
 
+bool SimulationEngine::getAtmosphereEnabled() const
+{
+    return m_atmosphereEnabled;
+}
+
+void SimulationEngine::setAtmosphereEnabled(bool enabled)
+{
+    clear();
+    m_atmosphereEnabled = enabled;
+}
+
+double SimulationEngine::getAtmosphereTurbidity() const
+{
+    return m_turbidity;
+}
+
+void SimulationEngine::setAtmosphereTurbidity(double turbidity)
+{
+    clear();
+    m_turbidity = turbidity;
+}
+
+double SimulationEngine::getGroundAlbedo() const
+{
+    return m_groundAlbedo;
+}
+
+void SimulationEngine::setGroundAlbedo(double albedo)
+{
+    clear();
+    m_groundAlbedo = albedo;
+}
+
 unsigned int SimulationEngine::getOutputTextureHandle() const
 {
     return m_simulationTexture->getHandle();
+}
+
+unsigned int SimulationEngine::getBackgroundTextureHandle() const
+{
+    return m_backgroundTexture->getHandle();
 }
 
 unsigned int SimulationEngine::getIteration() const
@@ -102,6 +147,42 @@ void SimulationEngine::step()
 {
     ++m_iteration;
 
+    if (m_atmosphereEnabled && m_iteration == 1)
+    {
+        auto skyState = SkyModel::Create(PI * m_light.altitude / 180.0, m_turbidity, m_groundAlbedo, PI * m_light.diameter / 2.0 / 180.0);
+
+        for (auto i = 0u; i < 31; ++i) {
+            m_sunSpectrumCache[i] = skyState.sunSpectrum[i];
+        }
+
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        glBindImageTexture(m_backgroundTexture->getTextureUnit(), m_backgroundTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        m_skyShader->bind();
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        m_skyShader->setUniformValue("sun.altitude", m_light.altitude);
+        m_skyShader->setUniformValue("sun.diameter", m_light.diameter);
+        m_skyShader->setUniformValue("camera.pitch", m_camera.pitch);
+        m_skyShader->setUniformValue("camera.yaw", m_camera.yaw);
+        m_skyShader->setUniformValue("camera.fov", m_camera.fov);
+        m_skyShader->setUniformValue("camera.projection", m_camera.projection);
+        m_skyShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
+
+        for (auto channel = 0u; channel < 3; ++channel)
+        {
+            auto configLocation = m_skyShader->uniformLocation(QString("skyModelState.configs[%1]").arg(channel));
+            m_skyShader->setUniformValueArray(configLocation, skyState.configs[channel], 9, 1);
+        }
+        m_skyShader->setUniformValueArray("skyModelState.radiances", skyState.radiances, 3, 1);
+        m_skyShader->setUniformValue("skyModelState.turbidity", skyState.turbidity);
+        m_skyShader->setUniformValue("skyModelState.solarRadius", (float)(PI * m_light.diameter / 2.0 / 180.0));
+        m_skyShader->setUniformValue("skyModelState.elevation", (float)(PI * m_light.altitude / 180.0));
+        m_skyShader->setUniformValue("skyModelState.sunTopCIEXYZ", skyState.sunTopCIEXYZ[0], skyState.sunTopCIEXYZ[1], skyState.sunTopCIEXYZ[2]);
+        m_skyShader->setUniformValue("skyModelState.sunBottomCIEXYZ", skyState.sunBottomCIEXYZ[0], skyState.sunBottomCIEXYZ[1], skyState.sunBottomCIEXYZ[2]);
+        m_skyShader->setUniformValue("skyModelState.limbDarkeningScaler", skyState.limbDarkeningScaler[0], skyState.limbDarkeningScaler[1], skyState.limbDarkeningScaler[2]);
+
+        glDispatchCompute(m_outputWidth, m_outputHeight, 1);
+    }
+
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     glBindImageTexture(m_simulationTexture->getTextureUnit(), m_simulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     glClearTexImage(m_spinlockTexture->getHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
@@ -126,6 +207,7 @@ void SimulationEngine::step()
         glUniform1ui(glGetUniformLocation(m_simulationShader->programId(), "rngSeed"), seed);
         m_simulationShader->setUniformValue("sun.altitude", m_light.altitude);
         m_simulationShader->setUniformValue("sun.diameter", m_light.diameter);
+        m_simulationShader->setUniformValueArray("sun.spectrum", m_sunSpectrumCache, 31, 1);
 
         m_simulationShader->setUniformValue("crystalProperties.caRatioAverage", crystals.caRatioAverage);
         m_simulationShader->setUniformValue("crystalProperties.caRatioStd", crystals.caRatioStd);
@@ -145,6 +227,7 @@ void SimulationEngine::step()
         m_simulationShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
 
         m_simulationShader->setUniformValue("multipleScatter", m_multipleScatteringProbability);
+        m_simulationShader->setUniformValue("atmosphereEnabled", m_atmosphereEnabled ? 1 : 0);
 
         glDispatchCompute(numRays, 1, 1);
     }
@@ -155,10 +238,15 @@ void SimulationEngine::clear()
     if (!m_initialized)
         return;
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
     glClearTexImage(m_simulationTexture->getHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(m_simulationTexture->getTextureUnit(), m_simulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
     glClearTexImage(m_spinlockTexture->getHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
     glBindImageTexture(m_spinlockTexture->getTextureUnit(), m_spinlockTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
+
+    glClearTexImage(m_backgroundTexture->getHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
+    glBindImageTexture(m_backgroundTexture->getTextureUnit(), m_backgroundTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     m_iteration = 0;
 }
 
@@ -182,22 +270,25 @@ void SimulationEngine::initialize()
     if (m_initialized)
         return;
     initializeOpenGLFunctions();
-    initializeShader();
+    initializeShaders();
     initializeTextures();
     m_initialized = true;
 }
 
-void SimulationEngine::initializeShader()
+void SimulationEngine::initializeShaders()
 {
     m_simulationShader = std::make_unique<QOpenGLShaderProgram>();
-#ifdef _WIN32
     m_simulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
-#else
-    m_simulationShader->addShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
-#endif
     if (m_simulationShader->link() == false)
     {
         throw std::runtime_error(m_simulationShader->log().toUtf8());
+    }
+
+    m_skyShader = new QOpenGLShaderProgram(this);
+    m_skyShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/sky.glsl");
+    if (m_skyShader->link() == false)
+    {
+        throw std::runtime_error(m_skyShader->log().toUtf8());
     }
 }
 
@@ -205,6 +296,7 @@ void SimulationEngine::initializeTextures()
 {
     m_simulationTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 0, OpenGL::TextureType::Color);
     m_spinlockTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 1, OpenGL::TextureType::Monochrome);
+    m_backgroundTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 2, OpenGL::TextureType::Color);
 }
 
 void SimulationEngine::resizeOutputTextureCallback(const unsigned int width, const unsigned int height)
@@ -214,6 +306,7 @@ void SimulationEngine::resizeOutputTextureCallback(const unsigned int width, con
 
     m_simulationTexture.reset();
     m_spinlockTexture.reset();
+    m_backgroundTexture.reset();
 
     initializeTextures();
     clear();
