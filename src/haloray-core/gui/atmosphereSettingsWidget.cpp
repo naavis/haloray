@@ -31,7 +31,7 @@ void AtmosphereSettingsWidget::setupUi()
     setMaximumWidth(400);
     this->setCheckable(true);
 
-    m_turbiditySlider = new SliderSpinBox(1.0, 10.0);
+    m_turbiditySlider = new SliderSpinBox(1.0, 9.0);
 
     m_groundAlbedoSlider = new SliderSpinBox(0.0, 1.0);
 
