@@ -26,9 +26,9 @@ uniform struct hosekSkyModelState_t
     float solar_radius;
     float albedo;
     float elevation;
-    float sunTopCIEXYZ[3];
-    float sunBottomCIEXYZ[3];
-    float limbDarkeningScaler[3];
+    vec3 sunTopCIEXYZ;
+    vec3 sunBottomCIEXYZ;
+    vec3 limbDarkeningScaler;
 } skyModelState;
 
 #define PROJECTION_STEREOGRAPHIC 0
@@ -247,10 +247,9 @@ vec3 renderSun(vec3 direction)
 
     float rayElevation = asin(direction.y);
     float factor = (rayElevation - (skyModelState.elevation - skyModelState.solar_radius)) / (2.0 * skyModelState.solar_radius);
-    float x = mix(skyModelState.sunBottomCIEXYZ[0], skyModelState.sunTopCIEXYZ[0], factor);
-    float y = mix(skyModelState.sunBottomCIEXYZ[1], skyModelState.sunTopCIEXYZ[1], factor);
-    float z = mix(skyModelState.sunBottomCIEXYZ[2], skyModelState.sunTopCIEXYZ[2], factor);
+    vec3 plainRadiance = mix(skyModelState.sunBottomCIEXYZ, skyModelState.sunTopCIEXYZ, factor);
 
+    // TODO: Clean up variable names
     float sol_rad_sin = sin(skyModelState.solar_radius);
     float ar2 = 1.0 / (sol_rad_sin * sol_rad_sin);
     float singamma = sin(sunAngle);
@@ -258,9 +257,7 @@ vec3 renderSun(vec3 direction)
     if (sc2 < 0.0 ) sc2 = 0.0;
     float sampleCosine = sqrt(sc2);
 
-    vec3 plainRadiance = vec3(x, y, z);
-    vec3 scaler = vec3(skyModelState.limbDarkeningScaler[0], skyModelState.limbDarkeningScaler[1], skyModelState.limbDarkeningScaler[2]);
-    vec3 withLimbDarkening = mix(scaler * plainRadiance, plainRadiance, sampleCosine);
+    vec3 withLimbDarkening = mix(skyModelState.limbDarkeningScaler * plainRadiance, plainRadiance, sampleCosine);
 
     return withLimbDarkening;
 }

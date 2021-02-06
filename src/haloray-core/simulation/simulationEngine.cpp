@@ -207,9 +207,9 @@ void SimulationEngine::step()
         m_skyShader->setUniformValue("skyModelState.solar_radius", skyState.solar_radius);
         m_skyShader->setUniformValue("skyModelState.albedo", skyState.albedo);
         m_skyShader->setUniformValue("skyModelState.elevation", skyState.elevation);
-        m_skyShader->setUniformValueArray("skyModelState.sunTopCIEXYZ", skyState.sunTopCIEXYZ, 3, 1);
-        m_skyShader->setUniformValueArray("skyModelState.sunBottomCIEXYZ", skyState.sunBottomCIEXYZ, 3, 1);
-        m_skyShader->setUniformValueArray("skyModelState.limbDarkeningScaler", skyState.limbDarkeningScaler, 3, 1);
+        m_skyShader->setUniformValue("skyModelState.sunTopCIEXYZ", skyState.sunTopCIEXYZ[0], skyState.sunTopCIEXYZ[1], skyState.sunTopCIEXYZ[2]);
+        m_skyShader->setUniformValue("skyModelState.sunBottomCIEXYZ", skyState.sunBottomCIEXYZ[0], skyState.sunBottomCIEXYZ[1], skyState.sunBottomCIEXYZ[2]);
+        m_skyShader->setUniformValue("skyModelState.limbDarkeningScaler", skyState.limbDarkeningScaler[0], skyState.limbDarkeningScaler[1], skyState.limbDarkeningScaler[2]);
 
         glDispatchCompute(m_outputWidth, m_outputHeight, 1);
     }
