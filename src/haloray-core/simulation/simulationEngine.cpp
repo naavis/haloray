@@ -9,8 +9,8 @@
 #include "camera.h"
 #include "lightSource.h"
 #include "crystalPopulation.h"
-#include "backgroundSky/ArHosekSkyModel.h"
-#include "CieXYZ_CMF.h"
+#include "hosekWilkie/ArHosekSkyModel.h"
+#include "colorUtilities.h"
 
 namespace HaloRay
 {

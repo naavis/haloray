@@ -37,11 +37,11 @@ HEADERS += \
     gui/viewSettingsWidget.h \
     opengl/texture.h \
     opengl/textureRenderer.h \
-    simulation/CieXYZ_CMF.h \
-    simulation/backgroundSky/ArHosekSkyModel.h \
-    simulation/backgroundSky/ArHosekSkyModelData_CIEXYZ.h \
-    simulation/backgroundSky/ArHosekSkyModelData_RGB.h \
-    simulation/backgroundSky/ArHosekSkyModelData_Spectral.h \
+    simulation/colorUtilities.h \
+    simulation/hosekWilkie/ArHosekSkyModel.h \
+    simulation/hosekWilkie/ArHosekSkyModelData_CIEXYZ.h \
+    simulation/hosekWilkie/ArHosekSkyModelData_RGB.h \
+    simulation/hosekWilkie/ArHosekSkyModelData_Spectral.h \
     simulation/camera.h \
     simulation/crystalPopulation.h \
     simulation/crystalPopulationRepository.h \
@@ -62,7 +62,7 @@ SOURCES += \
     gui/viewSettingsWidget.cpp \
     opengl/texture.cpp \
     opengl/textureRenderer.cpp \
-    simulation/backgroundSky/ArHosekSkyModel.c \
+    simulation/hosekWilkie/ArHosekSkyModel.c \
     simulation/camera.cpp \
     simulation/crystalPopulation.cpp \
     simulation/crystalPopulationRepository.cpp \
