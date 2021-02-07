@@ -122,6 +122,10 @@ lower caps have the following settings:
 
 ![Graphic of pyramidal ice crystal](images/pyramid-crystal.png)
 
+Above is a representation of an ice crystal with pyramidal end caps.
+Currently HaloRay is limited to convex ice crystals, so the end caps
+cannot extend inwards to make hollow ice crystals.
+
 ### View settings
 
 These settings affect how the results of the simulation are shown on the screen.
