@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Build system switched to qmake from CMake
 - Rewrote most of the GUI code to use Qt model/view architecture
 
+### Fixed
+
+- Fixed bug where intensity of halos changed with rays per frame setting
+
 ## 2.4.0 - 2019-07-29
 
 ### Added
