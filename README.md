@@ -51,8 +51,8 @@ Here are some general settings for the whole simulation.
 
 ### Atmosphere settings
 
-HaloRay implements a realistic blend of Hosek-Wilkie and Preetham sky and sun.
-The sky model has only a few adjustable parameters:
+HaloRay renders a realistic sky and sun disk based on a blend of Hosek-Wilkie and
+Preetham models. The sky model has only a few adjustable parameters:
 
 - **Atmosphere enabled:** Toggles rendering of the sky and sun
 - **Turbidity:** The amount of aerosols/haze in the atmosphere
