@@ -3,7 +3,7 @@
 #define DISTRIBUTION_UNIFORM 0
 #define DISTRIBUTION_GAUSSIAN 1
 
-layout(local_size_x = 1) in;
+layout(local_size_x = 64) in;
 layout(binding = 0, rgba32f) uniform coherent image2D outputImage;
 layout(binding = 1, r32ui) uniform coherent uimage2D spinlock;
 
@@ -124,7 +124,7 @@ uint wang_hash(uint a)
 	return a;
 }
 
-uint rngState = wang_hash(rngSeed + uint(gl_WorkGroupID.x));
+uint rngState = wang_hash(rngSeed + uint(gl_GlobalInvocationID.x));
 
 uint rand_xorshift(void)
  {

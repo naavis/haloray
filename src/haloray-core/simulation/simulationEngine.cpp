@@ -229,7 +229,7 @@ void SimulationEngine::step()
         m_simulationShader->setUniformValue("multipleScatter", m_multipleScatteringProbability);
         m_simulationShader->setUniformValue("atmosphereEnabled", m_atmosphereEnabled ? 1 : 0);
 
-        glDispatchCompute(numRays, 1, 1);
+        glDispatchCompute(numRays / 64.0, 1, 1);
     }
 }
 
