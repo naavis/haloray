@@ -25,6 +25,14 @@ struct CrystalPopulation
     float rotationAverage;
     float rotationStd;
 
+    float upperApexAngle;
+    float upperApexHeightAverage;
+    float upperApexHeightStd;
+
+    float lowerApexAngle;
+    float lowerApexHeightAverage;
+    float lowerApexHeightStd;
+
     static CrystalPopulation presetPopulation(CrystalPopulationPreset);
     static CrystalPopulation createLowitz();
     static CrystalPopulation createPlate();

@@ -6,6 +6,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QSpinBox>
+#include <QDoubleSpinBox>
 #include "sliderSpinBox.h"
 #include "addCrystalPopulationButton.h"
 #include "../simulation/crystalPopulation.h"
@@ -43,6 +44,12 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<CrystalPopulationRe
     m_mapper->addMapping(m_rotationDistributionComboBox, CrystalModel::RotationDistribution, "currentIndex");
     m_mapper->addMapping(m_rotationAverageSlider, CrystalModel::RotationAverage);
     m_mapper->addMapping(m_rotationStdSlider, CrystalModel::RotationStd);
+    m_mapper->addMapping(m_upperApexAngleSpinBox, CrystalModel::UpperApexAngle);
+    m_mapper->addMapping(m_upperApexHeightAverageSlider, CrystalModel::UpperApexHeightAverage);
+    m_mapper->addMapping(m_upperApexHeightStdSlider, CrystalModel::UpperApexHeightStd);
+    m_mapper->addMapping(m_lowerApexAngleSpinBox, CrystalModel::LowerApexAngle);
+    m_mapper->addMapping(m_lowerApexHeightAverageSlider, CrystalModel::LowerApexHeightAverage);
+    m_mapper->addMapping(m_lowerApexHeightStdSlider, CrystalModel::LowerApexHeightStd);
     m_mapper->addMapping(m_weightSpinBox, CrystalModel::PopulationWeight);
     m_mapper->toFirst();
     m_mapper->setSubmitPolicy(QDataWidgetMapper::SubmitPolicy::AutoSubmit);
@@ -65,6 +72,12 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<CrystalPopulationRe
     connect(m_rotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_rotationAverageSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_rotationStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_upperApexAngleSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_upperApexHeightAverageSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_upperApexHeightStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_lowerApexAngleSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_lowerApexHeightAverageSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_lowerApexHeightStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
 
     connect(m_populationComboBox, QOverload<int>::of(&QComboBox::activated), m_mapper, &QDataWidgetMapper::setCurrentIndex);
     connect(m_mapper, &QDataWidgetMapper::currentIndexChanged, m_populationComboBox, QOverload<int>::of(&QComboBox::setCurrentIndex));
@@ -153,6 +166,24 @@ void CrystalSettingsWidget::setupUi()
     m_rotationStdLabel = new QLabel(tr("Standard deviation"));
     m_rotationStdSlider = SliderSpinBox::createAngleSlider(0.0, 360.0);
 
+    m_upperApexAngleSpinBox = new QDoubleSpinBox();
+    m_upperApexAngleSpinBox->setMinimum(0.0);
+    m_upperApexAngleSpinBox->setMaximum(180.0);
+    m_upperApexAngleSpinBox->setSuffix("°");
+
+    m_upperApexHeightAverageSlider = new SliderSpinBox(0.0, 1.0);
+
+    m_upperApexHeightStdSlider = new SliderSpinBox(0.0, 5.0);
+
+    m_lowerApexAngleSpinBox = new QDoubleSpinBox();
+    m_lowerApexAngleSpinBox->setMinimum(0.0);
+    m_lowerApexAngleSpinBox->setMaximum(180.0);
+    m_lowerApexAngleSpinBox->setSuffix("°");
+
+    m_lowerApexHeightAverageSlider = new SliderSpinBox(0.0, 1.0);
+
+    m_lowerApexHeightStdSlider = new SliderSpinBox(0.0, 5.0);
+
     m_weightSpinBox = new QSpinBox();
     m_weightSpinBox->setMinimum(0);
     m_weightSpinBox->setMaximum(10000);
@@ -166,9 +197,22 @@ void CrystalSettingsWidget::setupUi()
 
     mainLayout->addRow(populationButtonLayout);
     mainLayout->addRow(tr("Population weight"), m_weightSpinBox);
-    mainLayout->addItem(new QSpacerItem(0, 10));
+
+    mainLayout->addItem(new QSpacerItem(0, 5));
     mainLayout->addRow(tr("C/A ratio average"), m_caRatioSlider);
     mainLayout->addRow(tr("C/A ratio std."), m_caRatioStdSlider);
+    mainLayout->addItem(new QSpacerItem(0, 5));
+
+    auto pyramidGroupBox = new QGroupBox(tr("Pyramid caps"));
+    auto pyramidLayout = new QFormLayout(pyramidGroupBox);
+    mainLayout->addRow(pyramidGroupBox);
+    pyramidLayout->addRow(tr("Upper apex angle"), m_upperApexAngleSpinBox);
+    pyramidLayout->addRow(tr("Upper apex average height"), m_upperApexHeightAverageSlider);
+    pyramidLayout->addRow(tr("Upper apex height std."), m_upperApexHeightStdSlider);
+    pyramidLayout->addItem(new QSpacerItem(0, 5));
+    pyramidLayout->addRow(tr("Lower apex angle"), m_lowerApexAngleSpinBox);
+    pyramidLayout->addRow(tr("Lower apex average height"), m_lowerApexHeightAverageSlider);
+    pyramidLayout->addRow(tr("Lower apex height std."), m_lowerApexHeightStdSlider);
 
     auto tiltGroupBox = new QGroupBox(tr("C-axis tilt"));
     auto tiltLayout = new QFormLayout(tiltGroupBox);

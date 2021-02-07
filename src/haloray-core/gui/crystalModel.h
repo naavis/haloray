@@ -28,6 +28,12 @@ public:
         RotationDistribution,
         RotationAverage,
         RotationStd,
+        UpperApexAngle,
+        UpperApexHeightAverage,
+        UpperApexHeightStd,
+        LowerApexAngle,
+        LowerApexHeightAverage,
+        LowerApexHeightStd,
         PopulationWeight,
         NUM_COLUMNS
     };

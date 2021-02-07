@@ -29,6 +29,14 @@ uniform struct crystalProperties_t
     int rotationDistribution;
     float rotationAverage;
     float rotationStd;
+
+    float upperApexAngle;
+    float upperApexHeightAverage;
+    float upperApexHeightStd;
+
+    float lowerApexAngle;
+    float lowerApexHeightAverage;
+    float lowerApexHeightStd;
 } crystalProperties;
 
 #define PROJECTION_STEREOGRAPHIC 0
@@ -505,6 +513,21 @@ void initializeCrystal()
     for (int i = 0; i < vertices.length(); ++i)
     {
         vertices[i].y *= max(0.0, caMultiplier);
+    }
+
+    float upperApexMaxHeight = 1.0 / tan(radians(crystalProperties.upperApexAngle / 2.0));
+    float lowerApexMaxHeight = 1.0 / tan(radians(crystalProperties.lowerApexAngle / 2.0));
+
+    vec2 random = randn();
+    float upperApexHeight = max(0.0, crystalProperties.upperApexHeightAverage * random.x);
+    float lowerApexHeight = max(0.0, crystalProperties.lowerApexHeightAverage * random.y);
+
+    for (int i = 0; i < 6; ++i)
+    {
+        vertices[i].xz *= 1.0 - upperApexHeight;
+        vertices[i].y += upperApexHeight * upperApexMaxHeight;
+        vertices[vertices.length() - i].xz *= 1.0 - lowerApexHeight;
+        vertices[vertices.length() - i].y -= lowerApexHeight * lowerApexMaxHeight;
     }
 }
 

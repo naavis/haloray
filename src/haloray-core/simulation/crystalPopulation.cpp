@@ -17,6 +17,14 @@ CrystalPopulation CrystalPopulation::createLowitz()
     crystal.rotationAverage = 0.0f;
     crystal.rotationStd = 1.0f;
 
+    crystal.upperApexAngle = 56.142f;
+    crystal.upperApexHeightAverage = 0.0f;
+    crystal.upperApexHeightStd = 0.0f;
+
+    crystal.lowerApexAngle = 56.142f;
+    crystal.lowerApexHeightAverage = 0.0f;
+    crystal.lowerApexHeightStd = 0.0f;
+
     return crystal;
 }
 
@@ -33,6 +41,14 @@ CrystalPopulation CrystalPopulation::createPlate()
     crystal.rotationDistribution = 0;
     crystal.rotationAverage = 0.0f;
     crystal.rotationStd = 0.0f;
+
+    crystal.upperApexAngle = 56.142f;
+    crystal.upperApexHeightAverage = 0.0f;
+    crystal.upperApexHeightStd = 0.0f;
+
+    crystal.lowerApexAngle = 56.142f;
+    crystal.lowerApexHeightAverage = 0.0f;
+    crystal.lowerApexHeightStd = 0.0f;
 
     return crystal;
 }
@@ -51,6 +67,14 @@ CrystalPopulation CrystalPopulation::createColumn()
     crystal.rotationAverage = 0.0f;
     crystal.rotationStd = 0.0f;
 
+    crystal.upperApexAngle = 56.142f;
+    crystal.upperApexHeightAverage = 0.0f;
+    crystal.upperApexHeightStd = 0.0f;
+
+    crystal.lowerApexAngle = 56.142f;
+    crystal.lowerApexHeightAverage = 0.0f;
+    crystal.lowerApexHeightStd = 0.0f;
+
     return crystal;
 }
 
@@ -68,6 +92,14 @@ CrystalPopulation CrystalPopulation::createParry()
     crystal.rotationAverage = 0.0f;
     crystal.rotationStd = 1.0f;
 
+    crystal.upperApexAngle = 56.142f;
+    crystal.upperApexHeightAverage = 0.0f;
+    crystal.upperApexHeightStd = 0.0f;
+
+    crystal.lowerApexAngle = 56.142f;
+    crystal.lowerApexHeightAverage = 0.0f;
+    crystal.lowerApexHeightStd = 0.0f;
+
     return crystal;
 }
 
@@ -84,6 +116,14 @@ CrystalPopulation CrystalPopulation::createRandom()
     crystal.rotationDistribution = 0;
     crystal.rotationAverage = 0.0f;
     crystal.rotationStd = 0.0f;
+
+    crystal.upperApexAngle = 56.142f;
+    crystal.upperApexHeightAverage = 0.0f;
+    crystal.upperApexHeightStd = 0.0f;
+
+    crystal.lowerApexAngle = 56.142f;
+    crystal.lowerApexHeightAverage = 0.0f;
+    crystal.lowerApexHeightStd = 0.0f;
 
     return crystal;
 }

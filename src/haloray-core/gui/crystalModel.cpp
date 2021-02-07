@@ -55,6 +55,18 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
         return crystal.rotationAverage;
     case RotationStd:
         return crystal.rotationStd;
+    case UpperApexAngle:
+        return crystal.upperApexAngle;
+    case UpperApexHeightAverage:
+        return crystal.upperApexHeightAverage;
+    case UpperApexHeightStd:
+        return crystal.upperApexHeightStd;
+    case LowerApexAngle:
+        return crystal.lowerApexAngle;
+    case LowerApexHeightAverage:
+        return crystal.lowerApexHeightAverage;
+    case LowerApexHeightStd:
+        return crystal.lowerApexHeightStd;
     case PopulationWeight:
         return m_crystals->getWeight(row);
     }
@@ -99,6 +111,24 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
         break;
     case RotationStd:
         crystal.rotationStd = value.toFloat();
+        break;
+    case UpperApexAngle:
+        crystal.upperApexAngle = value.toFloat();
+        break;
+    case UpperApexHeightAverage:
+        crystal.upperApexHeightAverage = value.toFloat();
+        break;
+    case UpperApexHeightStd:
+        crystal.upperApexHeightStd = value.toFloat();
+        break;
+    case LowerApexAngle:
+        crystal.lowerApexAngle = value.toFloat();
+        break;
+    case LowerApexHeightAverage:
+        crystal.lowerApexHeightAverage = value.toFloat();
+        break;
+    case LowerApexHeightStd:
+        crystal.lowerApexHeightStd = value.toFloat();
         break;
     case PopulationWeight:
         m_crystals->setWeight(row, value.toUInt());

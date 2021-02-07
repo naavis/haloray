@@ -8,6 +8,7 @@ class QComboBox;
 class QLabel;
 class QSpinBox;
 class QDataWidgetMapper;
+class QDoubleSpinBox;
 
 namespace HaloRay
 {
@@ -52,6 +53,14 @@ private:
     QLabel *m_rotationAverageLabel;
     SliderSpinBox *m_rotationStdSlider;
     QLabel *m_rotationStdLabel;
+
+    QDoubleSpinBox *m_upperApexAngleSpinBox;
+    SliderSpinBox *m_upperApexHeightAverageSlider;
+    SliderSpinBox *m_upperApexHeightStdSlider;
+
+    QDoubleSpinBox *m_lowerApexAngleSpinBox;
+    SliderSpinBox *m_lowerApexHeightAverageSlider;
+    SliderSpinBox *m_lowerApexHeightStdSlider;
 
     QSpinBox *m_weightSpinBox;
 
