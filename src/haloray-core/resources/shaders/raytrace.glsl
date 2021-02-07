@@ -110,6 +110,8 @@ ivec3 triangles[] = ivec3[](
     ivec3(11, 6, 0)
 );
 
+vec3 triangleNormalCache[triangles.length()];
+
 uint wang_hash(uint a)
 {
 	a -= (a << 6);
@@ -184,6 +186,7 @@ uint selectFirstTriangle(vec3 rayDirection)
         vec3 triangleCrossProduct = cross(v2 - v0, v1 - v0);
         float triangleArea = 0.5 * length(triangleCrossProduct);
         vec3 triangleNormal = normalize(triangleCrossProduct);
+        triangleNormalCache[i] = triangleNormal;
 
         triangleProjectedAreas[i] = max(0.0, triangleArea * dot(triangleNormal, -rayDirection));
         sumProjectedAreas += triangleProjectedAreas[i];
@@ -221,11 +224,7 @@ vec3 sampleTriangle(uint triangleIndex)
 
 vec3 getNormal(uint triangleIndex)
 {
-    ivec3 triangle = triangles[triangleIndex];
-    vec3 v0 = vertices[triangle.x];
-    vec3 v1 = vertices[triangle.y];
-    vec3 v2 = vertices[triangle.z];
-    return normalize(cross(v1 - v0, v2 - v0));
+    return -triangleNormalCache[triangleIndex];
 }
 
 float getReflectionCoefficient(vec3 normal, vec3 rayDir, float n0, float n1)
@@ -246,6 +245,7 @@ intersection findIntersection(vec3 rayOrigin, vec3 rayDirection)
 {
     for (int triangleIndex = 0; triangleIndex < triangles.length(); ++triangleIndex)
     {
+        if (dot(rayDirection, getNormal(triangleIndex)) > 0.0) continue;
         ivec3 triangle = triangles[triangleIndex];
         vec3 v0 = vertices[triangle.x];
         vec3 v1 = vertices[triangle.y];
