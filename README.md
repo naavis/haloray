@@ -108,6 +108,20 @@ C-axis horizontal. Crystals with a small C/A ratio are called plate
 crystals. They tend to orient themselves with the C-axis vertical. Both
 kinds of crystals are shown in the image above.
 
+The ice crystals also have adjustable pyramidal end caps. Both the upper and
+lower caps have the following settings:
+
+- **Apex angle:** Defines the apex angle of the pyramid cap in degrees
+  - Ranges from 0.0 to 180.0 degrees, where low numbers mean a very pointy cap
+    while high numbers mean the opposite
+  - Typically the apex angle is 56 degrees on water ice crystals
+- **Apex average height:** Defines the height of the pyramid cap
+  - Ranges from 0.0 to 1.0, where 0.0 means the cap is totally flat and 1.0
+    means a cap that converges to a sharp point
+- **Apex height std:** Standard deviation of the pyramid cap height
+
+![Graphic of pyramidal ice crystal](images/pyramid-crystal.png)
+
 ### View settings
 
 These settings affect how the results of the simulation are shown on the screen.
