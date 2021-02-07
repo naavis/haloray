@@ -14,6 +14,7 @@
 #include <QDateTime>
 #include <QProgressBar>
 #include <QScrollArea>
+#include <QStatusBar>
 #include "openGLWidget.h"
 #include "generalSettingsWidget.h"
 #include "crystalSettingsWidget.h"
@@ -30,7 +31,7 @@
 namespace HaloRay
 {
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIteration(0)
 {
 #if _WIN32
     QIcon::setThemeName("HaloRayTheme");
@@ -91,6 +92,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             image.save(filename, "PNG", 50);
         }
     });
+
+    setupRenderTimer();
 }
 
 void MainWindow::setupUi()
@@ -105,6 +108,7 @@ void MainWindow::setupUi()
 
     setWindowIcon(QIcon(":/haloray.ico"));
 
+    this->statusBar()->show();
     setupMenuBar();
 
     m_openGLWidget = new OpenGLWidget(m_engine, m_simulationStateModel);
@@ -173,6 +177,37 @@ QProgressBar *MainWindow::setupProgressBar()
 QSize MainWindow::sizeHint() const
 {
     return QSize(1920, 1080);
+}
+
+void MainWindow::setupRenderTimer()
+{
+    m_renderTimer.callOnTimeout([this]() {
+        if (!m_engine->isRunning()) return;
+
+        unsigned int currentIteration = m_engine->getIteration();
+        unsigned int previousIteration = m_previousTimedIteration;
+        if (currentIteration < previousIteration)
+        {
+            m_previousTimedIteration = currentIteration;
+            return;
+        }
+        unsigned int raysPerStep = m_engine->getRaysPerStep();
+        unsigned int rate = (currentIteration - previousIteration) * raysPerStep;
+        m_previousTimedIteration = currentIteration;
+        this->statusBar()->showMessage(QString("Simulation rate: %1 rays/s").arg(QLocale::system().toString(rate)));
+    });
+
+    connect(this->m_renderButton, &RenderButton::clicked, [this]() {
+        if (m_engine->isRunning())
+        {
+            m_previousTimedIteration = 0;
+            m_renderTimer.start(1000);
+        }
+        else
+        {
+            m_renderTimer.stop();
+        }
+    });
 }
 
 }
