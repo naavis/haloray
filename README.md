@@ -137,10 +137,6 @@ you can install Qt by running:
 sudo apt-get install qt5-default
 ```
 
-On Windows you need to set the `Qt5_DIR` environment
-variable to point to the Qt prefix path, e.g.
-`C:\Qt\5.15.2\msvc2019_64\`
-
 Finally build the project by running:
 
 ```bash
