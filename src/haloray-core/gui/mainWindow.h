@@ -1,6 +1,7 @@
 #pragma once
 #include <QMainWindow>
 #include <memory>
+#include <QTimer>
 #include "simulationStateModel.h"
 
 
@@ -34,6 +35,7 @@ private:
     QScrollArea *setupSideBarScrollArea();
     QProgressBar *setupProgressBar();
     void setupMenuBar();
+    void setupRenderTimer();
 
     GeneralSettingsWidget *m_generalSettingsWidget;
     CrystalSettingsWidget *m_crystalSettingsWidget;
@@ -50,6 +52,8 @@ private:
     SimulationEngine *m_engine;
 
     SimulationStateModel *m_simulationStateModel;
+    QTimer m_renderTimer;
+    int m_previousTimedIteration;
 };
 
 }
