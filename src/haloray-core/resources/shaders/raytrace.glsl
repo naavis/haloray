@@ -507,15 +507,16 @@ void initializeCrystal()
     float lowerApexMaxHeight = 1.0 / tan(radians(crystalProperties.lowerApexAngle / 2.0));
 
     vec2 random = randn();
-    float upperApexHeight = max(0.0, crystalProperties.upperApexHeightAverage * random.x);
-    float lowerApexHeight = max(0.0, crystalProperties.lowerApexHeightAverage * random.y);
+    float upperApexHeight = clamp(crystalProperties.upperApexHeightAverage + crystalProperties.upperApexHeightStd * random.x, 0.0, 1.0);
+    float lowerApexHeight = clamp(crystalProperties.lowerApexHeightAverage + crystalProperties.lowerApexHeightStd * random.y, 0.0, 1.0);
 
     for (int i = 0; i < 6; ++i)
     {
         vertices[i].xz *= 1.0 - upperApexHeight;
         vertices[i].y += upperApexHeight * upperApexMaxHeight;
-        vertices[vertices.length() - i].xz *= 1.0 - lowerApexHeight;
-        vertices[vertices.length() - i].y -= lowerApexHeight * lowerApexMaxHeight;
+
+        vertices[vertices.length() - i - 1].xz *= 1.0 - lowerApexHeight;
+        vertices[vertices.length() - i - 1].y -= lowerApexHeight * lowerApexMaxHeight;
     }
 }
 
