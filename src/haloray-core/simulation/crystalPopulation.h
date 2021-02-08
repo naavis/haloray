@@ -9,7 +9,8 @@ enum CrystalPopulationPreset
     Plate,
     Column,
     Parry,
-    Lowitz
+    Lowitz,
+    Pyramid
 };
 
 struct CrystalPopulation
@@ -25,12 +26,21 @@ struct CrystalPopulation
     float rotationAverage;
     float rotationStd;
 
+    float upperApexAngle;
+    float upperApexHeightAverage;
+    float upperApexHeightStd;
+
+    float lowerApexAngle;
+    float lowerApexHeightAverage;
+    float lowerApexHeightStd;
+
     static CrystalPopulation presetPopulation(CrystalPopulationPreset);
     static CrystalPopulation createLowitz();
     static CrystalPopulation createPlate();
     static CrystalPopulation createColumn();
     static CrystalPopulation createParry();
     static CrystalPopulation createRandom();
+    static CrystalPopulation createPyramid();
 };
 
 }

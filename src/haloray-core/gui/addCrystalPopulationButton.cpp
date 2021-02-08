@@ -15,12 +15,14 @@ AddCrystalPopulationButton::AddCrystalPopulationButton(QWidget *parent)
     m_addColumn = new QAction(tr("Add column"), this);
     m_addParry = new QAction(tr("Add Parry"), this);
     m_addLowitz = new QAction(tr("Add Lowitz"), this);
+    m_addPyramid = new QAction(tr("Add pyramid"), this);
 
     m_menu->addActions({m_addRandom,
                        m_addPlate,
                        m_addColumn,
                        m_addParry,
-                       m_addLowitz});
+                       m_addLowitz,
+                       m_addPyramid});
 
     setPopupMode(QToolButton::ToolButtonPopupMode::MenuButtonPopup);
     setIcon(QIcon::fromTheme("list-add"));
@@ -33,6 +35,7 @@ AddCrystalPopulationButton::AddCrystalPopulationButton(QWidget *parent)
     connect(m_addColumn, &QAction::triggered, [this]() { emit addPopulation(CrystalPopulationPreset::Column); });
     connect(m_addParry, &QAction::triggered, [this]() { emit addPopulation(CrystalPopulationPreset::Parry); });
     connect(m_addLowitz, &QAction::triggered, [this]() { emit addPopulation(CrystalPopulationPreset::Lowitz); });
+    connect(m_addPyramid, &QAction::triggered, [this]() { emit addPopulation(CrystalPopulationPreset::Pyramid); });
 }
 
 }

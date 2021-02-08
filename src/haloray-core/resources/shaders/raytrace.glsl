@@ -29,6 +29,14 @@ uniform struct crystalProperties_t
     int rotationDistribution;
     float rotationAverage;
     float rotationStd;
+
+    float upperApexAngle;
+    float upperApexHeightAverage;
+    float upperApexHeightStd;
+
+    float lowerApexAngle;
+    float lowerApexHeightAverage;
+    float lowerApexHeightStd;
 } crystalProperties;
 
 #define PROJECTION_STEREOGRAPHIC 0
@@ -64,6 +72,20 @@ vec3 vertices[] = vec3[](
     vec3(0.8660254038, 1.0, -0.5),
     vec3(0.8660254038, 1.0, 0.5),
 
+    vec3(0.0, 1.0, 1.0),
+    vec3(-0.8660254038, 1.0, 0.5),
+    vec3(-0.8660254038, 1.0, -0.5),
+    vec3(0.0, 1.0, -1.0),
+    vec3(0.8660254038, 1.0, -0.5),
+    vec3(0.8660254038, 1.0, 0.5),
+
+    vec3(0.0, -1.0, 1.0),
+    vec3(-0.8660254038, -1.0, 0.5),
+    vec3(-0.8660254038, -1.0, -0.5),
+    vec3(0.0, -1.0, -1.0),
+    vec3(0.8660254038, -1.0, -0.5),
+    vec3(0.8660254038, -1.0, 0.5),
+
     vec3(0.0, -1.0, 1.0),
     vec3(-0.8660254038, -1.0, 0.5),
     vec3(-0.8660254038, -1.0, -0.5),
@@ -79,35 +101,63 @@ ivec3 triangles[] = ivec3[](
     ivec3(0, 3, 4),
     ivec3(0, 4, 5),
 
-    // Face 2 (basal)
-    ivec3(6, 9, 7),
-    ivec3(7, 9, 8),
-    ivec3(6, 10, 9),
-    ivec3(6, 11, 10),
-
-    // Face 3 (prism)
+    // Face 1 (pyramid edges)
     ivec3(0, 6, 1),
     ivec3(6, 7, 1),
-
-    // Face 4 (prism)
     ivec3(1, 7, 2),
     ivec3(7, 8, 2),
-
-    // Face 5 (prism)
     ivec3(2, 8, 3),
     ivec3(8, 9, 3),
-
-    // Face 6 (prism)
     ivec3(3, 9, 4),
     ivec3(9, 10, 4),
-
-    // Face 7 (prism)
     ivec3(4, 10, 5),
     ivec3(10, 11, 5),
+    ivec3(5, 11, 0),
+    ivec3(11, 6, 0),
+
+    // Face 2 (basal)
+    ivec3(18, 21, 19),
+    ivec3(19, 21, 20),
+    ivec3(18, 22, 21),
+    ivec3(18, 23, 22),
+
+    // Face 2 (pyramid edges)
+    ivec3(12, 18, 13),
+    ivec3(18, 19, 13),
+    ivec3(13, 19, 14),
+    ivec3(19, 20, 14),
+    ivec3(14, 20, 15),
+    ivec3(20, 21, 15),
+    ivec3(15, 21, 16),
+    ivec3(21, 22, 16),
+    ivec3(16, 22, 17),
+    ivec3(22, 23, 17),
+    ivec3(17, 23, 12),
+    ivec3(23, 18, 12),
+
+    // Face 3 (prism)
+    ivec3(6, 12, 7),
+    ivec3(12, 13, 7),
+
+    // Face 4 (prism)
+    ivec3(7, 13, 8),
+    ivec3(13, 14, 8),
+
+    // Face 5 (prism)
+    ivec3(8, 14, 9),
+    ivec3(14, 15, 9),
+
+    // Face 6 (prism)
+    ivec3(9, 15, 10),
+    ivec3(15, 16, 10),
+
+    // Face 7 (prism)
+    ivec3(10, 16, 17),
+    ivec3(16, 17, 11),
 
     // Face 8 (prism)
-    ivec3(5, 11, 0),
-    ivec3(11, 6, 0)
+    ivec3(11, 17, 12),
+    ivec3(17, 12, 6)
 );
 
 vec3 triangleNormalCache[triangles.length()];
@@ -457,13 +507,33 @@ vec3 castRayThroughCrystal(vec3 rayDirection, float wavelength)
     return resultRay;
 }
 
-void main(void)
+void initializeCrystal()
 {
-    float caMultiplier = crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd;
+    float caMultiplier = max(0.0, crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd);
     for (int i = 0; i < vertices.length(); ++i)
     {
         vertices[i].y *= max(0.0, caMultiplier);
     }
+
+    float upperApexMaxHeight = 1.0 / tan(radians(crystalProperties.upperApexAngle / 2.0));
+    float lowerApexMaxHeight = 1.0 / tan(radians(crystalProperties.lowerApexAngle / 2.0));
+
+    vec2 random = randn();
+    float upperApexHeight = max(0.0, crystalProperties.upperApexHeightAverage * random.x);
+    float lowerApexHeight = max(0.0, crystalProperties.lowerApexHeightAverage * random.y);
+
+    for (int i = 0; i < 6; ++i)
+    {
+        vertices[i].xz *= 1.0 - upperApexHeight;
+        vertices[i].y += upperApexHeight * upperApexMaxHeight;
+        vertices[vertices.length() - i].xz *= 1.0 - lowerApexHeight;
+        vertices[vertices.length() - i].y -= lowerApexHeight * lowerApexMaxHeight;
+    }
+}
+
+void main(void)
+{
+    initializeCrystal();
 
     vec3 rayDirection = -sampleSun(radians(sun.altitude));
     float wavelength = 400.0 + rand() * 300.0;
@@ -498,7 +568,7 @@ void main(void)
     }
 
     // Do not render rays coming from the solar disk when the sky model renders a separate sun
-    if (atmosphereEnabled == 1 && acos(dot(-resultRay, getSunDirection(radians(sun.altitude)))) < 1.05 * radians(sun.diameter / 2.0) && resultRay.y < 0.0)
+    if (atmosphereEnabled == 1 && acos(dot(-resultRay, getSunDirection(radians(sun.altitude)))) < 1.005 * radians(sun.diameter / 2.0) && resultRay.y < 0.0)
         return;
 
     // Hide subhorizon rays

@@ -17,6 +17,14 @@ CrystalPopulation CrystalPopulation::createLowitz()
     crystal.rotationAverage = 0.0f;
     crystal.rotationStd = 1.0f;
 
+    crystal.upperApexAngle = 56.142f;
+    crystal.upperApexHeightAverage = 0.0f;
+    crystal.upperApexHeightStd = 0.0f;
+
+    crystal.lowerApexAngle = 56.142f;
+    crystal.lowerApexHeightAverage = 0.0f;
+    crystal.lowerApexHeightStd = 0.0f;
+
     return crystal;
 }
 
@@ -33,6 +41,14 @@ CrystalPopulation CrystalPopulation::createPlate()
     crystal.rotationDistribution = 0;
     crystal.rotationAverage = 0.0f;
     crystal.rotationStd = 0.0f;
+
+    crystal.upperApexAngle = 56.142f;
+    crystal.upperApexHeightAverage = 0.0f;
+    crystal.upperApexHeightStd = 0.0f;
+
+    crystal.lowerApexAngle = 56.142f;
+    crystal.lowerApexHeightAverage = 0.0f;
+    crystal.lowerApexHeightStd = 0.0f;
 
     return crystal;
 }
@@ -51,6 +67,14 @@ CrystalPopulation CrystalPopulation::createColumn()
     crystal.rotationAverage = 0.0f;
     crystal.rotationStd = 0.0f;
 
+    crystal.upperApexAngle = 56.142f;
+    crystal.upperApexHeightAverage = 0.0f;
+    crystal.upperApexHeightStd = 0.0f;
+
+    crystal.lowerApexAngle = 56.142f;
+    crystal.lowerApexHeightAverage = 0.0f;
+    crystal.lowerApexHeightStd = 0.0f;
+
     return crystal;
 }
 
@@ -67,6 +91,14 @@ CrystalPopulation CrystalPopulation::createParry()
     crystal.rotationDistribution = 1;
     crystal.rotationAverage = 0.0f;
     crystal.rotationStd = 1.0f;
+
+    crystal.upperApexAngle = 56.142f;
+    crystal.upperApexHeightAverage = 0.0f;
+    crystal.upperApexHeightStd = 0.0f;
+
+    crystal.lowerApexAngle = 56.142f;
+    crystal.lowerApexHeightAverage = 0.0f;
+    crystal.lowerApexHeightStd = 0.0f;
 
     return crystal;
 }
@@ -85,6 +117,39 @@ CrystalPopulation CrystalPopulation::createRandom()
     crystal.rotationAverage = 0.0f;
     crystal.rotationStd = 0.0f;
 
+    crystal.upperApexAngle = 56.142f;
+    crystal.upperApexHeightAverage = 0.0f;
+    crystal.upperApexHeightStd = 0.0f;
+
+    crystal.lowerApexAngle = 56.142f;
+    crystal.lowerApexHeightAverage = 0.0f;
+    crystal.lowerApexHeightStd = 0.0f;
+
+    return crystal;
+}
+
+CrystalPopulation CrystalPopulation::createPyramid()
+{
+    CrystalPopulation crystal;
+    crystal.caRatioAverage = 0.1f;
+    crystal.caRatioStd = 0.1f;
+
+    crystal.tiltDistribution = 0;
+    crystal.tiltAverage = 0.0f;
+    crystal.tiltStd = 0.0f;
+
+    crystal.rotationDistribution = 0;
+    crystal.rotationAverage = 0.0f;
+    crystal.rotationStd = 0.0f;
+
+    crystal.upperApexAngle = 56.142f;
+    crystal.upperApexHeightAverage = 0.5f;
+    crystal.upperApexHeightStd = 0.1f;
+
+    crystal.lowerApexAngle = 56.142f;
+    crystal.lowerApexHeightAverage = 0.5f;
+    crystal.lowerApexHeightStd = 0.1f;
+
     return crystal;
 }
 
@@ -102,6 +167,8 @@ CrystalPopulation CrystalPopulation::presetPopulation(CrystalPopulationPreset pr
         return CrystalPopulation::createParry();
     case Lowitz:
         return CrystalPopulation::createLowitz();
+    case Pyramid:
+        return CrystalPopulation::createPyramid();
     default:
         return CrystalPopulation::createRandom();
     }

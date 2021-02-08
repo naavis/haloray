@@ -220,6 +220,14 @@ void SimulationEngine::step()
         m_simulationShader->setUniformValue("crystalProperties.rotationAverage", crystals.rotationAverage);
         m_simulationShader->setUniformValue("crystalProperties.rotationStd", crystals.rotationStd);
 
+        m_simulationShader->setUniformValue("crystalProperties.upperApexAngle", crystals.upperApexAngle);
+        m_simulationShader->setUniformValue("crystalProperties.upperApexHeightAverage", crystals.upperApexHeightAverage);
+        m_simulationShader->setUniformValue("crystalProperties.upperApexHeightStd", crystals.upperApexHeightStd);
+
+        m_simulationShader->setUniformValue("crystalProperties.lowerApexAngle", crystals.lowerApexAngle);
+        m_simulationShader->setUniformValue("crystalProperties.lowerApexHeightAverage", crystals.lowerApexHeightAverage);
+        m_simulationShader->setUniformValue("crystalProperties.lowerApexHeightStd", crystals.lowerApexHeightStd);
+
         m_simulationShader->setUniformValue("camera.pitch", m_camera.pitch);
         m_simulationShader->setUniformValue("camera.yaw", m_camera.yaw);
         m_simulationShader->setUniformValue("camera.fov", m_camera.fov);
