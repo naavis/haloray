@@ -294,7 +294,6 @@ intersection findIntersection(vec3 rayOrigin, vec3 rayDirection)
 {
     for (int triangleIndex = 0; triangleIndex < triangles.length(); ++triangleIndex)
     {
-        if (dot(rayDirection, getNormal(triangleIndex)) > 0.0) continue;
         ivec3 triangle = triangles[triangleIndex];
         vec3 v0 = vertices[triangle.x];
         vec3 v1 = vertices[triangle.y];
