@@ -185,8 +185,6 @@ void SimulationEngine::step()
 
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     glBindImageTexture(m_simulationTexture->getTextureUnit(), m_simulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-    glClearTexImage(m_spinlockTexture->getHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
-    glBindImageTexture(m_spinlockTexture->getTextureUnit(), m_spinlockTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 
     m_simulationShader->bind();
 
@@ -250,9 +248,6 @@ void SimulationEngine::clear()
     glClearTexImage(m_simulationTexture->getHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(m_simulationTexture->getTextureUnit(), m_simulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
-    glClearTexImage(m_spinlockTexture->getHandle(), 0, GL_RED, GL_UNSIGNED_INT, NULL);
-    glBindImageTexture(m_spinlockTexture->getTextureUnit(), m_spinlockTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
-
     glClearTexImage(m_backgroundTexture->getHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(m_backgroundTexture->getTextureUnit(), m_backgroundTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
     m_iteration = 0;
@@ -303,7 +298,6 @@ void SimulationEngine::initializeShaders()
 void SimulationEngine::initializeTextures()
 {
     m_simulationTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 0, OpenGL::TextureType::Color);
-    m_spinlockTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 1, OpenGL::TextureType::Monochrome);
     m_backgroundTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 2, OpenGL::TextureType::Color);
 }
 
@@ -313,7 +307,6 @@ void SimulationEngine::resizeOutputTextureCallback(const unsigned int width, con
     m_outputHeight = height;
 
     m_simulationTexture.reset();
-    m_spinlockTexture.reset();
     m_backgroundTexture.reset();
 
     initializeTextures();

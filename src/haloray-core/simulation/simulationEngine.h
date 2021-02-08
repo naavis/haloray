@@ -75,7 +75,6 @@ private:
     std::unique_ptr<QOpenGLShaderProgram> m_simulationShader;
     QOpenGLShaderProgram *m_skyShader;
     std::unique_ptr<OpenGL::Texture> m_simulationTexture;
-    std::unique_ptr<OpenGL::Texture> m_spinlockTexture;
     std::unique_ptr<OpenGL::Texture> m_backgroundTexture;
 
     Camera m_camera;

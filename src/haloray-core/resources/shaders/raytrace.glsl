@@ -5,7 +5,6 @@
 
 layout(local_size_x = 64) in;
 layout(binding = 0, rgba32f) uniform coherent image2D outputImage;
-layout(binding = 1, r32ui) uniform coherent uimage2D spinlock;
 
 uniform uint rngSeed;
 uniform float multipleScatter;
@@ -471,19 +470,9 @@ float sampleSunSpectrum(float wavelength)
 
 void storePixel(ivec2 pixelCoordinates, vec3 value)
 {
-    bool keepWaiting = true;
-    while (keepWaiting)
-    {
-        if (imageAtomicCompSwap(spinlock, pixelCoordinates, 0, 1) == 0)
-        {
-            vec3 currentValue = imageLoad(outputImage, pixelCoordinates).xyz;
-            vec3 newValue = currentValue + value;
-            imageStore(outputImage, pixelCoordinates, vec4(newValue, 1.0));
-            memoryBarrier();
-            keepWaiting = false;
-            imageAtomicExchange(spinlock, pixelCoordinates, 0);
-        }
-    }
+    memoryBarrierImage();
+    vec3 currentValue = imageLoad(outputImage, pixelCoordinates).xyz;
+    imageStore(outputImage, pixelCoordinates, vec4(currentValue + value, 1.0));
 }
 
 vec3 castRayThroughCrystal(vec3 rayDirection, float wavelength)
