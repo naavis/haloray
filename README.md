@@ -12,6 +12,9 @@ done using OpenGL compute and fragment shaders.
 
 HaloRay currently supports Windows and Linux.
 
+An OpenGL 4.4 compliant GPU is required to run HaloRay. On Windows you also need
+the [latest Microsoft Visual C++ Redistributable for Visual Studio 2019.](https://aka.ms/vs/16/release/vc_redist.x64.exe)
+
 ![Simulation of a column crystal halo display](images/plate-column-random-halo-screenshot.png)
 
 ## How to use?
@@ -121,8 +124,6 @@ These settings affect how the results of the simulation are shown on the screen.
 - **Lock to light source:** Locks the camera to the sun
 
 ## How to build?
-
-HaloRay requires an OpenGL 4.4 compliant GPU.
 
 The user interface is built with [Qt 5](https://www.qt.io/), so you need to
 [download the Qt libraries](https://www.qt.io/download-qt-installer) before

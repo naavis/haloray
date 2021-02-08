@@ -32,6 +32,7 @@ cd build\haloray\release
   --no-angle `
   --no-opengl-sw `
   --no-system-d3d-compiler `
+  --no-compiler-runtime `
   --release `
   haloray.exe
 popd
