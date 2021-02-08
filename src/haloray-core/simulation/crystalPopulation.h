@@ -9,7 +9,8 @@ enum CrystalPopulationPreset
     Plate,
     Column,
     Parry,
-    Lowitz
+    Lowitz,
+    Pyramid
 };
 
 struct CrystalPopulation
@@ -39,6 +40,7 @@ struct CrystalPopulation
     static CrystalPopulation createColumn();
     static CrystalPopulation createParry();
     static CrystalPopulation createRandom();
+    static CrystalPopulation createPyramid();
 };
 
 }

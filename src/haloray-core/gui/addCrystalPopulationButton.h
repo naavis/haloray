@@ -26,6 +26,7 @@ private:
     QAction *m_addColumn;
     QAction *m_addParry;
     QAction *m_addLowitz;
+    QAction *m_addPyramid;
 };
 
 }
