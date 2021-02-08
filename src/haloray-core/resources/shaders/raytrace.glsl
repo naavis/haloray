@@ -568,7 +568,7 @@ void main(void)
     }
 
     // Do not render rays coming from the solar disk when the sky model renders a separate sun
-    if (atmosphereEnabled == 1 && acos(dot(-resultRay, getSunDirection(radians(sun.altitude)))) < 1.05 * radians(sun.diameter / 2.0) && resultRay.y < 0.0)
+    if (atmosphereEnabled == 1 && acos(dot(-resultRay, getSunDirection(radians(sun.altitude)))) < 1.005 * radians(sun.diameter / 2.0) && resultRay.y < 0.0)
         return;
 
     // Hide subhorizon rays
