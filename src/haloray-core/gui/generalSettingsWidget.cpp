@@ -73,9 +73,10 @@ void GeneralSettingsWidget::setupUi()
     layout->addRow(tr("Double scattering"), m_multipleScatteringSlider);
 }
 
-void GeneralSettingsWidget::toggleMaxIterationsSpinBoxStatus()
+void GeneralSettingsWidget::toggleComputeShaderParametersEnabled()
 {
     m_maximumFramesSpinBox->setEnabled(!m_maximumFramesSpinBox->isEnabled());
+    m_raysPerFrameSpinBox->setEnabled(!m_raysPerFrameSpinBox->isEnabled());
 }
 
 }

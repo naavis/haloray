@@ -19,7 +19,7 @@ public:
     GeneralSettingsWidget(SimulationStateModel *viewModel, QWidget *parent = nullptr);
 
 public slots:
-    void toggleMaxIterationsSpinBoxStatus();
+    void toggleComputeShaderParametersEnabled();
 
 private:
     void setupUi();

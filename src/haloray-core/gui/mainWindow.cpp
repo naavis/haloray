@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
 
     // Signals from render button
     connect(m_renderButton, &RenderButton::clicked, m_openGLWidget, &OpenGLWidget::toggleRendering);
-    connect(m_renderButton, &RenderButton::clicked, m_generalSettingsWidget, &GeneralSettingsWidget::toggleMaxIterationsSpinBoxStatus);
+    connect(m_renderButton, &RenderButton::clicked, m_generalSettingsWidget, &GeneralSettingsWidget::toggleComputeShaderParametersEnabled);
 
     // Signals from crystal settings
     connect(m_crystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [this]() {
