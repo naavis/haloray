@@ -509,7 +509,7 @@ vec3 castRayThroughCrystal(vec3 rayDirection, float wavelength)
 
 void initializeCrystal()
 {
-    float caMultiplier = crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd;
+    float caMultiplier = max(0.0, crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd);
     for (int i = 0; i < vertices.length(); ++i)
     {
         vertices[i].y *= max(0.0, caMultiplier);
