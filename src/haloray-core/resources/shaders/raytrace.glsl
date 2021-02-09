@@ -364,7 +364,7 @@ vec3 sampleSun(float altitude)
     vec3 diskBasis1 = cross(sunCenterDirection, diskBasis0);
     // Sample uniform point on disk
     float sampleAngle = rand() * 2.0 * PI;
-    float sampleDistance = sqrt(rand()) * 0.5 * radians(sun.diameter);
+    float sampleDistance = sqrt(rand()) * 0.5 * sun.diameter;
     vec3 offset = sampleDistance * (sin(sampleAngle) * diskBasis0 + cos(sampleAngle) * diskBasis1);
     vec3 sampleDirection = sunCenterDirection + offset;
     return normalize(sampleDirection);
@@ -399,7 +399,7 @@ mat3 rotateAroundZ(float angle)
 
 mat3 getCameraOrientationMatrix()
 {
-    return rotateAroundX(radians(camera.pitch)) * rotateAroundY(radians(camera.yaw));
+    return rotateAroundX(camera.pitch) * rotateAroundY(camera.yaw);
 }
 
 mat3 getUniformRandomRotationMatrix(void)
@@ -438,7 +438,7 @@ mat3 getRotationMatrix(void)
     } else {
         float angleAverage = crystalProperties.tiltAverage;
         float angleStd = crystalProperties.tiltStd;
-        float tiltAngle = radians(angleAverage + angleStd * randn().x);
+        float tiltAngle = angleAverage + angleStd * randn().x;
         tiltMat = rotateAroundZ(tiltAngle);
     }
 
@@ -448,7 +448,7 @@ mat3 getRotationMatrix(void)
     } else {
         float angleAverage = crystalProperties.rotationAverage;
         float angleStd = crystalProperties.rotationStd;
-        float rotationAngle = radians(angleAverage + angleStd * randn().x);
+        float rotationAngle = angleAverage + angleStd * randn().x;
         rotationMat = rotateAroundY(rotationAngle);
     }
 
@@ -503,8 +503,8 @@ void initializeCrystal()
         vertices[i].y *= max(0.0, caMultiplier);
     }
 
-    float upperApexMaxHeight = 1.0 / tan(radians(crystalProperties.upperApexAngle / 2.0));
-    float lowerApexMaxHeight = 1.0 / tan(radians(crystalProperties.lowerApexAngle / 2.0));
+    float upperApexMaxHeight = 1.0 / tan(crystalProperties.upperApexAngle / 2.0);
+    float lowerApexMaxHeight = 1.0 / tan(crystalProperties.lowerApexAngle / 2.0);
 
     vec2 random = randn();
     float upperApexHeight = clamp(crystalProperties.upperApexHeightAverage + crystalProperties.upperApexHeightStd * random.x, 0.0, 1.0);
@@ -524,7 +524,7 @@ void main(void)
 {
     initializeCrystal();
 
-    vec3 rayDirection = -sampleSun(radians(sun.altitude));
+    vec3 rayDirection = -sampleSun(sun.altitude);
     float wavelength = 400.0 + rand() * 300.0;
 
     // Rotation matrix to orient ray/crystal
@@ -557,7 +557,7 @@ void main(void)
     }
 
     // Do not render rays coming from the solar disk when the sky model renders a separate sun
-    if (atmosphereEnabled == 1 && acos(dot(-resultRay, getSunDirection(radians(sun.altitude)))) < 1.005 * radians(sun.diameter / 2.0) && resultRay.y < 0.0)
+    if (atmosphereEnabled == 1 && acos(dot(-resultRay, getSunDirection(sun.altitude))) < 1.005 * sun.diameter / 2.0 && resultRay.y < 0.0)
         return;
 
     // Hide subhorizon rays
@@ -569,27 +569,26 @@ void main(void)
     resultRay = normalize(-getCameraOrientationMatrix() * resultRay);
     vec2 polar = cartesianToPolar(resultRay);
 
-    float fovRadians = radians(camera.fov);
     float projectionFunction;
     float focalLength;
 
     if (camera.projection == PROJECTION_STEREOGRAPHIC) {
         projectionFunction = 2.0 * tan(polar.x / 2.0);
-        focalLength = 1.0 / (4.0 * tan(fovRadians / 4.0));
+        focalLength = 1.0 / (4.0 * tan(camera.fov / 4.0));
     } else if (camera.projection == PROJECTION_RECTILINEAR) {
         if (polar.x > 0.5 * PI) return;
         projectionFunction = tan(polar.x);
-        focalLength = 1.0 / (2.0 * tan(fovRadians / 2.0));
+        focalLength = 1.0 / (2.0 * tan(camera.fov / 2.0));
     } else if (camera.projection == PROJECTION_EQUIDISTANT) {
         projectionFunction = polar.x;
-        focalLength = 1.0 / fovRadians;
+        focalLength = 1.0 / camera.fov;
     } else if (camera.projection == PROJECTION_EQUAL_AREA) {
         projectionFunction = 2.0 * sin(polar.x / 2.0);
-        focalLength = 1.0 / (4.0 * sin(fovRadians / 4.0));
+        focalLength = 1.0 / (4.0 * sin(camera.fov / 4.0));
     } else if (camera.projection == PROJECTION_ORTHOGRAPHIC) {
         if (polar.x > 0.5 * PI) return;
         projectionFunction = sin(polar.x);
-        focalLength = 1.0 / (2.0 * sin(fovRadians / 2.0));
+        focalLength = 1.0 / (2.0 * sin(camera.fov / 2.0));
     }
 
     vec2 projected = focalLength * projectionFunction * vec2(aspectRatio * cos(polar.y), sin(polar.y));

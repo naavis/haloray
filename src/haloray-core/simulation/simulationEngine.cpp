@@ -15,6 +15,11 @@ namespace HaloRay
 {
 const double PI = 3.1415926535897932384626433832795028841971693993751058209749445923078164062;
 
+float degToRad(float degrees)
+{
+    return PI * degrees / 180.0f;
+}
+
 SimulationEngine::SimulationEngine(
     std::shared_ptr<CrystalPopulationRepository> crystalRepository,
     QObject *parent)
@@ -149,7 +154,7 @@ void SimulationEngine::step()
 
     if (m_atmosphereEnabled && m_iteration == 1)
     {
-        auto skyState = SkyModel::Create(PI * m_light.altitude / 180.0, m_turbidity, m_groundAlbedo, PI * m_light.diameter / 2.0 / 180.0);
+        auto skyState = SkyModel::Create(degToRad(m_light.altitude), m_turbidity, m_groundAlbedo, degToRad(m_light.diameter / 2.0));
 
         for (auto i = 0u; i < 31; ++i) {
             m_sunSpectrumCache[i] = skyState.sunSpectrum[i];
@@ -159,11 +164,11 @@ void SimulationEngine::step()
         glBindImageTexture(m_backgroundTexture->getTextureUnit(), m_backgroundTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
         m_skyShader->bind();
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-        m_skyShader->setUniformValue("sun.altitude", m_light.altitude);
-        m_skyShader->setUniformValue("sun.diameter", m_light.diameter);
-        m_skyShader->setUniformValue("camera.pitch", m_camera.pitch);
-        m_skyShader->setUniformValue("camera.yaw", m_camera.yaw);
-        m_skyShader->setUniformValue("camera.fov", m_camera.fov);
+        m_skyShader->setUniformValue("sun.altitude", degToRad(m_light.altitude));
+        m_skyShader->setUniformValue("sun.diameter", degToRad(m_light.diameter));
+        m_skyShader->setUniformValue("camera.pitch", degToRad(m_camera.pitch));
+        m_skyShader->setUniformValue("camera.yaw", degToRad(m_camera.yaw));
+        m_skyShader->setUniformValue("camera.fov", degToRad(m_camera.fov));
         m_skyShader->setUniformValue("camera.projection", m_camera.projection);
         m_skyShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
 
@@ -174,8 +179,8 @@ void SimulationEngine::step()
         }
         m_skyShader->setUniformValueArray("skyModelState.radiances", skyState.radiances, 3, 1);
         m_skyShader->setUniformValue("skyModelState.turbidity", skyState.turbidity);
-        m_skyShader->setUniformValue("skyModelState.solarRadius", (float)(PI * m_light.diameter / 2.0 / 180.0));
-        m_skyShader->setUniformValue("skyModelState.elevation", (float)(PI * m_light.altitude / 180.0));
+        m_skyShader->setUniformValue("skyModelState.solarRadius", degToRad(m_light.diameter / 2.0f));
+        m_skyShader->setUniformValue("skyModelState.elevation", degToRad(m_light.altitude));
         m_skyShader->setUniformValue("skyModelState.sunTopCIEXYZ", skyState.sunTopCIEXYZ[0], skyState.sunTopCIEXYZ[1], skyState.sunTopCIEXYZ[2]);
         m_skyShader->setUniformValue("skyModelState.sunBottomCIEXYZ", skyState.sunBottomCIEXYZ[0], skyState.sunBottomCIEXYZ[1], skyState.sunBottomCIEXYZ[2]);
         m_skyShader->setUniformValue("skyModelState.limbDarkeningScaler", skyState.limbDarkeningScaler[0], skyState.limbDarkeningScaler[1], skyState.limbDarkeningScaler[2]);
@@ -203,32 +208,32 @@ void SimulationEngine::step()
         https://bugreports.qt.io/browse/QTBUG-45507
         */
         glUniform1ui(glGetUniformLocation(m_simulationShader->programId(), "rngSeed"), seed);
-        m_simulationShader->setUniformValue("sun.altitude", m_light.altitude);
-        m_simulationShader->setUniformValue("sun.diameter", m_light.diameter);
+        m_simulationShader->setUniformValue("sun.altitude", degToRad(m_light.altitude));
+        m_simulationShader->setUniformValue("sun.diameter", degToRad(m_light.diameter));
         m_simulationShader->setUniformValueArray("sun.spectrum", m_sunSpectrumCache, 31, 1);
 
         m_simulationShader->setUniformValue("crystalProperties.caRatioAverage", crystals.caRatioAverage);
         m_simulationShader->setUniformValue("crystalProperties.caRatioStd", crystals.caRatioStd);
 
         m_simulationShader->setUniformValue("crystalProperties.tiltDistribution", crystals.tiltDistribution);
-        m_simulationShader->setUniformValue("crystalProperties.tiltAverage", crystals.tiltAverage);
-        m_simulationShader->setUniformValue("crystalProperties.tiltStd", crystals.tiltStd);
+        m_simulationShader->setUniformValue("crystalProperties.tiltAverage", degToRad(crystals.tiltAverage));
+        m_simulationShader->setUniformValue("crystalProperties.tiltStd", degToRad(crystals.tiltStd));
 
         m_simulationShader->setUniformValue("crystalProperties.rotationDistribution", crystals.rotationDistribution);
-        m_simulationShader->setUniformValue("crystalProperties.rotationAverage", crystals.rotationAverage);
-        m_simulationShader->setUniformValue("crystalProperties.rotationStd", crystals.rotationStd);
+        m_simulationShader->setUniformValue("crystalProperties.rotationAverage", degToRad(crystals.rotationAverage));
+        m_simulationShader->setUniformValue("crystalProperties.rotationStd", degToRad(crystals.rotationStd));
 
-        m_simulationShader->setUniformValue("crystalProperties.upperApexAngle", crystals.upperApexAngle);
+        m_simulationShader->setUniformValue("crystalProperties.upperApexAngle", degToRad(crystals.upperApexAngle));
         m_simulationShader->setUniformValue("crystalProperties.upperApexHeightAverage", crystals.upperApexHeightAverage);
         m_simulationShader->setUniformValue("crystalProperties.upperApexHeightStd", crystals.upperApexHeightStd);
 
-        m_simulationShader->setUniformValue("crystalProperties.lowerApexAngle", crystals.lowerApexAngle);
+        m_simulationShader->setUniformValue("crystalProperties.lowerApexAngle", degToRad(crystals.lowerApexAngle));
         m_simulationShader->setUniformValue("crystalProperties.lowerApexHeightAverage", crystals.lowerApexHeightAverage);
         m_simulationShader->setUniformValue("crystalProperties.lowerApexHeightStd", crystals.lowerApexHeightStd);
 
-        m_simulationShader->setUniformValue("camera.pitch", m_camera.pitch);
-        m_simulationShader->setUniformValue("camera.yaw", m_camera.yaw);
-        m_simulationShader->setUniformValue("camera.fov", m_camera.fov);
+        m_simulationShader->setUniformValue("camera.pitch", degToRad(m_camera.pitch));
+        m_simulationShader->setUniformValue("camera.yaw", degToRad(m_camera.yaw));
+        m_simulationShader->setUniformValue("camera.fov", degToRad(m_camera.fov));
         m_simulationShader->setUniformValue("camera.projection", m_camera.projection);
         m_simulationShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
 

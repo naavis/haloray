@@ -37,19 +37,16 @@ uniform struct hosekSkyModelState_t
 #define PROJECTION_ORTHOGRAPHIC 4
 
 const float PI = 3.1415926535;
-const float minSunElevation = -10.0;
-const float mixingMaxElevation = 1.0;
-const float mixingMinElevation = 0.0;
-
-
+const float minSunElevation = radians(-10.0);
+const float mixingMaxElevation = radians(1.0);
+const float mixingMinElevation = radians(0.0);
 
 vec3 getSunVector()
 {
-    float sunAltitudeRadians = radians(sun.altitude);
     /* NOTE: The sun vector is now in the opposite Z direction
       than in the crystal raytracing shader. This should probably
       made the same in all shaders. */
-    return normalize(vec3(0.0, sin(sunAltitudeRadians), -cos(sunAltitudeRadians)));
+    return normalize(vec3(0.0, sin(sun.altitude), -cos(sun.altitude)));
 }
 
 /*
@@ -68,7 +65,7 @@ float perez(float cosZenithAngle, float sunAngle, float A, float B, float C, flo
 
 float luminance(float cosZenithAngle, float sunAngle, float turbidity)
 {
-    float sunZenithAngle = radians(90.0 - sun.altitude);
+    float sunZenithAngle = 0.5 * PI - sun.altitude;
     float ay = 0.1787 * turbidity - 1.4630;
     float by = -0.3554 * turbidity + 0.4275;
     float cy = -0.0227 * turbidity + 5.3251;
@@ -83,7 +80,7 @@ float luminance(float cosZenithAngle, float sunAngle, float turbidity)
 
 float chromaX(float cosZenithAngle, float sunAngle, float turbidity)
 {
-    float sunZenithAngle = radians(90.0 - sun.altitude);
+    float sunZenithAngle = 0.5 * PI - sun.altitude;
     float ax = -0.0193 * turbidity - 0.2592;
     float bx = -0.0665 * turbidity + 0.0008;
     float cx = -0.0004 * turbidity + 0.2125;
@@ -109,7 +106,7 @@ float chromaX(float cosZenithAngle, float sunAngle, float turbidity)
 
 float chromaY(float cosZenithAngle, float sunAngle, float turbidity)
 {
-    float sunZenithAngle = radians(90.0 - sun.altitude);
+    float sunZenithAngle = 0.5 * PI - sun.altitude;
     float ay = -0.0167 * turbidity - 0.2608;
     float by = -0.0950 * turbidity + 0.0092;
     float cy = -0.0079 * turbidity + 0.2102;
@@ -233,7 +230,7 @@ mat3 rotateAroundY(float angle)
 
 mat3 getCameraOrientationMatrix()
 {
-    return rotateAroundY(radians(camera.yaw)) * rotateAroundX(radians(camera.pitch));
+    return rotateAroundY(camera.yaw) * rotateAroundX(camera.pitch);
 }
 
 vec3 renderSun(vec3 direction)
@@ -272,25 +269,24 @@ void main(void)
     normCoord.x /= aspectRatio;
     vec2 polar = planarToPolar(normCoord);
 
-    float fovRadians = radians(camera.fov);
     float projectedAngle;
 
     if (camera.projection == PROJECTION_STEREOGRAPHIC) {
-        float focalLength = 1.0 / (4.0 * tan(fovRadians / 4.0));
+        float focalLength = 1.0 / (4.0 * tan(camera.fov / 4.0));
         projectedAngle = 2.0 * atan(polar.x / 2.0 / focalLength);
     } else if (camera.projection == PROJECTION_RECTILINEAR) {
         if (polar.x > 0.5 * PI) return;
-        float focalLength = 1.0 / (2.0 * tan(fovRadians / 2.0));
+        float focalLength = 1.0 / (2.0 * tan(camera.fov / 2.0));
         projectedAngle = atan(polar.x / focalLength);
     } else if (camera.projection == PROJECTION_EQUIDISTANT) {
-        float focalLength = 1.0 / fovRadians;
+        float focalLength = 1.0 / camera.fov;
         projectedAngle = polar.x / focalLength;
     } else if (camera.projection == PROJECTION_EQUAL_AREA) {
-        float focalLength = 1.0 / (4.0 * sin(fovRadians / 4.0));
+        float focalLength = 1.0 / (4.0 * sin(camera.fov / 4.0));
         projectedAngle = 2.0 * asin(polar.x / 2.0 / focalLength);
     } else if (camera.projection == PROJECTION_ORTHOGRAPHIC) {
         if (polar.x > 0.5 * PI) return;
-        float focalLength = 1.0 / (2.0 * sin(fovRadians / 2.0));
+        float focalLength = 1.0 / (2.0 * sin(camera.fov / 2.0));
         projectedAngle = asin(polar.x / focalLength);
     }
 
