@@ -15,6 +15,7 @@
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QStatusBar>
+#include <QSettings>
 #include "openGLWidget.h"
 #include "generalSettingsWidget.h"
 #include "crystalSettingsWidget.h"
@@ -92,6 +93,75 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
             image.save(filename, "PNG", 50);
         }
     });
+    connect(m_saveSimulationAction, &QAction::triggered, [this]() {
+        auto currentTime = QDateTime::currentDateTimeUtc().toString(Qt::DateFormat::ISODate);
+        auto defaultFilename = QString("haloray_sim_%1.ini")
+                                   .arg(currentTime)
+                                   .replace(":", "-");
+        QString filename = QFileDialog::getSaveFileName(this,
+                                                        tr("Save File"),
+                                                        defaultFilename,
+                                                        tr("Simulation files (*.ini)"));
+
+        if (!filename.isNull())
+        {
+            QSettings settings(filename, QSettings::Format::IniFormat);
+
+            settings.beginGroup("LightSource");
+            auto lightSource = m_engine->getLightSource();
+            settings.setValue("Altitude", (double)lightSource.altitude);
+            settings.setValue("Diameter", (double)lightSource.diameter);
+            settings.endGroup();
+
+            settings.beginGroup("CrystalPopulations");
+            settings.beginWriteArray("pop");
+            for (auto i = 0u; i < m_crystalRepository->getCount(); ++i)
+            {
+                settings.setArrayIndex(i);
+                settings.setValue("weight", m_crystalRepository->getWeight(i));
+                auto population = m_crystalRepository->get(i);
+
+                settings.setValue("caRatioAverage", (double)population.caRatioAverage);
+                settings.setValue("caRatioStd", (double)population.caRatioStd);
+
+                settings.setValue("tiltDistribution", population.tiltDistribution);
+                settings.setValue("tiltAverage", (double)population.tiltAverage);
+                settings.setValue("tiltStd", (double)population.tiltStd);
+
+                settings.setValue("rotationDistribution", population.rotationDistribution);
+                settings.setValue("rotationAverage", (double)population.rotationAverage);
+                settings.setValue("rotationStd", (double)population.rotationStd);
+
+                settings.setValue("upperApexAngle", (double)population.upperApexAngle);
+                settings.setValue("upperApexHeightAverage", (double)population.upperApexHeightAverage);
+                settings.setValue("upperApexHeightStd", (double)population.upperApexHeightStd);
+
+                settings.setValue("lowerApexAngle", (double)population.lowerApexAngle);
+                settings.setValue("lowerApexHeightAverage", (double)population.lowerApexHeightAverage);
+                settings.setValue("lowerApexHeightStd", (double)population.lowerApexHeightStd);
+            }
+            settings.endArray();
+            settings.endGroup();
+
+            settings.beginGroup("Camera");
+            auto camera = m_engine->getCamera();
+            settings.setValue("Projection", (double)camera.projection);
+            settings.setValue("Pitch", (double)camera.pitch);
+            settings.setValue("Yaw", (double)camera.yaw);
+            settings.setValue("FieldOfView", (double)camera.fov);
+            settings.setValue("HideSubHorizon", camera.hideSubHorizon);
+            settings.endGroup();
+
+            settings.beginGroup("Atmosphere");
+            settings.setValue("AtmosphereEnabled", m_engine->getAtmosphereEnabled());
+            settings.setValue("Turbidity", m_engine->getAtmosphereTurbidity());
+            settings.setValue("GroundAlbedo", m_engine->getGroundAlbedo());
+            settings.endGroup();
+        }
+    });
+    connect(m_loadSimulationAction, &QAction::triggered, [this]() {
+        // TODO: Implement loading saved simulation
+    });
 
     setupRenderTimer();
 }
@@ -133,6 +203,9 @@ void MainWindow::setupMenuBar()
 {
     auto fileMenu = menuBar()->addMenu(tr("&File"));
     m_saveImageAction = fileMenu->addAction(tr("Save image"));
+    fileMenu->addSeparator();
+    m_loadSimulationAction = fileMenu->addAction(tr("Load simulation"));
+    m_saveSimulationAction = fileMenu->addAction(tr("Save simulation"));
     fileMenu->addSeparator();
     m_quitAction = fileMenu->addAction(tr("&Quit"));
 }

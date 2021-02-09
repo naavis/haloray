@@ -47,6 +47,8 @@ private:
 
     QAction *m_saveImageAction;
     QAction *m_quitAction;
+    QAction *m_saveSimulationAction;
+    QAction *m_loadSimulationAction;
 
     std::shared_ptr<CrystalPopulationRepository> m_crystalRepository;
     SimulationEngine *m_engine;
