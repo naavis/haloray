@@ -13,7 +13,7 @@ uniform struct camera_t
 {
     float pitch;
     float yaw;
-    float fov;
+    float focalLength;
     int projection;
     int hideSubHorizon;
 } camera;
@@ -271,23 +271,19 @@ void main(void)
 
     float projectedAngle;
 
+    // The projection converts 2D coordinates to 3D vectors
     if (camera.projection == PROJECTION_STEREOGRAPHIC) {
-        float focalLength = 1.0 / (4.0 * tan(camera.fov / 4.0));
-        projectedAngle = 2.0 * atan(polar.x / 2.0 / focalLength);
+        projectedAngle = 2.0 * atan(polar.x / 2.0 / camera.focalLength);
     } else if (camera.projection == PROJECTION_RECTILINEAR) {
         if (polar.x > 0.5 * PI) return;
-        float focalLength = 1.0 / (2.0 * tan(camera.fov / 2.0));
-        projectedAngle = atan(polar.x / focalLength);
+        projectedAngle = atan(polar.x / camera.focalLength);
     } else if (camera.projection == PROJECTION_EQUIDISTANT) {
-        float focalLength = 1.0 / camera.fov;
-        projectedAngle = polar.x / focalLength;
+        projectedAngle = polar.x / camera.focalLength;
     } else if (camera.projection == PROJECTION_EQUAL_AREA) {
-        float focalLength = 1.0 / (4.0 * sin(camera.fov / 4.0));
-        projectedAngle = 2.0 * asin(polar.x / 2.0 / focalLength);
+        projectedAngle = 2.0 * asin(polar.x / 2.0 / camera.focalLength);
     } else if (camera.projection == PROJECTION_ORTHOGRAPHIC) {
         if (polar.x > 0.5 * PI) return;
-        float focalLength = 1.0 / (2.0 * sin(camera.fov / 2.0));
-        projectedAngle = asin(polar.x / focalLength);
+        projectedAngle = asin(polar.x / camera.focalLength);
     }
 
     float x = sin(projectedAngle) * cos(polar.y);

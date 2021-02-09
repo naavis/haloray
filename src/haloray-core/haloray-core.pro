@@ -47,7 +47,8 @@ HEADERS += \
     simulation/crystalPopulationRepository.h \
     simulation/lightSource.h \
     simulation/simulationEngine.h \
-    simulation/skyModel.h
+    simulation/skyModel.h \
+    simulation/trigonometryUtilities.h
 
 SOURCES += \
     gui/addCrystalPopulationButton.cpp \

@@ -48,7 +48,7 @@ uniform struct camera_t
 {
     float pitch;
     float yaw;
-    float fov;
+    float focalLength;
     int projection;
     int hideSubHorizon;
 } camera;
@@ -572,26 +572,22 @@ void main(void)
     float projectionFunction;
     float focalLength;
 
+    // The projection converts 3D vectors to 2D points
     if (camera.projection == PROJECTION_STEREOGRAPHIC) {
         projectionFunction = 2.0 * tan(polar.x / 2.0);
-        focalLength = 1.0 / (4.0 * tan(camera.fov / 4.0));
     } else if (camera.projection == PROJECTION_RECTILINEAR) {
         if (polar.x > 0.5 * PI) return;
         projectionFunction = tan(polar.x);
-        focalLength = 1.0 / (2.0 * tan(camera.fov / 2.0));
     } else if (camera.projection == PROJECTION_EQUIDISTANT) {
         projectionFunction = polar.x;
-        focalLength = 1.0 / camera.fov;
     } else if (camera.projection == PROJECTION_EQUAL_AREA) {
         projectionFunction = 2.0 * sin(polar.x / 2.0);
-        focalLength = 1.0 / (4.0 * sin(camera.fov / 4.0));
     } else if (camera.projection == PROJECTION_ORTHOGRAPHIC) {
         if (polar.x > 0.5 * PI) return;
         projectionFunction = sin(polar.x);
-        focalLength = 1.0 / (2.0 * sin(camera.fov / 2.0));
     }
 
-    vec2 projected = focalLength * projectionFunction * vec2(aspectRatio * cos(polar.y), sin(polar.y));
+    vec2 projected = camera.focalLength * projectionFunction * vec2(aspectRatio * cos(polar.y), sin(polar.y));
     vec2 normalizedCoordinates = 0.5 + projected;
 
     if (any(lessThanEqual(normalizedCoordinates, vec2(0.0))) || any(greaterThanEqual(normalizedCoordinates, vec2(1.0))))

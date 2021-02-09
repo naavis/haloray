@@ -1,7 +1,29 @@
+#include <cmath>
+#include "trigonometryUtilities.h"
 #include "camera.h"
 
 namespace HaloRay
 {
+
+float Camera::getFocalLength() const
+{
+    float fovRadian = degToRad(fov);
+    switch (projection)
+    {
+    case Stereographic:
+        return 1.0f / (4.0f * tan(fovRadian / 4.0));
+    case Rectilinear:
+        return 1.0 / (2.0 * tan(fovRadian / 2.0));
+    case Equidistant:
+        return 1.0 / fovRadian;
+    case EqualArea:
+        return 1.0 / (4.0 * sin(fovRadian / 4.0));
+    case Orthographic:
+        return 1.0 / (2.0 * sin(fovRadian / 2.0));
+    }
+
+    return 1.0;
+}
 
 float Camera::getMaximumFov() const
 {

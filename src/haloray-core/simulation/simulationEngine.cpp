@@ -5,6 +5,7 @@
 #include <cmath>
 #include <stdexcept>
 #include "../opengl/texture.h"
+#include "trigonometryUtilities.h"
 #include "camera.h"
 #include "lightSource.h"
 #include "crystalPopulation.h"
@@ -13,12 +14,6 @@
 
 namespace HaloRay
 {
-const double PI = 3.1415926535897932384626433832795028841971693993751058209749445923078164062;
-
-float degToRad(float degrees)
-{
-    return PI * degrees / 180.0f;
-}
 
 SimulationEngine::SimulationEngine(
     std::shared_ptr<CrystalPopulationRepository> crystalRepository,
@@ -168,7 +163,7 @@ void SimulationEngine::step()
         m_skyShader->setUniformValue("sun.diameter", degToRad(m_light.diameter));
         m_skyShader->setUniformValue("camera.pitch", degToRad(m_camera.pitch));
         m_skyShader->setUniformValue("camera.yaw", degToRad(m_camera.yaw));
-        m_skyShader->setUniformValue("camera.fov", degToRad(m_camera.fov));
+        m_skyShader->setUniformValue("camera.focalLength", m_camera.getFocalLength());
         m_skyShader->setUniformValue("camera.projection", m_camera.projection);
         m_skyShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
 
@@ -233,7 +228,7 @@ void SimulationEngine::step()
 
         m_simulationShader->setUniformValue("camera.pitch", degToRad(m_camera.pitch));
         m_simulationShader->setUniformValue("camera.yaw", degToRad(m_camera.yaw));
-        m_simulationShader->setUniformValue("camera.fov", degToRad(m_camera.fov));
+        m_simulationShader->setUniformValue("camera.focalLength", m_camera.getFocalLength());
         m_simulationShader->setUniformValue("camera.projection", m_camera.projection);
         m_simulationShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
 

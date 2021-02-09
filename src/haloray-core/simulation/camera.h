@@ -22,9 +22,11 @@ struct Camera
     bool hideSubHorizon = false;
 
     float getMaximumFov() const;
+    float getFocalLength() const;
     bool operator==(const Camera&) const;
     bool operator!=(const Camera&) const;
     static Camera createDefaultCamera();
+
 };
 
 }
