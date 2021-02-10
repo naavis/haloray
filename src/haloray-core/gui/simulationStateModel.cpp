@@ -29,6 +29,10 @@ SimulationStateModel::SimulationStateModel(SimulationEngine *engine, QObject *pa
     connect(m_simulationEngine, &SimulationEngine::raysPerStepChanged, [this]() {
         emit dataChanged(createIndex(0, RaysPerFrame), createIndex(0, RaysPerFrame));
     });
+
+    connect(m_simulationEngine, &SimulationEngine::atmosphereChanged, [this]() {
+        emit dataChanged(createIndex(0, AtmosphereEnabled), createIndex(0, GroundAlbedo));
+    });
 }
 
 QVariant SimulationStateModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -122,11 +126,11 @@ QVariant SimulationStateModel::data(const QModelIndex &index, int role) const
     case RaysPerFrameUpperLimit:
         return m_raysPerFrameUpperLimit;
     case AtmosphereEnabled:
-        return m_simulationEngine->getAtmosphereEnabled();
+        return m_simulationEngine->getAtmosphere().enabled;
     case Turbidity:
-        return m_simulationEngine->getAtmosphereTurbidity();
+        return m_simulationEngine->getAtmosphere().turbidity;
     case GroundAlbedo:
-        return m_simulationEngine->getGroundAlbedo();
+        return m_simulationEngine->getAtmosphere().groundAlbedo;
     default:
         break;
     }
@@ -176,13 +180,13 @@ bool SimulationStateModel::setData(const QModelIndex &index, const QVariant &val
         m_raysPerFrameUpperLimit = value.toUInt();
         break;
     case AtmosphereEnabled:
-        m_simulationEngine->setAtmosphereEnabled(value.toBool());
+        setAtmosphereEnabled(value.toBool());
         break;
     case Turbidity:
-        m_simulationEngine->setAtmosphereTurbidity(value.toDouble());
+        setAtmosphereTurbidity(value.toDouble());
         break;
     case GroundAlbedo:
-        m_simulationEngine->setGroundAlbedo(value.toDouble());
+        setGroundAlbedo(value.toDouble());
         break;
     default:
         return false;
@@ -221,6 +225,18 @@ unsigned int SimulationStateModel::getRaysPerFrameUpperLimit() const
 unsigned int SimulationStateModel::getMaxIterations() const
 {
     return m_maximumIterations;
+}
+
+void SimulationStateModel::setLightSource(LightSource lightSource)
+{
+    m_simulationEngine->setLightSource(lightSource);
+    emit dataChanged(createIndex(0, SunAltitude), createIndex(0, SunDiameter));
+}
+
+void SimulationStateModel::setCamera(Camera camera)
+{
+    m_simulationEngine->setCamera(camera);
+    emit dataChanged(createIndex(0, CameraProjection), createIndex(0, HideSubHorizon));
 }
 
 void SimulationStateModel::setSunAltitude(float altitude)
@@ -270,6 +286,27 @@ void SimulationStateModel::setHideSubHorizon(bool hide)
     auto camera = m_simulationEngine->getCamera();
     camera.hideSubHorizon = hide;
     m_simulationEngine->setCamera(camera);
+}
+
+void SimulationStateModel::setAtmosphereEnabled(bool enabled)
+{
+    auto atmosphere = m_simulationEngine->getAtmosphere();
+    atmosphere.enabled = enabled;
+    m_simulationEngine->setAtmosphere(atmosphere);
+}
+
+void SimulationStateModel::setAtmosphereTurbidity(float turbidity)
+{
+    auto atmosphere = m_simulationEngine->getAtmosphere();
+    atmosphere.turbidity = turbidity;
+    m_simulationEngine->setAtmosphere(atmosphere);
+}
+
+void SimulationStateModel::setGroundAlbedo(float albedo)
+{
+    auto atmosphere = m_simulationEngine->getAtmosphere();
+    atmosphere.groundAlbedo = albedo;
+    m_simulationEngine->setAtmosphere(atmosphere);
 }
 
 }

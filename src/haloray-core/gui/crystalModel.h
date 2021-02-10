@@ -6,6 +6,7 @@
 class QWidget;
 class QVariant;
 class QModelIndex;
+class QString;
 
 namespace HaloRay
 {
@@ -35,6 +36,7 @@ public:
         LowerApexHeightAverage,
         LowerApexHeightStd,
         PopulationWeight,
+        PopulationName,
         NUM_COLUMNS
     };
 
@@ -45,7 +47,10 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     void addRow(CrystalPopulationPreset preset = CrystalPopulationPreset::Random);
+    void addRow(CrystalPopulation population, unsigned int weight, QString name);
     bool removeRow(int row);
+    void clear();
+    void setName(int row, QString name);
 
 private:
     std::shared_ptr<CrystalPopulationRepository> m_crystals;

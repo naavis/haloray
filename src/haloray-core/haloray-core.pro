@@ -37,6 +37,7 @@ HEADERS += \
     gui/viewSettingsWidget.h \
     opengl/texture.h \
     opengl/textureRenderer.h \
+    simulation/atmosphere.h \
     simulation/colorUtilities.h \
     simulation/hosekWilkie/ArHosekSkyModel.h \
     simulation/hosekWilkie/ArHosekSkyModelData_CIEXYZ.h \
@@ -64,6 +65,7 @@ SOURCES += \
     gui/viewSettingsWidget.cpp \
     opengl/texture.cpp \
     opengl/textureRenderer.cpp \
+    simulation/atmosphere.cpp \
     simulation/hosekWilkie/ArHosekSkyModel.c \
     simulation/camera.cpp \
     simulation/crystalPopulation.cpp \

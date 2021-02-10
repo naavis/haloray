@@ -43,6 +43,13 @@ private slots:
         QCOMPARE(repository.getWeight(1), 1);
         QCOMPARE(repository.getWeight(2), 1);
     }
+
+    void clearEmptiesRepository()
+    {
+        auto repository = HaloRay::CrystalPopulationRepository();
+        repository.clear();
+        QCOMPARE(repository.getCount(), 0);
+    }
 };
 
 QTEST_MAIN(CrystalPopulationRepositoryTests)

@@ -21,6 +21,7 @@ class ViewSettingsWidget;
 class GeneralSettingsWidget;
 class CrystalSettingsWidget;
 class AtmosphereSettingsWidget;
+class CrystalModel;
 
 class MainWindow : public QMainWindow
 {
@@ -54,6 +55,7 @@ private:
     SimulationEngine *m_engine;
 
     SimulationStateModel *m_simulationStateModel;
+    CrystalModel *m_crystalModel;
     QTimer m_renderTimer;
     int m_previousTimedIteration;
 };

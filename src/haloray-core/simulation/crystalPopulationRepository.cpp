@@ -1,10 +1,12 @@
 #include "crystalPopulationRepository.h"
+#include <QString>
 #include <numeric>
 
 namespace HaloRay
 {
 
 CrystalPopulationRepository::CrystalPopulationRepository()
+    : m_nextId(1)
 {
     addDefaults();
 }
@@ -17,25 +19,45 @@ unsigned int CrystalPopulationRepository::getCount() const
 void CrystalPopulationRepository::add(CrystalPopulationPreset preset)
 {
     m_crystals.push_back(CrystalPopulation::presetPopulation(preset));
-    mWeights.push_back(1);
+    m_names.push_back(QString("Population %1").arg(m_nextId).toStdString());
+    m_nextId = m_nextId + 1;
+    m_weights.push_back(1);
+}
+
+void CrystalPopulationRepository::add(CrystalPopulation population, unsigned int weight, std::string name)
+{
+    m_crystals.push_back(population);
+    m_names.push_back(name);
+    m_weights.push_back(weight);
 }
 
 void CrystalPopulationRepository::addDefaults()
 {
     m_crystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Column));
-    mWeights.push_back(1);
+    m_names.push_back("Column");
+    m_weights.push_back(1);
 
     m_crystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Plate));
-    mWeights.push_back(1);
+    m_names.push_back("Plate");
+    m_weights.push_back(1);
 
     m_crystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Random));
-    mWeights.push_back(1);
+    m_names.push_back("Random");
+    m_weights.push_back(1);
 }
 
 void CrystalPopulationRepository::remove(unsigned int index)
 {
     m_crystals.erase(m_crystals.begin() + index);
-    mWeights.erase(mWeights.begin() + index);
+    m_names.erase(m_names.begin() + index);
+    m_weights.erase(m_weights.begin() + index);
+}
+
+void CrystalPopulationRepository::clear()
+{
+    m_crystals.clear();
+    m_names.clear();
+    m_weights.clear();
 }
 
 CrystalPopulation &CrystalPopulationRepository::get(unsigned int index)
@@ -43,20 +65,30 @@ CrystalPopulation &CrystalPopulationRepository::get(unsigned int index)
     return m_crystals[index];
 }
 
+void CrystalPopulationRepository::setName(unsigned int index, std::string name)
+{
+    m_names[index] = name;
+}
+
+std::string CrystalPopulationRepository::getName(unsigned int index) const
+{
+    return m_names[index];
+}
+
 double CrystalPopulationRepository::getProbability(unsigned int index) const
 {
-    unsigned int totalWeights = std::accumulate(mWeights.cbegin(), mWeights.cend(), 0);
-    return static_cast<double>(mWeights[index]) / totalWeights;
+    unsigned int totalWeights = std::accumulate(m_weights.cbegin(), m_weights.cend(), 0);
+    return static_cast<double>(m_weights[index]) / totalWeights;
 }
 
 unsigned int CrystalPopulationRepository::getWeight(unsigned int index) const
 {
-    return mWeights[index];
+    return m_weights[index];
 }
 
 void CrystalPopulationRepository::setWeight(unsigned int index, unsigned int weight)
 {
-    mWeights[index] = weight;
+    m_weights[index] = weight;
 }
 
 }

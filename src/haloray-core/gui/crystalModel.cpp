@@ -1,5 +1,6 @@
 #include "crystalModel.h"
 #include <QAbstractTableModel>
+#include <QString>
 #include <QWidget>
 #include "../simulation/crystalPopulationRepository.h"
 
@@ -31,8 +32,7 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role != Qt::DisplayRole && role != Qt::EditRole)
-        return QVariant();
+    if (role != Qt::DisplayRole && role != Qt::EditRole) return QVariant();
 
     auto row = index.row();
     const CrystalPopulation &crystal = m_crystals->get(row);
@@ -69,6 +69,8 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
         return crystal.lowerApexHeightStd;
     case PopulationWeight:
         return m_crystals->getWeight(row);
+    case PopulationName:
+        return QString::fromStdString(m_crystals->getName(row));
     }
 
     return QVariant();
@@ -133,6 +135,9 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
     case PopulationWeight:
         m_crystals->setWeight(row, value.toUInt());
         break;
+    case PopulationName:
+        m_crystals->setName(row, value.toString().toStdString());
+        break;
     default:
         break;
     }
@@ -158,6 +163,14 @@ void CrystalModel::addRow(CrystalPopulationPreset preset)
     endInsertRows();
 }
 
+void CrystalModel::addRow(CrystalPopulation population, unsigned int weight, QString name)
+{
+    auto row = m_crystals->getCount();
+    beginInsertRows(QModelIndex(), row, row);
+    m_crystals->add(population, weight, name.toStdString());
+    endInsertRows();
+}
+
 bool CrystalModel::removeRow(int row)
 {
     if (m_crystals->getCount() <= 1)
@@ -168,6 +181,18 @@ bool CrystalModel::removeRow(int row)
     endRemoveRows();
 
     return true;
+}
+
+void CrystalModel::clear()
+{
+    emit beginRemoveRows(QModelIndex(), 0, m_crystals->getCount() - 1);
+    m_crystals->clear();
+    endRemoveRows();
+}
+
+void CrystalModel::setName(int row, QString name)
+{
+    setData(createIndex(row, PopulationName), name);
 }
 
 }

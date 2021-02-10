@@ -32,9 +32,7 @@ SimulationEngine::SimulationEngine(
       m_cameraLockedToLightSource(false),
       m_multipleScatteringProbability(0.0),
       m_crystalRepository(crystalRepository),
-      m_atmosphereEnabled(true),
-      m_turbidity(5.0),
-      m_groundAlbedo(0.0)
+      m_atmosphere(Atmosphere::createDefaultAtmosphere())
 {
     initialize();
 }
@@ -81,37 +79,18 @@ void SimulationEngine::setLightSource(const LightSource light)
     emit lightSourceChanged(m_light);
 }
 
-bool SimulationEngine::getAtmosphereEnabled() const
+Atmosphere SimulationEngine::getAtmosphere() const
 {
-    return m_atmosphereEnabled;
+    return m_atmosphere;
 }
 
-void SimulationEngine::setAtmosphereEnabled(bool enabled)
+void SimulationEngine::setAtmosphere(Atmosphere atmosphere)
 {
+    if (m_atmosphere == atmosphere) return;
+
     clear();
-    m_atmosphereEnabled = enabled;
-}
-
-double SimulationEngine::getAtmosphereTurbidity() const
-{
-    return m_turbidity;
-}
-
-void SimulationEngine::setAtmosphereTurbidity(double turbidity)
-{
-    clear();
-    m_turbidity = turbidity;
-}
-
-double SimulationEngine::getGroundAlbedo() const
-{
-    return m_groundAlbedo;
-}
-
-void SimulationEngine::setGroundAlbedo(double albedo)
-{
-    clear();
-    m_groundAlbedo = albedo;
+    m_atmosphere = atmosphere;
+    emit atmosphereChanged(m_atmosphere);
 }
 
 unsigned int SimulationEngine::getOutputTextureHandle() const
@@ -147,9 +126,9 @@ void SimulationEngine::step()
 {
     ++m_iteration;
 
-    if (m_atmosphereEnabled && m_iteration == 1)
+    if (m_atmosphere.enabled && m_iteration == 1)
     {
-        auto skyState = SkyModel::Create(degToRad(m_light.altitude), m_turbidity, m_groundAlbedo, degToRad(m_light.diameter / 2.0));
+        auto skyState = SkyModel::Create(degToRad(m_light.altitude), m_atmosphere.turbidity, m_atmosphere.groundAlbedo, degToRad(m_light.diameter / 2.0));
 
         for (auto i = 0u; i < 31; ++i) {
             m_sunSpectrumCache[i] = skyState.sunSpectrum[i];
@@ -233,7 +212,7 @@ void SimulationEngine::step()
         m_simulationShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
 
         m_simulationShader->setUniformValue("multipleScatter", m_multipleScatteringProbability);
-        m_simulationShader->setUniformValue("atmosphereEnabled", m_atmosphereEnabled ? 1 : 0);
+        m_simulationShader->setUniformValue("atmosphereEnabled", m_atmosphere.enabled ? 1 : 0);
 
         glDispatchCompute(numRays / 64.0, 1, 1);
     }

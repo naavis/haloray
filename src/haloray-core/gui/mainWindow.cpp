@@ -16,6 +16,8 @@
 #include <QScrollArea>
 #include <QStatusBar>
 #include <QSettings>
+#include "../simulation/atmosphere.h"
+#include "crystalModel.h"
 #include "openGLWidget.h"
 #include "generalSettingsWidget.h"
 #include "crystalSettingsWidget.h"
@@ -41,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
     m_crystalRepository = std::make_shared<CrystalPopulationRepository>();
     m_engine = new SimulationEngine(m_crystalRepository, this);
 
+    m_crystalModel = new CrystalModel(m_crystalRepository, this);
     m_simulationStateModel = new SimulationStateModel(m_engine, this);
 
     setupUi();
@@ -49,8 +52,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
     connect(m_renderButton, &RenderButton::clicked, m_openGLWidget, &OpenGLWidget::toggleRendering);
     connect(m_renderButton, &RenderButton::clicked, m_generalSettingsWidget, &GeneralSettingsWidget::toggleComputeShaderParametersEnabled);
 
-    // Signals from crystal settings
-    connect(m_crystalSettingsWidget, &CrystalSettingsWidget::crystalChanged, [this]() {
+    // Signals from crystal model
+    connect(m_crystalModel, &CrystalModel::dataChanged, [this]() {
         m_engine->clear();
         m_openGLWidget->update();
     });
@@ -103,64 +106,126 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
                                                         defaultFilename,
                                                         tr("Simulation files (*.ini)"));
 
-        if (!filename.isNull())
+        if (filename.isNull()) return;
+
+        QSettings settings(filename, QSettings::Format::IniFormat);
+
+        settings.beginGroup("LightSource");
+        auto lightSource = m_engine->getLightSource();
+        settings.setValue("Altitude", (double)lightSource.altitude);
+        settings.setValue("Diameter", (double)lightSource.diameter);
+        settings.endGroup();
+
+        settings.beginGroup("CrystalPopulations");
+        settings.beginWriteArray("pop");
+        for (auto i = 0u; i < m_crystalRepository->getCount(); ++i)
         {
-            QSettings settings(filename, QSettings::Format::IniFormat);
+            settings.setArrayIndex(i);
+            settings.setValue("Weight", m_crystalRepository->getWeight(i));
+            auto population = m_crystalRepository->get(i);
 
-            settings.beginGroup("LightSource");
-            auto lightSource = m_engine->getLightSource();
-            settings.setValue("Altitude", (double)lightSource.altitude);
-            settings.setValue("Diameter", (double)lightSource.diameter);
-            settings.endGroup();
+            settings.setValue("Name", QString::fromStdString(m_crystalRepository->getName(i)));
 
-            settings.beginGroup("CrystalPopulations");
-            settings.beginWriteArray("pop");
-            for (auto i = 0u; i < m_crystalRepository->getCount(); ++i)
-            {
-                settings.setArrayIndex(i);
-                settings.setValue("weight", m_crystalRepository->getWeight(i));
-                auto population = m_crystalRepository->get(i);
+            settings.setValue("CaRatioAverage", (double)population.caRatioAverage);
+            settings.setValue("CaRatioStd", (double)population.caRatioStd);
 
-                settings.setValue("caRatioAverage", (double)population.caRatioAverage);
-                settings.setValue("caRatioStd", (double)population.caRatioStd);
+            settings.setValue("TiltDistribution", population.tiltDistribution);
+            settings.setValue("TiltAverage", (double)population.tiltAverage);
+            settings.setValue("TiltStd", (double)population.tiltStd);
 
-                settings.setValue("tiltDistribution", population.tiltDistribution);
-                settings.setValue("tiltAverage", (double)population.tiltAverage);
-                settings.setValue("tiltStd", (double)population.tiltStd);
+            settings.setValue("RotationDistribution", population.rotationDistribution);
+            settings.setValue("RotationAverage", (double)population.rotationAverage);
+            settings.setValue("RotationStd", (double)population.rotationStd);
 
-                settings.setValue("rotationDistribution", population.rotationDistribution);
-                settings.setValue("rotationAverage", (double)population.rotationAverage);
-                settings.setValue("rotationStd", (double)population.rotationStd);
+            settings.setValue("UpperApexAngle", (double)population.upperApexAngle);
+            settings.setValue("UpperApexHeightAverage", (double)population.upperApexHeightAverage);
+            settings.setValue("UpperApexHeightStd", (double)population.upperApexHeightStd);
 
-                settings.setValue("upperApexAngle", (double)population.upperApexAngle);
-                settings.setValue("upperApexHeightAverage", (double)population.upperApexHeightAverage);
-                settings.setValue("upperApexHeightStd", (double)population.upperApexHeightStd);
-
-                settings.setValue("lowerApexAngle", (double)population.lowerApexAngle);
-                settings.setValue("lowerApexHeightAverage", (double)population.lowerApexHeightAverage);
-                settings.setValue("lowerApexHeightStd", (double)population.lowerApexHeightStd);
-            }
-            settings.endArray();
-            settings.endGroup();
-
-            settings.beginGroup("Camera");
-            auto camera = m_engine->getCamera();
-            settings.setValue("Projection", (double)camera.projection);
-            settings.setValue("Pitch", (double)camera.pitch);
-            settings.setValue("Yaw", (double)camera.yaw);
-            settings.setValue("FieldOfView", (double)camera.fov);
-            settings.setValue("HideSubHorizon", camera.hideSubHorizon);
-            settings.endGroup();
-
-            settings.beginGroup("Atmosphere");
-            settings.setValue("AtmosphereEnabled", m_engine->getAtmosphereEnabled());
-            settings.setValue("Turbidity", m_engine->getAtmosphereTurbidity());
-            settings.setValue("GroundAlbedo", m_engine->getGroundAlbedo());
-            settings.endGroup();
+            settings.setValue("LowerApexAngle", (double)population.lowerApexAngle);
+            settings.setValue("LowerApexHeightAverage", (double)population.lowerApexHeightAverage);
+            settings.setValue("LowerApexHeightStd", (double)population.lowerApexHeightStd);
         }
+        settings.endArray();
+        settings.endGroup();
+
+        settings.beginGroup("Camera");
+        auto camera = m_engine->getCamera();
+        settings.setValue("Projection", (double)camera.projection);
+        settings.setValue("Pitch", (double)camera.pitch);
+        settings.setValue("Yaw", (double)camera.yaw);
+        settings.setValue("FieldOfView", (double)camera.fov);
+        settings.setValue("HideSubHorizon", camera.hideSubHorizon);
+        settings.endGroup();
+
+        settings.beginGroup("Atmosphere");
+        auto atmosphere = m_engine->getAtmosphere();
+        settings.setValue("Enabled", atmosphere.enabled);
+        settings.setValue("Turbidity", atmosphere.turbidity);
+        settings.setValue("GroundAlbedo", atmosphere.groundAlbedo);
+        settings.endGroup();
     });
     connect(m_loadSimulationAction, &QAction::triggered, [this]() {
-        // TODO: Implement loading saved simulation
+        QString filename = QFileDialog::getOpenFileName(this,
+                                                        tr("Open file"),
+                                                        QString(),
+                                                        tr("Simulation files (*.ini)"));
+
+        if (filename.isNull()) return;
+
+
+        QSettings settings(filename, QSettings::Format::IniFormat);
+
+        auto lightSource = LightSource::createDefaultLightSource();
+        lightSource.altitude = settings.value("LightSource/Altitude", lightSource.altitude).toFloat();
+        lightSource.diameter = settings.value("LightSource/Diameter", lightSource.diameter).toFloat();
+        m_simulationStateModel->setLightSource(lightSource);
+
+        auto camera = Camera::createDefaultCamera();
+        camera.projection = (Projection)settings.value("Camera/Projection", camera.projection).toInt();
+        camera.pitch = settings.value("Camera/Pitch", camera.pitch).toFloat();
+        camera.yaw = settings.value("Camera/Yaw", camera.yaw).toFloat();
+        camera.fov = settings.value("Camera/FieldOfView", camera.fov).toFloat();
+        camera.hideSubHorizon = settings.value("Camera/HideSubHorizon", camera.hideSubHorizon).toBool();
+        m_simulationStateModel->setCamera(camera);
+
+        m_crystalModel->clear();
+        auto crystalPopulationCount = settings.beginReadArray("CrystalPopulations/pop");
+        for (auto i = 0; i < crystalPopulationCount; ++i)
+        {
+            settings.setArrayIndex(i);
+            auto pop = CrystalPopulation::createRandom();
+            unsigned int weight = settings.value("Weight", 1).toUInt();
+
+            pop.caRatioAverage = settings.value("CaRatioAverage", pop.caRatioAverage).toFloat();
+            pop.caRatioStd = settings.value("CaRatioStd", pop.caRatioStd).toFloat();
+
+            pop.tiltDistribution = settings.value("TiltDistribution", pop.tiltDistribution).toInt();
+            pop.tiltAverage = settings.value("TiltAverage", pop.tiltAverage).toFloat();
+            pop.tiltStd = settings.value("TiltStd", pop.tiltStd).toFloat();
+
+            pop.rotationDistribution = settings.value("RotationDistribution", pop.rotationDistribution).toInt();
+            pop.rotationAverage = settings.value("RotationAverage", pop.rotationAverage).toFloat();
+            pop.rotationStd = settings.value("RotationStd", pop.rotationStd).toFloat();
+
+            pop.upperApexAngle = settings.value("UpperApexAngle", pop.upperApexAngle).toFloat();
+            pop.upperApexHeightAverage = settings.value("UpperApexHeightAverage", pop.upperApexHeightAverage).toFloat();
+            pop.upperApexHeightStd = settings.value("UpperApexHeightStd", pop.upperApexHeightStd).toFloat();
+
+            pop.lowerApexAngle = settings.value("LowerApexAngle", pop.lowerApexAngle).toFloat();
+            pop.lowerApexHeightAverage = settings.value("LowerApexHeightAverage", pop.lowerApexHeightAverage).toFloat();
+            pop.lowerApexHeightStd = settings.value("LowerApexHeightStd", pop.lowerApexHeightStd).toFloat();
+
+            auto name = settings.value("Name", "Default name").toString();
+
+            m_crystalModel->addRow(pop, weight, name);
+        }
+        settings.endArray();
+
+        auto atmosphere = Atmosphere::createDefaultAtmosphere();
+        atmosphere.enabled = settings.value("Atmosphere/Enabled", atmosphere.enabled).toBool();
+        atmosphere.turbidity = settings.value("Atmosphere/Turbidity", atmosphere.turbidity).toDouble();
+        atmosphere.groundAlbedo = settings.value("Atmosphere/GroundAlbedo", atmosphere.groundAlbedo).toDouble();
+        m_engine->setAtmosphere(atmosphere);
     });
 
     setupRenderTimer();
@@ -213,7 +278,7 @@ void MainWindow::setupMenuBar()
 QScrollArea *MainWindow::setupSideBarScrollArea()
 {
     m_generalSettingsWidget = new GeneralSettingsWidget(m_simulationStateModel);
-    m_crystalSettingsWidget = new CrystalSettingsWidget(m_crystalRepository);
+    m_crystalSettingsWidget = new CrystalSettingsWidget(m_crystalModel);
     m_viewSettingsWidget = new ViewSettingsWidget(m_simulationStateModel);
     m_atmosphereSettingsWidget = new AtmosphereSettingsWidget(m_simulationStateModel);
 

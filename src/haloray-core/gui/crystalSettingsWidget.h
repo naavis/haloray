@@ -2,7 +2,6 @@
 #include <QGroupBox>
 #include <memory>
 
-
 class QToolButton;
 class QComboBox;
 class QLabel;
@@ -13,7 +12,6 @@ class QDoubleSpinBox;
 namespace HaloRay
 {
 
-class CrystalPopulationRepository;
 class AddCrystalPopulationButton;
 class SliderSpinBox;
 class CrystalModel;
@@ -22,21 +20,16 @@ class CrystalSettingsWidget : public QGroupBox
 {
     Q_OBJECT
 public:
-    CrystalSettingsWidget(std::shared_ptr<CrystalPopulationRepository> crystalRepository, QWidget *parent = nullptr);
-
-signals:
-    void crystalChanged();
+    CrystalSettingsWidget(CrystalModel *model, QWidget *parent = nullptr);
 
 private:
     void setupUi();
-    void addPopulationComboBoxItem();
-    void fillPopulationComboBox();
-    void updateRemovePopulationButtonState();
+    void setupPopulationComboBoxConnections();
     SliderSpinBox *createAngleSlider(double min, double max);
     void setTiltVisibility(bool);
     void setRotationVisibility(bool);
 
-    AddCrystalPopulationButton *m_AddPopulationButton;
+    AddCrystalPopulationButton *m_addPopulationButton;
     QToolButton *m_removePopulationButton;
 
     SliderSpinBox *m_caRatioSlider;
@@ -67,8 +60,6 @@ private:
     CrystalModel *m_model;
     QDataWidgetMapper *m_mapper;
     QComboBox *m_populationComboBox;
-
-    unsigned int m_nextPopulationId;
 };
 
 }

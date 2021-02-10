@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
+#include <QLineEdit>
 #include "sliderSpinBox.h"
 #include "addCrystalPopulationButton.h"
 #include "../simulation/crystalPopulation.h"
@@ -15,10 +16,9 @@
 namespace HaloRay
 {
 
-CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<CrystalPopulationRepository> crystalRepository, QWidget *parent)
+CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *parent)
     : QGroupBox("Crystal population settings", parent),
-      m_model(new CrystalModel(crystalRepository)),
-      m_nextPopulationId(1)
+      m_model(model)
 {
     setupUi();
 
@@ -34,7 +34,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<CrystalPopulationRe
     };
     connect(m_rotationDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), rotationVisibilityHandler);
 
-    m_mapper = new QDataWidgetMapper();
+    m_mapper = new QDataWidgetMapper(this);
     m_mapper->setModel(m_model);
     m_mapper->addMapping(m_caRatioSlider, CrystalModel::CaRatioAverage);
     m_mapper->addMapping(m_caRatioStdSlider, CrystalModel::CaRatioStd);
@@ -51,12 +51,9 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<CrystalPopulationRe
     m_mapper->addMapping(m_lowerApexHeightAverageSlider, CrystalModel::LowerApexHeightAverage);
     m_mapper->addMapping(m_lowerApexHeightStdSlider, CrystalModel::LowerApexHeightStd);
     m_mapper->addMapping(m_weightSpinBox, CrystalModel::PopulationWeight);
+    m_mapper->addMapping(m_populationComboBox, CrystalModel::PopulationName, "currentText");
     m_mapper->toFirst();
     m_mapper->setSubmitPolicy(QDataWidgetMapper::SubmitPolicy::AutoSubmit);
-
-    connect(m_model, &CrystalModel::dataChanged, this, &CrystalSettingsWidget::crystalChanged);
-    connect(m_model, &CrystalModel::rowsInserted, this, &CrystalSettingsWidget::crystalChanged);
-    connect(m_model, &CrystalModel::rowsRemoved, this, &CrystalSettingsWidget::crystalChanged);
 
     /*
     QDataWidgetMapper only submits data when Enter is pressed, or when a text
@@ -79,53 +76,36 @@ CrystalSettingsWidget::CrystalSettingsWidget(std::shared_ptr<CrystalPopulationRe
     connect(m_lowerApexHeightAverageSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_lowerApexHeightStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
 
-    connect(m_populationComboBox, QOverload<int>::of(&QComboBox::activated), m_mapper, &QDataWidgetMapper::setCurrentIndex);
-    connect(m_mapper, &QDataWidgetMapper::currentIndexChanged, m_populationComboBox, QOverload<int>::of(&QComboBox::setCurrentIndex));
+    setupPopulationComboBoxConnections();
 
-    tiltVisibilityHandler(m_tiltDistributionComboBox->currentIndex());
-    rotationVisibilityHandler(m_rotationDistributionComboBox->currentIndex());
+    auto updateRemovePopulationButtonState = [this]()
+    {
+        this->m_removePopulationButton->setEnabled(m_model->rowCount() > 1);
+    };
 
-    connect(m_AddPopulationButton, &AddCrystalPopulationButton::addPopulation, [this](CrystalPopulationPreset preset) {
+    /* These connections are necessary so button state updates if data in the model changes
+     * on its own, e.g. during loading saved simulation state. */
+    connect(m_model, &CrystalModel::dataChanged, updateRemovePopulationButtonState);
+    connect(m_model, &CrystalModel::rowsInserted, updateRemovePopulationButtonState);
+    connect(m_model, &CrystalModel::rowsRemoved, updateRemovePopulationButtonState);
+
+    connect(m_addPopulationButton, &AddCrystalPopulationButton::addPopulation, [this, updateRemovePopulationButtonState](CrystalPopulationPreset preset) {
         m_model->addRow(preset);
-        addPopulationComboBoxItem();
         m_mapper->toLast();
         updateRemovePopulationButtonState();
     });
 
-    connect(m_removePopulationButton, &QToolButton::clicked, [this]() {
+    connect(m_removePopulationButton, &QToolButton::clicked, [this, updateRemovePopulationButtonState]() {
         int index = m_mapper->currentIndex();
-        if (index == 0)
-            m_mapper->toNext();
-        else
-            m_mapper->toPrevious();
-        bool success = m_model->removeRow(index);
-        if (success)
-            m_populationComboBox->removeItem(index);
+        m_model->removeRow(index);
+        m_mapper->toFirst();
 
         updateRemovePopulationButtonState();
     });
 
-    connect(m_populationComboBox, &QComboBox::editTextChanged, [this](const QString &text) {
-        m_populationComboBox->setItemText(m_populationComboBox->currentIndex(), text);
-    });
-
-    fillPopulationComboBox();
+    tiltVisibilityHandler(m_tiltDistributionComboBox->currentIndex());
+    rotationVisibilityHandler(m_rotationDistributionComboBox->currentIndex());
     updateRemovePopulationButtonState();
-}
-
-void CrystalSettingsWidget::addPopulationComboBoxItem()
-{
-    m_populationComboBox->addItem(QString("Population %1").arg(m_nextPopulationId++));
-}
-
-void CrystalSettingsWidget::fillPopulationComboBox()
-{
-    m_populationComboBox->addItems({"Columns", "Plates", "Random"});
-}
-
-void CrystalSettingsWidget::updateRemovePopulationButtonState()
-{
-    m_removePopulationButton->setEnabled(m_model->rowCount() > 1);
 }
 
 void CrystalSettingsWidget::setupUi()
@@ -137,8 +117,8 @@ void CrystalSettingsWidget::setupUi()
     m_populationComboBox->setInsertPolicy(QComboBox::InsertPolicy::NoInsert);
     m_populationComboBox->setDuplicatesEnabled(true);
 
-    m_AddPopulationButton = new AddCrystalPopulationButton();
-    m_AddPopulationButton->setIconSize(QSize(24, 24));
+    m_addPopulationButton = new AddCrystalPopulationButton();
+    m_addPopulationButton->setIconSize(QSize(24, 24));
 
     m_removePopulationButton = new QToolButton();
     m_removePopulationButton->setIcon(QIcon::fromTheme("list-remove"));
@@ -192,7 +172,7 @@ void CrystalSettingsWidget::setupUi()
 
     auto populationButtonLayout = new QHBoxLayout();
     populationButtonLayout->addWidget(m_populationComboBox);
-    populationButtonLayout->addWidget(m_AddPopulationButton);
+    populationButtonLayout->addWidget(m_addPopulationButton);
     populationButtonLayout->addWidget(m_removePopulationButton);
 
     mainLayout->addRow(populationButtonLayout);
@@ -227,6 +207,24 @@ void CrystalSettingsWidget::setupUi()
     rotationLayout->addRow(tr("Distribution"), m_rotationDistributionComboBox);
     rotationLayout->addRow(m_rotationAverageLabel, m_rotationAverageSlider);
     rotationLayout->addRow(m_rotationStdLabel, m_rotationStdSlider);
+}
+
+void CrystalSettingsWidget::setupPopulationComboBoxConnections()
+{
+    m_populationComboBox->setModel(m_model);
+    m_populationComboBox->setModelColumn(CrystalModel::PopulationName);
+    m_populationComboBox->setCurrentIndex(m_mapper->currentIndex());
+
+    /* Without this connection the editable QComboBox won't submit changes to
+     * underlying model without losing focus or the user pressing Enter */
+    connect(m_populationComboBox->lineEdit(), &QLineEdit::textEdited, [this](const QString &text) {
+        m_populationComboBox->setItemData(m_populationComboBox->currentIndex(), text, Qt::EditRole);
+    });
+
+    /* These connections keep the population combobox selection and the QDataWidgetMapper
+     * current index in sync */
+    connect(m_populationComboBox, QOverload<int>::of(&QComboBox::activated), m_mapper, &QDataWidgetMapper::setCurrentIndex, Qt::QueuedConnection);
+    connect(m_mapper, &QDataWidgetMapper::currentIndexChanged, m_populationComboBox, QOverload<int>::of(&QComboBox::setCurrentIndex), Qt::QueuedConnection);
 }
 
 void CrystalSettingsWidget::setTiltVisibility(bool visible)

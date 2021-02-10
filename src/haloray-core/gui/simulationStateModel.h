@@ -5,6 +5,8 @@
 
 namespace HaloRay {
 class SimulationEngine;
+struct LightSource;
+struct Camera;
 
 class SimulationStateModel : public QAbstractTableModel
 {
@@ -51,6 +53,9 @@ public:
     unsigned int getRaysPerFrameUpperLimit() const;
     unsigned int getMaxIterations() const;
 
+    void setLightSource(LightSource lightSource);
+    void setCamera(Camera camera);
+
 private:
     SimulationEngine *m_simulationEngine;
     void setSunAltitude(float altitude);
@@ -60,6 +65,9 @@ private:
     void setCameraPitch(float pitch);
     void setCameraYaw(float yaw);
     void setHideSubHorizon(bool hide);
+    void setAtmosphereEnabled(bool enabled);
+    void setAtmosphereTurbidity(float turbidity);
+    void setGroundAlbedo(float albedo);
 
     unsigned int m_maximumIterations;
     unsigned int m_raysPerFrameUpperLimit;

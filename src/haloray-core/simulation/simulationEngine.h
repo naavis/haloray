@@ -6,6 +6,7 @@
 #include <QOpenGLShaderProgram>
 #include "../opengl/texture.h"
 #include "camera.h"
+#include "atmosphere.h"
 #include "lightSource.h"
 #include "crystalPopulation.h"
 #include "crystalPopulationRepository.h"
@@ -37,14 +38,8 @@ public:
     LightSource getLightSource() const;
     void setLightSource(const LightSource);
 
-    bool getAtmosphereEnabled() const;
-    void setAtmosphereEnabled(bool enabled);
-
-    double getAtmosphereTurbidity() const;
-    void setAtmosphereTurbidity(double turbidity);
-
-    double getGroundAlbedo() const;
-    void setGroundAlbedo(double albedo);
+    Atmosphere getAtmosphere() const;
+    void setAtmosphere(Atmosphere);
 
     void lockCameraToLightSource(bool locked);
 
@@ -60,6 +55,7 @@ signals:
     void raysPerStepChanged(unsigned int);
     void cameraChanged(Camera);
     void lightSourceChanged(LightSource);
+    void atmosphereChanged(Atmosphere);
     void lockCameraToLightSourceChanged(bool);
     void multipleScatteringProbabilityChanged(double);
 
@@ -88,9 +84,7 @@ private:
     float m_multipleScatteringProbability;
     std::shared_ptr<CrystalPopulationRepository> m_crystalRepository;
     float m_sunSpectrumCache[31];
-    bool m_atmosphereEnabled;
-    double m_turbidity;
-    double m_groundAlbedo;
+    Atmosphere m_atmosphere;
 };
 
 }
