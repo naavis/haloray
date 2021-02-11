@@ -18,8 +18,9 @@ unsigned int CrystalPopulationRepository::getCount() const
 
 void CrystalPopulationRepository::add(CrystalPopulationPreset preset)
 {
+    QString presetNameMap[6] = {"Random", "Plate", "Column", "Parry", "Lowitz", "Pyramid"};
     m_crystals.push_back(CrystalPopulation::presetPopulation(preset));
-    m_names.push_back(QString("Population %1").arg(m_nextId).toStdString());
+    m_names.push_back(QString("%1 population %2").arg(presetNameMap[preset]).arg(m_nextId).toStdString());
     m_nextId = m_nextId + 1;
     m_weights.push_back(1);
 }
