@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Created a realistic sky and sun model based on Hosek-Wilkie and Preetham papers
 - Simulation rate shown in status bar
 - Ice crystals now have adjustable pyramidal caps
+- Possibility to save and load simulations
 
 ### Changed
 
