@@ -172,7 +172,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
 
         if (filename.isNull()) return;
 
-
         QSettings settings(filename, QSettings::Format::IniFormat);
 
         auto lightSource = LightSource::createDefaultLightSource();
@@ -225,7 +224,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
         atmosphere.enabled = settings.value("Atmosphere/Enabled", atmosphere.enabled).toBool();
         atmosphere.turbidity = settings.value("Atmosphere/Turbidity", atmosphere.turbidity).toDouble();
         atmosphere.groundAlbedo = settings.value("Atmosphere/GroundAlbedo", atmosphere.groundAlbedo).toDouble();
-        m_engine->setAtmosphere(atmosphere);
+        m_simulationStateModel->setAtmosphere(atmosphere);
     });
 
     setupRenderTimer();

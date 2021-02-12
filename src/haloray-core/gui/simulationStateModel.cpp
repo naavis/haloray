@@ -1,4 +1,7 @@
 #include "simulationStateModel.h"
+#include "../simulation/atmosphere.h"
+#include "../simulation/camera.h"
+#include "../simulation/lightSource.h"
 #include "simulation/simulationEngine.h"
 
 namespace HaloRay
@@ -237,6 +240,12 @@ void SimulationStateModel::setCamera(Camera camera)
 {
     m_simulationEngine->setCamera(camera);
     emit dataChanged(createIndex(0, CameraProjection), createIndex(0, HideSubHorizon));
+}
+
+void SimulationStateModel::setAtmosphere(Atmosphere atmosphere)
+{
+    m_simulationEngine->setAtmosphere(atmosphere);
+    emit dataChanged(createIndex(0, AtmosphereEnabled), createIndex(0, GroundAlbedo));
 }
 
 void SimulationStateModel::setSunAltitude(float altitude)

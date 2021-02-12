@@ -7,6 +7,7 @@ namespace HaloRay {
 class SimulationEngine;
 struct LightSource;
 struct Camera;
+struct Atmosphere;
 
 class SimulationStateModel : public QAbstractTableModel
 {
@@ -55,6 +56,7 @@ public:
 
     void setLightSource(LightSource lightSource);
     void setCamera(Camera camera);
+    void setAtmosphere(Atmosphere atmosphere);
 
 private:
     SimulationEngine *m_simulationEngine;
