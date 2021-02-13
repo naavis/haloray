@@ -16,6 +16,7 @@
 #include <QScrollArea>
 #include <QStatusBar>
 #include <QSettings>
+#include "collapsibleBox.h"
 #include "stateSaver.h"
 #include "../simulation/atmosphere.h"
 #include "crystalModel.h"

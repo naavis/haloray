@@ -1,7 +1,7 @@
 #pragma once
 
-#include <QGroupBox>
 #include <QObject>
+#include "collapsibleBox.h"
 
 class QDataWidgetMapper;
 class QCheckBox;
@@ -12,7 +12,7 @@ namespace HaloRay
 class SimulationStateModel;
 class SliderSpinBox;
 
-class AtmosphereSettingsWidget : public QGroupBox
+class AtmosphereSettingsWidget : public CollapsibleBox
 {
     Q_OBJECT
 public:

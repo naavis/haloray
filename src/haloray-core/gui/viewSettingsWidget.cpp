@@ -11,7 +11,7 @@ namespace HaloRay
 {
 
 ViewSettingsWidget::ViewSettingsWidget(SimulationStateModel *viewModel, QWidget *parent)
-    : QGroupBox("View settings", parent),
+    : CollapsibleBox("View settings", false, parent),
       m_viewModel(viewModel)
 {
     setupUi();
@@ -72,7 +72,7 @@ void ViewSettingsWidget::setupUi()
 
     m_lockToLightSource = new QCheckBox();
 
-    auto layout = new QFormLayout(this);
+    auto layout = new QFormLayout(this->contentWidget());
     layout->addRow(tr("Camera projection"), m_cameraProjectionComboBox);
     layout->addRow(tr("Field of view"), m_fieldOfViewSlider);
     layout->addRow(tr("Pitch"), m_pitchSlider);

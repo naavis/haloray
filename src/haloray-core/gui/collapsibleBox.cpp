@@ -10,6 +10,7 @@ CollapsibleBox::CollapsibleBox(QString title, QWidget *parent)
 {
     m_headerButton = new QPushButton(title);
     m_headerButton->setCheckable(true);
+    m_headerButton->setChecked(true);
 
     m_content = new QWidget();
 
@@ -17,7 +18,16 @@ CollapsibleBox::CollapsibleBox(QString title, QWidget *parent)
     m_mainLayout->addWidget(m_headerButton);
     m_mainLayout->addWidget(m_content);
 
+    m_mainLayout->setSpacing(0);
+    m_mainLayout->setMargin(0);
+
     connect(m_headerButton, &QPushButton::toggled, m_content, &QWidget::setVisible);
+}
+
+CollapsibleBox::CollapsibleBox(QString title, bool collapsed, QWidget *parent)
+    : CollapsibleBox(title, parent)
+{
+    m_headerButton->setChecked(collapsed);
 }
 
 QWidget *CollapsibleBox::contentWidget() const

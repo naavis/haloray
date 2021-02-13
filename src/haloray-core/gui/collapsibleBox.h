@@ -14,6 +14,9 @@ class CollapsibleBox : public QWidget
     Q_OBJECT
 public:
     CollapsibleBox(QString title, QWidget *parent = nullptr);
+    CollapsibleBox(QString title, bool collapsed, QWidget * parent = nullptr);
+
+    QWidget *contentWidget() const;
 
 private:
     explicit CollapsibleBox(QWidget *) {};

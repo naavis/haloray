@@ -1,5 +1,5 @@
 #pragma once
-#include <QGroupBox>
+#include "collapsibleBox.h"
 #include "../simulation/camera.h"
 
 class QComboBox;
@@ -12,7 +12,7 @@ namespace HaloRay
 class SliderSpinBox;
 class SimulationStateModel;
 
-class ViewSettingsWidget : public QGroupBox
+class ViewSettingsWidget : public CollapsibleBox
 {
     Q_OBJECT
 public:

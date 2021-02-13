@@ -9,7 +9,7 @@ namespace HaloRay
 {
 
 AtmosphereSettingsWidget::AtmosphereSettingsWidget(SimulationStateModel *viewModel, QWidget *parent)
-    : QGroupBox("Atmosphere settings", parent),
+    : CollapsibleBox("Atmosphere settings", false, parent),
       m_viewModel(viewModel)
 {
     setupUi();
@@ -37,7 +37,7 @@ void AtmosphereSettingsWidget::setupUi()
 
     m_groundAlbedoSlider = new SliderSpinBox(0.0, 1.0);
 
-    auto layout = new QFormLayout(this);
+    auto layout = new QFormLayout(this->contentWidget());
     layout->addRow(tr("Atmosphere enabled"), m_atmosphereEnabledCheckBox);
     layout->addRow(tr("Turbidity"), m_turbiditySlider);
     layout->addRow(tr("Ground albedo"), m_groundAlbedoSlider);

@@ -1,8 +1,8 @@
 #pragma once
-#include <QGroupBox>
 #include <QDataWidgetMapper>
 #include "../simulation/lightSource.h"
 #include "simulationStateModel.h"
+#include "collapsibleBox.h"
 
 class QDoubleSpinBox;
 class QSpinBox;
@@ -12,7 +12,7 @@ namespace HaloRay
 
 class SliderSpinBox;
 
-class GeneralSettingsWidget : public QGroupBox
+class GeneralSettingsWidget : public CollapsibleBox
 {
     Q_OBJECT
 public:

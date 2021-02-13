@@ -8,6 +8,7 @@
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QLineEdit>
+#include <QGroupBox>
 #include "sliderSpinBox.h"
 #include "addCrystalPopulationButton.h"
 #include "../simulation/crystalPopulation.h"
@@ -17,7 +18,7 @@ namespace HaloRay
 {
 
 CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *parent)
-    : QGroupBox("Crystal population settings", parent),
+    : CollapsibleBox("Crystal population settings", false, parent),
       m_model(model)
 {
     setupUi();
@@ -111,6 +112,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
 void CrystalSettingsWidget::setupUi()
 {
     setMaximumWidth(400);
+    setMinimumWidth(350);
 
     m_populationComboBox = new QComboBox();
     m_populationComboBox->setEditable(true);
@@ -168,7 +170,7 @@ void CrystalSettingsWidget::setupUi()
     m_weightSpinBox->setMinimum(0);
     m_weightSpinBox->setMaximum(10000);
 
-    auto mainLayout = new QFormLayout(this);
+    auto mainLayout = new QFormLayout(this->contentWidget());
 
     auto populationButtonLayout = new QHBoxLayout();
     populationButtonLayout->addWidget(m_populationComboBox);

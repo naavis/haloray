@@ -1,5 +1,5 @@
 #pragma once
-#include <QGroupBox>
+#include "collapsibleBox.h"
 #include <memory>
 
 class QToolButton;
@@ -16,7 +16,7 @@ class AddCrystalPopulationButton;
 class SliderSpinBox;
 class CrystalModel;
 
-class CrystalSettingsWidget : public QGroupBox
+class CrystalSettingsWidget : public CollapsibleBox
 {
     Q_OBJECT
 public:

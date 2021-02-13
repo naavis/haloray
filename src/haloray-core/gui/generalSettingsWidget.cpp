@@ -8,7 +8,7 @@ namespace HaloRay
 {
 
 GeneralSettingsWidget::GeneralSettingsWidget(SimulationStateModel *viewModel, QWidget *parent)
-    : QGroupBox("General settings", parent),
+    : CollapsibleBox("General settings", true, parent),
       m_viewModel(viewModel)
 {
     setupUi();
@@ -65,7 +65,7 @@ void GeneralSettingsWidget::setupUi()
     m_multipleScatteringSlider->setMinimum(0.0);
     m_multipleScatteringSlider->setMaximum(1.0);
 
-    auto layout = new QFormLayout(this);
+    auto layout = new QFormLayout(this->contentWidget());
     layout->addRow(tr("Sun altitude"), m_sunAltitudeSlider);
     layout->addRow(tr("Sun diameter"), m_sunDiameterSpinBox);
     layout->addRow(tr("Rays per frame"), m_raysPerFrameSpinBox);
