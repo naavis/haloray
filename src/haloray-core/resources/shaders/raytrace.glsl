@@ -37,6 +37,10 @@ uniform struct crystalProperties_t
     float lowerApexHeightAverage;
     float lowerApexHeightStd;
 
+    /* The prism face distances are expected
+       to be scaled so that the largest value is
+       always 1.0. That should be done outside the
+       shader. */
     float prismFaceDistances[6];
 } crystalProperties;
 
