@@ -538,9 +538,11 @@ void initializeCrystal()
         float currentAngle = previousAngle + deltaAngle;
         float nextAngle = previousAngle + 2.0 * deltaAngle;
 
-        float previousDistance = crystalProperties.prismFaceDistances[previousFace];
-        float currentDistance = crystalProperties.prismFaceDistances[face];
-        float nextDistance = crystalProperties.prismFaceDistances[nextFace];
+        /* The sqrt(3)/2 multiplier makes the default crystal such
+           that the distance of a vertex from the C axis is 1.0 */
+        float previousDistance = 0.86602540378443864676372317075294 * crystalProperties.prismFaceDistances[previousFace];
+        float currentDistance = 0.86602540378443864676372317075294 * crystalProperties.prismFaceDistances[face];
+        float nextDistance = 0.86602540378443864676372317075294 * crystalProperties.prismFaceDistances[nextFace];
 
         vec2 previousLine = vec2(previousDistance, previousAngle);
         vec2 currentLine = vec2(currentDistance, currentAngle);
