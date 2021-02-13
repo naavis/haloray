@@ -28,6 +28,7 @@ HEADERS += \
     gui/atmosphereSettingsWidget.h \
     gui/collapsibleBox.h \
     gui/crystalModel.h \
+    gui/crystalPreview/crystalPreviewWindow.h \
     gui/crystalSettingsWidget.h \
     gui/generalSettingsWidget.h \
     gui/mainWindow.h \
@@ -58,6 +59,7 @@ SOURCES += \
     gui/atmosphereSettingsWidget.cpp \
     gui/collapsibleBox.cpp \
     gui/crystalModel.cpp \
+    gui/crystalPreview/crystalPreviewWindow.cpp \
     gui/crystalSettingsWidget.cpp \
     gui/generalSettingsWidget.cpp \
     gui/mainWindow.cpp \

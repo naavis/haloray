@@ -50,6 +50,7 @@ private:
     QAction *m_quitAction;
     QAction *m_saveSimulationAction;
     QAction *m_loadSimulationAction;
+    QAction *m_openCrystalPreviewWindow;
 
     std::shared_ptr<CrystalPopulationRepository> m_crystalRepository;
     SimulationEngine *m_engine;

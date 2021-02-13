@@ -16,9 +16,9 @@
 #include <QScrollArea>
 #include <QStatusBar>
 #include <QSettings>
+#include "crystalPreview/crystalPreviewWindow.h"
 #include "collapsibleBox.h"
 #include "stateSaver.h"
-#include "../simulation/atmosphere.h"
 #include "crystalModel.h"
 #include "openGLWidget.h"
 #include "generalSettingsWidget.h"
@@ -27,6 +27,7 @@
 #include "atmosphereSettingsWidget.h"
 #include "sliderSpinBox.h"
 #include "renderButton.h"
+#include "../simulation/atmosphere.h"
 #include "../simulation/crystalPopulation.h"
 #include "../simulation/simulationEngine.h"
 
@@ -122,6 +123,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
 
         StateSaver::LoadState(filename, m_simulationStateModel, m_crystalModel);
     });
+    connect(m_openCrystalPreviewWindow, &QAction::triggered, [this]() {
+        auto previewWindow = new CrystalPreviewWindow(m_crystalModel);
+        previewWindow->show();
+    });
 
     setupRenderTimer();
 }
@@ -168,6 +173,9 @@ void MainWindow::setupMenuBar()
     m_saveSimulationAction = fileMenu->addAction(tr("Save simulation"));
     fileMenu->addSeparator();
     m_quitAction = fileMenu->addAction(tr("&Quit"));
+
+    auto miscMenu = menuBar()->addMenu(tr("&Misc"));
+    m_openCrystalPreviewWindow = miscMenu->addAction(tr("Open crystal preview"));
 }
 
 QScrollArea *MainWindow::setupSideBarScrollArea()
