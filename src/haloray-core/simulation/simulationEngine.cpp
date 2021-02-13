@@ -205,6 +205,14 @@ void SimulationEngine::step()
         m_simulationShader->setUniformValue("crystalProperties.lowerApexHeightAverage", crystals.lowerApexHeightAverage);
         m_simulationShader->setUniformValue("crystalProperties.lowerApexHeightStd", crystals.lowerApexHeightStd);
 
+        // Temporary hack just to populate the prismFaceDistances uniform before the actual UI controls exist
+        float prismFaceDistances[6];
+        for (auto face = 0; face < 6; ++face)
+        {
+            prismFaceDistances[face] = 1.0f;
+        }
+        m_simulationShader->setUniformValueArray("crystalProperties.prismFaceDistances", prismFaceDistances, 6, 1);
+
         m_simulationShader->setUniformValue("camera.pitch", degToRad(m_camera.pitch));
         m_simulationShader->setUniformValue("camera.yaw", degToRad(m_camera.yaw));
         m_simulationShader->setUniformValue("camera.focalLength", m_camera.getFocalLength());

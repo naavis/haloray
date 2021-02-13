@@ -36,6 +36,8 @@ uniform struct crystalProperties_t
     float lowerApexAngle;
     float lowerApexHeightAverage;
     float lowerApexHeightStd;
+
+    float prismFaceDistances[6];
 } crystalProperties;
 
 #define PROJECTION_STEREOGRAPHIC 0
@@ -62,6 +64,13 @@ struct intersection {
     uint triangleIndex;
     vec3 hitPoint;
 };
+
+/*
+  Out of this original vertex data only the
+  Y coordinates are kept, while the X and Z
+  coordinates are overwritten based on the
+  prism face distances. The data is still
+  kept here as reference for now. */
 
 vec3 vertices[] = vec3[](
     vec3(0.0, 1.0, 1.0),
@@ -495,14 +504,77 @@ vec3 castRayThroughCrystal(vec3 rayDirection, float wavelength)
     return resultRay;
 }
 
+/* Lines are represented in Hesse normal form, where X component
+   of the vector is the closest distance from origin to the line,
+   and Y component of the vector is the angle of the line's normal
+   in radians. */
+vec2 lineIntersect(vec2 line1, vec2 line2)
+{
+    float p1 = line1.x;
+    float theta1 = line1.y;
+
+    float p2 = line2.x;
+    float theta2 = line2.y;
+
+    float deltaSine = sin(theta2 - theta1);
+    float x = (p1 * sin(theta2) - p2 * sin(theta1)) / deltaSine;
+    float y = (p2 * cos(theta1) - p1 * cos(theta2)) / deltaSine;
+
+    return vec2(x, y);
+}
+
 void initializeCrystal()
 {
+    float deltaAngle = radians(60.0);
+    for (int face = 0; face < 6; face = face + 2)
+    {
+        int previousFace = face == 0 ? 5 : face - 1;
+        int nextFace = face + 1;
+
+        float previousAngle = (face + 1) * deltaAngle;
+        float currentAngle = previousAngle + deltaAngle;
+        float nextAngle = previousAngle + 2.0 * deltaAngle;
+
+        float previousDistance = crystalProperties.prismFaceDistances[previousFace];
+        float currentDistance = crystalProperties.prismFaceDistances[face];
+        float nextDistance = crystalProperties.prismFaceDistances[nextFace];
+
+        vec2 previousLine = vec2(previousDistance, previousAngle);
+        vec2 currentLine = vec2(currentDistance, currentAngle);
+        vec2 nextLine = vec2(nextDistance, nextAngle);
+
+        vec2 previousCurrentIntersection = lineIntersect(previousLine, currentLine);
+        vec2 currentNextIntersection = lineIntersect(currentLine, nextLine);
+        vec2 previousNextIntersection = lineIntersect(previousLine, nextLine);
+
+        float previousCurrentIntersectionDistance = length(previousCurrentIntersection);
+        float currentNextIntersectionDistance = length(currentNextIntersection);
+        float previousNextIntersectionDistance = length(previousNextIntersection);
+
+        vec2 v1 = previousCurrentIntersectionDistance < previousNextIntersectionDistance ? previousCurrentIntersection : previousNextIntersection;
+        vec2 v2 = currentNextIntersectionDistance < previousNextIntersectionDistance ? currentNextIntersection : previousNextIntersection;
+        vertices[face].xz = v1;
+        vertices[face + 1].xz = v2;
+
+        // Corresponding vertices of each crystal layer have the same X and Z coordinates
+        vertices[face + 6].xz = v1;
+        vertices[face + 6 + 1].xz = v2;
+
+        vertices[face + 12].xz = v1;
+        vertices[face + 12 + 1].xz = v2;
+
+        vertices[face + 18].xz = v1;
+        vertices[face + 18 + 1].xz = v2;
+    }
+
+    // Stretch the crystal to correct C/A ratio
     float caMultiplier = max(0.0, crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd);
     for (int i = 0; i < vertices.length(); ++i)
     {
         vertices[i].y *= max(0.0, caMultiplier);
     }
 
+    // Scale pyramid caps
     float upperApexMaxHeight = 1.0 / tan(crystalProperties.upperApexAngle / 2.0);
     float lowerApexMaxHeight = 1.0 / tan(crystalProperties.lowerApexAngle / 2.0);
 
