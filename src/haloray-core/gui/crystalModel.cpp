@@ -71,6 +71,18 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
         return m_crystals->getWeight(row);
     case PopulationName:
         return QString::fromStdString(m_crystals->getName(row));
+    case PrismFaceDistance1:
+        return crystal.prismFaceDistances[0];
+    case PrismFaceDistance2:
+        return crystal.prismFaceDistances[1];
+    case PrismFaceDistance3:
+        return crystal.prismFaceDistances[2];
+    case PrismFaceDistance4:
+        return crystal.prismFaceDistances[3];
+    case PrismFaceDistance5:
+        return crystal.prismFaceDistances[4];
+    case PrismFaceDistance6:
+        return crystal.prismFaceDistances[5];
     }
 
     return QVariant();
@@ -137,6 +149,24 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
         break;
     case PopulationName:
         m_crystals->setName(row, value.toString().toStdString());
+        break;
+    case PrismFaceDistance1:
+        crystal.prismFaceDistances[0] = value.toFloat();
+        break;
+    case PrismFaceDistance2:
+        crystal.prismFaceDistances[1] = value.toFloat();
+        break;
+    case PrismFaceDistance3:
+        crystal.prismFaceDistances[2] = value.toFloat();
+        break;
+    case PrismFaceDistance4:
+        crystal.prismFaceDistances[3] = value.toFloat();
+        break;
+    case PrismFaceDistance5:
+        crystal.prismFaceDistances[4] = value.toFloat();
+        break;
+    case PrismFaceDistance6:
+        crystal.prismFaceDistances[5] = value.toFloat();
         break;
     default:
         break;

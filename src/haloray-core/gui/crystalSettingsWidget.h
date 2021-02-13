@@ -55,6 +55,8 @@ private:
     SliderSpinBox *m_lowerApexHeightAverageSlider;
     SliderSpinBox *m_lowerApexHeightStdSlider;
 
+    SliderSpinBox *m_prismFaceDistanceSliders[6];
+
     QSpinBox *m_weightSpinBox;
 
     CrystalModel *m_model;

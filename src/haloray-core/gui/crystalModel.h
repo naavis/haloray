@@ -37,6 +37,12 @@ public:
         LowerApexHeightStd,
         PopulationWeight,
         PopulationName,
+        PrismFaceDistance1,
+        PrismFaceDistance2,
+        PrismFaceDistance3,
+        PrismFaceDistance4,
+        PrismFaceDistance5,
+        PrismFaceDistance6,
         NUM_COLUMNS
     };
 

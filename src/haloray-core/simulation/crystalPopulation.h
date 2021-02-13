@@ -15,6 +15,8 @@ enum CrystalPopulationPreset
 
 struct CrystalPopulation
 {
+    CrystalPopulation();
+
     float caRatioAverage;
     float caRatioStd;
 
@@ -34,6 +36,8 @@ struct CrystalPopulation
     float lowerApexHeightAverage;
     float lowerApexHeightStd;
 
+    float prismFaceDistances[6];
+
     static CrystalPopulation presetPopulation(CrystalPopulationPreset);
     static CrystalPopulation createLowitz();
     static CrystalPopulation createPlate();
@@ -41,6 +45,9 @@ struct CrystalPopulation
     static CrystalPopulation createParry();
     static CrystalPopulation createRandom();
     static CrystalPopulation createPyramid();
+
+private:
+    void initializePrismFaceDistances();
 };
 
 }

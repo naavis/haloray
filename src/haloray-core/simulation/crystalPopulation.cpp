@@ -153,6 +153,19 @@ CrystalPopulation CrystalPopulation::createPyramid()
     return crystal;
 }
 
+void CrystalPopulation::initializePrismFaceDistances()
+{
+    for (auto i = 0u; i < 6; ++i)
+    {
+        prismFaceDistances[i] = 1.0f;
+    }
+}
+
+CrystalPopulation::CrystalPopulation()
+{
+    initializePrismFaceDistances();
+}
+
 CrystalPopulation CrystalPopulation::presetPopulation(CrystalPopulationPreset preset)
 {
     switch (preset)

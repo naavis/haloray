@@ -53,6 +53,10 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
     m_mapper->addMapping(m_lowerApexHeightStdSlider, CrystalModel::LowerApexHeightStd);
     m_mapper->addMapping(m_weightSpinBox, CrystalModel::PopulationWeight);
     m_mapper->addMapping(m_populationComboBox, CrystalModel::PopulationName, "currentText");
+    for (auto i = 0; i < 6; ++i)
+    {
+        m_mapper->addMapping(m_prismFaceDistanceSliders[i], CrystalModel::PrismFaceDistance1 + i);
+    }
     m_mapper->toFirst();
     m_mapper->setSubmitPolicy(QDataWidgetMapper::SubmitPolicy::AutoSubmit);
 
@@ -76,6 +80,10 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
     connect(m_lowerApexAngleSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_lowerApexHeightAverageSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_lowerApexHeightStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    for (auto i = 0; i < 6; ++i)
+    {
+        connect(m_prismFaceDistanceSliders[i], &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    }
 
     setupPopulationComboBoxConnections();
 
@@ -170,6 +178,11 @@ void CrystalSettingsWidget::setupUi()
     m_weightSpinBox->setMinimum(0);
     m_weightSpinBox->setMaximum(10000);
 
+    for (auto i = 0; i < 6; ++i)
+    {
+        m_prismFaceDistanceSliders[i] = new SliderSpinBox(0.0, 3.0);
+    }
+
     auto mainLayout = new QFormLayout(this->contentWidget());
 
     auto populationButtonLayout = new QHBoxLayout();
@@ -185,17 +198,6 @@ void CrystalSettingsWidget::setupUi()
     mainLayout->addRow(tr("C/A ratio std."), m_caRatioStdSlider);
     mainLayout->addItem(new QSpacerItem(0, 5));
 
-    auto pyramidGroupBox = new QGroupBox(tr("Pyramid caps"));
-    auto pyramidLayout = new QFormLayout(pyramidGroupBox);
-    mainLayout->addRow(pyramidGroupBox);
-    pyramidLayout->addRow(tr("Upper apex angle"), m_upperApexAngleSpinBox);
-    pyramidLayout->addRow(tr("Upper apex average height"), m_upperApexHeightAverageSlider);
-    pyramidLayout->addRow(tr("Upper apex height std."), m_upperApexHeightStdSlider);
-    pyramidLayout->addItem(new QSpacerItem(0, 5));
-    pyramidLayout->addRow(tr("Lower apex angle"), m_lowerApexAngleSpinBox);
-    pyramidLayout->addRow(tr("Lower apex average height"), m_lowerApexHeightAverageSlider);
-    pyramidLayout->addRow(tr("Lower apex height std."), m_lowerApexHeightStdSlider);
-
     auto tiltGroupBox = new QGroupBox(tr("C-axis tilt"));
     auto tiltLayout = new QFormLayout(tiltGroupBox);
     mainLayout->addRow(tiltGroupBox);
@@ -209,6 +211,28 @@ void CrystalSettingsWidget::setupUi()
     rotationLayout->addRow(tr("Distribution"), m_rotationDistributionComboBox);
     rotationLayout->addRow(m_rotationAverageLabel, m_rotationAverageSlider);
     rotationLayout->addRow(m_rotationStdLabel, m_rotationStdSlider);
+
+    auto pyramidGroupBox = new QGroupBox(tr("Pyramid caps"));
+    auto pyramidLayout = new QFormLayout(pyramidGroupBox);
+    mainLayout->addRow(pyramidGroupBox);
+    pyramidLayout->addRow(tr("Upper apex angle"), m_upperApexAngleSpinBox);
+    pyramidLayout->addRow(tr("Upper apex average height"), m_upperApexHeightAverageSlider);
+    pyramidLayout->addRow(tr("Upper apex height std."), m_upperApexHeightStdSlider);
+    pyramidLayout->addItem(new QSpacerItem(0, 5));
+    pyramidLayout->addRow(tr("Lower apex angle"), m_lowerApexAngleSpinBox);
+    pyramidLayout->addRow(tr("Lower apex average height"), m_lowerApexHeightAverageSlider);
+    pyramidLayout->addRow(tr("Lower apex height std."), m_lowerApexHeightStdSlider);
+
+    auto prismFaceDistanceGroupBox = new QGroupBox(tr("Prism face distances"));
+    auto prismFaceDistanceLayout = new QFormLayout(prismFaceDistanceGroupBox);
+    mainLayout->addRow(prismFaceDistanceGroupBox);
+    for (auto i = 0; i < 6; ++i)
+    {
+        auto labelString = QString("Face %1").arg(i + 3);
+        auto labelStdString = labelString.toStdString();
+        auto labelCString = labelStdString.c_str();
+        prismFaceDistanceLayout->addRow(tr(labelCString), m_prismFaceDistanceSliders[i]);
+    }
 }
 
 void CrystalSettingsWidget::setupPopulationComboBoxConnections()
