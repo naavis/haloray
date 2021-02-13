@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Build system switched to qmake from CMake
 - Rewrote most of the GUI code to use Qt model/view architecture
 - Triangle normals are now cached during raytracing
+- The settings groups in the side panel are now collapsible
 
 ### Fixed
 
