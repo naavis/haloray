@@ -223,7 +223,7 @@ void CrystalSettingsWidget::setupUi()
     pyramidLayout->addRow(tr("Lower apex average height"), m_lowerApexHeightAverageSlider);
     pyramidLayout->addRow(tr("Lower apex height std."), m_lowerApexHeightStdSlider);
 
-    auto prismFaceDistanceGroupBox = new QGroupBox(tr("Prism face distances"));
+    auto prismFaceDistanceGroupBox = new QGroupBox(tr("Prism face distances from C-axis"));
     auto prismFaceDistanceLayout = new QFormLayout(prismFaceDistanceGroupBox);
     mainLayout->addRow(prismFaceDistanceGroupBox);
     for (auto i = 0; i < 6; ++i)
