@@ -4,6 +4,7 @@
 #include <QObject>
 
 class QDataWidgetMapper;
+class QCheckBox;
 
 namespace HaloRay
 {
@@ -23,6 +24,8 @@ private:
     SimulationStateModel *m_viewModel;
     SliderSpinBox *m_turbiditySlider;
     SliderSpinBox *m_groundAlbedoSlider;
+    QCheckBox *m_atmosphereEnabledCheckBox;
+
     QDataWidgetMapper *m_mapper;
 };
 
