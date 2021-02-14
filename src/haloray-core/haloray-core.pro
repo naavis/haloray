@@ -29,6 +29,7 @@ HEADERS += \
     gui/collapsibleBox.h \
     gui/crystalModel.h \
     gui/crystalPreview/crystalPreviewWindow.h \
+    gui/crystalPreview/previewRenderArea.h \
     gui/crystalSettingsWidget.h \
     gui/generalSettingsWidget.h \
     gui/mainWindow.h \
@@ -60,6 +61,7 @@ SOURCES += \
     gui/collapsibleBox.cpp \
     gui/crystalModel.cpp \
     gui/crystalPreview/crystalPreviewWindow.cpp \
+    gui/crystalPreview/previewRenderArea.cpp \
     gui/crystalSettingsWidget.cpp \
     gui/generalSettingsWidget.cpp \
     gui/mainWindow.cpp \

@@ -9,6 +9,7 @@ namespace HaloRay
 {
 
 class CrystalModel;
+class PreviewRenderArea;
 
 class CrystalPreviewWindow : public QWidget
 {
@@ -21,6 +22,7 @@ private:
 
     CrystalModel *m_crystalModel;
     QComboBox *m_populationSelector;
+    PreviewRenderArea *m_renderArea;
 };
 
 }
