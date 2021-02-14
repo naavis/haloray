@@ -34,7 +34,8 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
     pen.setWidth(3);
     painter.setPen(pen);
 
-    painter.translate(width() / 2, height() / 2);
+    painter.rotate(180.0);
+    painter.translate(-width() / 2, -height() / 2);
     int side = qMin(width(), height());
     painter.scale(side / 500.0, side / 500.0);
 
@@ -82,10 +83,8 @@ void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
     float caRatioAverage = 0.5f;
     float upperApexAngle = degToRad(56.0f);
     float lowerApexAngle = degToRad(56.0f);
-    // TODO: Upper and lower apexes seem to be the wrong way around
-    // Maybe whole coordinate system is like that?
-    float upperApexHeightAverage = 0.5f;
-    float lowerApexHeightAverage = 0.5f;
+    float upperApexHeightAverage = 0.3f;
+    float lowerApexHeightAverage = 0.3f;
     float prismFaceDistances[6];
     for (auto i = 0; i < 6; ++i)
     {
