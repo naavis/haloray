@@ -2,6 +2,8 @@
 
 #include <QWidget>
 
+class QVector3D;
+
 namespace HaloRay
 {
 
@@ -13,6 +15,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    static void initializeGeometry(QVector3D *vertices, int numVertices);
 };
 
 }
