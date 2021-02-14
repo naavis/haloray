@@ -38,7 +38,7 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
     QMatrix4x4 transformMat;
     transformMat.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.01f, 1000.0f);
     transformMat.scale(50.0f);
-    transformMat.lookAt(QVector3D(2.0f, 2.0f, 3.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
+    transformMat.lookAt(QVector3D(-2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::RenderHint::Antialiasing);
@@ -51,10 +51,16 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
     int side = qMin(width(), height());
     painter.scale(side / 500.0, side / 500.0);
 
+    float tilt = getFromModel(m_populationIndex, CrystalModel::TiltAverage).toFloat();
+    float rotation = getFromModel(m_populationIndex, CrystalModel::RotationAverage).toFloat();
+    QMatrix4x4 orientationMatrix;
+    orientationMatrix.rotate(tilt, QVector3D(0.0f, 0.0f, 1.0f));
+    orientationMatrix.rotate(rotation, QVector3D(0.0f, 1.0f, 0.0f));
+
     QVector4D mappedVertices[numVertices];
     for (int i = 0; i < numVertices; ++i)
     {
-        mappedVertices[i] = transformMat * m_vertices[i].toVector4D();
+        mappedVertices[i] = transformMat * orientationMatrix * m_vertices[i].toVector4D();
     }
 
     QPoint points[numVertices];
