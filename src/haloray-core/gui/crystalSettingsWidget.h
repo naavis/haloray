@@ -22,6 +22,11 @@ class CrystalSettingsWidget : public CollapsibleBox
 public:
     CrystalSettingsWidget(CrystalModel *model, QWidget *parent = nullptr);
 
+    int getCurrentPopulationIndex() const;
+
+signals:
+    void populationSelectionChanged(int index);
+
 private:
     void setupUi();
     void setupPopulationComboBoxConnections();

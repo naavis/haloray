@@ -98,6 +98,10 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
     connect(m_model, &CrystalModel::rowsInserted, updateRemovePopulationButtonState);
     connect(m_model, &CrystalModel::rowsRemoved, updateRemovePopulationButtonState);
 
+    connect(m_mapper, &QDataWidgetMapper::currentIndexChanged, [this](int index) {
+        emit populationSelectionChanged(index);
+    });
+
     connect(m_addPopulationButton, &AddCrystalPopulationButton::addPopulation, [this, updateRemovePopulationButtonState](CrystalPopulationPreset preset) {
         m_model->addRow(preset);
         m_mapper->toLast();
@@ -115,6 +119,11 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
     tiltVisibilityHandler(m_tiltDistributionComboBox->currentIndex());
     rotationVisibilityHandler(m_rotationDistributionComboBox->currentIndex());
     updateRemovePopulationButtonState();
+}
+
+int CrystalSettingsWidget::getCurrentPopulationIndex() const
+{
+    return m_mapper->currentIndex();
 }
 
 void CrystalSettingsWidget::setupUi()
