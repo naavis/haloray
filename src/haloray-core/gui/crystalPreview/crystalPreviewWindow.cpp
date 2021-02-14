@@ -12,6 +12,8 @@ CrystalPreviewWindow::CrystalPreviewWindow(CrystalModel *model, QWidget *parent)
       m_crystalModel(model)
 {
     setupUi();
+
+    connect(m_populationSelector, QOverload<int>::of(&QComboBox::currentIndexChanged), m_renderArea, &PreviewRenderArea::onPopulationSelectionChange);
 }
 
 void CrystalPreviewWindow::setupUi()
@@ -25,7 +27,7 @@ void CrystalPreviewWindow::setupUi()
     m_populationSelector->setModel(m_crystalModel);
     m_populationSelector->setModelColumn(CrystalModel::PopulationName);
 
-    m_renderArea = new PreviewRenderArea();
+    m_renderArea = new PreviewRenderArea(m_crystalModel);
 
     auto layout = new QVBoxLayout(this);
     layout->addWidget(m_renderArea);

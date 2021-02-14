@@ -1,30 +1,42 @@
 #include "previewRenderArea.h"
 #include <QPainter>
 #include <QVector2D>
-#include <QVector3D>
 #include <QVector4D>
 #include <QMatrix4x4>
 #include <algorithm>
+#include "../crystalModel.h"
 #include "../../simulation/trigonometryUtilities.h"
 
 namespace HaloRay
 {
 
-PreviewRenderArea::PreviewRenderArea(QWidget *parent) : QWidget(parent)
+PreviewRenderArea::PreviewRenderArea(CrystalModel *crystals, QWidget *parent)
+    : QWidget(parent),
+      m_crystals(crystals),
+      m_populationIndex(0)
 {
     // TODO: Set size policy and size hint
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
+
+    connect(m_crystals, &CrystalModel::dataChanged, this, [this]() {
+        update();
+    });
+}
+
+void PreviewRenderArea::onPopulationSelectionChange(int index)
+{
+    m_populationIndex = index;
+    update();
 }
 
 void PreviewRenderArea::paintEvent(QPaintEvent *)
 {
     const int numVertices = 24;
-    QVector3D vertices[numVertices];
-    initializeGeometry(vertices, numVertices);
+    initializeGeometry(m_vertices, numVertices);
 
     QMatrix4x4 transformMat;
-    transformMat.perspective(45.0f, 1.0f, 0.01f, 10000.0f);
+    transformMat.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.01f, 1000.0f);
     transformMat.scale(50.0f);
     transformMat.lookAt(QVector3D(2.0f, 2.0f, 3.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
 
@@ -42,7 +54,7 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
     QVector4D mappedVertices[numVertices];
     for (int i = 0; i < numVertices; ++i)
     {
-        mappedVertices[i] = transformMat * vertices[i].toVector4D();
+        mappedVertices[i] = transformMat * m_vertices[i].toVector4D();
     }
 
     QPoint points[numVertices];
@@ -80,16 +92,19 @@ QVector2D lineIntersect(QVector2D line1, QVector2D line2)
 
 void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
 {
-    float caRatioAverage = 0.5f;
-    float upperApexAngle = degToRad(56.0f);
-    float lowerApexAngle = degToRad(56.0f);
-    float upperApexHeightAverage = 0.3f;
-    float lowerApexHeightAverage = 0.3f;
-    float prismFaceDistances[6];
-    for (auto i = 0; i < 6; ++i)
-    {
-        prismFaceDistances[i] = 1.0f;
-    }
+    float caRatioAverage = getFromModel(m_populationIndex, CrystalModel::CaRatioAverage).toFloat();
+    float upperApexAngle = degToRad(getFromModel(m_populationIndex, CrystalModel::UpperApexAngle).toFloat());
+    float lowerApexAngle = degToRad(getFromModel(m_populationIndex, CrystalModel::LowerApexAngle).toFloat());
+    float upperApexHeightAverage = getFromModel(m_populationIndex, CrystalModel::UpperApexHeightAverage).toFloat();
+    float lowerApexHeightAverage = getFromModel(m_populationIndex, CrystalModel::LowerApexHeightAverage).toFloat();
+    float prismFaceDistances[6] = {
+        getFromModel(m_populationIndex, CrystalModel::PrismFaceDistance1).toFloat(),
+        getFromModel(m_populationIndex, CrystalModel::PrismFaceDistance2).toFloat(),
+        getFromModel(m_populationIndex, CrystalModel::PrismFaceDistance3).toFloat(),
+        getFromModel(m_populationIndex, CrystalModel::PrismFaceDistance4).toFloat(),
+        getFromModel(m_populationIndex, CrystalModel::PrismFaceDistance5).toFloat(),
+        getFromModel(m_populationIndex, CrystalModel::PrismFaceDistance6).toFloat(),
+    };
 
     float deltaAngle = degToRad(60.0f);
     for (int face = 0; face < 6; face = face + 2)
@@ -161,6 +176,11 @@ void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
                     vertices[numVertices - i - 1].y() - lowerApexHeight * lowerApexMaxHeight,
                     vertices[numVertices - i - 1].z() * (1.0 - lowerApexHeight));
     }
+}
+
+QVariant PreviewRenderArea::getFromModel(int row, CrystalModel::Columns column)
+{
+    return m_crystals->data(m_crystals->index(row, column));
 }
 
 }
