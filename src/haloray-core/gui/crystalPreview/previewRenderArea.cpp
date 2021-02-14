@@ -50,11 +50,7 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
     int side = qMin(width(), height());
     painter.scale(side / 500.0f, side / 500.0f);
 
-    float tilt = getFromModel(m_populationIndex, CrystalModel::TiltAverage).toFloat();
-    float rotation = getFromModel(m_populationIndex, CrystalModel::RotationAverage).toFloat();
-    QMatrix4x4 orientationMatrix;
-    orientationMatrix.rotate(tilt, QVector3D(0.0f, 0.0f, 1.0f));
-    orientationMatrix.rotate(rotation, QVector3D(0.0f, 1.0f, 0.0f));
+    QMatrix4x4 orientationMatrix = getCrystalOrientationMatrix();
 
     QVector4D mappedVertices[numVertices];
     for (int i = 0; i < numVertices; ++i)
@@ -67,7 +63,11 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
     })->length();
 
     QPoint points[numVertices];
-    std::transform(mappedVertices, mappedVertices + numVertices, points, [furthestVertexDistance](QVector4D vertex) {
+    std::transform(
+                mappedVertices,
+                mappedVertices + numVertices,
+                points,
+                [furthestVertexDistance](QVector4D vertex) {
         return (250.0f * vertex / furthestVertexDistance).toPoint();
     });
 
@@ -187,7 +187,17 @@ void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
     }
 }
 
-QVariant PreviewRenderArea::getFromModel(int row, CrystalModel::Columns column)
+QMatrix4x4 PreviewRenderArea::getCrystalOrientationMatrix() const
+{
+    float tilt = getFromModel(m_populationIndex, CrystalModel::TiltAverage).toFloat();
+    float rotation = getFromModel(m_populationIndex, CrystalModel::RotationAverage).toFloat();
+    QMatrix4x4 orientationMatrix;
+    orientationMatrix.rotate(tilt, QVector3D(0.0f, 0.0f, 1.0f));
+    orientationMatrix.rotate(rotation, QVector3D(0.0f, 1.0f, 0.0f));
+    return orientationMatrix;
+}
+
+QVariant PreviewRenderArea::getFromModel(int row, CrystalModel::Columns column) const
 {
     return m_crystals->data(m_crystals->index(row, column));
 }

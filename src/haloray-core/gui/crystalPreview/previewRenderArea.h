@@ -4,6 +4,7 @@
 #include <QVector3D>
 #include "../crystalModel.h"
 
+class QMatrix4x4;
 
 namespace HaloRay
 {
@@ -22,7 +23,9 @@ protected:
     void initializeGeometry(QVector3D *vertices, int numVertices);
 
 private:
-    QVariant getFromModel(int row, CrystalModel::Columns column);
+    QVariant getFromModel(int row, CrystalModel::Columns column) const;
+    QMatrix4x4 getCrystalOrientationMatrix() const;
+
     CrystalModel *m_crystals;
     int m_populationIndex;
     QVector3D m_vertices[24];
