@@ -37,7 +37,6 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
 
     QMatrix4x4 transformMat;
     transformMat.ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.01f, 1000.0f);
-    transformMat.scale(50.0f);
     transformMat.lookAt(QVector3D(-2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
 
     QPainter painter(this);
@@ -49,7 +48,7 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
     painter.rotate(180.0);
     painter.translate(-width() / 2, -height() / 2);
     int side = qMin(width(), height());
-    painter.scale(side / 500.0, side / 500.0);
+    painter.scale(side / 500.0f, side / 500.0f);
 
     float tilt = getFromModel(m_populationIndex, CrystalModel::TiltAverage).toFloat();
     float rotation = getFromModel(m_populationIndex, CrystalModel::RotationAverage).toFloat();
@@ -63,9 +62,13 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
         mappedVertices[i] = transformMat * orientationMatrix * m_vertices[i].toVector4D();
     }
 
+    float furthestVertexDistance = std::max_element(mappedVertices, mappedVertices + numVertices, [](QVector4D a, QVector4D b) {
+        return a.length() < b.length();
+    })->length();
+
     QPoint points[numVertices];
-    std::transform(mappedVertices, mappedVertices + numVertices, points, [](QVector4D vertex) {
-        return vertex.toPoint();
+    std::transform(mappedVertices, mappedVertices + numVertices, points, [furthestVertexDistance](QVector4D vertex) {
+        return (250.0f * vertex / furthestVertexDistance).toPoint();
     });
 
     painter.drawPolygon(points, 6);
