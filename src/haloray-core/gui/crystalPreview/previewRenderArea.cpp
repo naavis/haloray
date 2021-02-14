@@ -1,9 +1,10 @@
 #include "previewRenderArea.h"
 #include <QPainter>
+#include <QVector2D>
 #include <QVector3D>
 #include <QVector4D>
-#include <QVector2D>
 #include <QMatrix4x4>
+#include <algorithm>
 #include "../../simulation/trigonometryUtilities.h"
 
 namespace HaloRay
@@ -29,11 +30,9 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::RenderHint::Antialiasing);
-
-    QPen vertexPen;
-    vertexPen.setWidth(5);
-    vertexPen.setColor(QColor(255, 0, 0));
-    painter.setPen(vertexPen);
+    QPen pen;
+    pen.setWidth(3);
+    painter.setPen(pen);
 
     painter.translate(width() / 2, height() / 2);
     int side = qMin(width(), height());
@@ -45,18 +44,21 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
         mappedVertices[i] = transformMat * vertices[i].toVector4D();
     }
 
-    for (int i = 0; i < numVertices; ++i)
-    {
-        painter.drawPoint(mappedVertices[i].x(), mappedVertices[i].y());
-    }
+    QPoint points[numVertices];
+    std::transform(mappedVertices, mappedVertices + numVertices, points, [](QVector4D vertex) {
+        return vertex.toPoint();
+    });
 
-    QPen edgePen;
-    edgePen.setWidth(3);
-    edgePen.setColor(QColor(0, 255, 0));
-    painter.setPen(edgePen);
-    for (int i = 1; i < numVertices; ++i)
+    painter.drawPolygon(points, 6);
+    painter.drawPolygon(points + 6 , 6);
+    painter.drawPolygon(points + 12, 6);
+    painter.drawPolygon(points + 18, 6);
+
+    for (int i = 0; i < 6; ++i)
     {
-        painter.drawLine(mappedVertices[i - 1].x(), mappedVertices[i-1].y(), mappedVertices[i].x(), mappedVertices[i].y());
+        QPolygon edgePoints;
+        edgePoints << points[i] << points [i + 6] << points[i + 12] << points[i + 18];
+        painter.drawPolyline(edgePoints);
     }
 }
 
@@ -77,13 +79,13 @@ QVector2D lineIntersect(QVector2D line1, QVector2D line2)
 
 void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
 {
-    float caRatioAverage = 1.0f;
+    float caRatioAverage = 0.5f;
     float upperApexAngle = degToRad(56.0f);
     float lowerApexAngle = degToRad(56.0f);
     // TODO: Upper and lower apexes seem to be the wrong way around
     // Maybe whole coordinate system is like that?
     float upperApexHeightAverage = 0.5f;
-    float lowerApexHeightAverage = 0.0f;
+    float lowerApexHeightAverage = 0.5f;
     float prismFaceDistances[6];
     for (auto i = 0; i < 6; ++i)
     {
