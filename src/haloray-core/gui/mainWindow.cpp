@@ -168,15 +168,15 @@ void MainWindow::setupUi()
 void MainWindow::setupMenuBar()
 {
     auto fileMenu = menuBar()->addMenu(tr("&File"));
-    m_saveImageAction = fileMenu->addAction(tr("Save image"));
+    m_saveImageAction = fileMenu->addAction(tr("Save &image"));
     fileMenu->addSeparator();
-    m_loadSimulationAction = fileMenu->addAction(tr("Load simulation"));
-    m_saveSimulationAction = fileMenu->addAction(tr("Save simulation"));
+    m_loadSimulationAction = fileMenu->addAction(tr("&Load simulation"));
+    m_saveSimulationAction = fileMenu->addAction(tr("&Save simulation"));
     fileMenu->addSeparator();
     m_quitAction = fileMenu->addAction(tr("&Quit"));
 
-    auto miscMenu = menuBar()->addMenu(tr("&Misc"));
-    m_openCrystalPreviewWindow = miscMenu->addAction(tr("Open crystal preview"));
+    auto miscMenu = menuBar()->addMenu(tr("&View"));
+    m_openCrystalPreviewWindow = miscMenu->addAction(tr("Crystal &preview"));
 }
 
 QScrollArea *MainWindow::setupSideBarScrollArea()
