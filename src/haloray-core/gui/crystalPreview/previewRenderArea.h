@@ -25,6 +25,7 @@ protected:
 private:
     QVariant getFromModel(int row, CrystalModel::Columns column) const;
     QMatrix4x4 getCrystalOrientationMatrix() const;
+    float getFurthestVertexDistance(QVector3D *vertices, int numVertices) const;
 
     CrystalModel *m_crystals;
     int m_populationIndex;

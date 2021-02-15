@@ -34,10 +34,10 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
 {
     const int numVertices = 24;
     initializeGeometry(m_vertices, numVertices);
-    float largestDimension = qMax(1.0f, getFromModel(m_populationIndex, CrystalModel::CaRatioAverage).toFloat());
+    float largestDimension = getFurthestVertexDistance(m_vertices, numVertices);
 
     QMatrix4x4 transformMat;
-    transformMat.scale(500.0f);
+    transformMat.scale(600.0f);
     transformMat.perspective(90.0f, 1.0, 0.01f, 5.0f);
     transformMat.lookAt(QVector3D(-2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
     transformMat.scale(1.0f / largestDimension);
@@ -114,6 +114,14 @@ void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
         getFromModel(m_populationIndex, CrystalModel::PrismFaceDistance5).toFloat(),
         getFromModel(m_populationIndex, CrystalModel::PrismFaceDistance6).toFloat(),
     };
+
+    float maxPrismFaceDistance = *std::max_element(prismFaceDistances, prismFaceDistances + 6);
+    std::transform(prismFaceDistances, prismFaceDistances + 6, prismFaceDistances, [maxPrismFaceDistance](float distance) {
+        if (maxPrismFaceDistance > 0.0f)
+            return distance / maxPrismFaceDistance;
+
+        return 1.0f;
+    });
 
     float deltaAngle = degToRad(60.0f);
     QVector2D hexagonCorners[6];
@@ -196,6 +204,17 @@ void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
                     vertices[numVertices - i - 1].y() - lowerApexHeight * lowerApexMaxHeight,
                     vertices[numVertices - i - 1].z() * (1.0 - lowerApexHeight));
     }
+}
+
+float PreviewRenderArea::getFurthestVertexDistance(QVector3D *vertices, int numVertices) const
+{
+    return std::max_element(
+                vertices,
+                vertices + numVertices,
+                [](QVector3D a, QVector3D b)
+    {
+        return a.lengthSquared() < b.lengthSquared();
+    })->length();
 }
 
 QMatrix4x4 PreviewRenderArea::getCrystalOrientationMatrix() const
