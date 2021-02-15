@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     openGLContext.makeCurrent(&surface);
 
     HaloRay::MainWindow mainWindow;
-    mainWindow.show();
+    mainWindow.showMaximized();
 
 
     return app.exec();
