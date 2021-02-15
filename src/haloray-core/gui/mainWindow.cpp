@@ -124,7 +124,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
         StateSaver::LoadState(filename, m_simulationStateModel, m_crystalModel);
     });
     connect(m_openCrystalPreviewWindow, &QAction::triggered, [this]() {
-        auto previewWindow = new CrystalPreviewWindow(m_crystalModel, m_crystalSettingsWidget->getCurrentPopulationIndex());
+        auto previewWindow = new CrystalPreviewWindow(m_crystalModel, m_crystalSettingsWidget->getCurrentPopulationIndex(), this);
         connect(m_crystalSettingsWidget, &CrystalSettingsWidget::populationSelectionChanged, previewWindow, &CrystalPreviewWindow::onMainWindowPopulationSelectionChange);
         previewWindow->show();
     });

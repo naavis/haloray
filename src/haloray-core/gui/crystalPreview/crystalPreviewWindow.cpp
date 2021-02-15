@@ -9,7 +9,7 @@ namespace HaloRay
 {
 
 CrystalPreviewWindow::CrystalPreviewWindow(CrystalModel *model, int initialIndex, QWidget *parent)
-    : QWidget(parent),
+    : QWidget(parent, Qt::Window),
       m_crystalModel(model),
       m_selectedPopulationIndex(initialIndex)
 {
