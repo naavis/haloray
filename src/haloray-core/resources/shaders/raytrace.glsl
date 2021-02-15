@@ -533,10 +533,11 @@ vec2 lineIntersect(vec2 line1, vec2 line2)
 void initializeCrystal()
 {
     float deltaAngle = radians(60.0);
-    for (int face = 0; face < 6; face = face + 2)
+    vec2 hexagonCorners[6];
+    for (int face = 0; face < 6; ++face)
     {
         int previousFace = face == 0 ? 5 : face - 1;
-        int nextFace = face + 1;
+        int nextFace = face == 5 ? 0 : face + 1;
 
         float previousAngle = (face + 1) * deltaAngle;
         float currentAngle = previousAngle + deltaAngle;
@@ -562,18 +563,28 @@ void initializeCrystal()
 
         vec2 v1 = previousCurrentIntersectionDistance < previousNextIntersectionDistance ? previousCurrentIntersection : previousNextIntersection;
         vec2 v2 = currentNextIntersectionDistance < previousNextIntersectionDistance ? currentNextIntersection : previousNextIntersection;
-        vertices[face].xz = v1;
-        vertices[face + 1].xz = v2;
 
+        if (face > 0 && previousNextIntersectionDistance > length(hexagonCorners[face]))
+        {
+            v1 = hexagonCorners[face];
+        }
+
+        if (face == 5 && previousNextIntersectionDistance > length(hexagonCorners[nextFace]))
+        {
+            v2 = hexagonCorners[nextFace];
+        }
+
+        hexagonCorners[face] = v1;
+        hexagonCorners[nextFace] = v2;
+    }
+
+    for (int face = 0; face < 6; ++face)
+    {
         // Corresponding vertices of each crystal layer have the same X and Z coordinates
-        vertices[face + 6].xz = v1;
-        vertices[face + 6 + 1].xz = v2;
-
-        vertices[face + 12].xz = v1;
-        vertices[face + 12 + 1].xz = v2;
-
-        vertices[face + 18].xz = v1;
-        vertices[face + 18 + 1].xz = v2;
+        vertices[face].xz = hexagonCorners[face];
+        vertices[face + 6].xz = hexagonCorners[face];
+        vertices[face + 12].xz = hexagonCorners[face];
+        vertices[face + 18].xz = hexagonCorners[face];
     }
 
     // Stretch the crystal to correct C/A ratio

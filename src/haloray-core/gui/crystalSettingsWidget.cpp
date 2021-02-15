@@ -189,7 +189,7 @@ void CrystalSettingsWidget::setupUi()
 
     for (auto i = 0; i < 6; ++i)
     {
-        m_prismFaceDistanceSliders[i] = new SliderSpinBox(1.0, 2.0);
+        m_prismFaceDistanceSliders[i] = new SliderSpinBox(0.0, 4.0);
     }
 
     auto mainLayout = new QFormLayout(this->contentWidget());

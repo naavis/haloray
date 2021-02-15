@@ -116,10 +116,11 @@ void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
     };
 
     float deltaAngle = degToRad(60.0f);
-    for (int face = 0; face < 6; face = face + 2)
+    QVector2D hexagonCorners[6];
+    for (int face = 0; face < 6; ++face)
     {
         int previousFace = face == 0 ? 5 : face - 1;
-        int nextFace = face + 1;
+        int nextFace = face == 5 ? 0 : face + 1;
 
         float previousAngle = (face + 1) * deltaAngle;
         float currentAngle = previousAngle + deltaAngle;
@@ -146,18 +147,28 @@ void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
         QVector2D v1 = previousCurrentIntersectionDistance < previousNextIntersectionDistance ? previousCurrentIntersection : previousNextIntersection;
         QVector2D v2 = currentNextIntersectionDistance < previousNextIntersectionDistance ? currentNextIntersection : previousNextIntersection;
 
+        if (face > 0 && previousNextIntersectionDistance > hexagonCorners[face].length())
+        {
+            v1 = hexagonCorners[face];
+        }
+
+        if (face == 5 && previousNextIntersectionDistance > hexagonCorners[nextFace].length())
+        {
+            v2 = hexagonCorners[nextFace];
+        }
+
+        hexagonCorners[face] = v1;
+        hexagonCorners[nextFace] = v2;
+    }
+
+    for (int face = 0; face < 6; ++face)
+    {
+        QVector2D *vertex = &hexagonCorners[face];
         // Corresponding vertices of each crystal layer have the same X and Z coordinates
-        vertices[face] = QVector3D(v1.x(), 1.0f, v1.y());
-        vertices[face + 1] = QVector3D(v2.x(), 1.0f, v2.y());
-
-        vertices[face + 6] = QVector3D(v1.x(), 1.0f, v1.y());
-        vertices[face + 6 + 1] = QVector3D(v2.x(), 1.0f, v2.y());
-
-        vertices[face + 12] = QVector3D(v1.x(), -1.0f, v1.y());
-        vertices[face + 12 + 1] = QVector3D(v2.x(), -1.0f, v2.y());
-
-        vertices[face + 18] = QVector3D(v1.x(), -1.0f, v1.y());
-        vertices[face + 18 + 1] = QVector3D(v2.x(), -1.0f, v2.y());
+        vertices[face] = QVector3D(vertex->x(), 1.0f, vertex->y());
+        vertices[face + 6] = QVector3D(vertex->x(), 1.0f, vertex->y());
+        vertices[face + 12] = QVector3D(vertex->x(), -1.0f, vertex->y());
+        vertices[face + 18] = QVector3D(vertex->x(), -1.0f, vertex->y());
     }
 
     // Stretch the crystal to correct C/A ratio
