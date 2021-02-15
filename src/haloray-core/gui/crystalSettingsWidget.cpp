@@ -98,7 +98,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
     connect(m_model, &CrystalModel::rowsInserted, updateRemovePopulationButtonState);
     connect(m_model, &CrystalModel::rowsRemoved, updateRemovePopulationButtonState);
 
-    connect(m_mapper, &QDataWidgetMapper::currentIndexChanged, [this](int index) {
+    connect(m_populationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
         emit populationSelectionChanged(index);
     });
 
@@ -123,7 +123,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
 
 int CrystalSettingsWidget::getCurrentPopulationIndex() const
 {
-    return m_mapper->currentIndex();
+    return m_populationComboBox->currentIndex();
 }
 
 void CrystalSettingsWidget::setupUi()
