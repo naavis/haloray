@@ -37,6 +37,7 @@ private:
     QProgressBar *setupProgressBar();
     void setupMenuBar();
     void setupRenderTimer();
+    void restartSimulation();
 
     GeneralSettingsWidget *m_generalSettingsWidget;
     CrystalSettingsWidget *m_crystalSettingsWidget;
@@ -46,6 +47,7 @@ private:
     RenderButton *m_renderButton;
     OpenGLWidget *m_openGLWidget;
 
+    QAction *m_resetSimulationAction;
     QAction *m_saveImageAction;
     QAction *m_quitAction;
     QAction *m_saveSimulationAction;

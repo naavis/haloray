@@ -57,8 +57,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
 
     // Signals from crystal model
     connect(m_crystalModel, &CrystalModel::dataChanged, [this]() {
-        m_engine->clear();
-        m_openGLWidget->update();
+        restartSimulation();
+    });
+    connect(m_crystalModel, &CrystalModel::rowsInserted, [this]() {
+        restartSimulation();
+    });
+    connect(m_crystalModel, &CrystalModel::rowsRemoved, [this]() {
+        restartSimulation();
     });
 
     // Signals from view settings
@@ -128,6 +133,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
         connect(m_crystalSettingsWidget, &CrystalSettingsWidget::populationSelectionChanged, previewWindow, &CrystalPreviewWindow::onMainWindowPopulationSelectionChange);
         previewWindow->show();
     });
+    connect(m_resetSimulationAction, &QAction::triggered, [this]() {
+        m_crystalModel->clear();
+        m_crystalModel->addRow(CrystalPopulationPreset::Random);
+    });
 
     setupRenderTimer();
 }
@@ -168,6 +177,8 @@ void MainWindow::setupUi()
 void MainWindow::setupMenuBar()
 {
     auto fileMenu = menuBar()->addMenu(tr("&File"));
+    m_resetSimulationAction = fileMenu->addAction(tr("&New simulation"));
+    fileMenu->addSeparator();
     m_saveImageAction = fileMenu->addAction(tr("Save &image"));
     fileMenu->addSeparator();
     m_loadSimulationAction = fileMenu->addAction(tr("&Load simulation"));
@@ -250,6 +261,12 @@ void MainWindow::setupRenderTimer()
             m_renderTimer.stop();
         }
     });
+}
+
+void HaloRay::MainWindow::restartSimulation()
+{
+    m_engine->clear();
+    m_openGLWidget->update();
 }
 
 }
