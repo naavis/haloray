@@ -69,45 +69,7 @@ struct intersection {
     vec3 hitPoint;
 };
 
-/*
-  Out of this original vertex data only the
-  Y coordinates are kept, while the X and Z
-  coordinates are overwritten based on the
-  prism face distances. The data is still
-  kept here as reference for now. The vertices
-  are arranged so that the basal faces lie
-  in the XZ-plane, while the prism faces are
-  parallel to the Y-axis. */
-
-vec3 vertices[] = vec3[](
-    vec3(0.0,            1.0,  1.0),
-    vec3(-0.8660254038,  1.0,  0.5),
-    vec3(-0.8660254038,  1.0, -0.5),
-    vec3(0.0,            1.0, -1.0),
-    vec3(0.8660254038,   1.0, -0.5),
-    vec3(0.8660254038,   1.0,  0.5),
-
-    vec3(0.0,            1.0,  1.0),
-    vec3(-0.8660254038,  1.0,  0.5),
-    vec3(-0.8660254038,  1.0, -0.5),
-    vec3(0.0,            1.0, -1.0),
-    vec3(0.8660254038,   1.0, -0.5),
-    vec3(0.8660254038,   1.0,  0.5),
-
-    vec3(0.0,           -1.0,  1.0),
-    vec3(-0.8660254038, -1.0,  0.5),
-    vec3(-0.8660254038, -1.0, -0.5),
-    vec3(0.0,           -1.0, -1.0),
-    vec3(0.8660254038,  -1.0, -0.5),
-    vec3(0.8660254038,  -1.0,  0.5),
-
-    vec3(0.0,           -1.0,  1.0),
-    vec3(-0.8660254038, -1.0,  0.5),
-    vec3(-0.8660254038, -1.0, -0.5),
-    vec3(0.0,           -1.0, -1.0),
-    vec3(0.8660254038,  -1.0, -0.5),
-    vec3(0.8660254038,  -1.0,  0.5)
-);
+vec3 vertices[24];
 
 ivec3 triangles[] = ivec3[](
     // Face 1 (basal)
@@ -580,11 +542,17 @@ void initializeCrystal()
 
     for (int face = 0; face < 6; ++face)
     {
-        // Corresponding vertices of each crystal layer have the same X and Z coordinates
         vertices[face].xz = hexagonCorners[face];
+        vertices[face].y = 1.0;
+
         vertices[face + 6].xz = hexagonCorners[face];
+        vertices[face + 6].y = 1.0;
+
         vertices[face + 12].xz = hexagonCorners[face];
+        vertices[face + 12].y = -1.0;
+
         vertices[face + 18].xz = hexagonCorners[face];
+        vertices[face + 18].y = -1.0;
     }
 
     // Stretch the crystal to correct C/A ratio
