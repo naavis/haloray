@@ -191,9 +191,9 @@ QScrollArea *MainWindow::setupSideBarScrollArea()
     scrollableLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
 
     scrollableLayout->addWidget(m_generalSettingsWidget);
-    scrollableLayout->addWidget(m_atmosphereSettingsWidget);
     scrollableLayout->addWidget(m_crystalSettingsWidget);
     scrollableLayout->addWidget(m_viewSettingsWidget);
+    scrollableLayout->addWidget(m_atmosphereSettingsWidget);
     scrollableLayout->addStretch();
 
     auto scrollArea = new QScrollArea();
