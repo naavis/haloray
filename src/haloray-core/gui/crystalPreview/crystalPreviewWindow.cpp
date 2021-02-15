@@ -35,10 +35,7 @@ void CrystalPreviewWindow::onMainWindowPopulationSelectionChange(int index)
 
 void CrystalPreviewWindow::setupUi()
 {
-    // TODO: Replace minimum size with size policy and size hint
-    setMinimumSize(QSize(320, 320));
     setWindowTitle(tr("Crystal preview"));
-
 
     m_populationSelector = new QComboBox();
     m_populationSelector->setModel(m_crystalModel);

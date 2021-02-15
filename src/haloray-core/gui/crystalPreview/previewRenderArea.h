@@ -5,6 +5,7 @@
 #include "../crystalModel.h"
 
 class QMatrix4x4;
+class QSize;
 
 namespace HaloRay
 {
@@ -17,6 +18,7 @@ public:
 
 public slots:
     void onPopulationSelectionChange(int index);
+    QSize sizeHint() const override;
 
 protected:
     void paintEvent(QPaintEvent *event) override;

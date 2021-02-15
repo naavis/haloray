@@ -3,6 +3,7 @@
 #include <QVector2D>
 #include <QVector4D>
 #include <QMatrix4x4>
+#include <QSize>
 #include <algorithm>
 #include "../crystalModel.h"
 #include "../../simulation/trigonometryUtilities.h"
@@ -15,9 +16,9 @@ PreviewRenderArea::PreviewRenderArea(CrystalModel *crystals, QWidget *parent)
       m_crystals(crystals),
       m_populationIndex(0)
 {
-    // TODO: Set size policy and size hint
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
     connect(m_crystals, &CrystalModel::dataChanged, this, [this]() {
         update();
@@ -28,6 +29,11 @@ void PreviewRenderArea::onPopulationSelectionChange(int index)
 {
     m_populationIndex = index;
     update();
+}
+
+QSize PreviewRenderArea::sizeHint() const
+{
+    return QSize(300, 300);
 }
 
 void PreviewRenderArea::paintEvent(QPaintEvent *)
