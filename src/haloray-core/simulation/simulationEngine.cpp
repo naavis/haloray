@@ -205,15 +205,7 @@ void SimulationEngine::step()
         m_simulationShader->setUniformValue("crystalProperties.lowerApexAngle", degToRad(crystals.lowerApexAngle));
         m_simulationShader->setUniformValue("crystalProperties.lowerApexHeightAverage", crystals.lowerApexHeightAverage);
         m_simulationShader->setUniformValue("crystalProperties.lowerApexHeightStd", crystals.lowerApexHeightStd);
-
-        float scaledPrismFaceDistances[6];
-        float maxPrismFaceDistance = *std::max_element(crystals.prismFaceDistances, crystals.prismFaceDistances + 6);
-        for (auto face = 0; face < 6; ++face)
-        {
-            scaledPrismFaceDistances[face] = maxPrismFaceDistance > 0.0f ? crystals.prismFaceDistances[face] / maxPrismFaceDistance : 1.0f;
-        }
-
-        m_simulationShader->setUniformValueArray("crystalProperties.prismFaceDistances", scaledPrismFaceDistances, 6, 1);
+        m_simulationShader->setUniformValueArray("crystalProperties.prismFaceDistances", crystals.prismFaceDistances, 6, 1);
 
         m_simulationShader->setUniformValue("camera.pitch", degToRad(m_camera.pitch));
         m_simulationShader->setUniformValue("camera.yaw", degToRad(m_camera.yaw));

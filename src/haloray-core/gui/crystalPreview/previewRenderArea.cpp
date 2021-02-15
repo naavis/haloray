@@ -121,14 +121,6 @@ void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
         getFromModel(m_populationIndex, CrystalModel::PrismFaceDistance6).toFloat(),
     };
 
-    float maxPrismFaceDistance = *std::max_element(prismFaceDistances, prismFaceDistances + 6);
-    std::transform(prismFaceDistances, prismFaceDistances + 6, prismFaceDistances, [maxPrismFaceDistance](float distance) {
-        if (maxPrismFaceDistance > 0.0f)
-            return distance / maxPrismFaceDistance;
-
-        return 1.0f;
-    });
-
     float deltaAngle = degToRad(60.0f);
     QVector2D hexagonCorners[6];
     for (int face = 0; face < 6; ++face)
