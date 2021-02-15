@@ -24,10 +24,10 @@ CollapsibleBox::CollapsibleBox(QString title, QWidget *parent)
     connect(m_headerButton, &QPushButton::toggled, m_content, &QWidget::setVisible);
 }
 
-CollapsibleBox::CollapsibleBox(QString title, bool collapsed, QWidget *parent)
+CollapsibleBox::CollapsibleBox(QString title, bool expanded, QWidget *parent)
     : CollapsibleBox(title, parent)
 {
-    m_headerButton->setChecked(collapsed);
+    m_headerButton->setChecked(expanded);
 }
 
 QWidget *CollapsibleBox::contentWidget() const
