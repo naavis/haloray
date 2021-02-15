@@ -11,7 +11,7 @@ namespace HaloRay
 {
 
 ViewSettingsWidget::ViewSettingsWidget(SimulationStateModel *viewModel, QWidget *parent)
-    : CollapsibleBox("View settings", false, parent),
+    : CollapsibleBox("View settings", true, parent),
       m_viewModel(viewModel)
 {
     setupUi();
