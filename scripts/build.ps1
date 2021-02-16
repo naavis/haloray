@@ -1,13 +1,12 @@
 # Windows build script for Appveyor
 
-pushd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build"
-cmd /c "vcvars64.bat&set" |
-foreach {
+Push-Location "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build"
+cmd /c "vcvars64.bat&set" | ForEach-Object {
   if ($_ -match "=") {
-    $v = $_.split("="); set-item -force -path "ENV:\$($v[0])"  -value "$($v[1])"
+    $v = $_.split("="); set-item -force -path "ENV:\$($v[0])" -value "$($v[1])"
   }
 }
-popd
+Pop-Location
 Write-Host "`nVisual Studio 2019 Command Prompt variables set." -ForegroundColor Yellow
 
 $extraParameters = if ($gitBranch -eq "master") {
@@ -15,16 +14,16 @@ $extraParameters = if ($gitBranch -eq "master") {
   "-DHALORAY_VERSION='${version}'"
 }
 
-pushd
+Push-Location
 mkdir build
-cd src
+Set-Location src
 & "${env:Qt5_DIR}\bin\qmake.exe" main.pro -o ..\build\ -config release
-cd ..\build
+Set-Location ..\build
 nmake 2>$null
-popd
+Pop-Location
 
-pushd
-cd build\haloray\release
+Push-Location
+Set-Location build\haloray\release
 & "${env:Qt5_DIR}\bin\windeployqt.exe" `
   --no-quick-import `
   --no-translations `
@@ -35,4 +34,4 @@ cd build\haloray\release
   --no-compiler-runtime `
   --release `
   haloray.exe
-popd
+Pop-Location
