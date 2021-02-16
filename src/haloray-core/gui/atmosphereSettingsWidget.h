@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QObject>
-#include "collapsibleBox.h"
+#include "components/collapsibleBox.h"
 
 class QDataWidgetMapper;
 class QCheckBox;

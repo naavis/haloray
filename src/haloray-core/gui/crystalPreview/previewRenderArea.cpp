@@ -5,7 +5,6 @@
 #include <QMatrix4x4>
 #include <QSize>
 #include <algorithm>
-#include "../crystalModel.h"
 #include "../../simulation/trigonometryUtilities.h"
 
 namespace HaloRay

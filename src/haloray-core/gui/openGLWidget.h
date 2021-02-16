@@ -3,7 +3,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_4_Core>
 #include <memory>
-#include "../opengl/textureRenderer.h"
+#include "opengl/textureRenderer.h"
 
 
 class QMouseEvent;

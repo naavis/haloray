@@ -2,7 +2,7 @@
 #include <QMainWindow>
 #include <memory>
 #include <QTimer>
-#include "simulationStateModel.h"
+#include "gui/models/simulationStateModel.h"
 
 
 class QDoubleSpinBox;

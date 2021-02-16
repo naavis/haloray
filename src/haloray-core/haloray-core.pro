@@ -24,19 +24,19 @@ HALORAY_VERSION = $$(HALORAY_VERSION)
 }
 
 HEADERS += \
-    gui/addCrystalPopulationButton.h \
     gui/atmosphereSettingsWidget.h \
-    gui/collapsibleBox.h \
-    gui/crystalModel.h \
+    gui/components/addCrystalPopulationButton.h \
+    gui/components/collapsibleBox.h \
+    gui/components/renderButton.h \
+    gui/components/sliderSpinBox.h \
     gui/crystalPreview/crystalPreviewWindow.h \
     gui/crystalPreview/previewRenderArea.h \
     gui/crystalSettingsWidget.h \
     gui/generalSettingsWidget.h \
     gui/mainWindow.h \
+    gui/models/crystalModel.h \
+    gui/models/simulationStateModel.h \
     gui/openGLWidget.h \
-    gui/renderButton.h \
-    gui/simulationStateModel.h \
-    gui/sliderSpinBox.h \
     gui/stateSaver.h \
     gui/viewSettingsWidget.h \
     opengl/texture.h \
@@ -56,19 +56,19 @@ HEADERS += \
     simulation/trigonometryUtilities.h
 
 SOURCES += \
-    gui/addCrystalPopulationButton.cpp \
     gui/atmosphereSettingsWidget.cpp \
-    gui/collapsibleBox.cpp \
-    gui/crystalModel.cpp \
+    gui/components/addCrystalPopulationButton.cpp \
+    gui/components/collapsibleBox.cpp \
+    gui/components/renderButton.cpp \
+    gui/components/sliderSpinBox.cpp \
     gui/crystalPreview/crystalPreviewWindow.cpp \
     gui/crystalPreview/previewRenderArea.cpp \
     gui/crystalSettingsWidget.cpp \
     gui/generalSettingsWidget.cpp \
     gui/mainWindow.cpp \
+    gui/models/crystalModel.cpp \
+    gui/models/simulationStateModel.cpp \
     gui/openGLWidget.cpp \
-    gui/renderButton.cpp \
-    gui/simulationStateModel.cpp \
-    gui/sliderSpinBox.cpp \
     gui/stateSaver.cpp \
     gui/viewSettingsWidget.cpp \
     opengl/texture.cpp \

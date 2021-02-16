@@ -1,5 +1,5 @@
 #include "crystalPreviewWindow.h"
-#include "../crystalModel.h"
+#include "gui/models/crystalModel.h"
 #include "previewRenderArea.h"
 #include <QComboBox>
 #include <QVBoxLayout>

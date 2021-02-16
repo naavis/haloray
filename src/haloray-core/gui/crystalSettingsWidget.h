@@ -1,5 +1,5 @@
 #pragma once
-#include "collapsibleBox.h"
+#include "components/collapsibleBox.h"
 #include <memory>
 
 class QToolButton;

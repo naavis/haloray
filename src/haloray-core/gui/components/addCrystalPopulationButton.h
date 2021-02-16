@@ -1,6 +1,6 @@
 #pragma once
 #include <QToolButton>
-#include "../simulation/crystalPopulation.h"
+#include "simulation/crystalPopulation.h"
 
 class QWidget;
 class QMenu;

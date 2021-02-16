@@ -1,8 +1,8 @@
 #pragma once
 #include <QDataWidgetMapper>
-#include "../simulation/lightSource.h"
-#include "simulationStateModel.h"
-#include "collapsibleBox.h"
+#include "simulation/lightSource.h"
+#include "models/simulationStateModel.h"
+#include "components/collapsibleBox.h"
 
 class QDoubleSpinBox;
 class QSpinBox;

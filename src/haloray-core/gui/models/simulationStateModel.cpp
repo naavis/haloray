@@ -1,7 +1,7 @@
 #include "simulationStateModel.h"
-#include "../simulation/atmosphere.h"
-#include "../simulation/camera.h"
-#include "../simulation/lightSource.h"
+#include "simulation/atmosphere.h"
+#include "simulation/camera.h"
+#include "simulation/lightSource.h"
 #include "simulation/simulationEngine.h"
 
 namespace HaloRay

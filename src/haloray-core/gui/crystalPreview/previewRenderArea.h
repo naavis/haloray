@@ -2,7 +2,7 @@
 
 #include <QWidget>
 #include <QVector3D>
-#include "../crystalModel.h"
+#include "gui/models/crystalModel.h"
 
 class QMatrix4x4;
 class QSize;

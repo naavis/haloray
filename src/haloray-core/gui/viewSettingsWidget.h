@@ -1,6 +1,6 @@
 #pragma once
-#include "collapsibleBox.h"
-#include "../simulation/camera.h"
+#include "components/collapsibleBox.h"
+#include "simulation/camera.h"
 
 class QComboBox;
 class QCheckBox;

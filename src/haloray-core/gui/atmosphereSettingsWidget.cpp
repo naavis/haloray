@@ -2,8 +2,8 @@
 #include <QFormLayout>
 #include <QDataWidgetMapper>
 #include <QCheckBox>
-#include "simulationStateModel.h"
-#include "sliderSpinBox.h"
+#include "models/simulationStateModel.h"
+#include "components/sliderSpinBox.h"
 
 namespace HaloRay
 {

@@ -2,7 +2,7 @@
 #include <QAbstractTableModel>
 #include <QString>
 #include <QWidget>
-#include "../simulation/crystalPopulationRepository.h"
+#include "../../simulation/crystalPopulationRepository.h"
 
 namespace HaloRay
 {

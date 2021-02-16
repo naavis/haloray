@@ -1,7 +1,7 @@
 #pragma once
 #include <QAbstractTableModel>
 #include <memory>
-#include "../simulation/crystalPopulation.h"
+#include "simulation/crystalPopulation.h"
 
 class QWidget;
 class QVariant;

@@ -1,10 +1,10 @@
 #include "stateSaver.h"
 #include <QString>
 #include <QSettings>
-#include "simulationStateModel.h"
-#include "crystalModel.h"
-#include "../simulation/simulationEngine.h"
-#include "../simulation/crystalPopulationRepository.h"
+#include "gui/models/simulationStateModel.h"
+#include "gui/models/crystalModel.h"
+#include "simulation/simulationEngine.h"
+#include "simulation/crystalPopulationRepository.h"
 
 namespace HaloRay
 {

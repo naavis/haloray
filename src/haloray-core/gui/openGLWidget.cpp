@@ -4,11 +4,11 @@
 #include <QMouseEvent>
 #include <memory>
 #include <algorithm>
-#include "simulationStateModel.h"
-#include "../simulation/simulationEngine.h"
-#include "../simulation/camera.h"
-#include "../simulation/lightSource.h"
-#include "../simulation/crystalPopulation.h"
+#include "models/simulationStateModel.h"
+#include "simulation/simulationEngine.h"
+#include "simulation/camera.h"
+#include "simulation/lightSource.h"
+#include "simulation/crystalPopulation.h"
 
 namespace HaloRay
 {

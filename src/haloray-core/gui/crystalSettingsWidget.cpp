@@ -9,10 +9,10 @@
 #include <QDoubleSpinBox>
 #include <QLineEdit>
 #include <QGroupBox>
-#include "sliderSpinBox.h"
-#include "addCrystalPopulationButton.h"
-#include "../simulation/crystalPopulation.h"
-#include "crystalModel.h"
+#include "components/sliderSpinBox.h"
+#include "components/addCrystalPopulationButton.h"
+#include "simulation/crystalPopulation.h"
+#include "models/crystalModel.h"
 
 namespace HaloRay
 {

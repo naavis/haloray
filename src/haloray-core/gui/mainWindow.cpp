@@ -1,5 +1,4 @@
 #include "mainWindow.h"
-#include "simulationStateModel.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
@@ -17,19 +16,20 @@
 #include <QStatusBar>
 #include <QSettings>
 #include "crystalPreview/crystalPreviewWindow.h"
-#include "collapsibleBox.h"
 #include "stateSaver.h"
-#include "crystalModel.h"
+#include "models/crystalModel.h"
+#include "models/simulationStateModel.h"
 #include "openGLWidget.h"
 #include "generalSettingsWidget.h"
 #include "crystalSettingsWidget.h"
 #include "viewSettingsWidget.h"
 #include "atmosphereSettingsWidget.h"
-#include "sliderSpinBox.h"
-#include "renderButton.h"
-#include "../simulation/atmosphere.h"
-#include "../simulation/crystalPopulation.h"
-#include "../simulation/simulationEngine.h"
+#include "components/collapsibleBox.h"
+#include "components/sliderSpinBox.h"
+#include "components/renderButton.h"
+#include "simulation/atmosphere.h"
+#include "simulation/crystalPopulation.h"
+#include "simulation/simulationEngine.h"
 
 #define STRINGIFY0(v) #v
 #define STRINGIFY(v) STRINGIFY0(v)

@@ -3,9 +3,9 @@
 #include <QComboBox>
 #include <QCheckBox>
 #include <QDataWidgetMapper>
-#include "simulationStateModel.h"
-#include "sliderSpinBox.h"
-#include "../simulation/camera.h"
+#include "models/simulationStateModel.h"
+#include "components/sliderSpinBox.h"
+#include "simulation/camera.h"
 
 namespace HaloRay
 {

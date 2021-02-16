@@ -1,8 +1,8 @@
 #include "generalSettingsWidget.h"
 #include <QFormLayout>
 #include <QDoubleSpinBox>
-#include "sliderSpinBox.h"
-#include "../simulation/lightSource.h"
+#include "components/sliderSpinBox.h"
+#include "simulation/lightSource.h"
 
 namespace HaloRay
 {
