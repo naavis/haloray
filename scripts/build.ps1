@@ -9,6 +9,7 @@ cmd /c "vcvars64.bat&set" | ForEach-Object {
 Pop-Location
 Write-Host "`nVisual Studio 2019 Command Prompt variables set." -ForegroundColor Yellow
 
+$gitBranch = $env:APPVEYOR_REPO_BRANCH
 if ($gitBranch -eq "master") {
   $version = ${env:APPVEYOR_BUILD_VERSION}.Split('-')[0]
   $env:HALORAY_VERSION = "${version}"
