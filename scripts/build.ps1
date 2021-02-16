@@ -18,13 +18,13 @@ if ($gitBranch -eq "master") {
 Push-Location
 mkdir build
 Set-Location src
-& "${env:Qt5_DIR}\bin\qmake.exe" main.pro -o ..\build\ -config release
+& "${env:Qt5_DIR}\bin\qmake.exe" haloray.pro -o ..\build\ -config release
 Set-Location ..\build
 nmake 2>$null
 Pop-Location
 
 Push-Location
-Set-Location build\haloray\release
+Set-Location build\main\release
 & "${env:Qt5_DIR}\bin\windeployqt.exe" `
   --no-quick-import `
   --no-translations `

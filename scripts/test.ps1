@@ -4,7 +4,7 @@ Push-Location "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\
 cmd /c "vcvars64.bat&set" |
 ForEach-Object {
   if ($_ -match "=") {
-    $v = $_.split("="); set-item -force -path "ENV:\$($v[0])"  -value "$($v[1])"
+    $v = $_.split("="); set-item -force -path "ENV:\$($v[0])" -value "$($v[1])"
   }
 }
 Pop-Location

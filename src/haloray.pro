@@ -1,8 +1,8 @@
 TEMPLATE = subdirs
 SUBDIRS += \
-    haloray \
+    main \
     haloray-core \
     tests
 
-haloray.depends = haloray-core
+main.depends = haloray-core
 tests.depends = haloray-core
