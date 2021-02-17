@@ -98,6 +98,11 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
     connect(m_model, &CrystalModel::rowsInserted, updateRemovePopulationButtonState);
     connect(m_model, &CrystalModel::rowsRemoved, updateRemovePopulationButtonState);
 
+    connect(m_model, &CrystalModel::rowsInserted, [this]() {
+        if (m_mapper->currentIndex() == -1)
+            m_mapper->toFirst();
+    });
+
     connect(m_populationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
         emit populationSelectionChanged(index);
     });

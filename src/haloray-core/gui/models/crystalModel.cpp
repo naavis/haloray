@@ -215,9 +215,9 @@ bool CrystalModel::removeRow(int row)
 
 void CrystalModel::clear()
 {
-    emit beginRemoveRows(QModelIndex(), 0, m_crystals->getCount() - 1);
+    beginResetModel();
     m_crystals->clear();
-    endRemoveRows();
+    endResetModel();
 }
 
 void CrystalModel::setName(int row, QString name)
