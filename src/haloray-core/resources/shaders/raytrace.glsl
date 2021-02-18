@@ -252,10 +252,10 @@ vec3 getNormal(uint triangleIndex)
 
 float getReflectionCoefficient(vec3 normal, vec3 rayDir, float n0, float n1)
 {
-    float incidentAngle = acos(dot(-rayDir, normal));
+    float incidentCos = dot(-rayDir, normal);
+    float incidentAngle = acos(incidentCos);
     if (n1 / n0 < sin(incidentAngle)) return 1.0;
     float transmittedAngle = asin(n0 * sin(incidentAngle) / n1);
-    float incidentCos = cos(incidentAngle);
     float transmittedCos = cos(transmittedAngle);
     float rs = (n0 * incidentCos - n1 * transmittedCos) / (n0 * incidentCos + n1 * transmittedCos);
     rs = rs * rs;
