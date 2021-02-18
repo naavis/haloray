@@ -23,6 +23,7 @@
 #include "generalSettingsWidget.h"
 #include "crystalSettingsWidget.h"
 #include "viewSettingsWidget.h"
+#include "massEditor.h"
 #include "atmosphereSettingsWidget.h"
 #include "components/collapsibleBox.h"
 #include "components/sliderSpinBox.h"
@@ -137,6 +138,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
         m_crystalModel->clear();
         m_crystalModel->addRow(CrystalPopulationPreset::Random);
     });
+    connect(m_openMassEditorWindow, &QAction::triggered, [this]() {
+        auto massEditor = new MassEditor(this);
+        massEditor->exec();
+    });
 
     setupRenderTimer();
 }
@@ -188,6 +193,7 @@ void MainWindow::setupMenuBar()
 
     auto miscMenu = menuBar()->addMenu(tr("&View"));
     m_openCrystalPreviewWindow = miscMenu->addAction(tr("Crystal &preview"));
+    m_openMassEditorWindow = miscMenu->addAction(tr("&Mass editor"));
 }
 
 QScrollArea *MainWindow::setupSideBarScrollArea()

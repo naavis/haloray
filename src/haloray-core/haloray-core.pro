@@ -34,6 +34,7 @@ HEADERS += \
     gui/crystalSettingsWidget.h \
     gui/generalSettingsWidget.h \
     gui/mainWindow.h \
+    gui/massEditor.h \
     gui/models/crystalModel.h \
     gui/models/simulationStateModel.h \
     gui/openGLWidget.h \
@@ -66,6 +67,7 @@ SOURCES += \
     gui/crystalSettingsWidget.cpp \
     gui/generalSettingsWidget.cpp \
     gui/mainWindow.cpp \
+    gui/massEditor.cpp \
     gui/models/crystalModel.cpp \
     gui/models/simulationStateModel.cpp \
     gui/openGLWidget.cpp \
