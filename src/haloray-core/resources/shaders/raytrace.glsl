@@ -626,7 +626,6 @@ void main(void)
     vec2 polar = cartesianToPolar(resultRay);
 
     float projectionFunction;
-    float focalLength;
 
     // The projection converts 3D vectors to 2D points
     if (camera.projection == PROJECTION_STEREOGRAPHIC) {
