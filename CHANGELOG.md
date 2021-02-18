@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed bug where intensity of halos changed with rays per frame setting
+- Fixed a tiny raytracing artifact in the middle of the view
 
 ## 2.4.0 - 2019-07-29
 

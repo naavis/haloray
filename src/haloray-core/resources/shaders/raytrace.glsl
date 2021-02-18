@@ -389,7 +389,7 @@ mat3 getUniformRandomRotationMatrix(void)
 
 vec2 cartesianToPolar(vec3 direction)
 {
-    float r = acos(direction.z);
+    float r = atan(length(direction.xy), direction.z);
     float angle = atan(direction.y, direction.x);
     return vec2(r, angle);
 }
