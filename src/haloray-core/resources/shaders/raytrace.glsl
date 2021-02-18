@@ -612,10 +612,6 @@ void main(void)
         resultRay = rotationMatrix * resultRay;
     }
 
-    // Do not render rays coming from the solar disk when the sky model renders a separate sun
-    if (atmosphereEnabled == 1 && acos(dot(-resultRay, getSunDirection(sun.altitude))) < 1.005 * sun.diameter / 2.0 && resultRay.y < 0.0)
-        return;
-
     // Hide subhorizon rays
     if (camera.hideSubHorizon == 1 && resultRay.y > 0.0) return;
 
