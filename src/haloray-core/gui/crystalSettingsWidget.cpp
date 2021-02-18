@@ -116,7 +116,12 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
     connect(m_removePopulationButton, &QToolButton::clicked, [this, updateRemovePopulationButtonState]() {
         int index = m_mapper->currentIndex();
         m_model->removeRow(index);
-        m_mapper->toFirst();
+        if (index > 1)
+        {
+            m_mapper->setCurrentIndex(index - 1);
+        } else {
+            m_mapper->toFirst();
+        }
 
         updateRemovePopulationButtonState();
     });
