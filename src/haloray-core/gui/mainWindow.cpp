@@ -139,7 +139,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
         m_crystalModel->addRow(CrystalPopulationPreset::Random);
     });
     connect(m_openMassEditorWindow, &QAction::triggered, [this]() {
-        auto massEditor = new MassEditor(this);
+        auto massEditor = new MassEditor(m_crystalModel, this);
         massEditor->exec();
     });
 

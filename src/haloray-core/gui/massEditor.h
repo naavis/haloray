@@ -3,6 +3,9 @@
 #include <QObject>
 #include <QWidget>
 #include <QDialog>
+#include <gui/models/crystalModel.h>
+
+class QTableView;
 
 namespace HaloRay
 {
@@ -11,7 +14,10 @@ class MassEditor : public QDialog
 {
     Q_OBJECT
 public:
-    explicit MassEditor(QWidget *parent = nullptr);
+    MassEditor(CrystalModel *model, QWidget *parent = nullptr);
+
+private:
+    QTableView *m_table;
 
 };
 

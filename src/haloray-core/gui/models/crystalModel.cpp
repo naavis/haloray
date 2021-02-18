@@ -185,6 +185,67 @@ Qt::ItemFlags CrystalModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEditable | QAbstractTableModel::flags(index);
 }
 
+QVariant CrystalModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation != Qt::Horizontal)
+        return QVariant();
+
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    switch (section)
+    {
+    case CaRatioAverage:
+        return "C/A ratio average";
+    case CaRatioStd:
+        return "C/A ratio std.";
+    case TiltDistribution:
+        return "Tilt angle distribution";
+    case TiltAverage:
+        return "Tilt angle average";
+    case TiltStd:
+        return "Tilt angle std.";
+    case RotationDistribution:
+        return "Rotation distribution";
+    case RotationAverage:
+        return "Rotation angle average";
+    case RotationStd:
+        return "Rotation angle std.";
+    case UpperApexAngle:
+        return "Upper apex angle";
+    case UpperApexHeightAverage:
+        return "Upper apex height average";
+    case UpperApexHeightStd:
+        return "Upper apex heigth std.";
+    case LowerApexAngle:
+        return "Lower apex angle";
+    case LowerApexHeightAverage:
+        return "Lower apex height average";
+    case LowerApexHeightStd:
+        return "Lower apex height std.";
+    case PopulationWeight:
+        return "Population weight";
+    case PopulationName:
+        return "Population name";
+    case PrismFaceDistance1:
+        return "Face 3 distance";
+    case PrismFaceDistance2:
+        return "Face 4 distance";
+    case PrismFaceDistance3:
+        return "Face 5 distance";
+    case PrismFaceDistance4:
+        return "Face 6 distance";
+    case PrismFaceDistance5:
+        return "Face 7 distance";
+    case PrismFaceDistance6:
+        return "Face 8 distance";
+    default:
+        break;
+    }
+
+    return QVariant();
+}
+
 void CrystalModel::addRow(CrystalPopulationPreset preset)
 {
     auto row = m_crystals->getCount();
