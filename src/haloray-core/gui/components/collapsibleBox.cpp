@@ -21,6 +21,8 @@ CollapsibleBox::CollapsibleBox(QString title, QWidget *parent)
     m_mainLayout->setSpacing(0);
     m_mainLayout->setMargin(0);
 
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
     connect(m_headerButton, &QPushButton::toggled, m_content, &QWidget::setVisible);
 }
 
@@ -34,7 +36,5 @@ QWidget *CollapsibleBox::contentWidget() const
 {
     return m_content;
 }
-
-
 
 }

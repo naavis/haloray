@@ -9,6 +9,7 @@
 #include <QDoubleSpinBox>
 #include <QLineEdit>
 #include <QGroupBox>
+#include <QTabWidget>
 #include "components/sliderSpinBox.h"
 #include "components/addCrystalPopulationButton.h"
 #include "simulation/crystalPopulation.h"
@@ -202,38 +203,51 @@ void CrystalSettingsWidget::setupUi()
         m_prismFaceDistanceSliders[i] = new SliderSpinBox(0.0, 4.0);
     }
 
-    auto mainLayout = new QFormLayout(this->contentWidget());
+    auto tabWidget = new QTabWidget();
+
+    auto mainLayout = new QVBoxLayout(this->contentWidget());
 
     auto populationButtonLayout = new QHBoxLayout();
     populationButtonLayout->addWidget(m_populationComboBox);
     populationButtonLayout->addWidget(m_addPopulationButton);
     populationButtonLayout->addWidget(m_removePopulationButton);
 
-    mainLayout->addRow(populationButtonLayout);
-    mainLayout->addRow(tr("Population weight"), m_weightSpinBox);
+    QWidget *populationSettingsWidget = new QWidget();
+    auto populationSettingsLayout = new QFormLayout(populationSettingsWidget);
+    populationSettingsLayout->addRow(populationButtonLayout);
+    populationSettingsLayout->addRow(tr("Population weight"), m_weightSpinBox);
+    mainLayout->addWidget(populationSettingsWidget);
 
-    mainLayout->addItem(new QSpacerItem(0, 5));
-    mainLayout->addRow(tr("C/A ratio average"), m_caRatioSlider);
-    mainLayout->addRow(tr("C/A ratio std."), m_caRatioStdSlider);
-    mainLayout->addItem(new QSpacerItem(0, 5));
+    mainLayout->addWidget(tabWidget);
+
+    QWidget *basicShapeTab = new QWidget();
+    auto basicShapeLayout = new QFormLayout(basicShapeTab);
+    basicShapeLayout->addRow(tr("C/A ratio average"), m_caRatioSlider);
+    basicShapeLayout->addRow(tr("C/A ratio std."), m_caRatioStdSlider);
+    basicShapeLayout->addItem(new QSpacerItem(0, 5));
 
     auto tiltGroupBox = new QGroupBox(tr("C-axis tilt"));
     auto tiltLayout = new QFormLayout(tiltGroupBox);
-    mainLayout->addRow(tiltGroupBox);
+    basicShapeLayout->addRow(tiltGroupBox);
     tiltLayout->addRow(tr("Distribution"), m_tiltDistributionComboBox);
     tiltLayout->addRow(m_tiltAverageLabel, m_tiltAverageSlider);
     tiltLayout->addRow(m_tiltStdLabel, m_tiltStdSlider);
 
     auto rotationGroupBox = new QGroupBox(tr("Rotation around C-axis"));
     auto rotationLayout = new QFormLayout(rotationGroupBox);
-    mainLayout->addRow(rotationGroupBox);
+    basicShapeLayout->addRow(rotationGroupBox);
     rotationLayout->addRow(tr("Distribution"), m_rotationDistributionComboBox);
     rotationLayout->addRow(m_rotationAverageLabel, m_rotationAverageSlider);
     rotationLayout->addRow(m_rotationStdLabel, m_rotationStdSlider);
 
+    tabWidget->addTab(basicShapeTab, tr("Basic shape"));
+
+    QWidget *pyramidShapeTab = new QWidget();
+    auto pyramidShapeLayout = new QFormLayout(pyramidShapeTab);
+
     auto pyramidGroupBox = new QGroupBox(tr("Pyramid caps"));
     auto pyramidLayout = new QFormLayout(pyramidGroupBox);
-    mainLayout->addRow(pyramidGroupBox);
+    pyramidShapeLayout->addRow(pyramidGroupBox);
     pyramidLayout->addRow(tr("Upper apex angle"), m_upperApexAngleSpinBox);
     pyramidLayout->addRow(tr("Upper apex average height"), m_upperApexHeightAverageSlider);
     pyramidLayout->addRow(tr("Upper apex height std."), m_upperApexHeightStdSlider);
@@ -242,9 +256,13 @@ void CrystalSettingsWidget::setupUi()
     pyramidLayout->addRow(tr("Lower apex average height"), m_lowerApexHeightAverageSlider);
     pyramidLayout->addRow(tr("Lower apex height std."), m_lowerApexHeightStdSlider);
 
+    tabWidget->addTab(pyramidShapeTab, tr("Pyramid caps"));
+
+    QWidget *prismDistanceTab = new QWidget();
+    auto prismDistanceLayout = new QFormLayout(prismDistanceTab);
     auto prismFaceDistanceGroupBox = new QGroupBox(tr("Prism face distances from C-axis"));
     auto prismFaceDistanceLayout = new QFormLayout(prismFaceDistanceGroupBox);
-    mainLayout->addRow(prismFaceDistanceGroupBox);
+    prismDistanceLayout->addRow(prismFaceDistanceGroupBox);
     for (auto i = 0; i < 6; ++i)
     {
         auto labelString = QString("Face %1").arg(i + 3);
@@ -252,6 +270,8 @@ void CrystalSettingsWidget::setupUi()
         auto labelCString = labelStdString.c_str();
         prismFaceDistanceLayout->addRow(tr(labelCString), m_prismFaceDistanceSliders[i]);
     }
+
+    tabWidget->addTab(prismDistanceTab, tr("Prism faces"));
 }
 
 void CrystalSettingsWidget::setupPopulationComboBoxConnections()
