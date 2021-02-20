@@ -30,6 +30,7 @@ void StateSaver::SaveState(QString filename, SimulationEngine *engine, CrystalPo
         auto population = crystals->get(i);
 
         settings.setValue("Name", QString::fromStdString(crystals->getName(i)));
+        settings.setValue("Enabled", population.enabled);
 
         settings.setValue("CaRatioAverage", (double)population.caRatioAverage);
         settings.setValue("CaRatioStd", (double)population.caRatioStd);
@@ -96,6 +97,7 @@ void StateSaver::LoadState(QString filename, SimulationStateModel *simState, Cry
         settings.setArrayIndex(i);
         auto pop = CrystalPopulation::createRandom();
         unsigned int weight = settings.value("Weight", 1).toUInt();
+        pop.enabled = settings.value("Enabled", pop.enabled).toBool();
 
         pop.caRatioAverage = settings.value("CaRatioAverage", pop.caRatioAverage).toFloat();
         pop.caRatioStd = settings.value("CaRatioStd", pop.caRatioStd).toFloat();
