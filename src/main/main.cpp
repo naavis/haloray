@@ -12,6 +12,7 @@
 #include <QFile>
 #include <QDir>
 #include <QStandardPaths>
+#include <stdexcept>
 #include "gui/mainWindow.h"
 
 #ifndef STRINGIFY0
@@ -59,6 +60,11 @@ void initializeLogging()
     qSetMessagePattern("%{time} %{type}: %{message} (%{file}:%{line}, %{function})");
     openLogFile();
     qInstallMessageHandler(logHandler);
+#ifdef HALORAY_VERSION
+    qInfo("HaloRay version: %s", STRINGIFY(HALORAY_VERSION));
+#else
+    qInfo("HaloRay development build branch \"%s\", commit %s", STRINGIFY(GIT_BRANCH), STRINGIFY(GIT_COMMIT_HASH));
+#endif
 }
 
 bool supportsOpenGL(int requiredMajorVersion, int requiredMinorVersion)
@@ -95,12 +101,6 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(haloray);
     initializeLogging();
 
-#ifdef HALORAY_VERSION
-    qInfo("HaloRay version: %s", STRINGIFY(HALORAY_VERSION));
-#else
-    qInfo("HaloRay development build branch \"%s\", commit %s", STRINGIFY(GIT_BRANCH), STRINGIFY(GIT_COMMIT_HASH));
-#endif
-
     QGuiApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     QGuiApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
@@ -116,20 +116,28 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    qInfo("Setting up OpenGL context");
-    auto openGLContext = QOpenGLContext();
-    openGLContext.setShareContext(QOpenGLContext::globalShareContext());
-    openGLContext.create();
-    qInfo("OpenGL context created");
-    qInfo("Setting up offscreen drawing surface");
-    auto surface = QOffscreenSurface(nullptr);
-    surface.create();
-    openGLContext.makeCurrent(&surface);
-    qInfo("Offscreen drawing surface created");
+    try {
+        qInfo("Setting up OpenGL context");
+        auto openGLContext = QOpenGLContext();
+        openGLContext.setShareContext(QOpenGLContext::globalShareContext());
+        openGLContext.create();
+        qInfo("OpenGL context created");
+        qInfo("Setting up offscreen drawing surface");
+        auto surface = QOffscreenSurface(nullptr);
+        surface.create();
+        openGLContext.makeCurrent(&surface);
+        qInfo("Offscreen drawing surface created");
 
-    qInfo("Opening main window");
-    HaloRay::MainWindow mainWindow;
-    mainWindow.showMaximized();
+        qInfo("Opening main window");
+        HaloRay::MainWindow mainWindow;
+        mainWindow.showMaximized();
 
-    return app.exec();
+        return app.exec();
+    }
+    catch (const std::exception &e)
+    {
+        QMessageBox::critical(nullptr, QObject::tr("Exception thrown"), QString("An error occurred:\n%1").arg(e.what()));
+        qFatal("Caught exception: %s", e.what());
+        return 1;
+    }
 }
