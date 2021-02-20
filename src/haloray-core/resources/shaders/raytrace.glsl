@@ -1,10 +1,12 @@
 #version 440 core
 
-#define DISTRIBUTION_UNIFORM 0
-#define DISTRIBUTION_GAUSSIAN 1
-
 layout(local_size_x = 64) in;
 layout(binding = 0, rgba32f) uniform coherent image2D outputImage;
+
+/* MAX_HITS defines how many times
+   a ray of light is allowed to bounce inside
+   the ice crystal before it is abandoned */
+#define MAX_HITS 100
 
 uniform uint rngSeed;
 uniform float multipleScatter;
@@ -15,6 +17,9 @@ uniform struct sunProperties_t
     float diameter;
     float spectrum[31];
 } sun;
+
+#define DISTRIBUTION_UNIFORM 0
+#define DISTRIBUTION_GAUSSIAN 1
 
 uniform struct crystalProperties_t
 {
@@ -300,7 +305,7 @@ vec3 traceRay(vec3 rayOrigin, vec3 rayDirection, float indexOfRefraction)
 {
     vec3 ro = rayOrigin;
     vec3 rd = rayDirection;
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < MAX_HITS; ++i)
     {
         intersection hitResult = findIntersection(ro, rd);
         if (hitResult.didHit == false) break;

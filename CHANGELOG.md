@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Triangle normals are now cached during raytracing
 - The settings groups in the side panel are now collapsible
 - Adjusting sliders with arrow kys now uses smaller steps
+- Light is now allowed to bounce inside ice crystal for a 100 times instead of 10
 
 ### Fixed
 
