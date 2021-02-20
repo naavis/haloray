@@ -15,7 +15,7 @@ HaloRay currently supports Windows and Linux.
 An OpenGL 4.4 compliant GPU is required to run HaloRay. On Windows you also need
 the [latest Microsoft Visual C++ Redistributable for Visual Studio 2019.](https://aka.ms/vs/16/release/vc_redist.x64.exe)
 
-![Simulation of a column crystal halo display](images/plate-column-random-halo-screenshot.png)
+![Simulation of a column crystal halo display](images/ui-screenshot.png)
 
 ## How to use?
 
