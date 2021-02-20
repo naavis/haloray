@@ -60,7 +60,8 @@ in the **Crystal population** dropdown menu. Each population has a relative
 weight, which can be changed by adjusting the **Population weight** spin box.
 For example, giving weights 1 and 3 to two crystal populations respectively
 would trace three times as many rays through the latter population than the
-former.
+former. It is also possible to enable or disable a crystal population
+temporarily with the **Population enabled** checkbox.
 
 The crystals are hexagonal, and have three named axes as shown in the image
 below.
