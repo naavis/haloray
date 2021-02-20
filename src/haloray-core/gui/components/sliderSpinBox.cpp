@@ -11,7 +11,7 @@ SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent), m_value(0.0)
 {
     m_slider = new QSlider();
     m_slider->setOrientation(Qt::Orientation::Horizontal);
-    m_slider->setSingleStep((int)sliderMultiplier);
+    m_slider->setSingleStep(qMax((int)(0.1 * sliderMultiplier), 1));
     m_slider->setPageStep((int)(10 * sliderMultiplier));
     m_slider->setMinimumWidth(100);
 
