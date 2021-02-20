@@ -44,6 +44,15 @@ private slots:
         QCOMPARE(repository.getWeight(2), 1);
     }
 
+    void disabledPopulationsDoNotCountTowardsProbability()
+    {
+        auto repository = HaloRay::CrystalPopulationRepository();
+        repository.get(0).enabled = false;
+        QCOMPARE(repository.getProbability(0), 0.0);
+        QCOMPARE(repository.getProbability(1), 1.0 / 2.0);
+        QCOMPARE(repository.getProbability(2), 1.0 / 2.0);
+    }
+
     void clearEmptiesRepository()
     {
         auto repository = HaloRay::CrystalPopulationRepository();

@@ -43,6 +43,7 @@ public:
         PrismFaceDistance4,
         PrismFaceDistance5,
         PrismFaceDistance6,
+        Enabled,
         NUM_COLUMNS
     };
 

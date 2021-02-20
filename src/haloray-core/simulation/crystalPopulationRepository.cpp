@@ -78,7 +78,13 @@ std::string CrystalPopulationRepository::getName(unsigned int index) const
 
 double CrystalPopulationRepository::getProbability(unsigned int index) const
 {
-    unsigned int totalWeights = std::accumulate(m_weights.cbegin(), m_weights.cend(), 0);
+    if (m_crystals[index].enabled == false) return 0.0;
+
+    auto totalWeights = 0u;
+    for (auto i = 0u; i < getCount(); ++i)
+    {
+        totalWeights += m_crystals[i].enabled ? m_weights[i] : 0;
+    }
     return static_cast<double>(m_weights[index]) / totalWeights;
 }
 

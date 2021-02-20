@@ -83,6 +83,8 @@ QVariant CrystalModel::data(const QModelIndex &index, int role) const
         return crystal.prismFaceDistances[4];
     case PrismFaceDistance6:
         return crystal.prismFaceDistances[5];
+    case Enabled:
+        return crystal.enabled;
     }
 
     return QVariant();
@@ -168,6 +170,8 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
     case PrismFaceDistance6:
         crystal.prismFaceDistances[5] = value.toFloat();
         break;
+    case Enabled:
+        crystal.enabled = value.toBool();
     default:
         break;
     }

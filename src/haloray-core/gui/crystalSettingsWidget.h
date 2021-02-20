@@ -8,6 +8,7 @@ class QLabel;
 class QSpinBox;
 class QDataWidgetMapper;
 class QDoubleSpinBox;
+class QCheckBox;
 
 namespace HaloRay
 {
@@ -36,6 +37,7 @@ private:
 
     AddCrystalPopulationButton *m_addPopulationButton;
     QToolButton *m_removePopulationButton;
+    QCheckBox *m_populationEnabledCheckBox;
 
     SliderSpinBox *m_caRatioSlider;
     SliderSpinBox *m_caRatioStdSlider;

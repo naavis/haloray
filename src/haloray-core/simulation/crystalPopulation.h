@@ -17,6 +17,8 @@ struct CrystalPopulation
 {
     CrystalPopulation();
 
+    bool enabled;
+
     float caRatioAverage;
     float caRatioStd;
 

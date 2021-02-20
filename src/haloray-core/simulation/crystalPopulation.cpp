@@ -163,6 +163,7 @@ void CrystalPopulation::initializePrismFaceDistances()
 
 CrystalPopulation::CrystalPopulation()
 {
+    enabled = true;
     initializePrismFaceDistances();
 }
 

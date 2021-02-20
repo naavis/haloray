@@ -10,6 +10,7 @@
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QTabWidget>
+#include <QCheckBox>
 #include "components/sliderSpinBox.h"
 #include "components/addCrystalPopulationButton.h"
 #include "simulation/crystalPopulation.h"
@@ -53,6 +54,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
     m_mapper->addMapping(m_lowerApexHeightAverageSlider, CrystalModel::LowerApexHeightAverage);
     m_mapper->addMapping(m_lowerApexHeightStdSlider, CrystalModel::LowerApexHeightStd);
     m_mapper->addMapping(m_weightSpinBox, CrystalModel::PopulationWeight);
+    m_mapper->addMapping(m_populationEnabledCheckBox, CrystalModel::Enabled);
     m_mapper->addMapping(m_populationComboBox, CrystalModel::PopulationName, "currentText");
     for (auto i = 0; i < 6; ++i)
     {
@@ -66,6 +68,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
     box loses focus, so the sliders and comboboxes must still be manually connected
     to the submit slot of the mapper.
     */
+    connect(m_populationEnabledCheckBox, &QCheckBox::toggled, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_weightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_caRatioSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_caRatioStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
@@ -154,6 +157,8 @@ void CrystalSettingsWidget::setupUi()
     m_removePopulationButton->setIcon(QIcon::fromTheme("list-remove"));
     m_removePopulationButton->setIconSize(QSize(24, 24));
 
+    m_populationEnabledCheckBox = new QCheckBox();
+
     m_caRatioSlider = new SliderSpinBox(0.0, 15.0);
 
     m_caRatioStdSlider = new SliderSpinBox(0.0, 10.0);
@@ -207,14 +212,15 @@ void CrystalSettingsWidget::setupUi()
 
     auto mainLayout = new QVBoxLayout(this->contentWidget());
 
-    auto populationButtonLayout = new QHBoxLayout();
-    populationButtonLayout->addWidget(m_populationComboBox);
-    populationButtonLayout->addWidget(m_addPopulationButton);
-    populationButtonLayout->addWidget(m_removePopulationButton);
+    auto populationManagementLayout = new QHBoxLayout();
+    populationManagementLayout->addWidget(m_populationComboBox);
+    populationManagementLayout->addWidget(m_addPopulationButton);
+    populationManagementLayout->addWidget(m_removePopulationButton);
 
     QWidget *populationSettingsWidget = new QWidget();
     auto populationSettingsLayout = new QFormLayout(populationSettingsWidget);
-    populationSettingsLayout->addRow(populationButtonLayout);
+    populationSettingsLayout->addRow(populationManagementLayout);
+    populationSettingsLayout->addRow(tr("Population enabled"), m_populationEnabledCheckBox);
     populationSettingsLayout->addRow(tr("Population weight"), m_weightSpinBox);
     mainLayout->addWidget(populationSettingsWidget);
 
