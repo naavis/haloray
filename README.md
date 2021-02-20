@@ -41,7 +41,7 @@ Here are some general settings for the whole simulation.
 - **Rays per frame:** Number of rays traced through individual crystals per
   rendered frame
   - If the user interface slows down a lot during rendering, lower this value
-  - On an NVIDIA GeForce GTX 1070 a good value seems to be around 500 000
+  - On an NVIDIA GeForce RTX 3070 a good value seems to be around 500 000
   - The maximum value for this parameter may be limited by your GPU
 - **Maximum frames:** Simulation stops after rendering this many frames
 - **Double scattering:** Probability of a single light ray to scatter from two
@@ -129,6 +129,14 @@ Above is a representation of an ice crystal with pyramidal end caps.
 Currently HaloRay is limited to convex ice crystals, so the end caps
 cannot extend inwards to make hollow ice crystals.
 
+HaloRay provides six sliders you can use to adjust the distance of each prism
+face of the hexagonal ice crystals from the crystal C-axis.
+
+![Graphic of a non-regular shaped ice crystal](images/non-regular-crystal.png)
+
+The above image shows a crystal where every other prism face has the default
+distance of 1.0 from the C-axis, while every other is reduced to 0.7.
+
 ### View settings
 
 These settings affect how the results of the simulation are shown on the screen.
@@ -141,16 +149,26 @@ These settings affect how the results of the simulation are shown on the screen.
 - **Hide sub-horizon:** Hides any halos below the horizon level
 - **Lock to light source:** Locks the camera to the sun
 
+### Menus
+
+The top menus should be pretty self-explanatory. Entries in the _File_ menu
+allow you to reset the simulation, save and load simulation parameters, and save
+the simulation output to an image file on disk.
+
+_View -> Crystal preview_ lets you see a wireframe preview of the an average
+ice crystal in the currently selected crystal population.
+
 ## How to build?
 
 The user interface is built with [Qt 5](https://www.qt.io/), so you need to
 [download the Qt libraries](https://www.qt.io/download-qt-installer) before
 compiling HaloRay.
 
-The build is handled with Qt's build tool qmake.
+The build is handled with Qt's build tool qmake. You can also use the Qt Creator
+IDE to open and build the code.
 
-On Linux you can also install Qt using your package manager. On Ubuntu Linux
-you can install Qt by running:
+On Linux you can install Qt using your package manager. On Ubuntu Linux you can
+install Qt by running:
 
 ```bash
 sudo apt-get install qt5-default
@@ -183,6 +201,19 @@ shipped with Qt 5. This is the recommended way.
 
 You can check `scripts\build.ps1` to see how the project is built on the
 Appveyor CI server.
+
+## FAQ - Frequently asked questions
+
+### UI components are scaled all wrong on a 4K display in Windows
+
+On high-DPI screens Windows scales UI elements by default. You can either
+disable the scaling by setting UI scale to 100% in Windows display settings.
+The other option is to try running HaloRay with special command-line paramaeters
+like this:
+
+```
+HaloRay.exe -platform windows:dpiawareness=2
+```
 
 ## Acknowledgments
 
