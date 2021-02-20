@@ -129,8 +129,8 @@ Above is a representation of an ice crystal with pyramidal end caps.
 Currently HaloRay is limited to convex ice crystals, so the end caps
 cannot extend inwards to make hollow ice crystals.
 
-HaloRay provides six sliders you can use to adjust the distance of each prism
-face of the hexagonal ice crystals from the crystal C-axis.
+HaloRay provides six sliders you can use to adjust the **distance of each prism
+face** of the hexagonal ice crystals from the crystal C-axis.
 
 ![Graphic of a non-regular shaped ice crystal](images/non-regular-crystal.png)
 
@@ -206,9 +206,11 @@ Appveyor CI server.
 
 ### UI components are scaled all wrong on a 4K display in Windows
 
-On high-DPI screens Windows scales UI elements by default. You can either
-disable the scaling by setting UI scale to 100% in Windows display settings.
-The other option is to try running HaloRay with special command-line paramaeters
+On high-DPI screens Windows scales UI elements by default. HaloRay doesn't fully
+adapt to this scaling yet. For now, you can either disable the scaling on an
+operating system level by setting UI scale to 100% in Windows display settings,
+or try running HaloRay with
+[special command-line parameters](https://doc.qt.io/qt-5/qguiapplication.html#platform-specific-arguments)
 like this:
 
 ```
