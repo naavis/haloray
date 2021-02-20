@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Possibility to save and load simulations
 - Added controls for prism face distances from the crystal C-axis
 - Preview window for crystal shape and orientation
+- Better logging and error handling
 
 ### Changed
 

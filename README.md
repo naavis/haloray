@@ -204,7 +204,7 @@ Appveyor CI server.
 
 ## FAQ - Frequently asked questions
 
-### UI components are scaled all wrong on a 4K display in Windows
+### UI components are scaled all wrong on a 4K display in Windows, what to do?
 
 On high-DPI screens Windows scales UI elements by default. HaloRay doesn't fully
 adapt to this scaling yet. For now, you can either disable the scaling on an
@@ -216,6 +216,15 @@ like this:
 ```
 HaloRay.exe -platform windows:dpiawareness=2
 ```
+
+### HaloRay crashes or does not start, how to troubleshoot?
+
+HaloRay writes a log file to help in troubleshooting.
+
+On Windows you can find it in `%LOCALAPPDATA%\Temp\haloray\haloray.log` where
+`%LOCALAPPDATA` is usually equal to `C:\Users\<username>\AppData\Local`
+
+On Linux the log file is in `/tmp/haloray/haloray.log`
 
 ## Acknowledgments
 
