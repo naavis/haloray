@@ -6,44 +6,78 @@
 #include <QOffscreenSurface>
 #include <QString>
 #include <QObject>
+#include <QMutex>
+#include <QMutexLocker>
+#include <QDateTime>
+#include <QFile>
+#include <QDir>
+#include <QStandardPaths>
 #include "gui/mainWindow.h"
+
+#ifndef STRINGIFY0
+#define STRINGIFY0(v) #v
+#endif
+#ifndef STRINGIFY
+#define STRINGIFY(v) STRINGIFY0(v)
+#endif
 
 const int RequiredOpenGLMajorVersion = 4;
 const int RequiredOpenGLMinorVersion = 4;
 
+QFile logFile;
+QMutex logFileMutex;
+
+void openLogFile()
+{
+    const QString &tempFilePath = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+    QDir tempFileDir(tempFilePath);
+    if (tempFileDir.exists("haloray") || tempFileDir.mkdir("haloray"))
+    {
+        QString logFilePath = tempFileDir.absoluteFilePath("haloray/haloray.log");
+        logFile.setFileName(logFilePath);
+        logFile.open(QIODevice::WriteOnly | QIODevice::Text);
+    }
+}
+
 void logHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    QByteArray localMsg = msg.toLocal8Bit();
-    const char *file = context.file ? context.file : "";
-    const char *function = context.function ? context.function : "";
-    switch (type)
+    QMutexLocker locker(&logFileMutex);
+
+    QString message = qFormatLogMessage(type, context, msg) + "\n";
+
+    fprintf(stderr, "%s", message.toLocal8Bit().constData());
+
+    if (logFile.isOpen())
     {
-    case QtDebugMsg:
-        fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-        break;
-    case QtInfoMsg:
-        fprintf(stderr, "Info: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-        break;
-    case QtWarningMsg:
-        fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-        break;
-    case QtCriticalMsg:
-        fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-        break;
-    case QtFatalMsg:
-        fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-        break;
+        logFile.write(message.toUtf8().constData());
+        logFile.flush();
     }
+}
+
+void initializeLogging()
+{
+    qSetMessagePattern("%{time} %{type}: %{message} (%{file}:%{line}, %{function})");
+    openLogFile();
+    qInstallMessageHandler(logHandler);
 }
 
 bool supportsOpenGL(int requiredMajorVersion, int requiredMinorVersion)
 {
+    qInfo("Checking for OpenGL compatibility");
     auto testContext = new QOpenGLContext();
     auto majorVersion = testContext->format().majorVersion();
     auto minorVersion = testContext->format().minorVersion();
+    qInfo("OpenGL version: %i.%i", majorVersion, minorVersion);
     delete testContext;
-    return majorVersion > requiredMajorVersion ||
+    bool isCompatible = majorVersion > requiredMajorVersion ||
            (majorVersion == requiredMajorVersion && minorVersion >= requiredMinorVersion);
+
+    if (!isCompatible)
+    {
+        qWarning("OpenGL %i.%i not supported", requiredMajorVersion, requiredMinorVersion);
+    }
+
+    return isCompatible;
 }
 
 void setDefaultSurfaceFormat()
@@ -59,11 +93,18 @@ void setDefaultSurfaceFormat()
 int main(int argc, char *argv[])
 {
     Q_INIT_RESOURCE(haloray);
+    initializeLogging();
+
+#ifdef HALORAY_VERSION
+    qInfo("HaloRay version: %s", STRINGIFY(HALORAY_VERSION));
+#else
+    qInfo("HaloRay development build branch \"%s\", commit %s", STRINGIFY(GIT_BRANCH), STRINGIFY(GIT_COMMIT_HASH));
+#endif
+
     QGuiApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     QGuiApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     setDefaultSurfaceFormat();
-    qInstallMessageHandler(logHandler);
     QApplication app(argc, argv);
 
     if (!supportsOpenGL(RequiredOpenGLMajorVersion, RequiredOpenGLMinorVersion))
@@ -75,16 +116,20 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    qInfo("Setting up OpenGL context");
     auto openGLContext = QOpenGLContext();
     openGLContext.setShareContext(QOpenGLContext::globalShareContext());
     openGLContext.create();
+    qInfo("OpenGL context created");
+    qInfo("Setting up offscreen drawing surface");
     auto surface = QOffscreenSurface(nullptr);
     surface.create();
     openGLContext.makeCurrent(&surface);
+    qInfo("Offscreen drawing surface created");
 
+    qInfo("Opening main window");
     HaloRay::MainWindow mainWindow;
     mainWindow.showMaximized();
-
 
     return app.exec();
 }

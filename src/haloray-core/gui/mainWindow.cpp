@@ -31,8 +31,12 @@
 #include "simulation/crystalPopulation.h"
 #include "simulation/simulationEngine.h"
 
+#ifndef STRINGIFY0
 #define STRINGIFY0(v) #v
+#endif
+#ifndef STRINGIFY
 #define STRINGIFY(v) STRINGIFY0(v)
+#endif
 
 namespace HaloRay
 {
