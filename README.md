@@ -1,4 +1,5 @@
 # HaloRay ![](images/hexagon_small.png)
+
 [![Build status](https://ci.appveyor.com/api/projects/status/5k9laekby84x2ex1/branch/develop?svg=true)](https://ci.appveyor.com/project/naavis/haloray/branch/develop)
 
 HaloRay simulates the reflection and refraction of sun light inside hexagonal
@@ -11,7 +12,10 @@ done using OpenGL compute and fragment shaders.
 
 HaloRay currently supports Windows and Linux.
 
-![Simulation of a column crystal halo display](images/plate-column-random-halo-screenshot.png)
+An OpenGL 4.4 compliant GPU is required to run HaloRay. On Windows you also need
+the [latest Microsoft Visual C++ Redistributable for Visual Studio 2019.](https://aka.ms/vs/16/release/vc_redist.x64.exe)
+
+![Simulation of a column crystal halo display](images/ui-screenshot.png)
 
 ## How to use?
 
@@ -35,9 +39,9 @@ Here are some general settings for the whole simulation.
 - **Sun altitude:** Sun altitude from the horizon in degrees
 - **Sun diameter:** Angular diameter of the sun in degrees
 - **Rays per frame:** Number of rays traced through individual crystals per
-    rendered frame
+  rendered frame
   - If the user interface slows down a lot during rendering, lower this value
-  - On an NVIDIA GeForce GTX 1070 a good value seems to be around 500 000
+  - On an NVIDIA GeForce RTX 3070 a good value seems to be around 500 000
   - The maximum value for this parameter may be limited by your GPU
 - **Maximum frames:** Simulation stops after rendering this many frames
 - **Double scattering:** Probability of a single light ray to scatter from two
@@ -56,7 +60,8 @@ in the **Crystal population** dropdown menu. Each population has a relative
 weight, which can be changed by adjusting the **Population weight** spin box.
 For example, giving weights 1 and 3 to two crystal populations respectively
 would trace three times as many rays through the latter population than the
-former.
+former. It is also possible to enable or disable a crystal population
+temporarily with the **Population enabled** checkbox.
 
 The crystals are hexagonal, and have three named axes as shown in the image
 below.
@@ -74,7 +79,7 @@ The following table shows parameters needed to simulate crystal orientations
 known to happen in nature.
 
 | Orientation | Tilt around a-axis | Rotation around c-axis |
-|-------------|--------------------|------------------------|
+| ----------- | ------------------ | ---------------------- |
 | Column      | 90                 | Uniform                |
 | Plate       | 0                  | Uniform                |
 | Parry       | 90                 | 0                      |
@@ -96,6 +101,32 @@ C-axis horizontal. Crystals with a small C/A ratio are called plate
 crystals. They tend to orient themselves with the C-axis vertical. Both
 kinds of crystals are shown in the image above.
 
+The ice crystals also have adjustable pyramidal end caps. Both the upper and
+lower caps have the following settings:
+
+- **Apex angle:** Defines the apex angle of the pyramid cap in degrees
+  - Ranges from 0.0 to 180.0 degrees, where low numbers mean a very pointy cap
+    while high numbers mean the opposite
+  - Typically the apex angle is 56 degrees on water ice crystals
+- **Apex average height:** Defines the height of the pyramid cap
+  - Ranges from 0.0 to 1.0, where 0.0 means the cap is totally flat and 1.0
+    means a cap that converges to a sharp point
+- **Apex height std:** Standard deviation of the pyramid cap height
+
+![Graphic of pyramidal ice crystal](images/pyramid-crystal.png)
+
+Above is a representation of an ice crystal with pyramidal end caps.
+Currently HaloRay is limited to convex ice crystals, so the end caps
+cannot extend inwards to make hollow ice crystals.
+
+HaloRay provides six sliders you can use to adjust the **distance of each prism
+face** of the hexagonal ice crystals from the crystal C-axis.
+
+![Graphic of a non-regular shaped ice crystal](images/non-regular-crystal.png)
+
+The above image shows a crystal where every other prism face has the default
+distance of 1.0 from the C-axis, while every other is reduced to 0.7.
+
 ### View settings
 
 These settings affect how the results of the simulation are shown on the screen.
@@ -108,36 +139,53 @@ These settings affect how the results of the simulation are shown on the screen.
 - **Hide sub-horizon:** Hides any halos below the horizon level
 - **Lock to light source:** Locks the camera to the sun
 
-## How to build?
+### Atmosphere settings
 
-HaloRay requires an OpenGL 4.4 compliant GPU.
-The build is done using [CMake](https://cmake.org/).
+HaloRay renders a realistic sky and sun disk based on a blend of Hosek-Wilkie and
+Preetham models. The sky model has only a few adjustable parameters:
+
+- **Atmosphere enabled:** Toggles rendering of the sky and sun
+- **Turbidity:** The amount of aerosols/haze in the atmosphere
+- **Ground albedo:** Albedo of the ground plane
+  - 0.0 means the ground does not reflect any light
+  - 1.0 means the ground reflects all light
+
+### Menus
+
+The top menus should be pretty self-explanatory. Entries in the _File_ menu
+allow you to reset the simulation, save and load simulation parameters, and save
+the simulation output to an image file on disk.
+
+_View -> Crystal preview_ lets you see a wireframe preview of the an average
+ice crystal in the currently selected crystal population.
+
+## How to build?
 
 The user interface is built with [Qt 5](https://www.qt.io/), so you need to
 [download the Qt libraries](https://www.qt.io/download-qt-installer) before
 compiling HaloRay.
 
-On Linux you can also install Qt using your package manager. On Ubuntu Linux
-you can install Qt by running:
+The build is handled with Qt's build tool qmake. You can also use the Qt Creator
+IDE to open and build the code.
+
+On Linux you can install Qt using your package manager. On Ubuntu Linux you can
+install Qt by running:
 
 ```bash
 sudo apt-get install qt5-default
 ```
 
-On Windows you need to set either `Qt5_DIR` or `CMAKE_PREFIX_PATH` environment
-variable to point to the Qt prefix path, e.g.
-`C:\Qt\5.12.3\msvc2017_64\`
-
-Otherwise CMake won't be able to find the Qt libraries.
-
 Finally build the project by running:
 
 ```bash
 mkdir build
-cd build
-cmake ..
-cmake --build . --config Release
+cd src
+qmake main.pro -o ..\build\
+cd ..\build
+make
 ```
+
+You can use `nmake` instead of `make` on Windows.
 
 On Windows you need to add the Qt5 binary directory to your PATH environment
 variable or copy at least the following Qt DLL files to the same folder as the
@@ -155,11 +203,33 @@ shipped with Qt 5. This is the recommended way.
 You can check `scripts\build.ps1` to see how the project is built on the
 Appveyor CI server.
 
+## FAQ - Frequently asked questions
+
+### UI components are scaled all wrong on a 4K display in Windows, what to do?
+
+On high-DPI screens Windows scales UI elements by default. HaloRay doesn't fully
+adapt to this scaling yet. For now, you can either disable the scaling on an
+operating system level by setting UI scale to 100% in Windows display settings,
+or try running HaloRay with
+[special command-line parameters](https://doc.qt.io/qt-5/qguiapplication.html#platform-specific-arguments)
+like this:
+
+```
+HaloRay.exe -platform windows:dpiawareness=2
+```
+
+### HaloRay crashes or does not start, how to troubleshoot?
+
+HaloRay writes a log file to help in troubleshooting.
+
+On Windows you can find it in `%LOCALAPPDATA%\Temp\haloray\haloray.log` where
+`%LOCALAPPDATA` is usually equal to `C:\Users\<username>\AppData\Local`
+
+On Linux the log file is in `/tmp/haloray/haloray.log`
+
 ## Acknowledgments
 
 - [Lauri Kangas](https://github.com/lkangas) for providing tons of reading material and debugging help
 - [Panu Lahtinen](https://github.com/pnuu) for additional Linux support
 - Jukka Ruoskanen for making HaloPoint 2.0 back in the day and inspiring me to start working on HaloRay
 - [Jaakko Lehtinen](https://users.aalto.fi/~lehtinj7/) for super valuable lessons in computer graphics
-- [Nuklear](https://github.com/vurtun/nuklear/) for enabling me get this project
-   off the ground
