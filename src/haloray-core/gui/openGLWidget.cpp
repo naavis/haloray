@@ -67,6 +67,7 @@ void OpenGLWidget::initializeGL()
 
     int maxComputeGroups;
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxComputeGroups);
+    qInfo("Maximum supported number of compute shader workgroups: %i", maxComputeGroups);
     const int absoluteMaxRaysPerFrame = 5000000;
     int maxRaysPerFrame = std::min(absoluteMaxRaysPerFrame, maxComputeGroups);
     m_viewModel->setRaysPerFrameUpperLimit(maxRaysPerFrame);
