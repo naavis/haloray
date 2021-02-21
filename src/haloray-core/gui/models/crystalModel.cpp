@@ -147,7 +147,7 @@ bool CrystalModel::setData(const QModelIndex &index, const QVariant &value, int 
         crystal.lowerApexHeightStd = value.toFloat();
         break;
     case PopulationWeight:
-        m_crystals->setWeight(row, value.toUInt());
+        m_crystals->setWeight(row, value.toDouble());
         break;
     case PopulationName:
         m_crystals->setName(row, value.toString().toStdString());
@@ -197,7 +197,7 @@ void CrystalModel::addRow(CrystalPopulationPreset preset)
     endInsertRows();
 }
 
-void CrystalModel::addRow(CrystalPopulation population, unsigned int weight, QString name)
+void CrystalModel::addRow(CrystalPopulation population, double weight, QString name)
 {
     auto row = m_crystals->getCount();
     beginInsertRows(QModelIndex(), row, row);

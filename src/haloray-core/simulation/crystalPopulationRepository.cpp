@@ -22,10 +22,10 @@ void CrystalPopulationRepository::add(CrystalPopulationPreset preset)
     m_crystals.push_back(CrystalPopulation::presetPopulation(preset));
     m_names.push_back(QString("%1 population %2").arg(presetNameMap[preset]).arg(m_nextId).toStdString());
     m_nextId = m_nextId + 1;
-    m_weights.push_back(1);
+    m_weights.push_back(1.0);
 }
 
-void CrystalPopulationRepository::add(CrystalPopulation population, unsigned int weight, std::string name)
+void CrystalPopulationRepository::add(CrystalPopulation population, double weight, std::string name)
 {
     m_crystals.push_back(population);
     m_names.push_back(name);
@@ -36,15 +36,15 @@ void CrystalPopulationRepository::addDefaults()
 {
     m_crystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Column));
     m_names.push_back("Column");
-    m_weights.push_back(1);
+    m_weights.push_back(1.0);
 
     m_crystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Plate));
     m_names.push_back("Plate");
-    m_weights.push_back(1);
+    m_weights.push_back(1.0);
 
     m_crystals.push_back(CrystalPopulation::presetPopulation(CrystalPopulationPreset::Random));
     m_names.push_back("Random");
-    m_weights.push_back(1);
+    m_weights.push_back(1.0);
 }
 
 void CrystalPopulationRepository::remove(unsigned int index)
@@ -80,20 +80,20 @@ double CrystalPopulationRepository::getProbability(unsigned int index) const
 {
     if (m_crystals[index].enabled == false) return 0.0;
 
-    auto totalWeights = 0u;
+    auto totalWeights = 0.0;
     for (auto i = 0u; i < getCount(); ++i)
     {
-        totalWeights += m_crystals[i].enabled ? m_weights[i] : 0;
+        totalWeights += m_crystals[i].enabled ? m_weights[i] : 0.0;
     }
-    return static_cast<double>(m_weights[index]) / totalWeights;
+    return m_weights[index] / totalWeights;
 }
 
-unsigned int CrystalPopulationRepository::getWeight(unsigned int index) const
+double CrystalPopulationRepository::getWeight(unsigned int index) const
 {
     return m_weights[index];
 }
 
-void CrystalPopulationRepository::setWeight(unsigned int index, unsigned int weight)
+void CrystalPopulationRepository::setWeight(unsigned int index, double weight)
 {
     m_weights[index] = weight;
 }

@@ -53,7 +53,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
     m_mapper->addMapping(m_lowerApexAngleSpinBox, CrystalModel::LowerApexAngle);
     m_mapper->addMapping(m_lowerApexHeightAverageSlider, CrystalModel::LowerApexHeightAverage);
     m_mapper->addMapping(m_lowerApexHeightStdSlider, CrystalModel::LowerApexHeightStd);
-    m_mapper->addMapping(m_weightSpinBox, CrystalModel::PopulationWeight);
+    m_mapper->addMapping(m_weightSlider, CrystalModel::PopulationWeight);
     m_mapper->addMapping(m_populationEnabledCheckBox, CrystalModel::Enabled);
     m_mapper->addMapping(m_populationComboBox, CrystalModel::PopulationName, "currentText");
     for (auto i = 0; i < 6; ++i)
@@ -69,7 +69,7 @@ CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *paren
     to the submit slot of the mapper.
     */
     connect(m_populationEnabledCheckBox, &QCheckBox::toggled, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
-    connect(m_weightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
+    connect(m_weightSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_caRatioSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_caRatioStdSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_tiltDistributionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
@@ -199,9 +199,7 @@ void CrystalSettingsWidget::setupUi()
 
     m_lowerApexHeightStdSlider = new SliderSpinBox(0.0, 5.0);
 
-    m_weightSpinBox = new QSpinBox();
-    m_weightSpinBox->setMinimum(0);
-    m_weightSpinBox->setMaximum(10000);
+    m_weightSlider = new SliderSpinBox(0.0, 20.0);
 
     for (auto i = 0; i < 6; ++i)
     {
@@ -221,7 +219,7 @@ void CrystalSettingsWidget::setupUi()
     auto populationSettingsLayout = new QFormLayout(populationSettingsWidget);
     populationSettingsLayout->addRow(populationManagementLayout);
     populationSettingsLayout->addRow(tr("Population enabled"), m_populationEnabledCheckBox);
-    populationSettingsLayout->addRow(tr("Population weight"), m_weightSpinBox);
+    populationSettingsLayout->addRow(tr("Population weight"), m_weightSlider);
     mainLayout->addWidget(populationSettingsWidget);
 
     mainLayout->addWidget(tabWidget);

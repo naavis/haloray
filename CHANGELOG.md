@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Improved logging and error messages in case shader compilation fails
+- Population weight was changed from an integer to a decimal number for more granular control
 
 ## 3.0.0 - 2021-02-21
 

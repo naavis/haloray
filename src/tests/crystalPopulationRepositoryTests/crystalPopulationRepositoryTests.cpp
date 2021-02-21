@@ -39,9 +39,9 @@ private slots:
     void evenWeightsByDefault()
     {
         auto repository = HaloRay::CrystalPopulationRepository();
-        QCOMPARE(repository.getWeight(0), 1);
-        QCOMPARE(repository.getWeight(1), 1);
-        QCOMPARE(repository.getWeight(2), 1);
+        QCOMPARE(repository.getWeight(0), 1.0);
+        QCOMPARE(repository.getWeight(1), 1.0);
+        QCOMPARE(repository.getWeight(2), 1.0);
     }
 
     void disabledPopulationsDoNotCountTowardsProbability()

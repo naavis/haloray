@@ -64,7 +64,7 @@ private:
 
     SliderSpinBox *m_prismFaceDistanceSliders[6];
 
-    QSpinBox *m_weightSpinBox;
+    SliderSpinBox *m_weightSlider;
 
     CrystalModel *m_model;
     QDataWidgetMapper *m_mapper;
