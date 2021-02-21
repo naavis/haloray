@@ -142,14 +142,14 @@ vec3 triangleNormalCache[triangles.length()];
 
 uint wang_hash(uint a)
 {
-	a -= (a << 6);
-	a ^= (a >> 17);
-	a -= (a << 9);
-	a ^= (a << 4);
-	a -= (a << 3);
-	a ^= (a << 10);
-	a ^= (a >> 15);
-	return a;
+    a -= (a << 6);
+    a ^= (a >> 17);
+    a -= (a << 9);
+    a ^= (a << 4);
+    a -= (a << 3);
+    a ^= (a << 10);
+    a ^= (a >> 15);
+    return a;
 }
 
 uint rngState = wang_hash(rngSeed + uint(gl_GlobalInvocationID.x));

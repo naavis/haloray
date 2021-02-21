@@ -1,4 +1,4 @@
-version: "3.0.0-{build}"
+version: "3.1.0-{build}"
 branches:
   only:
     - master
@@ -24,6 +24,6 @@ deploy:
     description: ""
     skip_tags: true
     auth_token:
-      secure: pb9keaNklmNgmLaw1doReZDdP5Oh/pLZPdwjt+anpcoi34MyqAbFoJbiHJMcWkgD
+      secure: qxadIRLRDKo8Tji0y+kZ03BIbNPJzdmp2HkzE6+G5lp1xtRCoeSpp6c4m4KU99D4
     on:
       branch: master

@@ -96,7 +96,6 @@ void StateSaver::LoadState(QString filename, SimulationStateModel *simState, Cry
     {
         settings.setArrayIndex(i);
         auto pop = CrystalPopulation::createRandom();
-        unsigned int weight = settings.value("Weight", 1).toUInt();
         pop.enabled = settings.value("Enabled", pop.enabled).toBool();
 
         pop.caRatioAverage = settings.value("CaRatioAverage", pop.caRatioAverage).toFloat();
@@ -119,6 +118,7 @@ void StateSaver::LoadState(QString filename, SimulationStateModel *simState, Cry
         pop.lowerApexHeightStd = settings.value("LowerApexHeightStd", pop.lowerApexHeightStd).toFloat();
 
         auto name = settings.value("Name", "Default name").toString();
+        double weight = settings.value("Weight", 1.0).toDouble();
 
         crystalModel->addRow(pop, weight, name);
     }

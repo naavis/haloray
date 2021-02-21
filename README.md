@@ -57,8 +57,8 @@ Here are some general settings for the whole simulation.
 HaloRay allows you to simulate multiple different ice crystal populations
 simultaneously. You give each population a name for easier reference by typing
 in the **Crystal population** dropdown menu. Each population has a relative
-weight, which can be changed by adjusting the **Population weight** spin box.
-For example, giving weights 1 and 3 to two crystal populations respectively
+weight, which can be changed by adjusting the **Population weight** slider.
+For example, giving weights 1.0 and 3.0 to two crystal populations respectively
 would trace three times as many rays through the latter population than the
 former. It is also possible to enable or disable a crystal population
 temporarily with the **Population enabled** checkbox.

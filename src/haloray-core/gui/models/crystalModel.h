@@ -54,7 +54,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     void addRow(CrystalPopulationPreset preset = CrystalPopulationPreset::Random);
-    void addRow(CrystalPopulation population, unsigned int weight, QString name);
+    void addRow(CrystalPopulation population, double weight, QString name);
     bool removeRow(int row);
     void clear();
     void setName(int row, QString name);

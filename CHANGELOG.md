@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.1.0 - 2021-02-21
+
+### Changed
+
+- Improved logging and error messages in case shader compilation fails
+- Population weight was changed from an integer to a decimal number for more granular control
+
 ## 3.0.0 - 2021-02-21
 
 ### Added
