@@ -13,6 +13,8 @@ circles and arcs. These are all called ice crystal halos.
 HaloRay massively accelerates simulations by running all the work on the
 Graphics Processing Unit (GPU) using OpenGL compute and fragment shaders.
 This means that **simulations run thousands of times faster than before!**
+On a modern GPU HaloRay can trace over 30 million light rays through ice
+crystals every second.
 
 Because of this speed advantage, HaloRay has been designed from the start to be
 very interactive. Nearly every parameter can be tweaked in real time when the
