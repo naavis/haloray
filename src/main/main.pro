@@ -5,6 +5,7 @@ QT += core gui widgets
 CONFIG += c++17
 win32:CONFIG += windows
 
+DEFINES += QT_MESSAGELOGCONTEXT
 DEFINES += QT_DEPRECATED_WARNINGS
 
 GIT_COMMIT_HASH=$$system(git log -1 --format=%h)

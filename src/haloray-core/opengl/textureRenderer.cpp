@@ -9,6 +9,7 @@ namespace OpenGL
 
 std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::initializeTexDrawShaderProgram()
 {
+    qInfo("Initializing texture renderer vertex shader");
     auto program = std::make_unique<QOpenGLShaderProgram>();
     bool vertexShaderCompilationSucceeded = program->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Vertex, ":/shaders/renderer.vert");
 
@@ -17,20 +18,23 @@ std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::initializeTexDrawShaderPr
         qWarning("Texture renderer vertex shader compilation failed");
         throw std::runtime_error(program->log().toUtf8());
     }
+    qInfo("Texture renderer vertex shader successfully initialized");
 
+    qInfo("Initializing texture renderer fragment shader");
     bool fragmentShaderCompilationSucceeded = program->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Fragment, ":/shaders/renderer.frag");
-
     if (fragmentShaderCompilationSucceeded == false)
     {
         qWarning("Texture renderer fragment shader compilation failed");
         throw std::runtime_error(program->log().toUtf8());
     }
+    qInfo("Texture renderer fragment shader successfully initialized");
 
     if (program->link() == false)
     {
         qWarning("Texture renderer shader linking failed");
         throw std::runtime_error(program->log().toUtf8());
     }
+    qInfo("Texture renderer shader program linking successful");
 
     return program;
 }

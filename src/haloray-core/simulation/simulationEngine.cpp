@@ -261,6 +261,7 @@ void SimulationEngine::initialize()
 
 void SimulationEngine::initializeShaders()
 {
+    qInfo("Initializing raytracing shader");
     m_simulationShader = std::make_unique<QOpenGLShaderProgram>();
     bool raytraceShaderCompilationSucceeded = m_simulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
     if (raytraceShaderCompilationSucceeded == false)
@@ -268,13 +269,16 @@ void SimulationEngine::initializeShaders()
         qWarning("Compiling raytracing shader failed");
         throw std::runtime_error(m_simulationShader->log().toUtf8());
     }
+    qInfo("Raytracing shader successfully initialized");
 
     if (m_simulationShader->link() == false)
     {
         qWarning("Linking raytracing shader failed");
         throw std::runtime_error(m_simulationShader->log().toUtf8());
     }
+    qInfo("Raytracing shader program linking successful");
 
+    qInfo("Initializing sky shader");
     m_skyShader = new QOpenGLShaderProgram(this);
     bool skyShaderCompilationSucceeded = m_skyShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/sky.glsl");
     if (skyShaderCompilationSucceeded == false)
@@ -282,11 +286,14 @@ void SimulationEngine::initializeShaders()
         qWarning("Compiling sky shader failed");
         throw std::runtime_error(m_skyShader->log().toUtf8());
     }
+    qInfo("Sky shader successfully initialized");
+
     if (m_skyShader->link() == false)
     {
         qWarning("Linking sky shader failed");
         throw std::runtime_error(m_skyShader->log().toUtf8());
     }
+    qInfo("Sky shader program linking successful");
 }
 
 void SimulationEngine::initializeTextures()
