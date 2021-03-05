@@ -263,37 +263,37 @@ void SimulationEngine::initializeShaders()
 {
     qInfo("Initializing raytracing shader");
     m_simulationShader = std::make_unique<QOpenGLShaderProgram>();
-    bool raytraceShaderCompilationSucceeded = m_simulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
-    if (raytraceShaderCompilationSucceeded == false)
+    bool raytraceShaderReadSucceeded = m_simulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
+    if (raytraceShaderReadSucceeded == false)
     {
-        qWarning("Compiling raytracing shader failed");
+        qWarning("Reading raytracing shader failed");
         throw std::runtime_error(m_simulationShader->log().toUtf8());
     }
     qInfo("Raytracing shader successfully initialized");
 
     if (m_simulationShader->link() == false)
     {
-        qWarning("Linking raytracing shader failed");
+        qWarning("Compiling and linking raytracing shader failed");
         throw std::runtime_error(m_simulationShader->log().toUtf8());
     }
-    qInfo("Raytracing shader program linking successful");
+    qInfo("Raytracing shader program compilation and linking successful");
 
     qInfo("Initializing sky shader");
     m_skyShader = new QOpenGLShaderProgram(this);
-    bool skyShaderCompilationSucceeded = m_skyShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/sky.glsl");
-    if (skyShaderCompilationSucceeded == false)
+    bool skyShaderReadSucceeded = m_skyShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/sky.glsl");
+    if (skyShaderReadSucceeded == false)
     {
-        qWarning("Compiling sky shader failed");
+        qWarning("Reading sky shader failed");
         throw std::runtime_error(m_skyShader->log().toUtf8());
     }
     qInfo("Sky shader successfully initialized");
 
     if (m_skyShader->link() == false)
     {
-        qWarning("Linking sky shader failed");
+        qWarning("Compiling and linking sky shader failed");
         throw std::runtime_error(m_skyShader->log().toUtf8());
     }
-    qInfo("Sky shader program linking successful");
+    qInfo("Sky shader program compilation and linking successful");
 }
 
 void SimulationEngine::initializeTextures()
