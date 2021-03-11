@@ -227,6 +227,12 @@ On Windows you can find it in `%LOCALAPPDATA%\Temp\haloray\haloray.log` where
 
 On Linux the log file is in `/tmp/haloray/haloray.log`
 
+If the logs do not show any useful information and no error messages pop up,
+it is possible the crash happens because of a GPU driver bug. This has
+occasionally happened with some Intel GPUs, and there is not much HaloRay
+can do about it. It is recommended to update to the latest GPU drivers if
+problems like this are encountered.
+
 ## Acknowledgments
 
 - [Lauri Kangas](https://github.com/lkangas) for providing tons of reading material and debugging help
