@@ -132,12 +132,21 @@ int main(int argc, char *argv[])
         HaloRay::MainWindow mainWindow;
         mainWindow.showMaximized();
 
-        return app.exec();
+        qInfo("Starting event loop");
+        int returnCode = app.exec();
+        qInfo("Event loop exited with return code %i", returnCode);
+        return returnCode;
     }
     catch (const std::exception &e)
     {
         QMessageBox::critical(nullptr, QObject::tr("Exception thrown"), QString("An error occurred:\n%1").arg(e.what()));
         qFatal("Caught exception: %s", e.what());
         return 1;
+    }
+    catch (...)
+    {
+        QMessageBox::critical(nullptr, QObject::tr("Exception thrown"), QObject::tr("An unknown error occurred"));
+        qFatal("Caught non-standard exception");
+        return 2;
     }
 }

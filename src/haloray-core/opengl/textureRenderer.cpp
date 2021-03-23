@@ -9,28 +9,32 @@ namespace OpenGL
 
 std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::initializeTexDrawShaderProgram()
 {
+    qInfo("Initializing texture renderer vertex shader");
     auto program = std::make_unique<QOpenGLShaderProgram>();
-    bool vertexShaderCompilationSucceeded = program->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Vertex, ":/shaders/renderer.vert");
+    bool vertexShaderReadSucceeded = program->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Vertex, ":/shaders/renderer.vert");
 
-    if (vertexShaderCompilationSucceeded == false)
+    if (vertexShaderReadSucceeded == false)
     {
-        qWarning("Texture renderer vertex shader compilation failed");
+        qWarning("Texture renderer vertex shader read failed");
         throw std::runtime_error(program->log().toUtf8());
     }
+    qInfo("Texture renderer vertex shader successfully initialized");
 
-    bool fragmentShaderCompilationSucceeded = program->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Fragment, ":/shaders/renderer.frag");
-
-    if (fragmentShaderCompilationSucceeded == false)
+    qInfo("Initializing texture renderer fragment shader");
+    bool fragmentShaderReadSucceeded = program->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Fragment, ":/shaders/renderer.frag");
+    if (fragmentShaderReadSucceeded == false)
     {
-        qWarning("Texture renderer fragment shader compilation failed");
+        qWarning("Texture renderer fragment shader read failed");
         throw std::runtime_error(program->log().toUtf8());
     }
+    qInfo("Texture renderer fragment shader successfully initialized");
 
     if (program->link() == false)
     {
-        qWarning("Texture renderer shader linking failed");
+        qWarning("Texture renderer shader compilation and linking failed");
         throw std::runtime_error(program->log().toUtf8());
     }
+    qInfo("Texture renderer shader program compilation and linking successful");
 
     return program;
 }

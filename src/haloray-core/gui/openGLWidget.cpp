@@ -58,6 +58,7 @@ void OpenGLWidget::resizeGL(int w, int h)
 
 void OpenGLWidget::initializeGL()
 {
+    qInfo("Initializing OpenGL widget");
     initializeOpenGLFunctions();
 
     m_textureRenderer = std::make_unique<OpenGL::TextureRenderer>();

@@ -123,6 +123,9 @@ void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
 
     float deltaAngle = degToRad(60.0f);
     QVector2D hexagonCorners[6];
+    /* The sqrt(3)/2 multiplier makes the default crystal such
+       that the distance of a vertex from the C axis is 1.0 */
+    float sizeScaler = sqrt(3.0f) / 2.0f;
     for (int face = 0; face < 6; ++face)
     {
         int previousFace = face == 0 ? 5 : face - 1;
@@ -132,11 +135,9 @@ void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
         float currentAngle = previousAngle + deltaAngle;
         float nextAngle = previousAngle + 2.0 * deltaAngle;
 
-        /* The sqrt(3)/2 multiplier makes the default crystal such
-           that the distance of a vertex from the C axis is 1.0 */
-        float previousDistance = 0.86602540378443864676372317075294 * prismFaceDistances[previousFace];
-        float currentDistance = 0.86602540378443864676372317075294 * prismFaceDistances[face];
-        float nextDistance = 0.86602540378443864676372317075294 * prismFaceDistances[nextFace];
+        float previousDistance = sizeScaler * prismFaceDistances[previousFace];
+        float currentDistance = sizeScaler * prismFaceDistances[face];
+        float nextDistance = sizeScaler * prismFaceDistances[nextFace];
 
         QVector2D previousLine = QVector2D(previousDistance, previousAngle);
         QVector2D currentLine = QVector2D(currentDistance, currentAngle);
@@ -185,8 +186,8 @@ void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
     }
 
     // Scale pyramid caps
-    float upperApexMaxHeight = 1.0 / tan(upperApexAngle / 2.0);
-    float lowerApexMaxHeight = 1.0 / tan(lowerApexAngle / 2.0);
+    float upperApexMaxHeight = sizeScaler / tan(upperApexAngle / 2.0);
+    float lowerApexMaxHeight = sizeScaler / tan(lowerApexAngle / 2.0);
 
     float upperApexHeight = upperApexHeightAverage;
     float lowerApexHeight = lowerApexHeightAverage;
