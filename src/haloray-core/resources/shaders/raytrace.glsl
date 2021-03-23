@@ -497,6 +497,11 @@ void initializeCrystal()
 {
     float deltaAngle = radians(60.0);
     vec2 hexagonCorners[6];
+    /* The sqrt(3)/2 multiplier makes the default crystal such
+       that the distance of a vertex from the C axis is 1.0.
+       sqrt(3)/2 equals cos(30deg), which is faster to calculate
+       on GPU */
+    float sizeScaler = cos(radians(30.0));
     for (int face = 0; face < 6; ++face)
     {
         int previousFace = face == 0 ? 5 : face - 1;
@@ -506,11 +511,9 @@ void initializeCrystal()
         float currentAngle = previousAngle + deltaAngle;
         float nextAngle = previousAngle + 2.0 * deltaAngle;
 
-        /* The sqrt(3)/2 multiplier makes the default crystal such
-           that the distance of a vertex from the C axis is 1.0 */
-        float previousDistance = 0.86602540378443864676372317075294 * crystalProperties.prismFaceDistances[previousFace];
-        float currentDistance = 0.86602540378443864676372317075294 * crystalProperties.prismFaceDistances[face];
-        float nextDistance = 0.86602540378443864676372317075294 * crystalProperties.prismFaceDistances[nextFace];
+        float previousDistance = sizeScaler * crystalProperties.prismFaceDistances[previousFace];
+        float currentDistance = sizeScaler * crystalProperties.prismFaceDistances[face];
+        float nextDistance = sizeScaler * crystalProperties.prismFaceDistances[nextFace];
 
         vec2 previousLine = vec2(previousDistance, previousAngle);
         vec2 currentLine = vec2(currentDistance, currentAngle);
@@ -564,8 +567,8 @@ void initializeCrystal()
     }
 
     // Scale pyramid caps
-    float upperApexMaxHeight = 1.0 / tan(crystalProperties.upperApexAngle / 2.0);
-    float lowerApexMaxHeight = 1.0 / tan(crystalProperties.lowerApexAngle / 2.0);
+    float upperApexMaxHeight = sizeScaler / tan(crystalProperties.upperApexAngle / 2.0);
+    float lowerApexMaxHeight = sizeScaler / tan(crystalProperties.lowerApexAngle / 2.0);
 
     vec2 random = randn();
     float upperApexHeight = clamp(crystalProperties.upperApexHeightAverage + crystalProperties.upperApexHeightStd * random.x, 0.0, 1.0);

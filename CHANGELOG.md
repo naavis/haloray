@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Improved logging and error handling
 
+### Fixed
+
+- Fixed bug where pyramid apex angle was set incorrectly based on crystal edge angle rather than face angle
+
 ## 3.1.0 - 2021-02-21
 
 ### Changed
