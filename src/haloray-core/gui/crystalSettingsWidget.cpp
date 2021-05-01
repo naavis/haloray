@@ -185,6 +185,7 @@ void CrystalSettingsWidget::setupUi()
     m_upperApexAngleSpinBox->setMinimum(0.0);
     m_upperApexAngleSpinBox->setMaximum(180.0);
     m_upperApexAngleSpinBox->setSuffix("°");
+    m_upperApexAngleSpinBox->setKeyboardTracking(false);
 
     m_upperApexHeightAverageSlider = new SliderSpinBox(0.0, 1.0);
 
@@ -194,6 +195,7 @@ void CrystalSettingsWidget::setupUi()
     m_lowerApexAngleSpinBox->setMinimum(0.0);
     m_lowerApexAngleSpinBox->setMaximum(180.0);
     m_lowerApexAngleSpinBox->setSuffix("°");
+    m_lowerApexAngleSpinBox->setKeyboardTracking(false);
 
     m_lowerApexHeightAverageSlider = new SliderSpinBox(0.0, 1.0);
 
