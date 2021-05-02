@@ -119,7 +119,7 @@ void main(void)
     float minRingDistance = min(distance22r, distance46r);
 
     float minDistance = min(min(minZenithNadirDistance, horizonDistance), minRingDistance);
-    float value = smoothstep(LINEWIDTH * 0.3, LINEWIDTH * 0.5, minDistance);
+    float value = 1.0 - smoothstep(LINEWIDTH * 0.3, LINEWIDTH * 0.5, minDistance);
 
     imageStore(outputImage, pixelCoordinates, vec4(value, 0.0, 0.0, 0.0));
 }

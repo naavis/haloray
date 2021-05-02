@@ -36,6 +36,10 @@ SimulationStateModel::SimulationStateModel(SimulationEngine *engine, QObject *pa
     connect(m_simulationEngine, &SimulationEngine::atmosphereChanged, [this]() {
         emit dataChanged(createIndex(0, AtmosphereEnabled), createIndex(0, GroundAlbedo));
     });
+
+    connect(m_simulationEngine, &SimulationEngine::guidesToggled, [this]() {
+        emit dataChanged(createIndex(0, GuidesEnabled), createIndex(0, GuidesEnabled));
+    });
 }
 
 QVariant SimulationStateModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -74,6 +78,8 @@ QVariant SimulationStateModel::headerData(int section, Qt::Orientation orientati
             return "Atmosphere turbidity";
         case GroundAlbedo:
             return "Ground albedo";
+        case GuidesEnabled:
+            return "Guides enabled";
         }
     }
 
@@ -134,6 +140,8 @@ QVariant SimulationStateModel::data(const QModelIndex &index, int role) const
         return m_simulationEngine->getAtmosphere().turbidity;
     case GroundAlbedo:
         return m_simulationEngine->getAtmosphere().groundAlbedo;
+    case GuidesEnabled:
+        return m_simulationEngine->getGuidesEnabled();
     default:
         break;
     }
@@ -190,6 +198,9 @@ bool SimulationStateModel::setData(const QModelIndex &index, const QVariant &val
         break;
     case GroundAlbedo:
         setGroundAlbedo(value.toDouble());
+        break;
+    case GuidesEnabled:
+        m_simulationEngine->setGuidesEnabled(value.toBool());
         break;
     default:
         return false;

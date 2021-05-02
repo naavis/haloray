@@ -33,6 +33,7 @@ public:
         AtmosphereEnabled,
         Turbidity,
         GroundAlbedo,
+        GuidesEnabled,
         NUM_COLUMNS
     };
 
