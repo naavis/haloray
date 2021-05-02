@@ -262,7 +262,7 @@ void SimulationEngine::initialize()
 void SimulationEngine::initializeShaders()
 {
     qInfo("Initializing raytracing shader");
-    m_simulationShader = std::make_unique<QOpenGLShaderProgram>();
+    m_simulationShader = new QOpenGLShaderProgram(this);
     bool raytraceShaderReadSucceeded = m_simulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
     if (raytraceShaderReadSucceeded == false)
     {
