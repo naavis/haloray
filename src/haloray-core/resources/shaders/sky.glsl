@@ -286,6 +286,8 @@ void main(void)
         projectedAngle = asin(polar.x / camera.focalLength);
     }
 
+    if (projectedAngle > PI) return;
+
     float x = sin(projectedAngle) * cos(polar.y);
     float y = sin(projectedAngle) * sin(polar.y);
     float z = -cos(projectedAngle);

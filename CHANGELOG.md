@@ -17,6 +17,8 @@ and this project adheres to
 ### Fixed
 
 - Fixed bug where typing decimals into spinboxes wasn't working
+- Fixed bug where sky was shown a second time outside field of view with
+  equidistant and equal area camera projections
 
 ## 3.2.0 - 2021-03-24
 
