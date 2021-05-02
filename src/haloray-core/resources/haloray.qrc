@@ -5,6 +5,7 @@
         <file>shaders/sky.glsl</file>
         <file>shaders/renderer.vert</file>
         <file>shaders/renderer.frag</file>
+        <file>shaders/guide.glsl</file>
     </qresource>
     <qresource prefix="/icons">
         <file alias="actions/24/list-add.svg">icons/custom-icons/actions/24/list-add.svg</file>

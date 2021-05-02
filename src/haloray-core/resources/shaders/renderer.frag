@@ -5,6 +5,7 @@ uniform float baseExposure;
 uniform float adjustedExposure;
 layout (binding = 0) uniform sampler2D haloTexture;
 layout (binding = 1) uniform sampler2D backgroundTexture;
+layout (binding = 2) uniform sampler2D guideTexture;
 
 #define FXAA_REDUCE_MIN   (1.0/ 128.0)
 #define FXAA_REDUCE_MUL   (1.0 / 8.0)
@@ -72,5 +73,8 @@ void main(void) {
 
     vec3 linearImage = 0.005 * backgroundLinearSrgb + 0.1 * haloLinearSrgb;
     vec3 gammaCorrected = 1.055 * pow(linearImage, vec3(0.417)) - 0.055;
-    color = vec4(clamp(gammaCorrected, 0.0, 1.0), 1.0);
+    vec3 guide = vec3(1.0 - texelFetch(guideTexture, ivec2(gl_FragCoord.xy), 0).r);
+
+    vec3 finalColor = clamp(gammaCorrected + 0.5 * guide, 0.0, 1.0);
+    color = vec4(finalColor, 1.0);
 }
