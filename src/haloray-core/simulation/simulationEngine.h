@@ -68,7 +68,7 @@ private:
     unsigned int m_outputHeight;
     std::mt19937 m_mersenneTwister;
     std::uniform_int_distribution<unsigned int> m_uniformDistribution;
-    std::unique_ptr<QOpenGLShaderProgram> m_simulationShader;
+    QOpenGLShaderProgram *m_simulationShader;
     QOpenGLShaderProgram *m_skyShader;
     std::unique_ptr<OpenGL::Texture> m_simulationTexture;
     std::unique_ptr<OpenGL::Texture> m_backgroundTexture;
