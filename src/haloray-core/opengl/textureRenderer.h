@@ -13,7 +13,7 @@ public:
     void initialize();
     void setUniformFloat(std::string name, float value);
     void render(unsigned int textureHandle);
-    void render(unsigned int haloTextureHandle, int backgroundTextureHandle);
+    void render(unsigned int haloTextureHandle, unsigned int backgroundTextureHandle, unsigned int guideTextureHandle);
     ~TextureRenderer();
 
 private:

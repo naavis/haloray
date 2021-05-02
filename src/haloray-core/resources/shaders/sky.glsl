@@ -1,7 +1,7 @@
 #version 440 core
 
 layout(local_size_x = 1, local_size_y = 1) in;
-layout(binding = 2, rgba32f) uniform coherent image2D outputImage;
+layout(binding = 1, rgba32f) uniform image2D outputImage;
 
 uniform struct sunProperties_t
 {

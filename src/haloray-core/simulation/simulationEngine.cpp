@@ -104,6 +104,11 @@ unsigned int SimulationEngine::getBackgroundTextureHandle() const
     return m_backgroundTexture->getHandle();
 }
 
+unsigned int SimulationEngine::getGuideTextureHandle() const
+{
+    return m_guideTexture->getHandle();
+}
+
 unsigned int SimulationEngine::getIteration() const
 {
     return m_iteration;
@@ -126,6 +131,24 @@ void SimulationEngine::stop()
 void SimulationEngine::step()
 {
     ++m_iteration;
+
+    if (m_iteration == 1)
+    {
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        glBindImageTexture(m_guideTexture->getTextureUnit(), m_guideTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+        m_guideShader->bind();
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+        m_guideShader->setUniformValue("sun.altitude", degToRad(m_light.altitude));
+        m_guideShader->setUniformValue("sun.diameter", degToRad(m_light.diameter));
+        m_guideShader->setUniformValue("camera.pitch", degToRad(m_camera.pitch));
+        m_guideShader->setUniformValue("camera.yaw", degToRad(m_camera.yaw));
+        m_guideShader->setUniformValue("camera.focalLength", m_camera.getFocalLength());
+        m_guideShader->setUniformValue("camera.projection", m_camera.projection);
+        m_guideShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
+
+        glDispatchCompute(m_outputWidth, m_outputHeight, 1);
+    }
 
     if (m_atmosphere.enabled && m_iteration == 1)
     {
@@ -231,6 +254,10 @@ void SimulationEngine::clear()
 
     glClearTexImage(m_backgroundTexture->getHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(m_backgroundTexture->getTextureUnit(), m_backgroundTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
+    glClearTexImage(m_guideTexture->getHandle(), 0, GL_R, GL_FLOAT, NULL);
+    glBindImageTexture(m_guideTexture->getTextureUnit(), m_guideTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+
     m_iteration = 0;
 }
 
@@ -294,12 +321,30 @@ void SimulationEngine::initializeShaders()
         throw std::runtime_error(m_skyShader->log().toUtf8());
     }
     qInfo("Sky shader program compilation and linking successful");
+
+    qInfo("Initializing guide marking shader");
+    m_guideShader = new QOpenGLShaderProgram(this);
+    bool guideShaderReadSucceeded = m_guideShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/guide.glsl");
+    if (guideShaderReadSucceeded == false)
+    {
+        qWarning("Reading guide marking shader failed");
+        throw std::runtime_error(m_guideShader->log().toUtf8());
+    }
+    qInfo("Guide marking shader successfully initialized");
+
+    if (m_guideShader->link() == false)
+    {
+        qWarning("Compiling and linking guide marking shader failed");
+        throw std::runtime_error(m_guideShader->log().toUtf8());
+    }
+    qInfo("Guide marking shader program compilation and linking successful");
 }
 
 void SimulationEngine::initializeTextures()
 {
     m_simulationTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 0, OpenGL::TextureType::Color);
-    m_backgroundTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 2, OpenGL::TextureType::Color);
+    m_backgroundTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 1, OpenGL::TextureType::Color);
+    m_guideTexture = std::make_unique<OpenGL::Texture>(m_outputWidth, m_outputHeight, 2, OpenGL::TextureType::Monochrome);
 }
 
 void SimulationEngine::resizeOutputTextureCallback(const unsigned int width, const unsigned int height)
@@ -309,6 +354,7 @@ void SimulationEngine::resizeOutputTextureCallback(const unsigned int width, con
 
     m_simulationTexture.reset();
     m_backgroundTexture.reset();
+    m_guideTexture.reset();
 
     initializeTextures();
     clear();

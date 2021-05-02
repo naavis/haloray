@@ -71,7 +71,7 @@ void TextureRenderer::initialize()
     m_texDrawProgram = initializeTexDrawShaderProgram();
 }
 
-void TextureRenderer::render(unsigned int haloTextureHandle, int backgroundTextureHandle)
+void TextureRenderer::render(unsigned int haloTextureHandle, unsigned int backgroundTextureHandle, unsigned int guideTextureHandle)
 {
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
@@ -81,11 +81,18 @@ void TextureRenderer::render(unsigned int haloTextureHandle, int backgroundTextu
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glBindVertexArray(m_quadVao);
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, haloTextureHandle);
+
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, backgroundTextureHandle);
+
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, guideTextureHandle);
+
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
     glActiveTexture(GL_TEXTURE0);
 }
 

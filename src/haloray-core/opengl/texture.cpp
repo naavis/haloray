@@ -24,7 +24,7 @@ void Texture::initializeTextureImage()
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
         break;
     case Monochrome:
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, m_width, m_height, 0, GL_RED, GL_UNSIGNED_INT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, m_width, m_height, 0, GL_RED, GL_FLOAT, NULL);
         break;
     default:
         throw std::runtime_error("Invalid texture type");

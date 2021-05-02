@@ -48,6 +48,7 @@ public:
 
     unsigned int getOutputTextureHandle() const;
     unsigned int getBackgroundTextureHandle() const;
+    unsigned int getGuideTextureHandle() const;
 
     void resizeOutputTextureCallback(const unsigned int width, const unsigned int height);
 
@@ -70,8 +71,10 @@ private:
     std::uniform_int_distribution<unsigned int> m_uniformDistribution;
     QOpenGLShaderProgram *m_simulationShader;
     QOpenGLShaderProgram *m_skyShader;
+    QOpenGLShaderProgram *m_guideShader;
     std::unique_ptr<OpenGL::Texture> m_simulationTexture;
     std::unique_ptr<OpenGL::Texture> m_backgroundTexture;
+    std::unique_ptr<OpenGL::Texture> m_guideTexture;
 
     Camera m_camera;
     LightSource m_light;
