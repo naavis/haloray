@@ -138,6 +138,7 @@ These settings affect how the results of the simulation are shown on the screen.
 - **Brightness:** Alters the total brightness of the image, much like an exposure adjustment on cameras
 - **Hide sub-horizon:** Hides any halos below the horizon level
 - **Lock to light source:** Locks the camera to the sun
+- **Show guides:** Draws markings for horizon, zenith, nadir, 22r and 46r circles
 
 ### Atmosphere settings
 
