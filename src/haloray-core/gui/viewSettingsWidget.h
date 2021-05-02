@@ -32,7 +32,8 @@ private:
     QComboBox *m_cameraProjectionComboBox;
     QCheckBox *m_hideSubHorizonCheckBox;
     SliderSpinBox *m_brightnessSlider;
-    QCheckBox *m_lockToLightSource;
+    QCheckBox *m_lockToLightSourceCheckBox;
+    QCheckBox *m_showGuidesCheckBox;
 
     SimulationStateModel *m_viewModel;
     QDataWidgetMapper *m_mapper;

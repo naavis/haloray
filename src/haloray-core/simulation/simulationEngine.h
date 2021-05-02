@@ -41,6 +41,9 @@ public:
     Atmosphere getAtmosphere() const;
     void setAtmosphere(Atmosphere);
 
+    bool getGuidesEnabled() const;
+    void setGuidesEnabled(bool);
+
     void lockCameraToLightSource(bool locked);
 
     void setMultipleScatteringProbability(double);
@@ -59,6 +62,7 @@ signals:
     void atmosphereChanged(Atmosphere);
     void lockCameraToLightSourceChanged(bool);
     void multipleScatteringProbabilityChanged(double);
+    void guidesToggled(bool);
 
 private:
     void initializeShaders();
@@ -88,6 +92,7 @@ private:
     std::shared_ptr<CrystalPopulationRepository> m_crystalRepository;
     float m_sunSpectrumCache[31];
     Atmosphere m_atmosphere;
+    bool m_guidesEnabled;
 };
 
 }

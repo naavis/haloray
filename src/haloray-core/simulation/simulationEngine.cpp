@@ -33,7 +33,8 @@ SimulationEngine::SimulationEngine(
       m_cameraLockedToLightSource(false),
       m_multipleScatteringProbability(0.0),
       m_crystalRepository(crystalRepository),
-      m_atmosphere(Atmosphere::createDefaultAtmosphere())
+      m_atmosphere(Atmosphere::createDefaultAtmosphere()),
+      m_guidesEnabled(false)
 {
     initialize();
 }
@@ -94,6 +95,20 @@ void SimulationEngine::setAtmosphere(Atmosphere atmosphere)
     emit atmosphereChanged(m_atmosphere);
 }
 
+bool SimulationEngine::getGuidesEnabled() const
+{
+    return m_guidesEnabled;
+}
+
+void SimulationEngine::setGuidesEnabled(bool newState)
+{
+    if (m_guidesEnabled == newState) return;
+
+    clear();
+    m_guidesEnabled = newState;
+    emit guidesToggled(m_guidesEnabled);
+}
+
 unsigned int SimulationEngine::getOutputTextureHandle() const
 {
     return m_simulationTexture->getHandle();
@@ -132,7 +147,7 @@ void SimulationEngine::step()
 {
     ++m_iteration;
 
-    if (m_iteration == 1)
+    if (m_guidesEnabled && m_iteration == 1)
     {
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         glBindImageTexture(m_guideTexture->getTextureUnit(), m_guideTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
@@ -255,8 +270,8 @@ void SimulationEngine::clear()
     glClearTexImage(m_backgroundTexture->getHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
     glBindImageTexture(m_backgroundTexture->getTextureUnit(), m_backgroundTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
-    glClearTexImage(m_guideTexture->getHandle(), 0, GL_R, GL_FLOAT, NULL);
-    glBindImageTexture(m_guideTexture->getTextureUnit(), m_guideTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+    glClearTexImage(m_guideTexture->getHandle(), 0, GL_RGBA, GL_FLOAT, NULL);
+    glBindImageTexture(m_guideTexture->getTextureUnit(), m_guideTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 
     m_iteration = 0;
 }
