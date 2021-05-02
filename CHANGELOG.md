@@ -12,10 +12,11 @@ and this project adheres to
 
 - When typing values into spinboxes, the change only takes effect after pressing
   enter or moving focus elsewhere.
+- Increased maximum value of image brightness slider
 
 ### Fixed
 
-- Fixed bug where typing decimals into spinboxes wasn't working.
+- Fixed bug where typing decimals into spinboxes wasn't working
 
 ## 3.2.0 - 2021-03-24
 
