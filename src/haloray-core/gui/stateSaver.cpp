@@ -23,13 +23,13 @@ void StateSaver::SaveState(QString filename, SimulationEngine *engine, CrystalPo
 
     settings.beginGroup("CrystalPopulations");
     settings.beginWriteArray("pop");
-    for (auto i = 0u; i < crystals->getCount(); ++i)
+    for (auto popIndex = 0u; popIndex < crystals->getCount(); ++popIndex)
     {
-        settings.setArrayIndex(i);
-        settings.setValue("Weight", crystals->getWeight(i));
-        auto population = crystals->get(i);
+        settings.setArrayIndex(popIndex);
+        settings.setValue("Weight", crystals->getWeight(popIndex));
+        auto population = crystals->get(popIndex);
 
-        settings.setValue("Name", QString::fromStdString(crystals->getName(i)));
+        settings.setValue("Name", QString::fromStdString(crystals->getName(popIndex)));
         settings.setValue("Enabled", population.enabled);
 
         settings.setValue("CaRatioAverage", (double)population.caRatioAverage);
@@ -50,6 +50,14 @@ void StateSaver::SaveState(QString filename, SimulationEngine *engine, CrystalPo
         settings.setValue("LowerApexAngle", (double)population.lowerApexAngle);
         settings.setValue("LowerApexHeightAverage", (double)population.lowerApexHeightAverage);
         settings.setValue("LowerApexHeightStd", (double)population.lowerApexHeightStd);
+
+        settings.beginWriteArray("PrismFaceDistances");
+        for (auto prismFaceIndex = 0u; prismFaceIndex < 6; ++prismFaceIndex)
+        {
+            settings.setArrayIndex(prismFaceIndex);
+            settings.setValue("Average", (double)population.prismFaceDistances[prismFaceIndex]);
+        }
+        settings.endArray();
     }
     settings.endArray();
     settings.endGroup();
@@ -92,9 +100,9 @@ void StateSaver::LoadState(QString filename, SimulationStateModel *simState, Cry
 
     crystalModel->clear();
     auto crystalPopulationCount = settings.beginReadArray("CrystalPopulations/pop");
-    for (auto i = 0; i < crystalPopulationCount; ++i)
+    for (auto popIndex = 0; popIndex < crystalPopulationCount; ++popIndex)
     {
-        settings.setArrayIndex(i);
+        settings.setArrayIndex(popIndex);
         auto pop = CrystalPopulation::createRandom();
         pop.enabled = settings.value("Enabled", pop.enabled).toBool();
 
@@ -119,6 +127,14 @@ void StateSaver::LoadState(QString filename, SimulationStateModel *simState, Cry
 
         auto name = settings.value("Name", "Default name").toString();
         double weight = settings.value("Weight", 1.0).toDouble();
+
+        settings.beginReadArray("PrismFaceDistances");
+        for (auto prismFaceIndex = 0u; prismFaceIndex < 6; ++prismFaceIndex)
+        {
+            settings.setArrayIndex(prismFaceIndex);
+            pop.prismFaceDistances[prismFaceIndex] = settings.value("Average", pop.prismFaceDistances[prismFaceIndex]).toFloat();
+        }
+        settings.endArray();
 
         crystalModel->addRow(pop, weight, name);
     }
