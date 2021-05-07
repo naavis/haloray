@@ -3,7 +3,25 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## 3.3.0 - 2021-05-07
+
+### Changed
+
+- When typing values into spinboxes, the change only takes effect after pressing
+  enter or moving focus elsewhere.
+- Increased maximum value of image brightness slider
+
+### Fixed
+
+- Fixed bug where typing decimals into spinboxes wasn't working
+- Fixed bug where sky was shown a second time outside field of view with
+  equidistant and equal area camera projections
+- Fixed missing prism face distances from save files
+- Fixed bug with slightly incorrect crystal geometry causing uneven brightness
+  distribution with Parry crystal halos
 
 ## 3.2.0 - 2021-03-24
 
@@ -13,20 +31,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed bug where pyramid apex angle was set incorrectly based on crystal edge angle rather than face angle
+- Fixed bug where pyramid apex angle was set incorrectly based on crystal edge
+  angle rather than face angle
 
 ## 3.1.0 - 2021-02-21
 
 ### Changed
 
 - Improved logging and error messages in case shader compilation fails
-- Population weight was changed from an integer to a decimal number for more granular control
+- Population weight was changed from an integer to a decimal number for more
+  granular control
 
 ## 3.0.0 - 2021-02-21
 
 ### Added
 
-- Created a realistic sky and sun model based on Hosek-Wilkie and Preetham papers
+- Created a realistic sky and sun model based on Hosek-Wilkie and Preetham
+  papers
 - Simulation rate shown in status bar
 - Ice crystals now have adjustable pyramidal caps
 - Possibility to save and load simulations
@@ -37,13 +58,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Forced application to use native desktop OpenGL instead of ANGLE or software renderer
+- Forced application to use native desktop OpenGL instead of ANGLE or software
+  renderer
 - Build system switched to qmake from CMake
 - Rewrote most of the GUI code to use Qt model/view architecture
 - Triangle normals are now cached during raytracing
 - The settings groups in the side panel are now collapsible
 - Adjusting sliders with arrow kys now uses smaller steps
-- Light is now allowed to bounce inside ice crystal for a 100 times instead of 10
+- Light is now allowed to bounce inside ice crystal for a 100 times instead
+  of 10
 
 ### Fixed
 
@@ -88,14 +111,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Disabled "Remove population" button when there is only one population in simulation
+- Disabled "Remove population" button when there is only one population in
+  simulation
 - Added multiple crystal populations by default
 
 ## 2.1.1 - 2019-07-08
 
 ### Fixed
 
-- Fixed bug where removing the only crystal population caused the UI controls not to work anymore
+- Fixed bug where removing the only crystal population caused the UI controls
+  not to work anymore
 
 ## 2.1.0 - 2019-07-07
 
@@ -108,11 +133,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Made sidebar scrollable when the window is small enough
 - Made UI show field of view in degrees
-- Limited field of view for stereographic, rectilinear and orthographic projections
+- Limited field of view for stereographic, rectilinear and orthographic
+  projections
 
 ### Fixed
 
-- Fixed bug where field of view sometimes did not update correctly when choosing a new projection
+- Fixed bug where field of view sometimes did not update correctly when choosing
+  a new projection
 
 ## 2.0.0 - 2019-07-02
 

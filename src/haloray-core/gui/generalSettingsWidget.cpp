@@ -48,18 +48,21 @@ void GeneralSettingsWidget::setupUi()
     m_sunDiameterSpinBox->setSingleStep(0.1);
     m_sunDiameterSpinBox->setMinimum(0.01);
     m_sunDiameterSpinBox->setMaximum(30.0);
+    m_sunDiameterSpinBox->setKeyboardTracking(false);
 
     m_raysPerFrameSpinBox = new QSpinBox();
     m_raysPerFrameSpinBox->setSingleStep(1000);
     m_raysPerFrameSpinBox->setMinimum(1);
     m_raysPerFrameSpinBox->setMaximum(m_viewModel->getRaysPerFrameUpperLimit());
     m_raysPerFrameSpinBox->setGroupSeparatorShown(true);
+    m_raysPerFrameSpinBox->setKeyboardTracking(false);
 
     m_maximumFramesSpinBox = new QSpinBox();
     m_maximumFramesSpinBox->setSingleStep(60);
     m_maximumFramesSpinBox->setMinimum(1);
     m_maximumFramesSpinBox->setMaximum(1000000000);
     m_maximumFramesSpinBox->setGroupSeparatorShown(true);
+    m_maximumFramesSpinBox->setKeyboardTracking(false);
 
     m_multipleScatteringSlider = new SliderSpinBox();
     m_multipleScatteringSlider->setMinimum(0.0);

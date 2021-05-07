@@ -17,6 +17,7 @@ SliderSpinBox::SliderSpinBox(QWidget *parent) : QWidget(parent), m_value(0.0)
 
     m_spinBox = new QDoubleSpinBox();
     m_spinBox->setSingleStep(0.1);
+    m_spinBox->setKeyboardTracking(false);
 
     auto layout = new QHBoxLayout(this);
     layout->addWidget(m_slider);

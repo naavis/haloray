@@ -66,7 +66,7 @@ void ViewSettingsWidget::setupUi()
 
     m_brightnessSlider = new SliderSpinBox();
     m_brightnessSlider->setMinimum(0.1);
-    m_brightnessSlider->setMaximum(15.0);
+    m_brightnessSlider->setMaximum(30.0);
 
     m_hideSubHorizonCheckBox = new QCheckBox();
 
