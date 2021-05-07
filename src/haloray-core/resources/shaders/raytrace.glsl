@@ -130,11 +130,11 @@ ivec3 triangles[] = ivec3[](
     ivec3(15, 16, 10),
 
     // Face 7 (prism)
-    ivec3(10, 16, 17),
+    ivec3(10, 16, 11),
     ivec3(16, 17, 11),
 
     // Face 8 (prism)
-    ivec3(11, 17, 12),
+    ivec3(11, 17, 6),
     ivec3(17, 12, 6)
 );
 
