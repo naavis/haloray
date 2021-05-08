@@ -238,4 +238,5 @@ problems like this are encountered.
 - [Lauri Kangas](https://github.com/lkangas) for providing tons of reading material and debugging help
 - [Panu Lahtinen](https://github.com/pnuu) for additional Linux support
 - Jukka Ruoskanen for making HaloPoint 2.0 back in the day and inspiring me to start working on HaloRay
+- Marko Riikonen for giving valuable feedback and reporting bugs
 - [Jaakko Lehtinen](https://users.aalto.fi/~lehtinj7/) for super valuable lessons in computer graphics
