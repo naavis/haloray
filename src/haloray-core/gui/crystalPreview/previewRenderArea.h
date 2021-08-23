@@ -15,19 +15,20 @@ class PreviewRenderArea : public QWidget
     Q_OBJECT
 public:
     PreviewRenderArea(CrystalModel *crystals, QWidget *parent = nullptr);
+    QSize sizeHint() const override;
 
 public slots:
     void onPopulationSelectionChange(int index);
-    QSize sizeHint() const override;
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-    void initializeGeometry(QVector3D *vertices, int numVertices);
+    void initializeGeometry(QVector3D *vertices);
 
 private:
     QVariant getFromModel(int row, CrystalModel::Columns column) const;
     QMatrix4x4 getCrystalOrientationMatrix() const;
     float getFurthestVertexDistance(QVector3D *vertices, int numVertices) const;
+    void drawAxisLines(QMatrix4x4 viewMatrix, QPainter *painter);
 
     CrystalModel *m_crystals;
     int m_populationIndex;

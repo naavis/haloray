@@ -79,7 +79,7 @@ ivec3 triangles[] = ivec3[](
     ivec3(0, 3, 4),
     ivec3(0, 4, 5),
 
-    // Face 1 (pyramid edges)
+    // Upper pyramid faces
     ivec3(0, 6, 1),
     ivec3(6, 7, 1),
     ivec3(1, 7, 2),
@@ -99,7 +99,7 @@ ivec3 triangles[] = ivec3[](
     ivec3(18, 22, 21),
     ivec3(18, 23, 22),
 
-    // Face 2 (pyramid edges)
+    // Lower pyramid faces
     ivec3(12, 18, 13),
     ivec3(18, 19, 13),
     ivec3(13, 19, 14),
@@ -140,6 +140,10 @@ ivec3 triangles[] = ivec3[](
 
 vec3 triangleNormalCache[triangles.length()];
 
+// ***********************************
+// Random number generator functions *
+// ***********************************
+
 uint wang_hash(uint a)
 {
     a -= (a << 6);
@@ -172,6 +176,10 @@ vec2 randn(void)
     return vec2(u1 * cos(u2), u1 * sin(u2));
 }
 
+// **************************
+// Color matching functions *
+// **************************
+
 float xFit_1931(float wave)
 {
     float t1 = (wave - 442.0) * ((wave < 442.0) ? 0.0624 : 0.0374);
@@ -194,6 +202,10 @@ float zFit_1931(float wave)
     return 1.217 * exp(-0.5 * t1 * t1) + 0.681 * exp(-0.5 * t2 * t2);
 }
 
+// ***********************
+// Ray tracing functions *
+// ***********************
+
 float getIceIOR(float wavelength)
 {
     // Eq. from Simulating rainbows and halos in color by Stanley Gedzelman
@@ -211,7 +223,7 @@ uint selectFirstTriangle(vec3 rayDirection)
         vec3 v0 = vertices[triangle.x];
         vec3 v1 = vertices[triangle.y];
         vec3 v2 = vertices[triangle.z];
-        vec3 triangleCrossProduct = cross(v2 - v0, v1 - v0);
+        vec3 triangleCrossProduct = cross(v1 - v0, v2 - v0);
         float triangleArea = 0.5 * length(triangleCrossProduct);
         vec3 triangleNormal = normalize(triangleCrossProduct);
         triangleNormalCache[i] = triangleNormal;
@@ -252,7 +264,7 @@ vec3 sampleTriangle(uint triangleIndex)
 
 vec3 getNormal(uint triangleIndex)
 {
-    return -triangleNormalCache[triangleIndex];
+    return triangleNormalCache[triangleIndex];
 }
 
 float getReflectionCoefficient(vec3 normal, vec3 rayDir, float n0, float n1)
@@ -269,14 +281,22 @@ float getReflectionCoefficient(vec3 normal, vec3 rayDir, float n0, float n1)
     return 0.5 * (rs + rp);
 }
 
+// Find triangle which ray intersects with using
+// the Trumbore-Möller algorithm.
 intersection findIntersection(vec3 rayOrigin, vec3 rayDirection)
 {
     for (int triangleIndex = 0; triangleIndex < triangles.length(); ++triangleIndex)
     {
+        // Note the ordering of the vertices!
+        // v1 and v2 are switched, because with
+        // the conventional ordering the triangle
+        // normal ends up pointing outwards, and it
+        // must point inwards when tracing rays
+        // inside the ice crystal.
         ivec3 triangle = triangles[triangleIndex];
         vec3 v0 = vertices[triangle.x];
-        vec3 v1 = vertices[triangle.y];
-        vec3 v2 = vertices[triangle.z];
+        vec3 v1 = vertices[triangle.z];
+        vec3 v2 = vertices[triangle.y];
 
         vec3 v0v1 = v1 - v0;
         vec3 v0v2 = v2 - v0;
@@ -309,7 +329,7 @@ vec3 traceRay(vec3 rayOrigin, vec3 rayDirection, float indexOfRefraction)
     {
         intersection hitResult = findIntersection(ro, rd);
         if (hitResult.didHit == false) break;
-        vec3 normal = getNormal(hitResult.triangleIndex);
+        vec3 normal = -getNormal(hitResult.triangleIndex);
         float reflectionCoefficient = getReflectionCoefficient(normal, rd, indexOfRefraction, 1.0);
         if (rand() < reflectionCoefficient)
         {
@@ -323,6 +343,31 @@ vec3 traceRay(vec3 rayOrigin, vec3 rayDirection, float indexOfRefraction)
     }
     return vec3(0.0);
 }
+
+vec3 castRayThroughCrystal(vec3 rayDirection, float wavelength)
+{
+    uint triangleIndex = selectFirstTriangle(rayDirection);
+    vec3 startingPoint = sampleTriangle(triangleIndex);
+    vec3 startingPointNormal = getNormal(triangleIndex);
+    float indexOfRefraction = getIceIOR(wavelength);
+    float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rayDirection, 1.0, indexOfRefraction);
+    vec3 resultRay = vec3(0.0);
+    if (rand() < reflectionCoeff)
+    {
+        // Ray reflects off crystal
+        resultRay = reflect(rayDirection, startingPointNormal);
+    } else {
+        // Ray enters crystal
+        vec3 refractedRayDirection = refract(rayDirection, startingPointNormal, 1.0 / indexOfRefraction);
+        resultRay = traceRay(startingPoint, refractedRayDirection, indexOfRefraction);
+    }
+
+    return resultRay;
+}
+
+// **************************************
+// Sun direction and spectrum functions *
+// **************************************
 
 vec3 getSunDirection(float altitude)
 {
@@ -348,6 +393,22 @@ vec3 sampleSun(float altitude)
     vec3 sampleDirection = sunCenterDirection + offset;
     return normalize(sampleDirection);
 }
+
+float daylightEstimate(float wavelength)
+{
+    return 1.0 - 0.0013333 * wavelength;
+}
+
+float sampleSunSpectrum(float wavelength)
+{
+    int index = clamp(int(floor((wavelength - 400.0) / 10.0)), 0, 29);
+    float wavelengthFract = (wavelength - (400.0 + index * 10.0)) / 10.0;
+    return mix(sun.spectrum[index], sun.spectrum[index + 1], wavelengthFract);
+}
+
+// ********************
+// Rotation functions *
+// ********************
 
 mat3 rotateAroundX(float angle)
 {
@@ -376,9 +437,18 @@ mat3 rotateAroundZ(float angle)
     );
 }
 
+vec2 rotate2D(float angle, vec2 point)
+{
+    return mat2(cos(angle), sin(angle), -sin(angle), cos(angle)) * point;
+}
+
+// ******************************************
+// Camera and crystal orientation functions *
+// ******************************************
+
 mat3 getCameraOrientationMatrix()
 {
-    return rotateAroundX(camera.pitch) * rotateAroundY(camera.yaw);
+    return rotateAroundY(-camera.yaw) * rotateAroundX(-camera.pitch);
 }
 
 mat3 getUniformRandomRotationMatrix(void)
@@ -392,13 +462,6 @@ mat3 getUniformRandomRotationMatrix(void)
     return (2.0 * outerProduct(reflectionVector, reflectionVector) - mat3(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)) * zRotationMatrix;
 }
 
-vec2 cartesianToPolar(vec3 direction)
-{
-    float r = atan(length(direction.xy), direction.z);
-    float angle = atan(direction.y, direction.x);
-    return vec2(r, angle);
-}
-
 mat3 getRotationMatrix(void)
 {
     if (crystalProperties.tiltDistribution == DISTRIBUTION_UNIFORM && crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
@@ -409,17 +472,17 @@ mat3 getRotationMatrix(void)
     // Tilt of the crystal C-axis
     mat3 tiltMat;
 
-    // Rotation around crystal C-axis
-    mat3 rotationMat;
-
     if (crystalProperties.tiltDistribution == DISTRIBUTION_UNIFORM) {
         tiltMat = rotateAroundZ(rand() * 2.0 * PI);
     } else {
         float angleAverage = crystalProperties.tiltAverage;
         float angleStd = crystalProperties.tiltStd;
         float tiltAngle = angleAverage + angleStd * randn().x;
-        tiltMat = rotateAroundZ(tiltAngle);
+        tiltMat = rotateAroundZ(-tiltAngle);
     }
+
+    // Rotation around crystal C-axis
+    mat3 rotationMat;
 
     if (crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
     {
@@ -434,16 +497,196 @@ mat3 getRotationMatrix(void)
     return rotateAroundY(rand() * 2.0 * PI) * tiltMat * rotationMat;
 }
 
-float daylightEstimate(float wavelength)
+// ***************************************
+// Crystal geometry generation functions *
+// ***************************************
+
+int getNext(int i)
 {
-    return 1.0 - 0.0013333 * wavelength;
+    return int(mod(i + 1, 6));
 }
 
-float sampleSunSpectrum(float wavelength)
+int getPrev(int i)
 {
-    int index = clamp(int(floor((wavelength - 400.0) / 10.0)), 0, 29);
-    float wavelengthFract = (wavelength - (400.0 + index * 10.0)) / 10.0;
-    return mix(sun.spectrum[index], sun.spectrum[index + 1], wavelengthFract);
+    return int(mod(mod(i - 1, 6) + 6, 6));
+}
+
+vec3[6] generateApexNormals(float apexAngle)
+{
+    vec3 apexNormals[6];
+    for (int i = 0; i < 6; ++i)
+    {
+        float rotAngle = i * PI / 3.0;
+        float halfApex = apexAngle / 2.0;
+        apexNormals[i] = rotateAroundY(rotAngle) * rotateAroundX(-halfApex) * vec3(0.0, 0.0, 1.0);
+    }
+    return apexNormals;
+}
+
+float getMaximumApexHeight(vec3 normals[6],
+                           vec3 vertices[24],
+                           float prismFaceDistances[6],
+                           float apexAngle,
+                           int vertexOffset)
+{
+    float maxApexHeight = 1e38;
+    // Find non-convex pyramid face heights
+    for (int face = 0; face < 6; ++face)
+    {
+        int prevFace = getPrev(face);
+        int nextFace = getNext(face);
+
+        vec3 nPrev = normals[prevFace];
+        vec3 nCurr = normals[face];
+        vec3 nNext = normals[nextFace];
+
+        vec3 prevVert = vertices[prevFace + vertexOffset];
+        vec3 nextVert = vertices[face + vertexOffset];
+
+        vec3 numerator = dot(prevVert, nPrev) * cross(nCurr, nNext) +
+                         dot(prevVert, nCurr) * cross(nNext, nPrev) +
+                         dot(nextVert, nNext) * cross(nPrev, nCurr);
+        mat3 detMatrix = mat3(nPrev, nCurr, nNext);
+        float denominator = determinant(detMatrix);
+        float faceHeight = abs((numerator / denominator).y);
+        maxApexHeight = min(faceHeight, maxApexHeight);
+    }
+
+    // Find maximum apex heights based on prism face distances and apex angle
+    for (int i = 0; i < 3; ++i)
+    {
+        float dist = prismFaceDistances[i];
+        float distOpposite = prismFaceDistances[i + 3];
+        float h = (dist + distOpposite) / (2.0 * tan(apexAngle / 2.0));
+        maxApexHeight = min(h, maxApexHeight);
+    }
+
+    return maxApexHeight;
+}
+
+void initializeCrystal()
+{
+    vec2 hexagonCorners[6];
+
+    // Calculate initial hexagon shape
+    for (int i = 0; i < 6; ++i)
+    {
+        float d1 = crystalProperties.prismFaceDistances[i];
+        float d2 = crystalProperties.prismFaceDistances[getNext(i)];
+
+        float angle = -i * PI / 3.0;
+        float x_stat = 2.0 * d2 / sqrt(3.0) - d1 / sqrt(3.0);
+        float y_stat = d1;
+        hexagonCorners[i] = rotate2D(angle, vec2(x_stat, y_stat));
+    }
+
+    // Fix degenerate edges on hexagon
+    for (int face = 0; face < 6; ++face)
+    {
+        int prevFace = getPrev(face);
+        int nextFace = getNext(face);
+        float angle = -face * PI / 3.0;
+
+        float d1 = crystalProperties.prismFaceDistances[face];
+        float d2 = crystalProperties.prismFaceDistances[nextFace];
+        float d3 = crystalProperties.prismFaceDistances[prevFace];
+        if (d1 > d2 + d3)
+        {
+            float x_stat = d2 / sqrt(3.0) - d3 / sqrt(3.0);
+            float y_stat = d2 + d3;
+            vec2 rotatedPoint = rotate2D(angle, vec2(x_stat, y_stat));
+            hexagonCorners[face] = rotatedPoint;
+            hexagonCorners[prevFace] = rotatedPoint;
+        }
+    }
+
+    /* Scaling value makes sure eventual A axis length is 2.0, so C/A ratio
+     * can be easily corrected. */
+    float hexagonScaler = length(hexagonCorners[1] - hexagonCorners[4]);
+    for (int i = 0; i < 6; ++i)
+    {
+        hexagonCorners[i] *= 2.0 / hexagonScaler;
+    }
+
+    for (int face = 0; face < 6; ++face)
+    {
+        // Corresponding vertices of each crystal layer have the same X and Z coordinates
+        // First six vertices are the top apex cap
+        // Next six vertices are the top of the base hexagonal crystal
+        // Next six vertices are the bottom of the base hexagonal crystal
+        // Last six vertices are the bottom apex cap
+        vec3 v = vec3(hexagonCorners[face].x, 0.0, hexagonCorners[face].y);
+        vertices[face] = v;
+        vertices[face + 6] = v;
+        vertices[face + 12] = v;
+        vertices[face + 18] = v;
+    }
+
+    vec2 random = randn();
+    float upperApexHeight = clamp(crystalProperties.upperApexHeightAverage + crystalProperties.upperApexHeightStd * random.x, 0.0, 1.0);
+    float lowerApexHeight = clamp(crystalProperties.lowerApexHeightAverage + crystalProperties.lowerApexHeightStd * random.y, 0.0, 1.0);
+
+    if (upperApexHeight > 0.0 && crystalProperties.upperApexAngle < PI && crystalProperties.upperApexAngle > 0.0)
+    {
+        // Generate normals for upper pyramid cap
+        vec3 upperApexNormals[6] = generateApexNormals(crystalProperties.upperApexAngle);
+
+        // Set upper pyramid cap vertex positions
+        float maxUpperApexHeight = getMaximumApexHeight(upperApexNormals, vertices, crystalProperties.prismFaceDistances, crystalProperties.upperApexAngle, 0);
+        for (int i = 0; i < 6; ++i)
+        {
+            int next = getNext(i);
+            vec3 pyramidEdge = cross(upperApexNormals[i], upperApexNormals[next]);
+            vertices[i] += upperApexHeight * maxUpperApexHeight * pyramidEdge / pyramidEdge.y;
+        }
+    }
+
+    if (lowerApexHeight > 0.0 && crystalProperties.lowerApexAngle < PI && crystalProperties.lowerApexAngle > 0.0)
+    {
+        // Generate normals for lower pyramid cap
+        vec3 lowerApexNormals[6] = generateApexNormals(crystalProperties.lowerApexAngle);
+        for (int i = 0; i < 6; ++i)
+        {
+            lowerApexNormals[i].y *= -1.0;
+        }
+
+        // Set lower pyramid cap vertex positions
+        float maxLowerApexHeight = getMaximumApexHeight(lowerApexNormals, vertices, crystalProperties.prismFaceDistances, crystalProperties.lowerApexAngle, 18);
+        for (int i = 0; i < 6; ++i)
+        {
+            int next = getNext(i);
+            vec3 pyramidEdge = cross(lowerApexNormals[i], lowerApexNormals[next]);
+            vertices[i + 18] -= lowerApexHeight * maxLowerApexHeight * pyramidEdge / pyramidEdge.y;
+        }
+    }
+
+    // Scale crystal vertically to have correct C/A ratio
+    float caRatio = max(0.0, crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd);
+    for (int i = 0; i < 12; ++i)
+    {
+        vertices[i].y += caRatio;
+        vertices[i + 12].y -= caRatio;
+    }
+
+    // Rotate crystal around C-axis so that face numbering follows conventions
+    // Prism face 0 (Face 3 in the UI) should be up in a column Parry position
+    mat3 conventionMatrix = rotateAroundY(-PI / 2.0);
+    for (int i = 0; i < 24; ++i)
+    {
+        vertices[i] = conventionMatrix * vertices[i];
+    }
+}
+
+// ***********
+// Utilities *
+// ***********
+
+// Convert 3D unit vector to polar coordinates in the XY plane
+vec2 cartesianToPolar(vec3 direction)
+{
+    float r = atan(length(direction.xy), direction.z);
+    float angle = atan(direction.y, direction.x);
+    return vec2(r, angle);
 }
 
 void storePixel(ivec2 pixelCoordinates, vec3 value)
@@ -453,204 +696,80 @@ void storePixel(ivec2 pixelCoordinates, vec3 value)
     imageStore(outputImage, pixelCoordinates, vec4(currentValue + value, 1.0));
 }
 
-vec3 castRayThroughCrystal(vec3 rayDirection, float wavelength)
-{
-    uint triangleIndex = selectFirstTriangle(rayDirection);
-    vec3 startingPoint = sampleTriangle(triangleIndex);
-    vec3 startingPointNormal = -getNormal(triangleIndex);
-    float indexOfRefraction = getIceIOR(wavelength);
-    float reflectionCoeff = getReflectionCoefficient(startingPointNormal, rayDirection, 1.0, indexOfRefraction);
-    vec3 resultRay = vec3(0.0);
-    if (rand() < reflectionCoeff)
-    {
-        // Ray reflects off crystal
-        resultRay = reflect(rayDirection, startingPointNormal);
-    } else {
-        // Ray enters crystal
-        vec3 refractedRayDirection = refract(rayDirection, startingPointNormal, 1.0 / indexOfRefraction);
-        resultRay = traceRay(startingPoint, refractedRayDirection, indexOfRefraction);
-    }
-
-    return resultRay;
-}
-
-/* Lines are represented in Hesse normal form, where X component
-   of the vector is the closest distance from origin to the line,
-   and Y component of the vector is the angle of the line's normal
-   in radians. */
-vec2 lineIntersect(vec2 line1, vec2 line2)
-{
-    float p1 = line1.x;
-    float theta1 = line1.y;
-
-    float p2 = line2.x;
-    float theta2 = line2.y;
-
-    float deltaSine = sin(theta2 - theta1);
-    float x = (p1 * sin(theta2) - p2 * sin(theta1)) / deltaSine;
-    float y = (p2 * cos(theta1) - p1 * cos(theta2)) / deltaSine;
-
-    return vec2(x, y);
-}
-
-void initializeCrystal()
-{
-    float deltaAngle = radians(60.0);
-    vec2 hexagonCorners[6];
-    /* The sqrt(3)/2 multiplier makes the default crystal such
-       that the distance of a vertex from the C axis is 1.0.
-       sqrt(3)/2 equals cos(30deg), which is faster to calculate
-       on GPU */
-    float sizeScaler = cos(radians(30.0));
-    for (int face = 0; face < 6; ++face)
-    {
-        int previousFace = face == 0 ? 5 : face - 1;
-        int nextFace = face == 5 ? 0 : face + 1;
-
-        float previousAngle = (face + 1) * deltaAngle;
-        float currentAngle = previousAngle + deltaAngle;
-        float nextAngle = previousAngle + 2.0 * deltaAngle;
-
-        float previousDistance = sizeScaler * crystalProperties.prismFaceDistances[previousFace];
-        float currentDistance = sizeScaler * crystalProperties.prismFaceDistances[face];
-        float nextDistance = sizeScaler * crystalProperties.prismFaceDistances[nextFace];
-
-        vec2 previousLine = vec2(previousDistance, previousAngle);
-        vec2 currentLine = vec2(currentDistance, currentAngle);
-        vec2 nextLine = vec2(nextDistance, nextAngle);
-
-        vec2 previousCurrentIntersection = lineIntersect(previousLine, currentLine);
-        vec2 currentNextIntersection = lineIntersect(currentLine, nextLine);
-        vec2 previousNextIntersection = lineIntersect(previousLine, nextLine);
-
-        float previousCurrentIntersectionDistance = length(previousCurrentIntersection);
-        float currentNextIntersectionDistance = length(currentNextIntersection);
-        float previousNextIntersectionDistance = length(previousNextIntersection);
-
-        vec2 v1 = previousCurrentIntersectionDistance < previousNextIntersectionDistance ? previousCurrentIntersection : previousNextIntersection;
-        vec2 v2 = currentNextIntersectionDistance < previousNextIntersectionDistance ? currentNextIntersection : previousNextIntersection;
-
-        if (face > 0 && previousNextIntersectionDistance > length(hexagonCorners[face]))
-        {
-            v1 = hexagonCorners[face];
-        }
-
-        if (face == 5 && previousNextIntersectionDistance > length(hexagonCorners[nextFace]))
-        {
-            v2 = hexagonCorners[nextFace];
-        }
-
-        hexagonCorners[face] = v1;
-        hexagonCorners[nextFace] = v2;
-    }
-
-    for (int face = 0; face < 6; ++face)
-    {
-        vertices[face].xz = hexagonCorners[face];
-        vertices[face].y = 1.0;
-
-        vertices[face + 6].xz = hexagonCorners[face];
-        vertices[face + 6].y = 1.0;
-
-        vertices[face + 12].xz = hexagonCorners[face];
-        vertices[face + 12].y = -1.0;
-
-        vertices[face + 18].xz = hexagonCorners[face];
-        vertices[face + 18].y = -1.0;
-    }
-
-    // Stretch the crystal to correct C/A ratio
-    float caMultiplier = max(0.0, crystalProperties.caRatioAverage + randn().x * crystalProperties.caRatioStd);
-    for (int i = 0; i < vertices.length(); ++i)
-    {
-        vertices[i].y *= max(0.0, caMultiplier);
-    }
-
-    // Scale pyramid caps
-    float upperApexMaxHeight = sizeScaler / tan(crystalProperties.upperApexAngle / 2.0);
-    float lowerApexMaxHeight = sizeScaler / tan(crystalProperties.lowerApexAngle / 2.0);
-
-    vec2 random = randn();
-    float upperApexHeight = clamp(crystalProperties.upperApexHeightAverage + crystalProperties.upperApexHeightStd * random.x, 0.0, 1.0);
-    float lowerApexHeight = clamp(crystalProperties.lowerApexHeightAverage + crystalProperties.lowerApexHeightStd * random.y, 0.0, 1.0);
-
-    for (int i = 0; i < 6; ++i)
-    {
-        vertices[i].xz *= 1.0 - upperApexHeight;
-        vertices[i].y += upperApexHeight * upperApexMaxHeight;
-
-        vertices[vertices.length() - i - 1].xz *= 1.0 - lowerApexHeight;
-        vertices[vertices.length() - i - 1].y -= lowerApexHeight * lowerApexMaxHeight;
-    }
-}
+// ************
+// Main logic *
+// ************
 
 void main(void)
 {
     initializeCrystal();
 
-    vec3 rayDirection = -sampleSun(sun.altitude);
+    // Pick ray wavelength in nanometers
     float wavelength = 400.0 + rand() * 300.0;
 
-    // Rotation matrix to orient ray/crystal
+    // Generate incoming ray from sun (points from sun to origin)
+    vec3 incidentSunRay = -sampleSun(sun.altitude);
+
+    // The inverse rotation matrix must be applied because we are
+    // rotating the incoming ray and not the crystal itself. The ray is
+    // now transformed into crystal-oriented space.
     mat3 rotationMatrix = getRotationMatrix();
+    vec3 incidentRayCrystalSpace = normalize(transpose(rotationMatrix) * incidentSunRay);
 
-    /* The inverse rotation matrix must be applied because we are
-    rotating the incoming ray and not the crystal itself. */
-    vec3 rotatedRayDirection = normalize(rayDirection * rotationMatrix);
+    vec3 exitantRayCrystalSpace = castRayThroughCrystal(incidentRayCrystalSpace, wavelength);
+    if (length(exitantRayCrystalSpace) < 0.0001) return;
 
-    vec3 resultRay = castRayThroughCrystal(rotatedRayDirection, wavelength);
-
-    if (length(resultRay) < 0.0001) return;
-
-    resultRay = rotationMatrix * resultRay;
+    // Return ray back to world coordinate space
+    vec3 exitantRay = rotationMatrix * exitantRayCrystalSpace;
 
     if (multipleScatter != 0.0 && multipleScatter > rand())
     {
-        // Rotation matrix to orient ray/crystal
+        // The inverse rotation matrix must be applied because we are
+        // rotating the incoming ray and not the crystal itself. The ray is
+        // now transformed into crystal-oriented space.
         rotationMatrix = getRotationMatrix();
+        vec3 secondIncidentRayCrystalSpace = normalize(transpose(rotationMatrix) * exitantRay);
 
-        /* The inverse rotation matrix must be applied because we are
-        rotating the incoming ray and not the crystal itself. */
-        rotatedRayDirection = normalize(resultRay * rotationMatrix);
+        vec3 secondExitantRayCrystalSpace = castRayThroughCrystal(secondIncidentRayCrystalSpace, wavelength);
+        if (length(secondExitantRayCrystalSpace) < 0.0001) return;
 
-        resultRay = castRayThroughCrystal(rotatedRayDirection, wavelength);
-
-        if (length(resultRay) < 0.0001) return;
-
-        resultRay = rotationMatrix * resultRay;
+        // Return ray back to world coordinate space
+        exitantRay = rotationMatrix * secondExitantRayCrystalSpace;
     }
 
     // Hide subhorizon rays
-    if (camera.hideSubHorizon == 1 && resultRay.y > 0.0) return;
+    if (camera.hideSubHorizon == 1 && exitantRay.y > 0.0) return;
 
     ivec2 resolution = imageSize(outputImage);
     float aspectRatio = float(resolution.y) / float(resolution.x);
 
-    resultRay = normalize(-getCameraOrientationMatrix() * resultRay);
-    vec2 polar = cartesianToPolar(resultRay);
+    // Camera is looking down the positive Z axis.
+    // Ray is now transformed into camera space.
+    // Camera matrix must be inverted (transposed) because ray
+    // is being transformed, not the camera.
+    vec3 exitantRayCameraSpace = normalize(transpose(getCameraOrientationMatrix()) * exitantRay);
+    vec3 lightDirectionCameraSpace = -exitantRayCameraSpace;
+    vec2 polar = cartesianToPolar(lightDirectionCameraSpace);
+    float polarRadius = polar.x;
+    float polarAngle = polar.y;
 
     float projectionFunction;
-
-    // The projection converts 3D vectors to 2D points
     if (camera.projection == PROJECTION_STEREOGRAPHIC) {
-        projectionFunction = 2.0 * tan(polar.x / 2.0);
+        projectionFunction = 2.0 * tan(polarRadius / 2.0);
     } else if (camera.projection == PROJECTION_RECTILINEAR) {
-        if (polar.x > 0.5 * PI) return;
-        projectionFunction = tan(polar.x);
+        if (polarRadius > 0.5 * PI) return;
+        projectionFunction = tan(polarRadius);
     } else if (camera.projection == PROJECTION_EQUIDISTANT) {
-        projectionFunction = polar.x;
+        projectionFunction = polarRadius;
     } else if (camera.projection == PROJECTION_EQUAL_AREA) {
-        projectionFunction = 2.0 * sin(polar.x / 2.0);
+        projectionFunction = 2.0 * sin(polarRadius / 2.0);
     } else if (camera.projection == PROJECTION_ORTHOGRAPHIC) {
-        if (polar.x > 0.5 * PI) return;
-        projectionFunction = sin(polar.x);
+        if (polarRadius > 0.5 * PI) return;
+        projectionFunction = sin(polarRadius);
     }
 
-    vec2 projected = camera.focalLength * projectionFunction * vec2(aspectRatio * cos(polar.y), sin(polar.y));
+    vec2 projected = camera.focalLength * projectionFunction * vec2(aspectRatio * cos(polarAngle), sin(polarAngle));
     vec2 normalizedCoordinates = 0.5 + projected;
-
-    if (any(lessThanEqual(normalizedCoordinates, vec2(0.0))) || any(greaterThanEqual(normalizedCoordinates, vec2(1.0))))
-        return;
 
     float sunRadiance;
     if (atmosphereEnabled == 1)
