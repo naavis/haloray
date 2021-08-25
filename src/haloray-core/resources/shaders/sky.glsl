@@ -43,10 +43,7 @@ const float mixingMinElevation = radians(0.0);
 
 vec3 getSunVector()
 {
-    /* NOTE: The sun vector is now in the opposite Z direction
-      than in the crystal raytracing shader. This should probably
-      made the same in all shaders. */
-    return normalize(vec3(0.0, sin(sun.altitude), -cos(sun.altitude)));
+    return normalize(vec3(0.0, sin(sun.altitude), cos(sun.altitude)));
 }
 
 /*
@@ -230,7 +227,7 @@ mat3 rotateAroundY(float angle)
 
 mat3 getCameraOrientationMatrix()
 {
-    return rotateAroundY(camera.yaw) * rotateAroundX(camera.pitch);
+    return rotateAroundY(-camera.yaw) * rotateAroundX(-camera.pitch);
 }
 
 vec3 renderSun(vec3 direction)
@@ -290,7 +287,7 @@ void main(void)
 
     float x = sin(projectedAngle) * cos(polar.y);
     float y = sin(projectedAngle) * sin(polar.y);
-    float z = -cos(projectedAngle);
+    float z = cos(projectedAngle);
 
     vec3 dir = normalize(getCameraOrientationMatrix() * vec3(x, y, z));
     if (dir.y < 0.0) return;
