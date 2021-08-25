@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+- Crystal geometry generation logic was rewritten to keep pyramid apex angle
+  constant regardless of varying prism face distances to the crystal C-axis
+
 ## 3.3.0 - 2021-05-07
 
 ### Changed
