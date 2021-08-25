@@ -8,6 +8,10 @@ and this project adheres to
 
 ## Unreleased
 
+### Added
+
+- Option to show 22r and 46r guide circles, horizon line, nadir and zenith
+
 ### Changed
 
 - Crystal geometry generation logic was rewritten to keep pyramid apex angle
