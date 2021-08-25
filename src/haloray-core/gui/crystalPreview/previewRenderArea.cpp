@@ -39,43 +39,45 @@ QSize PreviewRenderArea::sizeHint() const
 void PreviewRenderArea::paintEvent(QPaintEvent *)
 {
     const int numVertices = 24;
-    initializeGeometry(m_vertices, numVertices);
+    initializeGeometry(m_vertices);
+
+    QMatrix4x4 perspectiveMat;
+    perspectiveMat.perspective(90.0f, 1.0, 0.01f, 100.0f);
+
+    QMatrix4x4 viewMat;
+    viewMat.lookAt(QVector3D(5.0f, 5.0f, 5.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
+
     float largestDimension = getFurthestVertexDistance(m_vertices, numVertices);
-
-    QMatrix4x4 transformMat;
-    transformMat.scale(600.0f);
-    transformMat.perspective(90.0f, 1.0, 0.01f, 5.0f);
-    transformMat.lookAt(QVector3D(-2.0f, 2.0f, 2.0f), QVector3D(0.0f, 0.0f, 0.0f), QVector3D(0.0f, 1.0f, 0.0f));
-    transformMat.scale(1.0f / largestDimension);
-
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::RenderHint::Antialiasing);
-    QPen pen;
-    pen.setColor(QColor(0, 0, 0));
-    pen.setWidth(3);
-    painter.setPen(pen);
-
-    painter.rotate(180.0);
-    painter.translate(-width() / 2, -height() / 2);
-    int side = qMin(width(), height());
-    painter.scale(side / 500.0f, side / 500.0f);
-
-    QMatrix4x4 orientationMatrix = getCrystalOrientationMatrix();
+    QMatrix4x4 orientationMat = getCrystalOrientationMatrix();
+    QMatrix4x4 modelMat;
+    modelMat.scale(1.0f / largestDimension);
 
     QVector4D mappedVertices[numVertices];
     for (int i = 0; i < numVertices; ++i)
     {
-        mappedVertices[i] = transformMat * orientationMatrix * QVector4D(m_vertices[i], 1.0f);
+        mappedVertices[i] = perspectiveMat * viewMat * orientationMat * modelMat * QVector4D(m_vertices[i], 1.0f);
     }
 
-    QPoint points[numVertices];
+    QPointF points[numVertices];
     std::transform(
                 mappedVertices,
                 mappedVertices + numVertices,
                 points,
                 [](QVector4D vertex) {
-        return (vertex / vertex.w()).toPoint();
+        return (vertex / vertex.w()).toPointF();
     });
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::RenderHint::Antialiasing);
+    painter.translate(width() / 2, height() / 2);
+    int side = qMin(width(), height());
+    painter.scale(side, -side);
+    painter.scale(3.5, 3.5);
+
+    QPen pen;
+    pen.setColor(QColor(0, 0, 0));
+    pen.setWidthF(0.5/side);
+    painter.setPen(pen);
 
     painter.drawPolygon(points, 6);
     painter.drawPolygon(points + 6 , 6);
@@ -84,28 +86,126 @@ void PreviewRenderArea::paintEvent(QPaintEvent *)
 
     for (int i = 0; i < 6; ++i)
     {
-        QPolygon edgePoints;
+        QPolygonF edgePoints;
         edgePoints << points[i] << points [i + 6] << points[i + 12] << points[i + 18];
         painter.drawPolyline(edgePoints);
     }
+
+    // Drawing the axis lines is helpful for debugging
+    //drawAxisLines(perspectiveMat * viewMat, &painter);
 }
 
-QVector2D lineIntersect(QVector2D line1, QVector2D line2)
+void PreviewRenderArea::drawAxisLines(QMatrix4x4 viewMat, QPainter *painter)
 {
-    float p1 = line1.x();
-    float theta1 = line1.y();
+    auto axisLength = 10.0f;
+    auto origin = viewMat * QVector4D(0.0f, 0.0f, 0.0f, 1.0f);
 
-    float p2 = line2.x();
-    float theta2 = line2.y();
+    QPen pen;
+    pen.setWidth(0);
+    pen.setColor(QColor(255, 0, 0));
+    painter->setPen(pen);
+    auto xAxis = viewMat * QVector4D(axisLength, 0.0f, 0.0f, 1.0f);
+    painter->drawLine((origin / origin.w()).toPoint(), (xAxis / xAxis.w()).toPointF());
 
-    float deltaSine = sin(theta2 - theta1);
-    float x = (p1 * sin(theta2) - p2 * sin(theta1)) / deltaSine;
-    float y = (p2 * cos(theta1) - p1 * cos(theta2)) / deltaSine;
+    pen.setColor(QColor(0, 255, 0));
+    painter->setPen(pen);
+    auto yAxis = viewMat * QVector4D(0.0f, axisLength, 0.0f, 1.0f);
+    painter->drawLine((origin / origin.w()).toPoint(), (yAxis / yAxis.w()).toPointF());
 
-    return QVector2D(x, y);
+    pen.setColor(QColor(0, 0, 255));
+    painter->setPen(pen);
+    auto zAxis = viewMat * QVector4D(0.0f, 0.0f, axisLength, 1.0f);
+    painter->drawLine((origin / origin.w()).toPoint(), (zAxis / zAxis.w()).toPointF());
 }
 
-void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
+int getPrevious(int i)
+{
+    return (((i - 1) % 6) + 6) % 6;
+}
+
+int getNext(int i)
+{
+    return (i + 1) % 6;
+}
+
+QVector2D rotate(double angle, double x, double y)
+{
+    return QVector2D(cos(angle) * x - sin(angle) * y, sin(angle) * x + cos(angle) * y);
+}
+
+float determinant3x3(QMatrix3x3 mat)
+{
+    auto a = mat.constData()[0];
+    auto b = mat.constData()[1];
+    auto c = mat.constData()[2];
+    auto d = mat.constData()[3];
+    auto e = mat.constData()[4];
+    auto f = mat.constData()[5];
+    auto g = mat.constData()[6];
+    auto h = mat.constData()[7];
+    auto i = mat.constData()[8];
+    return a * (e * i - h * f) - b * (d * i - g * f) + c * (d * h - g * e);
+}
+
+void generateApexNormals(double apexAngle, QVector3D *apexNormals)
+{
+    auto halfApex = apexAngle / 2.0;
+    QMatrix4x4 normalTiltMat;
+    normalTiltMat.rotate(-halfApex * 180.0f / PI, 1.0f, 0.0f, 0.0f);
+    for (auto i = 0; i < 6; ++i)
+    {
+        auto rotAngle = i * PI / 3.0;
+        /* Initial normal vector is first tilted around the X axis
+         * according to the apex angle and then rotated around the Y
+         * axis in 60 degree increments. */
+        QMatrix4x4 normalRotationMat;
+        normalRotationMat.rotate(rotAngle * 180.0f / PI, 0.0f, 1.0f, 0.0f);
+        apexNormals[i] = normalRotationMat * normalTiltMat * QVector3D(0.0f, 0.0f, 1.0f);
+    }
+}
+
+float getMaximumApexHeight(QVector3D *normals, QVector3D *vertices, float *prismFaceDistances, float apexAngle, int vertexOffset)
+{
+    float maxApexHeight = std::numeric_limits<float>::max();
+    // Intersect three adjacent pyramid faces to find maximum height of pyramid cap based on degenerating faces
+    for (auto face = 0; face < 6; ++face)
+    {
+        auto prevFace = getPrevious(face);
+        auto nextFace = getNext(face);
+
+        auto nPrev = normals[prevFace];
+        auto nCurr = normals[face];
+        auto nNext = normals[nextFace];
+
+        auto prevVert = vertices[prevFace + vertexOffset];
+        auto nextVert = vertices[face + vertexOffset];
+
+        auto numerator = QVector3D::dotProduct(prevVert, nPrev) * QVector3D::crossProduct(nCurr, nNext) +
+                QVector3D::dotProduct(prevVert, nCurr) * QVector3D::crossProduct(nNext, nPrev) +
+                QVector3D::dotProduct(nextVert, nNext) * QVector3D::crossProduct(nPrev, nCurr);
+        float detMatrixContents[] = {
+            nPrev.x(), nCurr.x(), nNext.x(),
+            nPrev.y(), nCurr.y(), nNext.y(),
+            nPrev.z(), nCurr.z(), nNext.z()
+        };
+        auto detMatrix = QMatrix3x3(detMatrixContents);
+        auto denominator = determinant3x3(detMatrix);
+        auto faceHeight = abs((numerator / denominator).y());
+        maxApexHeight = fminf(faceHeight, maxApexHeight);
+    }
+
+    // Find maximum height of pyramid cap based on angle and face distances
+    for (auto i = 0; i < 3; ++i)
+    {
+        auto dist = prismFaceDistances[i];
+        auto distOpposite = prismFaceDistances[i + 3];
+        auto h = (dist + distOpposite) / (2.0 * tan(apexAngle / 2.0));
+        maxApexHeight = fminf(h, maxApexHeight);
+    }
+    return maxApexHeight;
+}
+
+void PreviewRenderArea::initializeGeometry(QVector3D *vertices)
 {
     float caRatioAverage = getFromModel(m_populationIndex, CrystalModel::CaRatioAverage).toFloat();
     float upperApexAngle = degToRad(getFromModel(m_populationIndex, CrystalModel::UpperApexAngle).toFloat());
@@ -121,87 +221,112 @@ void PreviewRenderArea::initializeGeometry(QVector3D *vertices, int numVertices)
         getFromModel(m_populationIndex, CrystalModel::PrismFaceDistance6).toFloat(),
     };
 
-    float deltaAngle = degToRad(60.0f);
     QVector2D hexagonCorners[6];
-    /* The sqrt(3)/2 multiplier makes the default crystal such
-       that the distance of a vertex from the C axis is 1.0 */
-    float sizeScaler = sqrt(3.0f) / 2.0f;
-    for (int face = 0; face < 6; ++face)
+
+    // Calculate initial hexagon corners
+    for (auto i = 0; i < 6; ++i)
     {
-        int previousFace = face == 0 ? 5 : face - 1;
-        int nextFace = face == 5 ? 0 : face + 1;
+        auto d1 = prismFaceDistances[i];
+        auto d2 = prismFaceDistances[getNext(i)];
 
-        float previousAngle = (face + 1) * deltaAngle;
-        float currentAngle = previousAngle + deltaAngle;
-        float nextAngle = previousAngle + 2.0 * deltaAngle;
-
-        float previousDistance = sizeScaler * prismFaceDistances[previousFace];
-        float currentDistance = sizeScaler * prismFaceDistances[face];
-        float nextDistance = sizeScaler * prismFaceDistances[nextFace];
-
-        QVector2D previousLine = QVector2D(previousDistance, previousAngle);
-        QVector2D currentLine = QVector2D(currentDistance, currentAngle);
-        QVector2D nextLine = QVector2D(nextDistance, nextAngle);
-
-        QVector2D previousCurrentIntersection = lineIntersect(previousLine, currentLine);
-        QVector2D currentNextIntersection = lineIntersect(currentLine, nextLine);
-        QVector2D previousNextIntersection = lineIntersect(previousLine, nextLine);
-
-        float previousCurrentIntersectionDistance = previousCurrentIntersection.length();
-        float currentNextIntersectionDistance = currentNextIntersection.length();
-        float previousNextIntersectionDistance = previousNextIntersection.length();
-
-        QVector2D v1 = previousCurrentIntersectionDistance < previousNextIntersectionDistance ? previousCurrentIntersection : previousNextIntersection;
-        QVector2D v2 = currentNextIntersectionDistance < previousNextIntersectionDistance ? currentNextIntersection : previousNextIntersection;
-
-        if (face > 0 && previousNextIntersectionDistance > hexagonCorners[face].length())
-        {
-            v1 = hexagonCorners[face];
-        }
-
-        if (face == 5 && previousNextIntersectionDistance > hexagonCorners[nextFace].length())
-        {
-            v2 = hexagonCorners[nextFace];
-        }
-
-        hexagonCorners[face] = v1;
-        hexagonCorners[nextFace] = v2;
+        auto angle = -i * PI / 3.0;
+        auto x_stat = 2.0 * d2 / sqrt(3.0) - d1 / sqrt(3.0);
+        auto y_stat = d1;
+        hexagonCorners[i] = rotate(angle, x_stat, y_stat);
     }
 
-    for (int face = 0; face < 6; ++face)
+    // Fix denegerate prism faces
+    for (auto face = 0; face < 6; ++face)
+    {
+        auto prevFace = getPrevious(face);
+        auto nextFace = getNext(face);
+        auto angle = -face * PI / 3.0;
+
+        auto d1 = prismFaceDistances[face];
+        auto d2 = prismFaceDistances[nextFace];
+        auto d3 = prismFaceDistances[prevFace];
+        if (d1 > d2 + d3)
+        {
+            auto x_stat = d2 / sqrt(3.0) - d3 / sqrt(3.0);
+            auto y_stat = d2 + d3;
+            auto rotatedPoint = rotate(angle, x_stat, y_stat);
+            hexagonCorners[face] = rotatedPoint;
+            hexagonCorners[prevFace] = rotatedPoint;
+        }
+    }
+
+    /* Scaling value makes sure eventual A axis length is 2.0, so C/A ratio
+     * can be easily corrected. */
+    auto hexagonScaler = (hexagonCorners[1] - hexagonCorners[4]).length();
+    for (auto i = 0; i < 6; ++i)
+    {
+        hexagonCorners[i] *= 2.0f / hexagonScaler;
+    }
+
+    for (auto face = 0; face < 6; ++face)
     {
         QVector2D *vertex = &hexagonCorners[face];
         // Corresponding vertices of each crystal layer have the same X and Z coordinates
-        vertices[face] = QVector3D(vertex->x(), 1.0f, vertex->y());
-        vertices[face + 6] = QVector3D(vertex->x(), 1.0f, vertex->y());
-        vertices[face + 12] = QVector3D(vertex->x(), -1.0f, vertex->y());
-        vertices[face + 18] = QVector3D(vertex->x(), -1.0f, vertex->y());
+        // First six vertices are the top apex cap
+        // Next six vertices are the top of the base hexagonal crystal
+        // Next six vertices are the bottom of the base hexagonal crystal
+        // Last six vertices are the bottom apex cap
+        vertices[face] = QVector3D(vertex->x(), 0.0f, vertex->y());
+        vertices[face + 6] = QVector3D(vertex->x(), 0.0f, vertex->y());
+        vertices[face + 12] = QVector3D(vertex->x(), 0.0f, vertex->y());
+        vertices[face + 18] = QVector3D(vertex->x(), 0.0f, vertex->y());
     }
 
-    // Stretch the crystal to correct C/A ratio
-    float caMultiplier = caRatioAverage;
-    for (int i = 0; i < numVertices; ++i)
+    if (upperApexHeightAverage > 0.0 && upperApexAngle < PI && upperApexAngle > 0.0)
     {
-        vertices[i].setY(vertices[i].y() * caMultiplier);
+        // Generate normals for upper pyramid cap
+        QVector3D upperApexNormals[6];
+        generateApexNormals(upperApexAngle, upperApexNormals);
+
+        // Set upper pyramid cap vertex positions
+        float maxUpperApexHeight = getMaximumApexHeight(upperApexNormals, vertices, prismFaceDistances, upperApexAngle, 0);
+        for (auto i = 0; i < 6; ++i)
+        {
+            auto next = getNext(i);
+            auto pyramidEdge = QVector3D::crossProduct(upperApexNormals[i], upperApexNormals[next]);
+            vertices[i] += upperApexHeightAverage * maxUpperApexHeight * pyramidEdge / pyramidEdge.y();
+        }
     }
 
-    // Scale pyramid caps
-    float upperApexMaxHeight = sizeScaler / tan(upperApexAngle / 2.0);
-    float lowerApexMaxHeight = sizeScaler / tan(lowerApexAngle / 2.0);
-
-    float upperApexHeight = upperApexHeightAverage;
-    float lowerApexHeight = lowerApexHeightAverage;
-
-    for (int i = 0; i < 6; ++i)
+    if (lowerApexHeightAverage > 0.0 && lowerApexAngle < PI && lowerApexAngle > 0.0)
     {
-        vertices[i] = QVector3D(
-                    vertices[i].x() * (1.0 - upperApexHeight),
-                    vertices[i].y() + upperApexHeight * upperApexMaxHeight,
-                    vertices[i].z() * (1.0 - upperApexHeight));
-        vertices[numVertices - i - 1] = QVector3D(
-                    vertices[numVertices - i - 1].x() * (1.0 - lowerApexHeight),
-                    vertices[numVertices - i - 1].y() - lowerApexHeight * lowerApexMaxHeight,
-                    vertices[numVertices - i - 1].z() * (1.0 - lowerApexHeight));
+        // Generate normals for lower pyramid cap
+        QVector3D lowerApexNormals[6];
+        generateApexNormals(lowerApexAngle, lowerApexNormals);
+        for (auto i = 0; i < 6; ++i)
+        {
+            lowerApexNormals[i].setY(-lowerApexNormals[i].y());
+        }
+
+        // Set lower pyramid cap vertex positions
+        float maxLowerApexHeight = getMaximumApexHeight(lowerApexNormals, vertices, prismFaceDistances, lowerApexAngle, 18);
+        for (auto i = 0; i < 6; ++i)
+        {
+            auto next = getNext(i);
+            auto pyramidEdge = QVector3D::crossProduct(lowerApexNormals[i], lowerApexNormals[next]);
+            vertices[i + 18] -= lowerApexHeightAverage * maxLowerApexHeight * pyramidEdge / pyramidEdge.y();
+        }
+    }
+
+    // Scale crystal vertically to have correct C/A ratio
+    for (auto i = 0; i < 12; ++i)
+    {
+        vertices[i].setY(vertices[i].y() + caRatioAverage);
+        vertices[i + 12].setY(vertices[i + 12].y() - caRatioAverage);
+    }
+
+    // Rotate crystal around C-axis so that face numbering follows conventions
+    // Prism face 0 (Face 3 in the UI) should be up in a column Parry position
+    QMatrix4x4 conventionMatrix;
+    conventionMatrix.rotate(-90.0f, 0.0f, 1.0f, 0.0f);
+    for (auto i = 0; i < 24; ++i)
+    {
+        vertices[i] = conventionMatrix * vertices[i];
     }
 }
 
@@ -221,8 +346,10 @@ QMatrix4x4 PreviewRenderArea::getCrystalOrientationMatrix() const
     float tilt = getFromModel(m_populationIndex, CrystalModel::TiltAverage).toFloat();
     float rotation = getFromModel(m_populationIndex, CrystalModel::RotationAverage).toFloat();
     QMatrix4x4 orientationMatrix;
-    orientationMatrix.rotate(tilt, QVector3D(0.0f, 0.0f, 1.0f));
+    // First rotate around Y and tent tile around Z
+    orientationMatrix.rotate(-tilt, QVector3D(0.0f, 0.0f, 1.0f));
     orientationMatrix.rotate(rotation, QVector3D(0.0f, 1.0f, 0.0f));
+
     return orientationMatrix;
 }
 

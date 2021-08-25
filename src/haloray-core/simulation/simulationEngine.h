@@ -41,6 +41,9 @@ public:
     Atmosphere getAtmosphere() const;
     void setAtmosphere(Atmosphere);
 
+    bool getGuidesEnabled() const;
+    void setGuidesEnabled(bool);
+
     void lockCameraToLightSource(bool locked);
 
     void setMultipleScatteringProbability(double);
@@ -48,6 +51,7 @@ public:
 
     unsigned int getOutputTextureHandle() const;
     unsigned int getBackgroundTextureHandle() const;
+    unsigned int getGuideTextureHandle() const;
 
     void resizeOutputTextureCallback(const unsigned int width, const unsigned int height);
 
@@ -58,6 +62,7 @@ signals:
     void atmosphereChanged(Atmosphere);
     void lockCameraToLightSourceChanged(bool);
     void multipleScatteringProbabilityChanged(double);
+    void guidesToggled(bool);
 
 private:
     void initializeShaders();
@@ -68,10 +73,12 @@ private:
     unsigned int m_outputHeight;
     std::mt19937 m_mersenneTwister;
     std::uniform_int_distribution<unsigned int> m_uniformDistribution;
-    std::unique_ptr<QOpenGLShaderProgram> m_simulationShader;
+    QOpenGLShaderProgram *m_simulationShader;
     QOpenGLShaderProgram *m_skyShader;
+    QOpenGLShaderProgram *m_guideShader;
     std::unique_ptr<OpenGL::Texture> m_simulationTexture;
     std::unique_ptr<OpenGL::Texture> m_backgroundTexture;
+    std::unique_ptr<OpenGL::Texture> m_guideTexture;
 
     Camera m_camera;
     LightSource m_light;
@@ -85,6 +92,7 @@ private:
     std::shared_ptr<CrystalPopulationRepository> m_crystalRepository;
     float m_sunSpectrumCache[31];
     Atmosphere m_atmosphere;
+    bool m_guidesEnabled;
 };
 
 }

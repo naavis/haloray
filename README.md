@@ -138,6 +138,7 @@ These settings affect how the results of the simulation are shown on the screen.
 - **Brightness:** Alters the total brightness of the image, much like an exposure adjustment on cameras
 - **Hide sub-horizon:** Hides any halos below the horizon level
 - **Lock to light source:** Locks the camera to the sun
+- **Show guides:** Draws markings for horizon, zenith, nadir, 22r and 46r circles
 
 ### Atmosphere settings
 
@@ -238,4 +239,5 @@ problems like this are encountered.
 - [Lauri Kangas](https://github.com/lkangas) for providing tons of reading material and debugging help
 - [Panu Lahtinen](https://github.com/pnuu) for additional Linux support
 - Jukka Ruoskanen for making HaloPoint 2.0 back in the day and inspiring me to start working on HaloRay
+- Marko Riikonen for giving valuable feedback and reporting bugs
 - [Jaakko Lehtinen](https://users.aalto.fi/~lehtinj7/) for super valuable lessons in computer graphics
