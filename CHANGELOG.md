@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- Writes to the outside of the result texture end up back inside the texture
+  on some Intel GPUs on Linux. Now they are correctly discarded again.
+
 ## 4.0.0 - 2021-08-25
 
 ### Added

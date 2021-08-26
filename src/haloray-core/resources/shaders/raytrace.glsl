@@ -771,6 +771,9 @@ void main(void)
     vec2 projected = camera.focalLength * projectionFunction * vec2(aspectRatio * cos(polarAngle), sin(polarAngle));
     vec2 normalizedCoordinates = 0.5 + projected;
 
+    if (any(lessThanEqual(normalizedCoordinates, vec2(0.0))) || any(greaterThanEqual(normalizedCoordinates, vec2(1.0))))
+        return;
+
     float sunRadiance;
     if (atmosphereEnabled == 1)
     {
