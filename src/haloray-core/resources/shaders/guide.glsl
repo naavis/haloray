@@ -25,8 +25,12 @@ uniform struct camera_t
 #define PROJECTION_ORTHOGRAPHIC 4
 
 const float PI = 3.1415926535;
-const float LINEWIDTHDEGREES = 0.25 / sqrt(camera.focalLength);
-const float LINEWIDTH = LINEWIDTHDEGREES * PI / 180.0;
+// The following constants cannot be set to
+// `const` because the value depends on a
+// shader uniform, and consts must be
+// initialized with a constant expression.
+float LINEWIDTHDEGREES = 0.25 / sqrt(camera.focalLength);
+float LINEWIDTH = LINEWIDTHDEGREES * PI / 180.0;
 
 vec2 planarToPolar(vec2 point)
 {

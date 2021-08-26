@@ -10,8 +10,9 @@ and this project adheres to
 
 ### Fixed
 
-- Writes to the outside of the result texture end up back inside the texture
-  on some Intel GPUs on Linux. Now they are correctly discarded again.
+- Fixed bug where writes outside texture bounds ended up inside the texture
+  on some Intel GPUs on Linux
+- Fixed guide marking shader to compile on Linux and Intel GPUs
 
 ## 4.0.0 - 2021-08-25
 
