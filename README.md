@@ -180,9 +180,8 @@ Finally build the project by running:
 
 ```bash
 mkdir build
-cd src
-qmake main.pro -o ..\build\
-cd ..\build
+cd build
+qmake ../src/haloray.pro
 make
 ```
 
