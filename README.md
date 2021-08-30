@@ -223,7 +223,7 @@ HaloRay.exe -platform windows:dpiawareness=2
 HaloRay writes a log file to help in troubleshooting.
 
 On Windows you can find it in `%LOCALAPPDATA%\Temp\haloray\haloray.log` where
-`%LOCALAPPDATA` is usually equal to `C:\Users\<username>\AppData\Local`
+`%LOCALAPPDATA%` is usually equal to `C:\Users\<username>\AppData\Local`
 
 On Linux the log file is in `/tmp/haloray/haloray.log`
 
