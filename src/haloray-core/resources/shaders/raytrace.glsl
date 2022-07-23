@@ -208,8 +208,10 @@ float zFit_1931(float wave)
 
 float getIceIOR(float wavelength)
 {
-    // Eq. from Simulating rainbows and halos in color by Stanley Gedzelman
-    return 1.3203 - 0.0000333 * wavelength;
+    // The index of refraction is based on a second degree polynomial fitted to data from
+    // "Optical constants of ice from the ultraviolet to the microwave" by Warren and Brandt
+    // The raw data is available here: https://atmos.uw.edu/ice_optical_constants/
+    return 9.35698756194051e-8 * wavelength * wavelength - 1.42326056729702e-4 * wavelength + 1.36093233643442;
 }
 
 uint selectFirstTriangle(vec3 rayDirection)
