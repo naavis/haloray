@@ -11,7 +11,7 @@ and this project adheres to
 ### Changed
 
 - Changed equation used to calculate index of refraction from one provided in
-  Stanley Gedzelman's paper Simulatin Rainbows and Halos in Color to a
+  Stanley Gedzelman's paper Simulating Rainbows and Halos in Color to a
   polynomial fitted to data provided by Warren and Brandt in their paper Optical
   Constants of Ice from The Ultraviolet to The Microwave, which is what
   HaloPoint 2.0 uses
