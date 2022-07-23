@@ -101,6 +101,9 @@ int main(int argc, char *argv[])
     Q_INIT_RESOURCE(haloray);
     initializeLogging();
 
+    QCoreApplication::setOrganizationName("Other Computer Software");
+    QCoreApplication::setApplicationName("HaloRay");
+
     QGuiApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
     QGuiApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);

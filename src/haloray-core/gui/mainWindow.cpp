@@ -98,39 +98,43 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_previousTimedIt
         auto defaultFilename = QString("haloray_%1.png")
                                    .arg(currentTime)
                                    .replace(":", "-");
+        auto defaultFilePath = getLatestAccessedFolder().absoluteFilePath(defaultFilename);
         QString filename = QFileDialog::getSaveFileName(this,
                                                         tr("Save File"),
-                                                        defaultFilename,
+                                                        defaultFilePath,
                                                         tr("Images (*.png)"));
 
-        if (!filename.isNull())
-        {
-            image.save(filename, "PNG", 50);
-        }
+        if (filename.isNull()) return;
+
+        image.save(filename, "PNG", 50);
+        updateLatestAccessedFolder(filename);
     });
     connect(m_saveSimulationAction, &QAction::triggered, [this]() {
         auto currentTime = QDateTime::currentDateTimeUtc().toString(Qt::DateFormat::ISODate);
         auto defaultFilename = QString("haloray_sim_%1.ini")
                                    .arg(currentTime)
                                    .replace(":", "-");
+        auto defaultFilePath = getLatestAccessedFolder().absoluteFilePath(defaultFilename);
         QString filename = QFileDialog::getSaveFileName(this,
                                                         tr("Save File"),
-                                                        defaultFilename,
+                                                        defaultFilePath,
                                                         tr("Simulation files (*.ini)"));
 
         if (filename.isNull()) return;
 
         StateSaver::SaveState(filename, m_engine, m_crystalRepository.get());
+        updateLatestAccessedFolder(filename);
     });
     connect(m_loadSimulationAction, &QAction::triggered, [this]() {
         QString filename = QFileDialog::getOpenFileName(this,
                                                         tr("Open file"),
-                                                        QString(),
+                                                        getLatestAccessedFolder().absolutePath(),
                                                         tr("Simulation files (*.ini)"));
 
         if (filename.isNull()) return;
 
         StateSaver::LoadState(filename, m_simulationStateModel, m_crystalModel);
+        updateLatestAccessedFolder(filename);
     });
     connect(m_openCrystalPreviewWindow, &QAction::triggered, [this]() {
         auto previewWindow = new CrystalPreviewWindow(m_crystalModel, m_crystalSettingsWidget->getCurrentPopulationIndex(), this);
@@ -271,6 +275,26 @@ void HaloRay::MainWindow::restartSimulation()
 {
     m_engine->clear();
     m_openGLWidget->update();
+}
+
+QDir MainWindow::getLatestAccessedFolder() const
+{
+    QSettings settings;
+    QString pathString = settings.value("filedialog/latestFolder", QString()).toString();
+    QDir dir(pathString);
+    if (dir.exists()) {
+        return dir;
+    }
+
+    return QDir();
+}
+
+void MainWindow::updateLatestAccessedFolder(QString fileOrDirPath)
+{
+    QFileInfo fileInfo(fileOrDirPath);
+    QString path = fileInfo.absoluteDir().path();
+    QSettings settings;
+    settings.setValue("filedialog/latestFolder", path);
 }
 
 }
