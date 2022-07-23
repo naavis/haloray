@@ -61,7 +61,7 @@ CrystalPopulation CrystalPopulation::createColumn()
 
     crystal.tiltDistribution = 1;
     crystal.tiltAverage = 90.0f;
-    crystal.tiltStd = 1.0f;
+    crystal.tiltStd = 0.5f;
 
     crystal.rotationDistribution = 0;
     crystal.rotationAverage = 0.0f;
@@ -86,11 +86,11 @@ CrystalPopulation CrystalPopulation::createParry()
 
     crystal.tiltDistribution = 1;
     crystal.tiltAverage = 90.0f;
-    crystal.tiltStd = 1.0f;
+    crystal.tiltStd = 0.5f;
 
     crystal.rotationDistribution = 1;
     crystal.rotationAverage = 0.0f;
-    crystal.rotationStd = 1.0f;
+    crystal.rotationStd = 0.5f;
 
     crystal.upperApexAngle = 56.142f;
     crystal.upperApexHeightAverage = 0.0f;
