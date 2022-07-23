@@ -10,11 +10,11 @@ and this project adheres to
 
 ### Changed
 
-- Changed equation used to calculate index of refraction for use switched from
-  one provided in Stanley Gedzelman's paper Simulatin Rainbows and Halos in
-  Color to a polynomial fitted to data provided by Warren and Brandt in their
-  paper Optical Constants of Ice from The Ultraviolet to The Microwave, which
-  is what HaloPoint 2.0 used to use
+- Changed equation used to calculate index of refraction from one provided in
+  Stanley Gedzelman's paper Simulatin Rainbows and Halos in Color to a
+  polynomial fitted to data provided by Warren and Brandt in their paper Optical
+  Constants of Ice from The Ultraviolet to The Microwave, which is what
+  HaloPoint 2.0 uses
 - HaloRay now remembers which folder you opened last when loading or saving
   files like simulation parameter files or images, and opens the file dialog
   picker in that same folder the next time
