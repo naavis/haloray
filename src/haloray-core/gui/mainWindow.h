@@ -4,11 +4,11 @@
 #include <QTimer>
 #include "gui/models/simulationStateModel.h"
 
-
 class QDoubleSpinBox;
 class QProgressBar;
 class QScrollArea;
 class QAction;
+class QDir;
 
 namespace HaloRay
 {
@@ -38,6 +38,9 @@ private:
     void setupMenuBar();
     void setupRenderTimer();
     void restartSimulation();
+
+    QDir getLatestAccessedFolder() const;
+    void updateLatestAccessedFolder(QString fileOrDirPath);
 
     GeneralSettingsWidget *m_generalSettingsWidget;
     CrystalSettingsWidget *m_crystalSettingsWidget;
