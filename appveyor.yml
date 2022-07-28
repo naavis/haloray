@@ -24,6 +24,6 @@ deploy:
     description: ""
     skip_tags: true
     auth_token:
-      secure: eMwk/VxPE6NFjxlZpAAFZuf66bhTSGr53RDKw4DYPFhKomd2jybUE1y2dHQDAjgG
+      secure: h8buXxDgXHpjT+2LYvxKN7DWWnfyBfe6P/akXrt9HsC8EJ6AzgxMkI7q4CnmMZWw
     on:
       branch: master
