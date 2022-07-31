@@ -305,7 +305,7 @@ void SimulationEngine::initializeShaders()
 {
     qInfo("Initializing raytracing shader");
     m_simulationShader = new QOpenGLShaderProgram(this);
-    bool raytraceShaderReadSucceeded = m_simulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
+    bool raytraceShaderReadSucceeded = m_simulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/divergent.glsl");
     if (raytraceShaderReadSucceeded == false)
     {
         qWarning("Reading raytracing shader failed");
