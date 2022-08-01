@@ -8,6 +8,14 @@ layout(binding = 0, rgba32f) uniform coherent image2D outputImage;
    the ice crystal before it is abandoned */
 #define MAX_HITS 100
 
+/* RAY_REUSE defines how many times a given
+   scattering angle is reused before raytracing
+   through a new crystal to speed up computations.
+   Value of 20 was recommended in "An improved
+   algorithm for simulations of divergent-light
+   halos" by Gislen et al. */
+#define SCATTERING_ANGLE_REUSE 20
+
 uniform uint rngSeed;
 uniform float multipleScatter;
 
@@ -735,80 +743,82 @@ void main(void)
 
     float scatteringAngle = acos(min(1.0, dot(incidentStandardRay, exitantStandardRay)));
 
-    vec3 exitantRay = vec3(0.0, 1.0, 0.0);
-    float totalWeight = 0.0;
+    for (int rayReuseCounter = 0; rayReuseCounter < SCATTERING_ANGLE_REUSE; ++rayReuseCounter) {
+        vec3 exitantRay = vec3(0.0, 1.0, 0.0);
+        float totalWeight = 0.0;
 
-    if (scatteringAngle < 0.0001) {
-        totalWeight = 1.0;
-        exitantRay = -normalize(lightSourceToObserver);
-    } else {
-        float polarAngleTheta = rand() * scatteringAngle;
-        float polarAnglePhi = rand() * 2.0 * PI;
-        float psi = scatteringAngle - polarAngleTheta;
+        if (scatteringAngle < 0.0001) {
+            totalWeight = 1.0;
+            exitantRay = -normalize(lightSourceToObserver);
+        } else {
+            float polarAngleTheta = rand() * scatteringAngle;
+            float polarAnglePhi = rand() * 2.0 * PI;
+            float psi = scatteringAngle - polarAngleTheta;
 
-        vec3 incidentResultRay = lightSourceMatrix * (
-                    distance * sin(psi) / sin(scatteringAngle) * vec3(
-                        sin(polarAngleTheta) * cos(polarAnglePhi),
-                        sin(polarAngleTheta) * sin(polarAnglePhi),
-                        cos(polarAngleTheta)));
-        vec3 exitantResultRay = lightSourceToObserver - incidentResultRay;
+            vec3 incidentResultRay = lightSourceMatrix * (
+                        distance * sin(psi) / sin(scatteringAngle) * vec3(
+                            sin(polarAngleTheta) * cos(polarAnglePhi),
+                            sin(polarAngleTheta) * sin(polarAnglePhi),
+                            cos(polarAngleTheta)));
+            vec3 exitantResultRay = lightSourceToObserver - incidentResultRay;
 
-        mat3 standardToWorldMatrix = getRotationMatrixToMatchVectorPairs(incidentResultRay,
-                                                                         exitantResultRay,
-                                                                         incidentStandardRay,
-                                                                         exitantStandardRay);
+            mat3 standardToWorldMatrix = getRotationMatrixToMatchVectorPairs(incidentResultRay,
+                                                                             exitantResultRay,
+                                                                             incidentStandardRay,
+                                                                             exitantStandardRay);
 
-        float orientationWeight = getOrientationWeight(standardToWorldMatrix);
-        float cigarWeight = getMinnaertCigarWeight(scatteringAngle);
+            float orientationWeight = getOrientationWeight(standardToWorldMatrix);
+            float cigarWeight = getMinnaertCigarWeight(scatteringAngle);
 
-        totalWeight = cigarWeight * orientationWeight;
-        exitantRay = normalize(exitantResultRay);
+            totalWeight = cigarWeight * orientationWeight;
+            exitantRay = normalize(exitantResultRay);
+        }
+
+        // Rotate ray 180 degrees around vertical axis to match same coordinate system as with other shaders
+        exitantRay = vec3(-exitantRay.x, exitantRay.y, -exitantRay.z);
+
+        // Hide subhorizon rays
+        if (camera.hideSubHorizon == 1 && exitantRay.y > 0.0) return;
+
+        ivec2 resolution = imageSize(outputImage);
+        float aspectRatio = float(resolution.y) / float(resolution.x);
+
+        // Camera is looking down the positive Z axis.
+        // Ray is now transformed into camera space.
+        // Camera matrix must be inverted (transposed) because ray
+        // is being transformed, not the camera.
+        vec3 exitantRayCameraSpace = normalize(transpose(getCameraOrientationMatrix()) * exitantRay);
+        vec3 lightDirectionCameraSpace = -exitantRayCameraSpace;
+        vec2 polar = cartesianToPolar(lightDirectionCameraSpace);
+        float polarRadius = polar.x;
+        float polarAngle = polar.y;
+
+        float projectionFunction;
+        if (camera.projection == PROJECTION_STEREOGRAPHIC) {
+            projectionFunction = 2.0 * tan(polarRadius / 2.0);
+        } else if (camera.projection == PROJECTION_RECTILINEAR) {
+            if (polarRadius > 0.5 * PI) return;
+            projectionFunction = tan(polarRadius);
+        } else if (camera.projection == PROJECTION_EQUIDISTANT) {
+            projectionFunction = polarRadius;
+        } else if (camera.projection == PROJECTION_EQUAL_AREA) {
+            projectionFunction = 2.0 * sin(polarRadius / 2.0);
+        } else if (camera.projection == PROJECTION_ORTHOGRAPHIC) {
+            if (polarRadius > 0.5 * PI) return;
+            projectionFunction = sin(polarRadius);
+        }
+
+        vec2 projected = camera.focalLength * projectionFunction * vec2(aspectRatio * cos(polarAngle), sin(polarAngle));
+        vec2 normalizedCoordinates = 0.5 + projected;
+
+        if (any(lessThanEqual(normalizedCoordinates, vec2(0.0))) || any(greaterThanEqual(normalizedCoordinates, vec2(1.0))))
+            return;
+
+        float sunRadiance = daylightEstimate(wavelength);
+
+        ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.x, resolution.y * normalizedCoordinates.y);
+        vec3 cieXYZ = 10.0 * totalWeight * sunRadiance * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength)) / sqrt(SCATTERING_ANGLE_REUSE);
+        mat3 xyzToSrgb = mat3(3.24096994, -0.96924364, 0.05563008, -1.53738318, 1.8759675, -0.20397696, -0.49861076, 0.04155506, 1.05697151);
+        storePixel(pixelCoordinates, xyzToSrgb * cieXYZ);
     }
-
-    // Rotate ray 180 degrees around vertical axis to match same coordinate system as with other shaders
-    exitantRay = vec3(-exitantRay.x, exitantRay.y, -exitantRay.z);
-
-    // Hide subhorizon rays
-    if (camera.hideSubHorizon == 1 && exitantRay.y > 0.0) return;
-
-    ivec2 resolution = imageSize(outputImage);
-    float aspectRatio = float(resolution.y) / float(resolution.x);
-
-    // Camera is looking down the positive Z axis.
-    // Ray is now transformed into camera space.
-    // Camera matrix must be inverted (transposed) because ray
-    // is being transformed, not the camera.
-    vec3 exitantRayCameraSpace = normalize(transpose(getCameraOrientationMatrix()) * exitantRay);
-    vec3 lightDirectionCameraSpace = -exitantRayCameraSpace;
-    vec2 polar = cartesianToPolar(lightDirectionCameraSpace);
-    float polarRadius = polar.x;
-    float polarAngle = polar.y;
-
-    float projectionFunction;
-    if (camera.projection == PROJECTION_STEREOGRAPHIC) {
-        projectionFunction = 2.0 * tan(polarRadius / 2.0);
-    } else if (camera.projection == PROJECTION_RECTILINEAR) {
-        if (polarRadius > 0.5 * PI) return;
-        projectionFunction = tan(polarRadius);
-    } else if (camera.projection == PROJECTION_EQUIDISTANT) {
-        projectionFunction = polarRadius;
-    } else if (camera.projection == PROJECTION_EQUAL_AREA) {
-        projectionFunction = 2.0 * sin(polarRadius / 2.0);
-    } else if (camera.projection == PROJECTION_ORTHOGRAPHIC) {
-        if (polarRadius > 0.5 * PI) return;
-        projectionFunction = sin(polarRadius);
-    }
-
-    vec2 projected = camera.focalLength * projectionFunction * vec2(aspectRatio * cos(polarAngle), sin(polarAngle));
-    vec2 normalizedCoordinates = 0.5 + projected;
-
-    if (any(lessThanEqual(normalizedCoordinates, vec2(0.0))) || any(greaterThanEqual(normalizedCoordinates, vec2(1.0))))
-        return;
-
-    float sunRadiance = daylightEstimate(wavelength);
-
-    ivec2 pixelCoordinates = ivec2(resolution.x * normalizedCoordinates.x, resolution.y * normalizedCoordinates.y);
-    vec3 cieXYZ = 10.0 * totalWeight * sunRadiance * vec3(xFit_1931(wavelength), yFit_1931(wavelength), zFit_1931(wavelength));
-    mat3 xyzToSrgb = mat3(3.24096994, -0.96924364, 0.05563008, -1.53738318, 1.8759675, -0.20397696, -0.49861076, 0.04155506, 1.05697151);
-    storePixel(pixelCoordinates, xyzToSrgb * cieXYZ);
 }
