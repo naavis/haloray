@@ -649,31 +649,23 @@ float getOrientationWeight(mat3 standardToWorldMatrix)
     float cAxisRotationWeight = 0.0;
 
     if (crystalProperties.tiltDistribution == DISTRIBUTION_GAUSSIAN) {
+        // If the tilt standard deviation is 0.0, it is statistically impossible that
+        // a random crystal distribution would equal the given tilt average value, which
+        // will result in a black image. This is a shortcut to the same result.
+        if (crystalProperties.tiltStd == 0.0) return 0.0;
         float tilt = acos(abs(standardToWorldMatrix[1][1]));
-        if (crystalProperties.tiltStd == 0.0) {
-            if (crystalProperties.tiltAverage == tilt) {
-                tiltWeight = 1.0;
-            } else {
-                tiltWeight = 0.0;
-            }
-        } else {
-            tiltWeight = normalDistribution(crystalProperties.tiltAverage, crystalProperties.tiltStd, tilt);
-        }
+        tiltWeight = normalDistribution(crystalProperties.tiltAverage, crystalProperties.tiltStd, tilt);
     } else {
         tiltWeight = 1.0;
     }
 
     if (crystalProperties.rotationDistribution == DISTRIBUTION_GAUSSIAN) {
+        // If the rotation standard deviation is 0.0, it is statistically impossible that
+        // a random crystal distribution would equal the given rotation average value, which
+        // will result in a black image. This is a shortcut to the same result.
+        if (crystalProperties.rotationStd == 0.0) return 0.0;
         float rotation = mod(atan(standardToWorldMatrix[0][0], standardToWorldMatrix[2][0]), radians(60.0));
-        if (crystalProperties.rotationStd == 0.0) {
-            if (crystalProperties.rotationAverage + radians(30.0) == rotation) {
-                cAxisRotationWeight = 1.0;
-            } else {
-                cAxisRotationWeight = 0.0;
-            }
-        } else {
-            cAxisRotationWeight = normalDistribution(crystalProperties.rotationAverage + radians(30.0), crystalProperties.rotationStd, rotation);
-        }
+        cAxisRotationWeight = normalDistribution(crystalProperties.rotationAverage + radians(30.0), crystalProperties.rotationStd, rotation);
     } else {
         cAxisRotationWeight = 1.0;
     }
