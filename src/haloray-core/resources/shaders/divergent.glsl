@@ -650,14 +650,30 @@ float getOrientationWeight(mat3 standardToWorldMatrix)
 
     if (crystalProperties.tiltDistribution == DISTRIBUTION_GAUSSIAN) {
         float tilt = acos(abs(standardToWorldMatrix[1][1]));
-        tiltWeight = normalDistribution(crystalProperties.tiltAverage, crystalProperties.tiltStd, tilt);
+        if (crystalProperties.tiltStd == 0.0) {
+            if (crystalProperties.tiltAverage == tilt) {
+                tiltWeight = 1.0;
+            } else {
+                tiltWeight = 0.0;
+            }
+        } else {
+            tiltWeight = normalDistribution(crystalProperties.tiltAverage, crystalProperties.tiltStd, tilt);
+        }
     } else {
         tiltWeight = 1.0;
     }
 
     if (crystalProperties.rotationDistribution == DISTRIBUTION_GAUSSIAN) {
         float rotation = mod(atan(standardToWorldMatrix[0][0], standardToWorldMatrix[2][0]), radians(60.0));
-        cAxisRotationWeight = normalDistribution(crystalProperties.rotationAverage + radians(30.0), crystalProperties.rotationStd, rotation);
+        if (crystalProperties.rotationStd == 0.0) {
+            if (crystalProperties.rotationAverage + radians(30.0) == rotation) {
+                cAxisRotationWeight = 1.0;
+            } else {
+                cAxisRotationWeight = 0.0;
+            }
+        } else {
+            cAxisRotationWeight = normalDistribution(crystalProperties.rotationAverage + radians(30.0), crystalProperties.rotationStd, rotation);
+        }
     } else {
         cAxisRotationWeight = 1.0;
     }
