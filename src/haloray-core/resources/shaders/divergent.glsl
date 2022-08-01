@@ -710,7 +710,7 @@ void storePixel(ivec2 pixelCoordinates, vec3 value)
 {
     memoryBarrierImage();
     vec3 currentValue = imageLoad(outputImage, pixelCoordinates).xyz;
-    imageStore(outputImage, pixelCoordinates, vec4(currentValue + value, 1.0));
+    imageStore(outputImage, pixelCoordinates, vec4(min(currentValue + value, 3.402823466e+38), 1.0));
 }
 
 mat3 getRotationMatrixToMatchVectorPairs(vec3 target1, vec3 target2, vec3 vector1, vec3 vector2)
