@@ -17,13 +17,10 @@ layout(binding = 0, rgba32f) uniform coherent image2D outputImage;
 #define SCATTERING_ANGLE_REUSE 20
 
 uniform uint rngSeed;
-uniform float multipleScatter;
 
 uniform struct sunProperties_t
 {
     float altitude;
-    float diameter;
-    float spectrum[31];
 } sun;
 
 #define DISTRIBUTION_UNIFORM 0
@@ -67,8 +64,6 @@ uniform struct camera_t
     int projection;
     int hideSubHorizon;
 } camera;
-
-uniform int atmosphereEnabled;
 
 const float PI = 3.1415926535;
 
