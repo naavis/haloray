@@ -820,6 +820,9 @@ void main(void)
         exitantRay = normalize(exitantResultRay);
     }
 
+    // Rotate ray 180 degrees around vertical axis to match same coordinate system as with other shaders
+    exitantRay = vec3(-exitantRay.x, exitantRay.y, -exitantRay.z);
+
     // Hide subhorizon rays
     if (camera.hideSubHorizon == 1 && exitantRay.y > 0.0) return;
 
