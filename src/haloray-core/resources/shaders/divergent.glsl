@@ -766,10 +766,11 @@ void main(void)
 
     float scatteringAngle = acos(min(1.0, dot(incidentStandardRay, exitantStandardRay)));
     vec3 exitantRay = vec3(0.0, 1.0, 0.0);
-    float totalWeight = 1.0;
+
+    float totalWeight = 0.0;
     if (scatteringAngle < 0.0001) {
-        totalWeight = 0.0;
-        exitantRay = vec3(1.0, 0.0, 0.0);
+        totalWeight = 1.0;
+        exitantRay = -normalize(lightSourceToObserver);
     } else {
         float polarAngleTheta = rand() * scatteringAngle;
         float polarAnglePhi = rand() * 2.0 * PI;
@@ -795,10 +796,24 @@ void main(void)
                                                                          incidentStandardRay,
                                                                          exitantStandardRay);
 
+        float tiltWeight = 0.0;
+        float cAxisRotationWeight = 0.0;
 
-        float tilt = acos(abs(standardToWorldMatrix[1][1]));
+        if (crystalProperties.tiltDistribution == DISTRIBUTION_GAUSSIAN) {
+            float tilt = acos(abs(standardToWorldMatrix[1][1]));
+            tiltWeight = normalDistribution(crystalProperties.tiltAverage, crystalProperties.tiltStd, tilt);
+        } else {
+            tiltWeight = 1.0;
+        }
 
-        float orientationWeight = normalDistribution(crystalProperties.tiltAverage, crystalProperties.tiltStd, tilt);
+        if (crystalProperties.rotationDistribution == DISTRIBUTION_GAUSSIAN) {
+            float rotation = mod(atan(standardToWorldMatrix[0][0], standardToWorldMatrix[2][0]), radians(60.0));
+            cAxisRotationWeight = normalDistribution(crystalProperties.rotationAverage + radians(30.0), crystalProperties.rotationStd, rotation);
+        } else {
+            cAxisRotationWeight = 1.0;
+        }
+
+        float orientationWeight = tiltWeight * cAxisRotationWeight;
 
         totalWeight = cigarWeight * orientationWeight;
         exitantRay = normalize(exitantResultRay);
