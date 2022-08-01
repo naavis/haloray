@@ -181,7 +181,7 @@ void SimulationEngine::step()
         glDispatchCompute(m_outputWidth, m_outputHeight, 1);
     }
 
-    if (m_atmosphere.enabled && m_iteration == 1)
+    if (m_atmosphere.enabled && m_iteration == 1 && m_simulationType != DivergentLight)
     {
         auto skyState = SkyModel::Create(degToRad(m_light.altitude), m_atmosphere.turbidity, m_atmosphere.groundAlbedo, degToRad(m_light.diameter / 2.0));
 
