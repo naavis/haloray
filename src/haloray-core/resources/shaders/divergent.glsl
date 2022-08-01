@@ -206,7 +206,7 @@ float zFit_1931(float wave)
 // Ray tracing functions *
 // ***********************
 
-vec3 randomRay()
+vec3 randomRay(void)
 {
     vec3 ray;
     ray.x = randn().x;
@@ -376,9 +376,9 @@ vec3 castRayThroughCrystal(vec3 rayDirection, float wavelength)
     return resultRay;
 }
 
-// **************************************
-// Sun direction and spectrum functions *
-// **************************************
+// ***********************************************
+// Light source direction and spectrum functions *
+// ***********************************************
 
 // The light source is on the YZ plane, in the negative Z direction
 vec3 getLightSourceVector(float elevation, float distance)
@@ -386,41 +386,9 @@ vec3 getLightSourceVector(float elevation, float distance)
     return distance * vec3(0.0, sin(elevation), -cos(elevation));
 }
 
-vec3 getSunDirection(float altitude)
-{
-    // X and Z are horizontal, sun moves on the Y-Z plane
-    return normalize(vec3(
-        0.0,
-        sin(altitude),
-        cos(altitude)
-    ));
-}
-
-vec3 sampleSun(float altitude)
-{
-    vec3 sunCenterDirection = getSunDirection(altitude);
-
-    // X axis is always perpendicular to the Y-Z plane
-    vec3 diskBasis0 = vec3(1.0, 0.0, 0.0);
-    vec3 diskBasis1 = cross(sunCenterDirection, diskBasis0);
-    // Sample uniform point on disk
-    float sampleAngle = rand() * 2.0 * PI;
-    float sampleDistance = sqrt(rand()) * 0.5 * sun.diameter;
-    vec3 offset = sampleDistance * (sin(sampleAngle) * diskBasis0 + cos(sampleAngle) * diskBasis1);
-    vec3 sampleDirection = sunCenterDirection + offset;
-    return normalize(sampleDirection);
-}
-
 float daylightEstimate(float wavelength)
 {
     return 1.0 - 0.0013333 * wavelength;
-}
-
-float sampleSunSpectrum(float wavelength)
-{
-    int index = clamp(int(floor((wavelength - 400.0) / 10.0)), 0, 29);
-    float wavelengthFract = (wavelength - (400.0 + index * 10.0)) / 10.0;
-    return mix(sun.spectrum[index], sun.spectrum[index + 1], wavelengthFract);
 }
 
 // ********************
@@ -463,55 +431,26 @@ vec2 rotate2D(float angle, vec2 point)
 // Camera and crystal orientation functions *
 // ******************************************
 
-mat3 getCameraOrientationMatrix()
+mat3 getCameraOrientationMatrix(void)
 {
     return rotateAroundY(-camera.yaw) * rotateAroundX(-camera.pitch);
 }
 
-mat3 getUniformRandomRotationMatrix(void)
+mat3 getRotationMatrixToMatchVectorPairs(vec3 target1, vec3 target2, vec3 vector1, vec3 vector2)
 {
-    // From Fast Random Rotation Matrices, by James Arvo
-    float theta = 2.0 * PI * rand();
-    float phi = 2.0 * PI * rand();
-    float z = rand();
-    mat3 zRotationMatrix = mat3(cos(theta), -sin(theta), 0.0, sin(theta), cos(theta), 0.0, 0.0, 0.0, 1.0);
-    vec3 reflectionVector = vec3(cos(phi) * sqrt(z), sin(phi) * sqrt(z), sqrt(1.0 - z));
-    return (2.0 * outerProduct(reflectionVector, reflectionVector) - mat3(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0)) * zRotationMatrix;
-}
+    // Based on TRIAD: https://en.wikipedia.org/wiki/Triad_method
+    vec3 t1 = normalize(target1);
+    vec3 t2 = normalize(target2);
+    vec3 v1 = normalize(vector1);
+    vec3 v2 = normalize(vector2);
 
-mat3 getRotationMatrix(void)
-{
-    if (crystalProperties.tiltDistribution == DISTRIBUTION_UNIFORM && crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
-    {
-        return getUniformRandomRotationMatrix();
-    }
+    vec3 m1 = normalize(cross(t1, t2));
+    vec3 m2 = normalize(cross(v1, v2));
 
-    // Tilt of the crystal C-axis
-    mat3 tiltMat;
+    mat3 rot1 = mat3(t1, m1, cross(t1, m1));
+    mat3 rot2 = mat3(v1, m2, cross(v1, m2));
 
-    if (crystalProperties.tiltDistribution == DISTRIBUTION_UNIFORM) {
-        tiltMat = rotateAroundZ(rand() * 2.0 * PI);
-    } else {
-        float angleAverage = crystalProperties.tiltAverage;
-        float angleStd = crystalProperties.tiltStd;
-        float tiltAngle = angleAverage + angleStd * randn().x;
-        tiltMat = rotateAroundZ(-tiltAngle);
-    }
-
-    // Rotation around crystal C-axis
-    mat3 rotationMat;
-
-    if (crystalProperties.rotationDistribution == DISTRIBUTION_UNIFORM)
-    {
-        rotationMat = rotateAroundY(rand() * 2.0 * PI);
-    } else {
-        float angleAverage = crystalProperties.rotationAverage;
-        float angleStd = crystalProperties.rotationStd;
-        float rotationAngle = angleAverage + angleStd * randn().x;
-        rotationMat = rotateAroundY(rotationAngle);
-    }
-
-    return rotateAroundY(rand() * 2.0 * PI) * tiltMat * rotationMat;
+    return rot1 * transpose(rot2);
 }
 
 // ***************************************
@@ -711,23 +650,6 @@ void storePixel(ivec2 pixelCoordinates, vec3 value)
     memoryBarrierImage();
     vec3 currentValue = imageLoad(outputImage, pixelCoordinates).xyz;
     imageStore(outputImage, pixelCoordinates, vec4(min(currentValue + value, 3.402823466e+38), 1.0));
-}
-
-mat3 getRotationMatrixToMatchVectorPairs(vec3 target1, vec3 target2, vec3 vector1, vec3 vector2)
-{
-    // Based on TRIAD: https://en.wikipedia.org/wiki/Triad_method
-    vec3 t1 = normalize(target1);
-    vec3 t2 = normalize(target2);
-    vec3 v1 = normalize(vector1);
-    vec3 v2 = normalize(vector2);
-
-    vec3 m1 = normalize(cross(t1, t2));
-    vec3 m2 = normalize(cross(v1, v2));
-
-    mat3 rot1 = mat3(t1, m1, cross(t1, m1));
-    mat3 rot2 = mat3(v1, m2, cross(v1, m2));
-
-    return rot1 * transpose(rot2);
 }
 
 float normalDistribution(float mean, float sigma, float x)
