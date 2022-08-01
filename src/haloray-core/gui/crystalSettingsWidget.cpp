@@ -20,7 +20,7 @@ namespace HaloRay
 {
 
 CrystalSettingsWidget::CrystalSettingsWidget(CrystalModel *model, QWidget *parent)
-    : CollapsibleBox("Crystal population settings", false, parent),
+    : CollapsibleBox("Crystal population settings", true, parent),
       m_model(model)
 {
     setupUi();

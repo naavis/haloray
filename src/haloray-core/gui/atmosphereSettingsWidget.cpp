@@ -9,7 +9,7 @@ namespace HaloRay
 {
 
 AtmosphereSettingsWidget::AtmosphereSettingsWidget(SimulationStateModel *viewModel, QWidget *parent)
-    : CollapsibleBox("Atmosphere settings", false, parent),
+    : CollapsibleBox("Atmosphere settings", true, parent),
       m_viewModel(viewModel)
 {
     setupUi();
