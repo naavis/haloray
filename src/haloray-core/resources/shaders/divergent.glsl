@@ -633,6 +633,52 @@ void initializeCrystal()
     }
 }
 
+// ******************************
+// Ray probability calculations *
+// ******************************
+
+float normalDistribution(float mean, float sigma, float x)
+{
+    float z = (x - mean) / sigma;
+    return exp(-0.5 * z * z) / (sigma * sqrt(2.0 * PI));
+}
+
+float getOrientationWeight(mat3 standardToWorldMatrix)
+{
+    float tiltWeight = 0.0;
+    float cAxisRotationWeight = 0.0;
+
+    if (crystalProperties.tiltDistribution == DISTRIBUTION_GAUSSIAN) {
+        float tilt = acos(abs(standardToWorldMatrix[1][1]));
+        tiltWeight = normalDistribution(crystalProperties.tiltAverage, crystalProperties.tiltStd, tilt);
+    } else {
+        tiltWeight = 1.0;
+    }
+
+    if (crystalProperties.rotationDistribution == DISTRIBUTION_GAUSSIAN) {
+        float rotation = mod(atan(standardToWorldMatrix[0][0], standardToWorldMatrix[2][0]), radians(60.0));
+        cAxisRotationWeight = normalDistribution(crystalProperties.rotationAverage + radians(30.0), crystalProperties.rotationStd, rotation);
+    } else {
+        cAxisRotationWeight = 1.0;
+    }
+
+    return tiltWeight * cAxisRotationWeight;
+}
+
+float getMinnaertCigarWeight(float scatteringAngle)
+{
+    float cigarWeight = 0.0;
+
+    float limitAngle = radians(178.0);
+    if (scatteringAngle < limitAngle) {
+        cigarWeight = scatteringAngle / sin(scatteringAngle);
+    } else {
+        cigarWeight = limitAngle / sin(limitAngle);
+    }
+
+    return cigarWeight;
+}
+
 // ***********
 // Utilities *
 // ***********
@@ -652,16 +698,9 @@ void storePixel(ivec2 pixelCoordinates, vec3 value)
     imageStore(outputImage, pixelCoordinates, vec4(min(currentValue + value, 3.402823466e+38), 1.0));
 }
 
-float normalDistribution(float mean, float sigma, float x)
-{
-    float z = (x - mean) / sigma;
-    return exp(-0.5 * z * z) / (sigma * sqrt(2.0 * PI));
-}
-
 // ************
 // Main logic *
 // ************
-
 
 void main(void)
 {
@@ -687,8 +726,8 @@ void main(void)
     if (length(exitantStandardRay) < 0.0001) return;
 
     float scatteringAngle = acos(min(1.0, dot(incidentStandardRay, exitantStandardRay)));
-    vec3 exitantRay = vec3(0.0, 1.0, 0.0);
 
+    vec3 exitantRay = vec3(0.0, 1.0, 0.0);
     float totalWeight = 0.0;
 
     if (scatteringAngle < 0.0001) {
@@ -706,37 +745,13 @@ void main(void)
                         cos(polarAngleTheta)));
         vec3 exitantResultRay = lightSourceToObserver - incidentResultRay;
 
-        float limitAngle = radians(178.0);
-        float cigarWeight = 0.0;
-        if (scatteringAngle < limitAngle) {
-            cigarWeight = scatteringAngle / sin(scatteringAngle);
-        } else {
-            cigarWeight = limitAngle / sin(limitAngle);
-        }
-
         mat3 standardToWorldMatrix = getRotationMatrixToMatchVectorPairs(incidentResultRay,
                                                                          exitantResultRay,
                                                                          incidentStandardRay,
                                                                          exitantStandardRay);
 
-        float tiltWeight = 0.0;
-        float cAxisRotationWeight = 0.0;
-
-        if (crystalProperties.tiltDistribution == DISTRIBUTION_GAUSSIAN) {
-            float tilt = acos(abs(standardToWorldMatrix[1][1]));
-            tiltWeight = normalDistribution(crystalProperties.tiltAverage, crystalProperties.tiltStd, tilt);
-        } else {
-            tiltWeight = 1.0;
-        }
-
-        if (crystalProperties.rotationDistribution == DISTRIBUTION_GAUSSIAN) {
-            float rotation = mod(atan(standardToWorldMatrix[0][0], standardToWorldMatrix[2][0]), radians(60.0));
-            cAxisRotationWeight = normalDistribution(crystalProperties.rotationAverage + radians(30.0), crystalProperties.rotationStd, rotation);
-        } else {
-            cAxisRotationWeight = 1.0;
-        }
-
-        float orientationWeight = tiltWeight * cAxisRotationWeight;
+        float orientationWeight = getOrientationWeight(standardToWorldMatrix);
+        float cigarWeight = getMinnaertCigarWeight(scatteringAngle);
 
         totalWeight = cigarWeight * orientationWeight;
         exitantRay = normalize(exitantResultRay);
