@@ -40,6 +40,10 @@ SimulationStateModel::SimulationStateModel(SimulationEngine *engine, QObject *pa
     connect(m_simulationEngine, &SimulationEngine::guidesToggled, [this]() {
         emit dataChanged(createIndex(0, GuidesEnabled), createIndex(0, GuidesEnabled));
     });
+
+    connect(m_simulationEngine, &SimulationEngine::simulationTypeChanged, [this]() {
+        emit dataChanged(createIndex(0, SimulationType), createIndex(0, SimulationType));
+    });
 }
 
 QVariant SimulationStateModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -80,6 +84,8 @@ QVariant SimulationStateModel::headerData(int section, Qt::Orientation orientati
             return "Ground albedo";
         case GuidesEnabled:
             return "Guides enabled";
+        case SimulationType:
+            return "Simulation type";
         }
     }
 
@@ -142,6 +148,8 @@ QVariant SimulationStateModel::data(const QModelIndex &index, int role) const
         return m_simulationEngine->getAtmosphere().groundAlbedo;
     case GuidesEnabled:
         return m_simulationEngine->getGuidesEnabled();
+    case SimulationType:
+        return m_simulationEngine->getSimulationType();
     default:
         break;
     }
@@ -201,6 +209,9 @@ bool SimulationStateModel::setData(const QModelIndex &index, const QVariant &val
         break;
     case GuidesEnabled:
         m_simulationEngine->setGuidesEnabled(value.toBool());
+        break;
+    case SimulationType:
+        m_simulationEngine->setSimulationType(static_cast<HaloRay::SimulationType>(value.toInt()));
         break;
     default:
         return false;

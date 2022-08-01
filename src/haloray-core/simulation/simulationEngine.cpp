@@ -34,7 +34,8 @@ SimulationEngine::SimulationEngine(
       m_multipleScatteringProbability(0.0),
       m_crystalRepository(crystalRepository),
       m_atmosphere(Atmosphere::createDefaultAtmosphere()),
-      m_guidesEnabled(false)
+      m_guidesEnabled(false),
+      m_simulationType(SimulationType::ParallelLight)
 {
     initialize();
 }
@@ -107,6 +108,21 @@ void SimulationEngine::setGuidesEnabled(bool newState)
     clear();
     m_guidesEnabled = newState;
     emit guidesToggled(m_guidesEnabled);
+}
+
+SimulationType SimulationEngine::getSimulationType() const
+{
+    return m_simulationType;
+}
+
+void SimulationEngine::setSimulationType(SimulationType type)
+{
+    if (type == m_simulationType) return;
+
+    clear();
+    m_simulationType = type;
+
+    emit simulationTypeChanged(m_simulationType);
 }
 
 unsigned int SimulationEngine::getOutputTextureHandle() const
@@ -204,7 +220,14 @@ void SimulationEngine::step()
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
     glBindImageTexture(m_simulationTexture->getTextureUnit(), m_simulationTexture->getHandle(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
-    m_simulationShader->bind();
+    QOpenGLShaderProgram *currentSimulationShader;
+    if (m_simulationType == ParallelLight) {
+        currentSimulationShader = m_simulationShader;
+    } else {
+        currentSimulationShader = m_divergentShader;
+    }
+
+    currentSimulationShader->bind();
 
     for (auto i = 0u; i < m_crystalRepository->getCount(); ++i)
     {
@@ -220,39 +243,39 @@ void SimulationEngine::step()
         setUniformValue method because of a bug in Qt:
         https://bugreports.qt.io/browse/QTBUG-45507
         */
-        glUniform1ui(glGetUniformLocation(m_simulationShader->programId(), "rngSeed"), seed);
-        m_simulationShader->setUniformValue("sun.altitude", degToRad(m_light.altitude));
-        m_simulationShader->setUniformValue("sun.diameter", degToRad(m_light.diameter));
-        m_simulationShader->setUniformValueArray("sun.spectrum", m_sunSpectrumCache, 31, 1);
+        glUniform1ui(glGetUniformLocation(currentSimulationShader->programId(), "rngSeed"), seed);
+        currentSimulationShader->setUniformValue("sun.altitude", degToRad(m_light.altitude));
+        currentSimulationShader->setUniformValue("sun.diameter", degToRad(m_light.diameter));
+        currentSimulationShader->setUniformValueArray("sun.spectrum", m_sunSpectrumCache, 31, 1);
 
-        m_simulationShader->setUniformValue("crystalProperties.caRatioAverage", crystals.caRatioAverage);
-        m_simulationShader->setUniformValue("crystalProperties.caRatioStd", crystals.caRatioStd);
+        currentSimulationShader->setUniformValue("crystalProperties.caRatioAverage", crystals.caRatioAverage);
+        currentSimulationShader->setUniformValue("crystalProperties.caRatioStd", crystals.caRatioStd);
 
-        m_simulationShader->setUniformValue("crystalProperties.tiltDistribution", crystals.tiltDistribution);
-        m_simulationShader->setUniformValue("crystalProperties.tiltAverage", degToRad(crystals.tiltAverage));
-        m_simulationShader->setUniformValue("crystalProperties.tiltStd", degToRad(crystals.tiltStd));
+        currentSimulationShader->setUniformValue("crystalProperties.tiltDistribution", crystals.tiltDistribution);
+        currentSimulationShader->setUniformValue("crystalProperties.tiltAverage", degToRad(crystals.tiltAverage));
+        currentSimulationShader->setUniformValue("crystalProperties.tiltStd", degToRad(crystals.tiltStd));
 
-        m_simulationShader->setUniformValue("crystalProperties.rotationDistribution", crystals.rotationDistribution);
-        m_simulationShader->setUniformValue("crystalProperties.rotationAverage", degToRad(crystals.rotationAverage));
-        m_simulationShader->setUniformValue("crystalProperties.rotationStd", degToRad(crystals.rotationStd));
+        currentSimulationShader->setUniformValue("crystalProperties.rotationDistribution", crystals.rotationDistribution);
+        currentSimulationShader->setUniformValue("crystalProperties.rotationAverage", degToRad(crystals.rotationAverage));
+        currentSimulationShader->setUniformValue("crystalProperties.rotationStd", degToRad(crystals.rotationStd));
 
-        m_simulationShader->setUniformValue("crystalProperties.upperApexAngle", degToRad(crystals.upperApexAngle));
-        m_simulationShader->setUniformValue("crystalProperties.upperApexHeightAverage", crystals.upperApexHeightAverage);
-        m_simulationShader->setUniformValue("crystalProperties.upperApexHeightStd", crystals.upperApexHeightStd);
+        currentSimulationShader->setUniformValue("crystalProperties.upperApexAngle", degToRad(crystals.upperApexAngle));
+        currentSimulationShader->setUniformValue("crystalProperties.upperApexHeightAverage", crystals.upperApexHeightAverage);
+        currentSimulationShader->setUniformValue("crystalProperties.upperApexHeightStd", crystals.upperApexHeightStd);
 
-        m_simulationShader->setUniformValue("crystalProperties.lowerApexAngle", degToRad(crystals.lowerApexAngle));
-        m_simulationShader->setUniformValue("crystalProperties.lowerApexHeightAverage", crystals.lowerApexHeightAverage);
-        m_simulationShader->setUniformValue("crystalProperties.lowerApexHeightStd", crystals.lowerApexHeightStd);
-        m_simulationShader->setUniformValueArray("crystalProperties.prismFaceDistances", crystals.prismFaceDistances, 6, 1);
+        currentSimulationShader->setUniformValue("crystalProperties.lowerApexAngle", degToRad(crystals.lowerApexAngle));
+        currentSimulationShader->setUniformValue("crystalProperties.lowerApexHeightAverage", crystals.lowerApexHeightAverage);
+        currentSimulationShader->setUniformValue("crystalProperties.lowerApexHeightStd", crystals.lowerApexHeightStd);
+        currentSimulationShader->setUniformValueArray("crystalProperties.prismFaceDistances", crystals.prismFaceDistances, 6, 1);
 
-        m_simulationShader->setUniformValue("camera.pitch", degToRad(m_camera.pitch));
-        m_simulationShader->setUniformValue("camera.yaw", degToRad(m_camera.yaw));
-        m_simulationShader->setUniformValue("camera.focalLength", m_camera.getFocalLength());
-        m_simulationShader->setUniformValue("camera.projection", m_camera.projection);
-        m_simulationShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
+        currentSimulationShader->setUniformValue("camera.pitch", degToRad(m_camera.pitch));
+        currentSimulationShader->setUniformValue("camera.yaw", degToRad(m_camera.yaw));
+        currentSimulationShader->setUniformValue("camera.focalLength", m_camera.getFocalLength());
+        currentSimulationShader->setUniformValue("camera.projection", m_camera.projection);
+        currentSimulationShader->setUniformValue("camera.hideSubHorizon", m_camera.hideSubHorizon ? 1 : 0);
 
-        m_simulationShader->setUniformValue("multipleScatter", m_multipleScatteringProbability);
-        m_simulationShader->setUniformValue("atmosphereEnabled", m_atmosphere.enabled ? 1 : 0);
+        currentSimulationShader->setUniformValue("multipleScatter", m_multipleScatteringProbability);
+        currentSimulationShader->setUniformValue("atmosphereEnabled", m_atmosphere.enabled ? 1 : 0);
 
         glDispatchCompute(numRays / 64.0, 1, 1);
     }
@@ -305,7 +328,7 @@ void SimulationEngine::initializeShaders()
 {
     qInfo("Initializing raytracing shader");
     m_simulationShader = new QOpenGLShaderProgram(this);
-    bool raytraceShaderReadSucceeded = m_simulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/divergent.glsl");
+    bool raytraceShaderReadSucceeded = m_simulationShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/raytrace.glsl");
     if (raytraceShaderReadSucceeded == false)
     {
         qWarning("Reading raytracing shader failed");
@@ -319,6 +342,23 @@ void SimulationEngine::initializeShaders()
         throw std::runtime_error(m_simulationShader->log().toUtf8());
     }
     qInfo("Raytracing shader program compilation and linking successful");
+
+    qInfo("Initializing divergent-light shader");
+    m_divergentShader = new QOpenGLShaderProgram(this);
+    bool divergentShaderReadSucceeded = m_divergentShader->addCacheableShaderFromSourceFile(QOpenGLShader::ShaderTypeBit::Compute, ":/shaders/divergent.glsl");
+    if (divergentShaderReadSucceeded == false)
+    {
+        qWarning("Reading divergent-light shader failed");
+        throw std::runtime_error(m_divergentShader->log().toUtf8());
+    }
+    qInfo("Divergent-light shader successfully initialized");
+
+    if (m_divergentShader->link() == false)
+    {
+        qWarning("Compiling and linking divergent-light shader failed");
+        throw std::runtime_error(m_divergentShader->log().toUtf8());
+    }
+    qInfo("Divergent-light shader program compilation and linking successful");
 
     qInfo("Initializing sky shader");
     m_skyShader = new QOpenGLShaderProgram(this);

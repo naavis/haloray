@@ -6,6 +6,7 @@
 
 class QDoubleSpinBox;
 class QSpinBox;
+class QComboBox;
 
 namespace HaloRay
 {
@@ -29,6 +30,7 @@ private:
     QSpinBox *m_raysPerFrameSpinBox;
     QSpinBox *m_maximumFramesSpinBox;
     SliderSpinBox *m_multipleScatteringSlider;
+    QComboBox *m_simulationTypeComboBox;
 
     QDataWidgetMapper *m_mapper;
     SimulationStateModel *m_viewModel;

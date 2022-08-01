@@ -2,6 +2,7 @@
 
 #include <QAbstractTableModel>
 #include "simulation/camera.h"
+#include "simulation/simulationEngine.h"
 
 namespace HaloRay {
 class SimulationEngine;
@@ -34,6 +35,7 @@ public:
         Turbidity,
         GroundAlbedo,
         GuidesEnabled,
+        SimulationType,
         NUM_COLUMNS
     };
 

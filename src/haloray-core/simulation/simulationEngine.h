@@ -14,6 +14,11 @@
 namespace HaloRay
 {
 
+enum SimulationType {
+    ParallelLight = 0,
+    DivergentLight
+};
+
 class SimulationEngine : public QObject, protected QOpenGLFunctions_4_4_Core
 {
     Q_OBJECT
@@ -44,6 +49,9 @@ public:
     bool getGuidesEnabled() const;
     void setGuidesEnabled(bool);
 
+    SimulationType getSimulationType() const;
+    void setSimulationType(SimulationType);
+
     void lockCameraToLightSource(bool locked);
 
     void setMultipleScatteringProbability(double);
@@ -57,12 +65,13 @@ public:
 
 signals:
     void raysPerStepChanged(unsigned int);
-    void cameraChanged(Camera);
-    void lightSourceChanged(LightSource);
-    void atmosphereChanged(Atmosphere);
+    void cameraChanged(HaloRay::Camera);
+    void lightSourceChanged(HaloRay::LightSource);
+    void atmosphereChanged(HaloRay::Atmosphere);
     void lockCameraToLightSourceChanged(bool);
     void multipleScatteringProbabilityChanged(double);
     void guidesToggled(bool);
+    void simulationTypeChanged(HaloRay::SimulationType);
 
 private:
     void initializeShaders();
@@ -74,6 +83,7 @@ private:
     std::mt19937 m_mersenneTwister;
     std::uniform_int_distribution<unsigned int> m_uniformDistribution;
     QOpenGLShaderProgram *m_simulationShader;
+    QOpenGLShaderProgram *m_divergentShader;
     QOpenGLShaderProgram *m_skyShader;
     QOpenGLShaderProgram *m_guideShader;
     std::unique_ptr<OpenGL::Texture> m_simulationTexture;
@@ -93,6 +103,7 @@ private:
     float m_sunSpectrumCache[31];
     Atmosphere m_atmosphere;
     bool m_guidesEnabled;
+    SimulationType m_simulationType;
 };
 
 }

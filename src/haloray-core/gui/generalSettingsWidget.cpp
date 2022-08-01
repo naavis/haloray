@@ -1,6 +1,7 @@
 #include "generalSettingsWidget.h"
 #include <QFormLayout>
 #include <QDoubleSpinBox>
+#include <QComboBox>
 #include "components/sliderSpinBox.h"
 #include "simulation/lightSource.h"
 
@@ -16,6 +17,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(SimulationStateModel *viewModel, QW
     m_mapper = new QDataWidgetMapper(this);
     m_mapper->setModel(m_viewModel);
     m_mapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
+    m_mapper->addMapping(m_simulationTypeComboBox, SimulationStateModel::SimulationType, "currentIndex");
     m_mapper->addMapping(m_sunAltitudeSlider, SimulationStateModel::SunAltitude);
     m_mapper->addMapping(m_sunDiameterSpinBox, SimulationStateModel::SunDiameter);
     m_mapper->addMapping(m_multipleScatteringSlider, SimulationStateModel::MultipleScatteringProbability);
@@ -23,6 +25,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(SimulationStateModel *viewModel, QW
     m_mapper->addMapping(m_maximumFramesSpinBox, SimulationStateModel::MaximumIterations);
     m_mapper->toFirst();
 
+    connect(m_simulationTypeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_sunAltitudeSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_sunDiameterSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
     connect(m_multipleScatteringSlider, &SliderSpinBox::valueChanged, m_mapper, &QDataWidgetMapper::submit, Qt::QueuedConnection);
@@ -39,6 +42,9 @@ GeneralSettingsWidget::GeneralSettingsWidget(SimulationStateModel *viewModel, QW
 void GeneralSettingsWidget::setupUi()
 {
     setMaximumWidth(400);
+
+    m_simulationTypeComboBox = new QComboBox();
+    m_simulationTypeComboBox->addItems({ tr("Parallel"), tr("Divergent") });
 
     m_sunAltitudeSlider = new SliderSpinBox();
     m_sunAltitudeSlider = SliderSpinBox::createAngleSlider(-90.0, 90.0);
@@ -69,8 +75,9 @@ void GeneralSettingsWidget::setupUi()
     m_multipleScatteringSlider->setMaximum(1.0);
 
     auto layout = new QFormLayout(this->contentWidget());
-    layout->addRow(tr("Sun altitude"), m_sunAltitudeSlider);
-    layout->addRow(tr("Sun diameter"), m_sunDiameterSpinBox);
+    layout->addRow(tr("Simulation type"), m_simulationTypeComboBox);
+    layout->addRow(tr("Light elevation"), m_sunAltitudeSlider);
+    layout->addRow(tr("Light diameter"), m_sunDiameterSpinBox);
     layout->addRow(tr("Rays per frame"), m_raysPerFrameSpinBox);
     layout->addRow(tr("Maximum frames"), m_maximumFramesSpinBox);
     layout->addRow(tr("Double scattering"), m_multipleScatteringSlider);
