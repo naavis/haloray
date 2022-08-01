@@ -668,7 +668,7 @@ float getOrientationWeight(mat3 standardToWorldMatrix)
         // will result in a black image. This is a shortcut to the same result.
         if (crystalProperties.rotationStd == 0.0) return 0.0;
         float rotation = mod(atan(standardToWorldMatrix[0][0], standardToWorldMatrix[2][0]), radians(60.0));
-        cAxisRotationWeight = normalDistribution(crystalProperties.rotationAverage + radians(30.0), crystalProperties.rotationStd, rotation);
+        cAxisRotationWeight = normalDistribution(crystalProperties.rotationAverage, crystalProperties.rotationStd, rotation);
     } else {
         cAxisRotationWeight = 1.0;
     }
