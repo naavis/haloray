@@ -768,6 +768,7 @@ void main(void)
     vec3 exitantRay = vec3(0.0, 1.0, 0.0);
 
     float totalWeight = 0.0;
+
     if (scatteringAngle < 0.0001) {
         totalWeight = 1.0;
         exitantRay = -normalize(lightSourceToObserver);
@@ -818,6 +819,9 @@ void main(void)
         totalWeight = cigarWeight * orientationWeight;
         exitantRay = normalize(exitantResultRay);
     }
+
+    // Hide subhorizon rays
+    if (camera.hideSubHorizon == 1 && exitantRay.y > 0.0) return;
 
     ivec2 resolution = imageSize(outputImage);
     float aspectRatio = float(resolution.y) / float(resolution.x);
