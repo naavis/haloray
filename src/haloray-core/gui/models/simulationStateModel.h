@@ -61,6 +61,8 @@ public:
     void setCamera(Camera camera);
     void setAtmosphere(Atmosphere atmosphere);
 
+    void setSimulationType(HaloRay::SimulationType type);
+
 private:
     SimulationEngine *m_simulationEngine;
     void setSunAltitude(float altitude);

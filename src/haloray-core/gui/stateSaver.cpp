@@ -15,6 +15,10 @@ void StateSaver::SaveState(QString filename, SimulationEngine *engine, CrystalPo
     qInfo("Saving simulation state to: %s", filename.toUtf8().constData());
     QSettings settings(filename, QSettings::Format::IniFormat);
 
+    settings.beginGroup("SimulationGeneral");
+    settings.setValue("SimulationType", engine->getSimulationType());
+    settings.endGroup();
+
     settings.beginGroup("LightSource");
     auto lightSource = engine->getLightSource();
     settings.setValue("Altitude", (double)lightSource.altitude);
@@ -84,6 +88,9 @@ void StateSaver::LoadState(QString filename, SimulationStateModel *simState, Cry
 {
     qInfo("Loading simulation state from: %s", filename.toUtf8().constData());
     QSettings settings(filename, QSettings::Format::IniFormat);
+
+    auto simulationType = (SimulationType)settings.value("SimulationGeneral/SimulationType", SimulationType::ParallelLight).toInt();
+    simState->setSimulationType(simulationType);
 
     auto lightSource = LightSource::createDefaultLightSource();
     lightSource.altitude = settings.value("LightSource/Altitude", lightSource.altitude).toFloat();

@@ -270,6 +270,12 @@ void SimulationStateModel::setAtmosphere(Atmosphere atmosphere)
     emit dataChanged(createIndex(0, AtmosphereEnabled), createIndex(0, GroundAlbedo));
 }
 
+void SimulationStateModel::setSimulationType(HaloRay::SimulationType type)
+{
+    m_simulationEngine->setSimulationType(type);
+    emit dataChanged(createIndex(0, SimulationType), createIndex(0, SimulationType));
+}
+
 void SimulationStateModel::setSunAltitude(float altitude)
 {
     auto lightSource = m_simulationEngine->getLightSource();
