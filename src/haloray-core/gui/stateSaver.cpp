@@ -68,7 +68,7 @@ void StateSaver::SaveState(QString filename, SimulationEngine *engine, CrystalPo
 
     settings.beginGroup("Camera");
     auto camera = engine->getCamera();
-    settings.setValue("Projection", (double)camera.projection);
+    settings.setValue("Projection", camera.projection);
     settings.setValue("Pitch", (double)camera.pitch);
     settings.setValue("Yaw", (double)camera.yaw);
     settings.setValue("FieldOfView", (double)camera.fov);
