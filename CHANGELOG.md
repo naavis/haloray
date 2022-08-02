@@ -8,6 +8,11 @@ and this project adheres to
 
 ## Unreleased
 
+### Added
+
+- Added divergent-light simulation mode to enable simulating halos
+  caused by artificial lights in ground-level ice crystal halo clouds
+
 ### Changed
 
 - Changed column and Parry default tilt standard deviation from 1.0

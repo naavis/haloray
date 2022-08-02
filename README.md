@@ -36,8 +36,12 @@ view, and the mouse scroll wheel can be used to change the field of view.
 
 Here are some general settings for the whole simulation.
 
-- **Sun altitude:** Sun altitude from the horizon in degrees
-- **Sun diameter:** Angular diameter of the sun in degrees
+- **Simulation type**: Choose between parallel-light and divergent-light simulations
+  - Parallel-light simulation is suitable for simulating halos in cirrus clouds caused by sun or moon light
+  - Divergent-light simulation is suitable for simulating halos in ground-level ice crystal clouds caused by artificial lights
+- **Light elevation:** Light source elevation above horizon in degrees
+- **Light diameter:** Angular diameter of the light source in degrees
+  - This only applies to parallel-light simulations; the light source is always infinitely small for divergent-light simulations
 - **Rays per frame:** Number of rays traced through individual crystals per
   rendered frame
   - If the user interface slows down a lot during rendering, lower this value
@@ -127,6 +131,12 @@ face** of the hexagonal ice crystals from the crystal C-axis.
 The above image shows a crystal where every other prism face has the default
 distance of 1.0 from the C-axis, while every other is reduced to 0.7.
 
+**Note:** Combining non-regular ice crystals with a Parry orientation in
+divergent-light simulations might not work as you would expect. The simulation
+cannot guarantee that a specific prism face always points in a given direction,
+like it can in parallel-light simulations. Any of the prism faces might be
+pointing down in the traditional Parry orientation.
+
 ### View settings
 
 These settings affect how the results of the simulation are shown on the screen.
@@ -143,7 +153,10 @@ These settings affect how the results of the simulation are shown on the screen.
 ### Atmosphere settings
 
 HaloRay renders a realistic sky and sun disk based on a blend of Hosek-Wilkie and
-Preetham models. The sky model has only a few adjustable parameters:
+Preetham models. The sky background is only available for parallel-light simulations,
+because it does not make much sense in the context of ground-level ice crystal clouds
+and street lights.
+The sky model has only a few adjustable parameters:
 
 - **Atmosphere enabled:** Toggles rendering of the sky and sun
 - **Turbidity:** The amount of aerosols/haze in the atmosphere
