@@ -384,9 +384,9 @@ vec3 castRayThroughCrystal(vec3 rayDirection, float wavelength)
 // ***********************************************
 
 // The light source is on the YZ plane, in the negative Z direction
-vec3 getLightSourceVector(float elevation, float distance)
+vec3 getLightSourceVector(float elevation)
 {
-    return distance * vec3(0.0, sin(elevation), -cos(elevation));
+    return vec3(0.0, sin(elevation), -cos(elevation));
 }
 
 float daylightEstimate(float wavelength)
@@ -721,10 +721,9 @@ void main(void)
     float wavelength = 400.0 + rand() * 300.0;
 
     float elevation = sun.altitude;
-    float distance = 5;
 
     // Generate vector from light source to observer
-    vec3 lightSourceToObserver = -getLightSourceVector(elevation, distance);
+    vec3 lightSourceToObserver = -getLightSourceVector(elevation);
 
     mat3 lightSourceMatrix = mat3(
                 vec3(1.0, 0.0, 0.0),
@@ -751,7 +750,7 @@ void main(void)
             float psi = scatteringAngle - polarAngleTheta;
 
             vec3 incidentResultRay = lightSourceMatrix * (
-                        distance * sin(psi) / sin(scatteringAngle) * vec3(
+                        sin(psi) / sin(scatteringAngle) * vec3(
                             sin(polarAngleTheta) * cos(polarAnglePhi),
                             sin(polarAngleTheta) * sin(polarAnglePhi),
                             cos(polarAngleTheta)));
