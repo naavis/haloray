@@ -17,6 +17,7 @@ and this project adheres to
 
 - Changed column and Parry default tilt standard deviation from 1.0
   to 0.5, and same for Parry rotation standard deviation
+- All the side panel sections are now expanded by default
 
 ## 4.1.0 - 2022-07-23
 
