@@ -44,7 +44,10 @@ void GeneralSettingsWidget::setupUi()
     setMaximumWidth(400);
 
     m_simulationTypeComboBox = new QComboBox();
-    m_simulationTypeComboBox->addItems({ tr("Parallel"), tr("Divergent") });
+    m_simulationTypeComboBox->addItems({
+                                           tr("Parallel (sun light + cirrus clouds)"),
+                                           tr("Divergent (artificial light + diamond dust)")
+                                       });
 
     m_sunAltitudeSlider = new SliderSpinBox();
     m_sunAltitudeSlider = SliderSpinBox::createAngleSlider(-90.0, 90.0);
