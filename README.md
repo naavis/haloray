@@ -38,7 +38,7 @@ Here are some general settings for the whole simulation.
 
 - **Simulation type**: Choose between parallel-light and divergent-light simulations
   - Parallel-light simulation is suitable for simulating halos in cirrus clouds caused by sun or moon light
-  - Divergent-light simulation is suitable for simulating halos in ground-level ice crystal clouds caused by artificial lights
+  - Divergent-light simulation is suitable for simulating halos in ground-level diamond dust clouds caused by artificial lights
 - **Light elevation:** Light source elevation above horizon in degrees
 - **Light diameter:** Angular diameter of the light source in degrees
   - This only applies to parallel-light simulations; the light source is always infinitely small for divergent-light simulations
@@ -154,7 +154,7 @@ These settings affect how the results of the simulation are shown on the screen.
 
 HaloRay renders a realistic sky and sun disk based on a blend of Hosek-Wilkie and
 Preetham models. The sky background is only available for parallel-light simulations,
-because it does not make much sense in the context of ground-level ice crystal clouds
+because it does not make much sense in the context of ground-level diamond dust clouds
 and street lights.
 The sky model has only a few adjustable parameters:
 

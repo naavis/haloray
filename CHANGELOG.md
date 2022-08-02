@@ -11,7 +11,7 @@ and this project adheres to
 ### Added
 
 - Added divergent-light simulation mode to enable simulating halos
-  caused by artificial lights in ground-level ice crystal halo clouds
+  caused by artificial lights in ground-level diamond dust clouds
 
 ### Changed
 
