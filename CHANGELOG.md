@@ -12,6 +12,7 @@ and this project adheres to
 
 - Changed column and Parry default tilt standard deviation from 1.0
   to 0.5, and same for Parry rotation standard deviation
+- Changed column crystal default C/A ratio from 7.0 to 2.0
 
 ## 4.1.0 - 2022-07-23
 
