@@ -18,6 +18,7 @@ std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::initializeTexDrawShaderPr
         qWarning("Texture renderer vertex shader read failed");
         throw std::runtime_error(program->log().toUtf8());
     }
+    qInfo(program->log().toUtf8());
     qInfo("Texture renderer vertex shader successfully initialized");
 
     qInfo("Initializing texture renderer fragment shader");
@@ -27,6 +28,7 @@ std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::initializeTexDrawShaderPr
         qWarning("Texture renderer fragment shader read failed");
         throw std::runtime_error(program->log().toUtf8());
     }
+    qInfo(program->log().toUtf8());
     qInfo("Texture renderer fragment shader successfully initialized");
 
     if (program->link() == false)
@@ -34,6 +36,7 @@ std::unique_ptr<QOpenGLShaderProgram> TextureRenderer::initializeTexDrawShaderPr
         qWarning("Texture renderer shader compilation and linking failed");
         throw std::runtime_error(program->log().toUtf8());
     }
+    qInfo(program->log().toUtf8());
     qInfo("Texture renderer shader program compilation and linking successful");
 
     return program;
