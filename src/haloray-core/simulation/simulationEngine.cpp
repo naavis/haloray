@@ -311,6 +311,7 @@ void SimulationEngine::initializeShaders()
         qWarning("Reading raytracing shader failed");
         throw std::runtime_error(m_simulationShader->log().toUtf8());
     }
+    qInfo(m_simulationShader->log().toUtf8());
     qInfo("Raytracing shader successfully initialized");
 
     if (m_simulationShader->link() == false)
@@ -318,6 +319,7 @@ void SimulationEngine::initializeShaders()
         qWarning("Compiling and linking raytracing shader failed");
         throw std::runtime_error(m_simulationShader->log().toUtf8());
     }
+    qInfo(m_simulationShader->log().toUtf8());
     qInfo("Raytracing shader program compilation and linking successful");
 
     qInfo("Initializing sky shader");
@@ -328,6 +330,7 @@ void SimulationEngine::initializeShaders()
         qWarning("Reading sky shader failed");
         throw std::runtime_error(m_skyShader->log().toUtf8());
     }
+    qInfo(m_skyShader->log().toUtf8());
     qInfo("Sky shader successfully initialized");
 
     if (m_skyShader->link() == false)
@@ -335,6 +338,7 @@ void SimulationEngine::initializeShaders()
         qWarning("Compiling and linking sky shader failed");
         throw std::runtime_error(m_skyShader->log().toUtf8());
     }
+    qInfo(m_skyShader->log().toUtf8());
     qInfo("Sky shader program compilation and linking successful");
 
     qInfo("Initializing guide marking shader");
@@ -345,6 +349,7 @@ void SimulationEngine::initializeShaders()
         qWarning("Reading guide marking shader failed");
         throw std::runtime_error(m_guideShader->log().toUtf8());
     }
+    qInfo(m_guideShader->log().toUtf8());
     qInfo("Guide marking shader successfully initialized");
 
     if (m_guideShader->link() == false)
@@ -352,6 +357,7 @@ void SimulationEngine::initializeShaders()
         qWarning("Compiling and linking guide marking shader failed");
         throw std::runtime_error(m_guideShader->log().toUtf8());
     }
+    qInfo(m_guideShader->log().toUtf8());
     qInfo("Guide marking shader program compilation and linking successful");
 }
 
