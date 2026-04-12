@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ice Crystal Halo Raytracer — WebGPU</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:wght@400;500;600&display=swap');
+    </style>
+    <link href="./style.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="viewport">
+        <canvas id="canvas"></canvas>
+        <div class="overlay-stats" id="stats">
+            <div>rays <span class="value" id="stat-samples">0</span></div>
+            <div>fps <span class="value" id="stat-fps">0</span></div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <h1>Parameters</h1>
+
+        <div class="control-group">
+            <h2>Sun</h2>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>Altitude (°)</label>
+                    <span class="readout" id="read-sunAlt">15.00</span>
+                </div>
+                <input type="range" id="sunAlt" min="-10" max="90" step="0.5" value="15">
+            </div>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>Diameter (°)</label>
+                    <span class="readout" id="read-sunDiam">0.50</span>
+                </div>
+                <input type="range" id="sunDiam" min="0.1" max="5" step="0.1" value="0.5">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h2>Crystal</h2>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>C/A Ratio</label>
+                    <span class="readout" id="read-caRatio">0.50</span>
+                </div>
+                <input type="range" id="caRatio" min="0.1" max="5" step="0.01" value="0.5">
+            </div>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>C/A Std Dev</label>
+                    <span class="readout" id="read-caRatioStd">0.00</span>
+                </div>
+                <input type="range" id="caRatioStd" min="0" max="2" step="0.01" value="0">
+            </div>
+
+            <div class="control checkbox-control">
+                <label><input type="checkbox" id="tiltGaussian"> Gaussian Tilt</label>
+            </div>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>Tilt Average (°)</label>
+                    <span class="readout" id="read-tiltAvg">0.00</span>
+                </div>
+                <input type="range" id="tiltAvg" min="0" max="90" step="0.5" value="0">
+            </div>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>Tilt Std Dev (°)</label>
+                    <span class="readout" id="read-tiltStd">0.00</span>
+                </div>
+                <input type="range" id="tiltStd" min="0" max="45" step="0.5" value="0">
+            </div>
+
+            <div class="control checkbox-control">
+                <label><input type="checkbox" id="rotGaussian"> Gaussian Rotation</label>
+            </div>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>Rotation Average (°)</label>
+                    <span class="readout" id="read-rotAvg">0.00</span>
+                </div>
+                <input type="range" id="rotAvg" min="0" max="180" step="1" value="0">
+            </div>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>Rotation Std Dev (°)</label>
+                    <span class="readout" id="read-rotStd">0.00</span>
+                </div>
+                <input type="range" id="rotStd" min="0" max="90" step="1" value="0">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h2>Camera</h2>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>Pitch (°)</label>
+                    <span class="readout" id="read-camPitch">0.00</span>
+                </div>
+                <input type="range" id="camPitch" min="-90" max="90" step="0.5" value="0">
+            </div>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>Yaw (°)</label>
+                    <span class="readout" id="read-camYaw">0.00</span>
+                </div>
+                <input type="range" id="camYaw" min="-180" max="180" step="0.5" value="0">
+            </div>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>Focal Length</label>
+                    <span class="readout" id="read-camFov">1.00</span>
+                </div>
+                <input type="range" id="camFov" min="0.1" max="5" step="0.05" value="1">
+            </div>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>Projection</label>
+                </div>
+                <select id="projection">
+                    <option value="0" selected>Stereographic</option>
+                    <option value="1">Rectilinear</option>
+                    <option value="2">Equidistant</option>
+                    <option value="3">Equal Area</option>
+                    <option value="4">Orthographic</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h2>Advanced</h2>
+
+            <div class="control">
+                <div class="control-header">
+                    <label>Multiple Scatter</label>
+                    <span class="readout" id="read-multiScatter">0.00</span>
+                </div>
+                <input type="range" id="multiScatter" min="0" max="1" step="0.01" value="0">
+            </div>
+        </div>
+
+        <button class="btn-reset" id="btn-reset">Reset Parameters</button>
+    </div>
+    <script src="./main.js"></script>
+</body>
+
+</html>
