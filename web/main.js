@@ -157,11 +157,13 @@ async function main() {
     const dpBuf = new ArrayBuffer(DISPLAY_PARAMS_SIZE);
     const dpF32 = new Float32Array(dpBuf);
 
+    let brightness = 1.0;
+
     function writeDisplayParams() {
         dpF32[0] = totalRays;
         dpF32[1] = canvasWidth;
         dpF32[2] = canvasHeight;
-        dpF32[3] = 0;
+        dpF32[3] = brightness;
         device.queue.writeBuffer(displayParamsBuffer, 0, dpBuf);
     }
 
@@ -338,6 +340,16 @@ async function main() {
         resetSimulation();
     });
 
+    // Brightness slider (display-only, no simulation reset)
+    const brightEl = document.getElementById('brightness');
+    const brightRead = document.getElementById('read-brightness');
+    if (brightEl) {
+        brightEl.addEventListener('input', () => {
+            brightness = parseFloat(brightEl.value);
+            if (brightRead) brightRead.textContent = brightness.toFixed(2);
+        });
+    }
+
     // Multiple scatter slider (wired but no effect — skipped in shader)
     const msEl = document.getElementById('multiScatter');
     const msRead = document.getElementById('read-multiScatter');
@@ -362,6 +374,7 @@ async function main() {
             document.getElementById(id).checked = params[key] === 1;
         }
         document.getElementById('projection').value = params.cameraProjection;
+        if (brightEl) { brightEl.value = 1; brightness = 1.0; if (brightRead) brightRead.textContent = '1.00'; }
         if (msEl) { msEl.value = 0; if (msRead) msRead.textContent = '0.00'; }
 
         resetSimulation();
