@@ -1,10 +1,16 @@
 import type { DisplayParams, SimParams } from "./params";
 
+// Byte sizes of the WGSL uniform structs. Must match the `Params` struct in
+// raytrace.wgsl and the `DisplayParams` struct in accumulate.wgsl / display.wgsl.
 export const PARAMS_SIZE = 128;
 export const DISPLAY_PARAMS_SIZE = 16;
 
 const degToRad = (d: number) => (d * Math.PI) / 180;
 
+// Serializes SimParams into the 128-byte layout expected by raytrace.wgsl's
+// `Params` uniform. Each slot below is 4 bytes; u32[i] and f32[i] alias the
+// same bytes, so we pick the view that matches the shader field's type.
+// Angles are stored in radians (the UI works in degrees).
 export function encodeSimParams(
   buf: ArrayBuffer,
   sim: SimParams,
@@ -30,21 +36,29 @@ export function encodeSimParams(
   f32[12] = degToRad(sim.camYaw);
   f32[13] = sim.camFov;
   u32[14] = parseInt(sim.projection, 10);
+  // camera_hide_sub_horizon: sub-horizon ray filter, not yet exposed in the UI.
   u32[15] = 0;
   u32[16] = canvasWidth;
   u32[17] = canvasHeight;
+  // Upper and lower pyramidal apex caps (angle + height avg/std). Zero angle
+  // disables the cap in the shader, leaving a plain hexagonal prism.
+  // Not yet exposed in the UI.
   f32[18] = 0;
   f32[19] = 0;
   f32[20] = 0;
   f32[21] = 0;
   f32[22] = 0;
   f32[23] = 0;
+  // Six prism face distances (`prism_distances` in the shader, declared as
+  // array<vec4f, 2>). Equal values produce a regular hexagonal cross-section.
+  // Not yet exposed in the UI.
   f32[24] = 1;
   f32[25] = 1;
   f32[26] = 1;
   f32[27] = 1;
   f32[28] = 1;
   f32[29] = 1;
+  // Unused tail of the array<vec4f, 2> (8 floats total, only 6 are meaningful).
   f32[30] = 0;
   f32[31] = 0;
 }
