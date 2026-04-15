@@ -1,10 +1,13 @@
-import { Text } from "@radix-ui/themes"
+import { Flex } from "@radix-ui/themes"
+import Sidebar from "./components/Sidebar"
+import Canvas from "./components/Canvas"
 
 function App() {
   return (
-    <>
-      <Text>Hello world</Text>
-    </>
+    <Flex style={{ height: "100vh", width: "100vw" }}>
+      <Sidebar />
+      <Canvas />
+    </Flex>
   )
 }
 
