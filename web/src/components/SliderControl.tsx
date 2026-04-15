@@ -1,13 +1,13 @@
-import { Flex, Slider, Text } from "@radix-ui/themes"
+import { Flex, Slider, Text } from "@radix-ui/themes";
 
 type Props = {
-  label: string
-  value: number
-  min: number
-  max: number
-  step: number
-  onChange: (value: number) => void
-  precision?: number
+  label: string,
+  value: number,
+  min: number,
+  max: number,
+  step: number,
+  onChange: (value: number) => void,
+  precision?: number,
 }
 
 function SliderControl({ label, value, min, max, step, onChange, precision = 2 }: Props) {
@@ -27,7 +27,7 @@ function SliderControl({ label, value, min, max, step, onChange, precision = 2 }
         onValueChange={(values) => onChange(values[0])}
       />
     </Flex>
-  )
+  );
 }
 
-export default SliderControl
+export default SliderControl;

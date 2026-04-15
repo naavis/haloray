@@ -1,6 +1,6 @@
-import { Flex } from "@radix-ui/themes"
-import Sidebar from "./components/Sidebar"
-import Canvas from "./components/Canvas"
+import { Flex } from "@radix-ui/themes";
+import Sidebar from "./components/Sidebar";
+import Canvas from "./components/Canvas";
 
 function App() {
   return (
@@ -8,7 +8,7 @@ function App() {
       <Sidebar />
       <Canvas />
     </Flex>
-  )
+  );
 }
 
-export default App
+export default App;

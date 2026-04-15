@@ -8,13 +8,13 @@ import {
   Select,
   Separator,
   Text,
-} from "@radix-ui/themes"
-import SliderControl from "./SliderControl"
-import { useParams } from "../state/ParamsContext"
-import type { Projection } from "../state/params"
+} from "@radix-ui/themes";
+import SliderControl from "./SliderControl";
+import { useParams } from "../state/useParams";
+import type { Projection } from "../state/params";
 
 function Sidebar() {
-  const { simParams, displayParams, setSimParam, setDisplayParam, reset } = useParams()
+  const { simParams, displayParams, setSimParam, setDisplayParam, reset } = useParams();
 
   return (
     <Box
@@ -191,7 +191,7 @@ function Sidebar() {
         </Flex>
       </ScrollArea>
     </Box>
-  )
+  );
 }
 
-export default Sidebar
+export default Sidebar;
