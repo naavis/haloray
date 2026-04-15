@@ -43,7 +43,7 @@ fn srgb_gamma(c: f32) -> f32 {
     let b_raw = f32(accumulation[idx + 2u]) / SCALE;
 
     let total = max(dp.total_rays, 1.0);
-    let exposure = 120000.0 * dp.brightness;
+    let exposure = 500000.0 * dp.brightness;
     var color = vec3f(r_raw, g_raw, b_raw) * exposure / total;
 
     // Reinhard tone mapping per channel

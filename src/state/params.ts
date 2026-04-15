@@ -22,19 +22,19 @@ export type DisplayParams = {
 }
 
 export const DEFAULT_SIM: SimParams = {
-  sunAlt: 15,
+  sunAlt: 30,
   sunDiam: 0.5,
-  caRatio: 0.5,
+  caRatio: 3.0,
   caRatioStd: 0,
-  tiltGaussian: false,
-  tiltAvg: 0,
-  tiltStd: 0,
+  tiltGaussian: true,
+  tiltAvg: 90.0,
+  tiltStd: 1.5,
   rotGaussian: false,
   rotAvg: 0,
   rotStd: 0,
-  camPitch: 0,
-  camYaw: 0,
-  camFov: 1,
+  camPitch: 30,
+  camYaw: 15,
+  camFov: 0.5,
   projection: "0",
 };
 
