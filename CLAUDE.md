@@ -26,9 +26,9 @@ Requires a WebGPU-capable browser. There is no test suite in the web port yet.
 
 Three WebGPU passes per animation frame, driven by `requestAnimationFrame`:
 
-1. **raytrace** (compute, [raytrace.wgsl](src/shaders/raytrace.wgsl)) — One invocation per ray. Generates a crystal, traces one ray through it, writes a `RayResult` (pixel coords + RGB) to `ray_buffer`. `RAYS_PER_STEP ≈ 500k` per frame, rounded up to a multiple of `WORKGROUP_SIZE = 64`.
-2. **accumulate** (compute, [accumulate.wgsl](src/shaders/accumulate.wgsl)) — Reads `ray_buffer`, atomically adds each ray's contribution (scaled to u32) into a per-pixel RGB accumulation buffer. Rays tagged `pixel_x == MISS (0xFFFFFFFF)` are skipped.
-3. **display** (render, [display.wgsl](src/shaders/display.wgsl)) — Full-screen triangle that divides the accumulation buffer by `totalRays`, applies brightness, and writes to the canvas.
+1. **raytrace** (compute, [raytrace.wgsl](src/shaders/raytrace.wgsl)) - One invocation per ray. Generates a crystal, traces one ray through it, writes a `RayResult` (pixel coords + RGB) to `ray_buffer`. `RAYS_PER_STEP ≈ 500k` per frame, rounded up to a multiple of `WORKGROUP_SIZE = 64`. Once `totalRays` reaches `MAX_TOTAL_RAYS`, the raytrace and accumulate passes are skipped. The display pass is also gated by a `displayDirtyRef` flag: it re-runs only when something could have changed the output (fresh rays, displayParams edit, resize, or sim reset), so an idle-capped canvas does effectively no per-frame GPU work.
+2. **accumulate** (compute, [accumulate.wgsl](src/shaders/accumulate.wgsl)) - Reads `ray_buffer`, atomically adds each ray's contribution (scaled to u32) into a per-pixel RGB accumulation buffer. Rays tagged `pixel_x == MISS (0xFFFFFFFF)` are skipped.
+3. **display** (render, [display.wgsl](src/shaders/display.wgsl)) - Full-screen triangle that divides the accumulation buffer by `totalRays`, applies brightness, and writes to the canvas.
 
 The accumulation buffer is sized `width * height * 3 * 4` bytes and is rebuilt on resize (via `ResizeObserver`).
 

@@ -16,6 +16,7 @@ const RAYS_PER_STEP = 500_000;
 const NUM_WORKGROUPS = Math.ceil(RAYS_PER_STEP / WORKGROUP_SIZE);
 const ACTUAL_RAYS = NUM_WORKGROUPS * WORKGROUP_SIZE;
 const RAY_RESULT_STRIDE = 20;
+const MAX_TOTAL_RAYS = 1_000_000_000;
 
 function Canvas() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -24,16 +25,19 @@ function Canvas() {
 
   const simRef = useRef(simParams);
   const displayRef = useRef(displayParams);
+  const displayDirtyRef = useRef(true);
   useEffect(() => {
     simRef.current = simParams;
   }, [simParams]);
   useEffect(() => {
     displayRef.current = displayParams;
+    displayDirtyRef.current = true;
   }, [displayParams]);
 
   const resetRequestedRef = useRef(false);
   useEffect(() => {
     resetRequestedRef.current = true;
+    displayDirtyRef.current = true;
   }, [simVersion]);
 
   useEffect(() => {
@@ -164,6 +168,7 @@ function Canvas() {
         });
         createBindGroups();
         totalRays = 0;
+        displayDirtyRef.current = true;
       };
 
       handleResize();
@@ -196,11 +201,15 @@ function Canvas() {
           );
         }
 
-        rngSeed++;
-        encodeSimParams(paramsBuf, simRef.current, canvasWidth, canvasHeight, rngSeed);
-        device.queue.writeBuffer(paramsBuffer, 0, paramsBuf);
+        const shouldTrace = totalRays < MAX_TOTAL_RAYS;
 
-        totalRays += ACTUAL_RAYS;
+        if (shouldTrace) {
+          rngSeed++;
+          encodeSimParams(paramsBuf, simRef.current, canvasWidth, canvasHeight, rngSeed);
+          device.queue.writeBuffer(paramsBuffer, 0, paramsBuf);
+          totalRays += ACTUAL_RAYS;
+        }
+
         encodeDisplayParams(
           displayBuf,
           displayRef.current,
@@ -212,32 +221,39 @@ function Canvas() {
 
         const encoder = device.createCommandEncoder();
 
-        const rp = encoder.beginComputePass();
-        rp.setPipeline(raytracePipeline);
-        rp.setBindGroup(0, raytraceBindGroup);
-        rp.dispatchWorkgroups(NUM_WORKGROUPS);
-        rp.end();
+        if (shouldTrace) {
+          const rp = encoder.beginComputePass();
+          rp.setPipeline(raytracePipeline);
+          rp.setBindGroup(0, raytraceBindGroup);
+          rp.dispatchWorkgroups(NUM_WORKGROUPS);
+          rp.end();
 
-        const ap = encoder.beginComputePass();
-        ap.setPipeline(accumulatePipeline);
-        ap.setBindGroup(0, accumulateBindGroup);
-        ap.dispatchWorkgroups(NUM_WORKGROUPS);
-        ap.end();
+          const ap = encoder.beginComputePass();
+          ap.setPipeline(accumulatePipeline);
+          ap.setBindGroup(0, accumulateBindGroup);
+          ap.dispatchWorkgroups(NUM_WORKGROUPS);
+          ap.end();
 
-        const dp = encoder.beginRenderPass({
-          colorAttachments: [
-            {
-              view: context.getCurrentTexture().createView(),
-              loadOp: "clear",
-              storeOp: "store",
-              clearValue: { r: 0, g: 0, b: 0, a: 1 },
-            },
-          ],
-        });
-        dp.setPipeline(displayPipeline);
-        dp.setBindGroup(0, displayBindGroup);
-        dp.draw(3);
-        dp.end();
+          displayDirtyRef.current = true;
+        }
+
+        if (displayDirtyRef.current) {
+          const dp = encoder.beginRenderPass({
+            colorAttachments: [
+              {
+                view: context.getCurrentTexture().createView(),
+                loadOp: "clear",
+                storeOp: "store",
+                clearValue: { r: 0, g: 0, b: 0, a: 1 },
+              },
+            ],
+          });
+          dp.setPipeline(displayPipeline);
+          dp.setBindGroup(0, displayBindGroup);
+          dp.draw(3);
+          dp.end();
+          displayDirtyRef.current = false;
+        }
 
         device.queue.submit([encoder.finish()]);
         animFrameId = requestAnimationFrame(frame);
