@@ -6,7 +6,7 @@ import {
   type DisplayParams,
   type SimParams,
 } from "./params";
-import { ParamsCtx, type ParamsContextValue } from "./paramsCtx";
+import { ParamsContext, type ParamsContextValue } from "./ParamsContext";
 
 export function ParamsProvider({ children }: { children: ReactNode }) {
   const [simParams, setSim] = useState<SimParams>(DEFAULT_SIM);
@@ -39,5 +39,5 @@ export function ParamsProvider({ children }: { children: ReactNode }) {
     [simParams, displayParams, simVersion, setSimParam, setDisplayParam, reset],
   );
 
-  return <ParamsCtx.Provider value={value}>{children}</ParamsCtx.Provider>;
+  return <ParamsContext.Provider value={value}>{children}</ParamsContext.Provider>;
 }

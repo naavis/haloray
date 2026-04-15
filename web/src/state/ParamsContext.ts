@@ -10,4 +10,4 @@ export type ParamsContextValue = {
   reset: () => void
 }
 
-export const ParamsCtx = createContext<ParamsContextValue | null>(null);
+export const ParamsContext = createContext<ParamsContextValue | null>(null);

@@ -4,7 +4,7 @@ import "@radix-ui/themes/styles.css";
 import "./index.css";
 import { Theme } from "@radix-ui/themes";
 import App from './App.tsx';
-import { ParamsProvider } from './state/ParamsContext';
+import { ParamsProvider } from './state/ParamsProvider';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
