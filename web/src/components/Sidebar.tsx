@@ -1,41 +1,20 @@
-import { useState } from "react"
 import {
   Box,
   Button,
+  Checkbox,
   Flex,
   Heading,
   ScrollArea,
   Select,
   Separator,
   Text,
-  Checkbox,
 } from "@radix-ui/themes"
 import SliderControl from "./SliderControl"
-
-const DEFAULTS = {
-  sunAlt: 15,
-  sunDiam: 0.5,
-  caRatio: 0.5,
-  caRatioStd: 0,
-  tiltGaussian: false,
-  tiltAvg: 0,
-  tiltStd: 0,
-  rotGaussian: false,
-  rotAvg: 0,
-  rotStd: 0,
-  camPitch: 0,
-  camYaw: 0,
-  camFov: 1,
-  projection: "0",
-  brightness: 1,
-}
+import { useParams } from "../state/ParamsContext"
+import type { Projection } from "../state/params"
 
 function Sidebar() {
-  const [params, setParams] = useState(DEFAULTS)
-
-  const update = <K extends keyof typeof DEFAULTS>(key: K, value: (typeof DEFAULTS)[K]) => {
-    setParams((prev) => ({ ...prev, [key]: value }))
-  }
+  const { simParams, displayParams, setSimParam, setDisplayParam, reset } = useParams()
 
   return (
     <Box
@@ -54,19 +33,19 @@ function Sidebar() {
             <Heading size="2">Sun</Heading>
             <SliderControl
               label="Altitude (°)"
-              value={params.sunAlt}
+              value={simParams.sunAlt}
               min={-10}
               max={90}
               step={0.5}
-              onChange={(v) => update("sunAlt", v)}
+              onChange={(v) => setSimParam("sunAlt", v)}
             />
             <SliderControl
               label="Diameter (°)"
-              value={params.sunDiam}
+              value={simParams.sunDiam}
               min={0.1}
               max={5}
               step={0.1}
-              onChange={(v) => update("sunDiam", v)}
+              onChange={(v) => setSimParam("sunDiam", v)}
             />
           </Flex>
 
@@ -76,70 +55,70 @@ function Sidebar() {
             <Heading size="2">Crystal</Heading>
             <SliderControl
               label="C/A Ratio"
-              value={params.caRatio}
+              value={simParams.caRatio}
               min={0.1}
               max={5}
               step={0.01}
-              onChange={(v) => update("caRatio", v)}
+              onChange={(v) => setSimParam("caRatio", v)}
             />
             <SliderControl
               label="C/A Std Dev"
-              value={params.caRatioStd}
+              value={simParams.caRatioStd}
               min={0}
               max={2}
               step={0.01}
-              onChange={(v) => update("caRatioStd", v)}
+              onChange={(v) => setSimParam("caRatioStd", v)}
             />
             <Text as="label" size="2">
               <Flex gap="2" align="center">
                 <Checkbox
-                  checked={params.tiltGaussian}
-                  onCheckedChange={(v) => update("tiltGaussian", v === true)}
+                  checked={simParams.tiltGaussian}
+                  onCheckedChange={(v) => setSimParam("tiltGaussian", v === true)}
                 />
                 Gaussian Tilt
               </Flex>
             </Text>
             <SliderControl
               label="Tilt Average (°)"
-              value={params.tiltAvg}
+              value={simParams.tiltAvg}
               min={0}
               max={90}
               step={0.5}
-              onChange={(v) => update("tiltAvg", v)}
+              onChange={(v) => setSimParam("tiltAvg", v)}
             />
             <SliderControl
               label="Tilt Std Dev (°)"
-              value={params.tiltStd}
+              value={simParams.tiltStd}
               min={0}
               max={45}
               step={0.5}
-              onChange={(v) => update("tiltStd", v)}
+              onChange={(v) => setSimParam("tiltStd", v)}
             />
             <Text as="label" size="2">
               <Flex gap="2" align="center">
                 <Checkbox
-                  checked={params.rotGaussian}
-                  onCheckedChange={(v) => update("rotGaussian", v === true)}
+                  checked={simParams.rotGaussian}
+                  onCheckedChange={(v) => setSimParam("rotGaussian", v === true)}
                 />
                 Gaussian Rotation
               </Flex>
             </Text>
             <SliderControl
               label="Rotation Average (°)"
-              value={params.rotAvg}
+              value={simParams.rotAvg}
               min={0}
               max={180}
               step={1}
-              onChange={(v) => update("rotAvg", v)}
+              onChange={(v) => setSimParam("rotAvg", v)}
               precision={0}
             />
             <SliderControl
               label="Rotation Std Dev (°)"
-              value={params.rotStd}
+              value={simParams.rotStd}
               min={0}
               max={90}
               step={1}
-              onChange={(v) => update("rotStd", v)}
+              onChange={(v) => setSimParam("rotStd", v)}
               precision={0}
             />
           </Flex>
@@ -150,33 +129,33 @@ function Sidebar() {
             <Heading size="2">Camera</Heading>
             <SliderControl
               label="Pitch (°)"
-              value={params.camPitch}
+              value={simParams.camPitch}
               min={-90}
               max={90}
               step={0.5}
-              onChange={(v) => update("camPitch", v)}
+              onChange={(v) => setSimParam("camPitch", v)}
             />
             <SliderControl
               label="Yaw (°)"
-              value={params.camYaw}
+              value={simParams.camYaw}
               min={-180}
               max={180}
               step={0.5}
-              onChange={(v) => update("camYaw", v)}
+              onChange={(v) => setSimParam("camYaw", v)}
             />
             <SliderControl
               label="Focal Length"
-              value={params.camFov}
+              value={simParams.camFov}
               min={0.1}
               max={5}
               step={0.05}
-              onChange={(v) => update("camFov", v)}
+              onChange={(v) => setSimParam("camFov", v)}
             />
             <Flex direction="column" gap="1">
               <Text size="2">Projection</Text>
               <Select.Root
-                value={params.projection}
-                onValueChange={(v) => update("projection", v)}
+                value={simParams.projection}
+                onValueChange={(v) => setSimParam("projection", v as Projection)}
               >
                 <Select.Trigger />
                 <Select.Content>
@@ -196,17 +175,17 @@ function Sidebar() {
             <Heading size="2">Display</Heading>
             <SliderControl
               label="Brightness"
-              value={params.brightness}
+              value={displayParams.brightness}
               min={0.1}
               max={10}
               step={0.1}
-              onChange={(v) => update("brightness", v)}
+              onChange={(v) => setDisplayParam("brightness", v)}
             />
           </Flex>
 
           <Separator size="4" />
 
-          <Button variant="soft" onClick={() => setParams(DEFAULTS)}>
+          <Button variant="soft" onClick={reset}>
             Reset Parameters
           </Button>
         </Flex>
