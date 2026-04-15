@@ -1,7 +1,10 @@
+# Qt stuff
 build/
 build-*/
 .vscode/*
 .vs/*
 **/*.user
-*.json
 **/.qmake.stash
+
+# Claude
+.claude/settings.local.json
