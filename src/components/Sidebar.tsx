@@ -69,6 +69,7 @@ function Sidebar() {
               step={0.01}
               onChange={(v) => setSimParam("caRatioStd", v)}
             />
+            <Separator size="4" />
             <Text as="label" size="2">
               <Flex gap="2" align="center">
                 <Checkbox
@@ -85,6 +86,7 @@ function Sidebar() {
               max={90}
               step={0.5}
               onChange={(v) => setSimParam("tiltAvg", v)}
+              disabled={!simParams.tiltGaussian}
             />
             <SliderControl
               label="Tilt Std Dev (°)"
@@ -93,7 +95,9 @@ function Sidebar() {
               max={45}
               step={0.5}
               onChange={(v) => setSimParam("tiltStd", v)}
+              disabled={!simParams.tiltGaussian}
             />
+            <Separator size="4" />
             <Text as="label" size="2">
               <Flex gap="2" align="center">
                 <Checkbox
@@ -111,6 +115,7 @@ function Sidebar() {
               step={1}
               onChange={(v) => setSimParam("rotAvg", v)}
               precision={0}
+              disabled={!simParams.rotGaussian}
             />
             <SliderControl
               label="Rotation Std Dev (°)"
@@ -120,6 +125,7 @@ function Sidebar() {
               step={1}
               onChange={(v) => setSimParam("rotStd", v)}
               precision={0}
+              disabled={!simParams.rotGaussian}
             />
           </Flex>
 

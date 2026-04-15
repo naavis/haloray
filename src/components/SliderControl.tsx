@@ -8,9 +8,10 @@ type Props = {
   step: number,
   onChange: (value: number) => void,
   precision?: number,
+  disabled?: boolean,
 }
 
-function SliderControl({ label, value, min, max, step, onChange, precision = 2 }: Props) {
+function SliderControl({ label, value, min, max, step, onChange, precision = 2, disabled = false }: Props) {
   return (
     <Flex direction="column" gap="1">
       <Flex justify="between" align="center">
@@ -20,6 +21,7 @@ function SliderControl({ label, value, min, max, step, onChange, precision = 2 }
         </Text>
       </Flex>
       <Slider
+        disabled={disabled}
         value={[value]}
         min={min}
         max={max}
