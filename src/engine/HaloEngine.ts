@@ -147,11 +147,13 @@ export class HaloEngine {
   setDisplayParams(params: DisplayParams): void {
     this.displayParams = params;
     this.displayDirty = true;
+    this.ensureRunning();
   }
 
   resetAccumulation(): void {
     this.resetRequested = true;
     this.displayDirty = true;
+    this.ensureRunning();
   }
 
   resize(containerWidth: number, containerHeight: number): void {
@@ -176,12 +178,17 @@ export class HaloEngine {
     this.createBindGroups();
     this.totalRays = 0;
     this.displayDirty = true;
+    this.ensureRunning();
   }
 
   start(): void {
     if (this.running) return;
     this.running = true;
     this.animFrameId = requestAnimationFrame(() => this.frame());
+  }
+
+  private ensureRunning(): void {
+    if (!this.running) this.start();
   }
 
   stop(): void {
@@ -309,6 +316,13 @@ export class HaloEngine {
     }
 
     this.device.queue.submit([encoder.finish()]);
-    this.animFrameId = requestAnimationFrame(() => this.frame());
+
+    // Stop the loop when there's no more work to do.
+    // The loop is restarted when new work arrives (param change, reset, resize).
+    if (shouldTrace || this.displayDirty) {
+      this.animFrameId = requestAnimationFrame(() => this.frame());
+    } else {
+      this.running = false;
+    }
   }
 }
