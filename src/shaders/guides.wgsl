@@ -40,32 +40,45 @@ fn rotate_y(angle: f32) -> mat3x3f {
     );
 }
 
-fn pixel_to_world_dir(px: u32, py: u32) -> vec3f {
-    let res    = vec2f(f32(params.resolution_x), f32(params.resolution_y));
-    let aspect = res.y / res.x;
-    let nc     = vec2f(f32(px), f32(py)) / res - vec2f(0.5);
-    let u      = nc.x / aspect;
-    let v      = -nc.y;
-    let r      = length(vec2f(u, v));
-    let pa     = atan2(v, u);
-    let fov    = params.cam_fov;
+struct RayInfo {
+    dir:             vec3f,
+    projected_angle: f32,
+}
 
-    var pr: f32;
-    if (params.cam_projection == PROJ_STEREOGRAPHIC) {
-        pr = 2.0 * atan(r / (2.0 * fov));
-    } else if (params.cam_projection == PROJ_RECTILINEAR) {
-        pr = atan(r / fov);
-    } else if (params.cam_projection == PROJ_EQUIDISTANT) {
-        pr = r / fov;
-    } else if (params.cam_projection == PROJ_EQUAL_AREA) {
-        pr = 2.0 * asin(clamp(r / (2.0 * fov), -1.0, 1.0));
-    } else {
-        pr = asin(clamp(r / fov, -1.0, 1.0));
+fn pixel_to_world_dir(px: u32, py: u32) -> RayInfo {
+    let resolution    = vec2f(f32(params.resolution_x), f32(params.resolution_y));
+    let aspect = resolution.y / resolution.x;
+    let normalized_coordinates = vec2f(f32(px), f32(py)) / resolution - vec2f(0.5);
+    let u = normalized_coordinates.x / aspect;
+    let v = -normalized_coordinates.y;
+
+    // Polar coordinates
+    let r = length(vec2f(u, v));
+    let polar_angle = atan2(v, u);
+
+    let fov = params.cam_fov;
+
+    if ((params.cam_projection == PROJ_RECTILINEAR ||
+         params.cam_projection == PROJ_ORTHOGRAPHIC) && r > 0.5 * PI) {
+        return RayInfo(vec3f(0.0), PI + 1.0);
     }
 
-    let cam_dir = vec3f(sin(pr) * cos(pa), sin(pr) * sin(pa), cos(pr));
+    var projected_angle: f32;
+    if (params.cam_projection == PROJ_STEREOGRAPHIC) {
+        projected_angle = 2.0 * atan(r / (2.0 * fov));
+    } else if (params.cam_projection == PROJ_RECTILINEAR) {
+        projected_angle = atan(r / fov);
+    } else if (params.cam_projection == PROJ_EQUIDISTANT) {
+        projected_angle = r / fov;
+    } else if (params.cam_projection == PROJ_EQUAL_AREA) {
+        projected_angle = 2.0 * asin(r / (2.0 * fov));
+    } else {
+        projected_angle = asin(r / fov);
+    }
+
+    let cam_dir = vec3f(sin(projected_angle) * cos(polar_angle), sin(projected_angle) * sin(polar_angle), cos(projected_angle));
     let orient  = rotate_y(-params.cam_yaw) * rotate_x(-params.cam_pitch);
-    return normalize(orient * cam_dir);
+    return RayInfo(normalize(orient * cam_dir), projected_angle);
 }
 
 @compute @workgroup_size(8, 8)
@@ -75,7 +88,15 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
 
     let line_width = 0.25 / sqrt(params.cam_fov) * PI / 180.0;
 
-    let dir = pixel_to_world_dir(gid.x, gid.y);
+    let ray = pixel_to_world_dir(gid.x, gid.y);
+    if (ray.projected_angle > PI) {
+        guides_buffer[idx]     = 0.0;
+        guides_buffer[idx + 1] = 0.0;
+        guides_buffer[idx + 2] = 0.0;
+        guides_buffer[idx + 3] = 0.0;
+        return;
+    }
+    let dir = ray.dir;
 
     let horizon_dist = abs(dir.y);
 
