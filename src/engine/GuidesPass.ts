@@ -1,5 +1,6 @@
 import guidesCode from "../shaders/guides.wgsl?raw";
 import { GUIDES_PARAMS_SIZE, encodeGuidesParams } from "../state/encodeParams";
+import type { SimParams } from "../state/params";
 
 export class GuidesPass {
   private device: GPUDevice;
@@ -44,13 +45,14 @@ export class GuidesPass {
   /** Encodes guides compute dispatch if dirty. Returns true if work was dispatched. */
   encode(
     encoder: GPUCommandEncoder,
+    sim: SimParams,
     canvasWidth: number,
     canvasHeight: number,
   ): boolean {
     if (!this.dirty || !this.bindGroup) return false;
     this.dirty = false;
 
-    encodeGuidesParams(this.paramsBuf, canvasWidth, canvasHeight);
+    encodeGuidesParams(this.paramsBuf, sim, canvasWidth, canvasHeight);
     this.device.queue.writeBuffer(this.uniformBuffer, 0, this.paramsBuf);
 
     const pass = encoder.beginComputePass();

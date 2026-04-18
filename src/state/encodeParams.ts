@@ -7,7 +7,7 @@ import type { DisplayParams, SimParams } from "./params";
 export const PARAMS_SIZE = 128;
 export const DISPLAY_PARAMS_SIZE = 16;
 export const SKY_PARAMS_SIZE = 8;
-export const GUIDES_PARAMS_SIZE = 8;
+export const GUIDES_PARAMS_SIZE = 32;
 
 const degToRad = (d: number) => (d * Math.PI) / 180;
 
@@ -81,16 +81,23 @@ export function encodeSkyParams(
   u32[1] = canvasHeight;
 }
 
-// Serializes guides params into the 8-byte layout expected by guides.wgsl's
+// Serializes guides params into the 32-byte layout expected by guides.wgsl's
 // `GuidesParams` uniform.
 export function encodeGuidesParams(
   outBuf: ArrayBuffer,
+  sim: SimParams,
   canvasWidth: number,
   canvasHeight: number,
 ): void {
   const u32 = new Uint32Array(outBuf);
+  const f32 = new Float32Array(outBuf);
   u32[0] = canvasWidth;
   u32[1] = canvasHeight;
+  f32[2] = degToRad(sim.camPitch);
+  f32[3] = degToRad(sim.camYaw);
+  f32[4] = sim.camFov;
+  u32[5] = parseInt(sim.projection, 10);
+  f32[6] = degToRad(sim.sunAlt);
 }
 
 // Serializes display/accumulate params into the 16-byte layout shared by

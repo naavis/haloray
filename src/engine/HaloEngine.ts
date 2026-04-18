@@ -292,6 +292,7 @@ export class HaloEngine {
 
     const guidesRendered = this.guidesPass.encode(
       encoder,
+      this.simParams,
       this.canvasWidth,
       this.canvasHeight,
     );
