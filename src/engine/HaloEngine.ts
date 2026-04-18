@@ -237,11 +237,9 @@ export class HaloEngine {
     if (this.resetRequested) {
       this.resetRequested = false;
       this.totalRays = 0;
-      this.device.queue.writeBuffer(
-        this.accBuffer,
-        0,
-        new Uint8Array(this.canvasWidth * this.canvasHeight * 3 * 4),
-      );
+      const clearEncoder = this.device.createCommandEncoder();
+      clearEncoder.clearBuffer(this.accBuffer);
+      this.device.queue.submit([clearEncoder.finish()]);
     }
 
     const shouldTrace = this.totalRays < MAX_TOTAL_RAYS;
