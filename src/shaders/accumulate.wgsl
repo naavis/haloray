@@ -20,7 +20,8 @@ struct AccParams {
     total_rays: f32,     // used only by display pass (normalization)
     resolution_x: f32,
     resolution_y: f32,   // used only by display pass (UV → pixel)
-    _pad: f32,           // brightness in DisplayParams; unused here
+    _pad0: f32,          // brightness in DisplayParams; unused here
+    _pad1: u32,          // show_guides in DisplayParams; unused here
 }
 
 @group(0) @binding(0) var<storage, read> ray_buffer: array<RayResult>;

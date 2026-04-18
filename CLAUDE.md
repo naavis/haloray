@@ -38,7 +38,7 @@ View params (`sunAlt`, `camPitch`, `camYaw`, `camFov`, `projection`) are tracked
 
 ### State → GPU uniform encoding ([src/state/encodeParams.ts](src/state/encodeParams.ts))
 
-`encodeSimParams` serializes `SimParams` into a 128-byte `ArrayBuffer` matching the `Params` struct in `raytrace.wgsl`. `encodeDisplayParams` writes the 16-byte `DisplayParams`/`AccParams` layout shared by the accumulate and display shaders. `encodeSkyParams` writes the 8-byte `SkyParams` layout for `sky.wgsl`. `encodeGuidesParams` writes the 8-byte `GuidesParams` layout for `guides.wgsl`.
+`encodeSimParams` serializes `SimParams` into a 128-byte `ArrayBuffer` matching the `Params` struct in `raytrace.wgsl`. `encodeDisplayParams` writes the 32-byte `DisplayParams`/`AccParams` layout shared by the accumulate and display shaders (5 used slots, padded to a 16-byte multiple for uniform alignment). `encodeSkyParams` writes the 8-byte `SkyParams` layout for `sky.wgsl`. `encodeGuidesParams` writes the 32-byte `GuidesParams` layout for `guides.wgsl`.
 
 Invariants worth preserving:
 

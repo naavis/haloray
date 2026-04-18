@@ -5,7 +5,7 @@ import type { DisplayParams, SimParams } from "./params";
 // accumulate.wgsl (those two shaders bind the same buffer, so their struct
 // layouts must be identical).
 export const PARAMS_SIZE = 128;
-export const DISPLAY_PARAMS_SIZE = 16;
+export const DISPLAY_PARAMS_SIZE = 32;
 export const SKY_PARAMS_SIZE = 8;
 export const GUIDES_PARAMS_SIZE = 32;
 
@@ -111,8 +111,10 @@ export function encodeDisplayParams(
   canvasHeight: number,
 ): void {
   const f32 = new Float32Array(outBuf);
+  const u32 = new Uint32Array(outBuf);
   f32[0] = totalRays;
   f32[1] = canvasWidth;
   f32[2] = canvasHeight;
   f32[3] = display.brightness;
+  u32[4] = display.showGuides ? 1 : 0;
 }

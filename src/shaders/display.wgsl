@@ -9,6 +9,7 @@ struct DisplayParams {
     resolution_x: f32,
     resolution_y: f32,
     brightness: f32,
+    show_guides: u32,
 }
 
 @group(0) @binding(0) var<storage, read> accumulation: array<u32>;
@@ -61,9 +62,11 @@ fn srgb_gamma(c: f32) -> f32 {
     color = vec3f(srgb_gamma(color.x), srgb_gamma(color.y), srgb_gamma(color.z));
 
     // Guide overlay (blended in sRGB space so lines appear at exact colors)
-    let g_idx = (py * rx + px) * 4u;
-    let guide = vec4f(guides[g_idx], guides[g_idx + 1u], guides[g_idx + 2u], guides[g_idx + 3u]);
-    color = mix(color, guide.rgb, guide.a);
+    if (dp.show_guides != 0u) {
+        let g_idx = (py * rx + px) * 4u;
+        let guide = vec4f(guides[g_idx], guides[g_idx + 1u], guides[g_idx + 2u], guides[g_idx + 3u]);
+        color = mix(color, guide.rgb, guide.a);
+    }
 
     return vec4f(color, 1.0);
 }

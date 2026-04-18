@@ -187,6 +187,15 @@ function Sidebar() {
               step={0.1}
               onChange={(v) => setDisplayParam("brightness", v)}
             />
+            <Text as="label" size="2">
+              <Flex gap="2" align="center">
+                <Checkbox
+                  checked={displayParams.showGuides}
+                  onCheckedChange={(v) => setDisplayParam("showGuides", v === true)}
+                />
+                Show Guides
+              </Flex>
+            </Text>
           </Flex>
 
           <Separator size="4" />
