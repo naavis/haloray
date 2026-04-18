@@ -49,7 +49,6 @@ function Canvas() {
 
       const rect = container.getBoundingClientRect();
       engine.resize(rect.width, rect.height);
-      engine.start();
     })();
 
     const observer = new ResizeObserver(() => {
