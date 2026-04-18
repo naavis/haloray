@@ -9,16 +9,16 @@ function Canvas() {
   const engineRef = useRef<HaloEngine | null>(null);
   const { simParams, displayParams } = useParams();
 
-  const simRef = useRef(simParams);
-  const displayRef = useRef(displayParams);
+  const simParamsRef = useRef(simParams);
+  const displayParamsRef = useRef(displayParams);
 
   useEffect(() => {
-    simRef.current = simParams;
+    simParamsRef.current = simParams;
     engineRef.current?.setSimParams(simParams);
   }, [simParams]);
 
   useEffect(() => {
-    displayRef.current = displayParams;
+    displayParamsRef.current = displayParams;
     engineRef.current?.setDisplayParams(displayParams);
   }, [displayParams]);
 
@@ -34,8 +34,8 @@ function Canvas() {
       try {
         engine = await HaloEngine.create(
           canvas,
-          simRef.current,
-          displayRef.current,
+          simParamsRef.current,
+          displayParamsRef.current,
         );
       } catch (e) {
         console.error(e);
