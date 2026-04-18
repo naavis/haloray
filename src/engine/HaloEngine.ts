@@ -142,6 +142,7 @@ export class HaloEngine {
 
   setSimParams(params: SimParams): void {
     this.simParams = params;
+    this.resetAccumulation();
   }
 
   setDisplayParams(params: DisplayParams): void {

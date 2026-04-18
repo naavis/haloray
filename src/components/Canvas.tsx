@@ -7,7 +7,7 @@ function Canvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<HaloEngine | null>(null);
-  const { simParams, displayParams, simVersion } = useParams();
+  const { simParams, displayParams } = useParams();
 
   const simRef = useRef(simParams);
   const displayRef = useRef(displayParams);
@@ -21,10 +21,6 @@ function Canvas() {
     displayRef.current = displayParams;
     engineRef.current?.setDisplayParams(displayParams);
   }, [displayParams]);
-
-  useEffect(() => {
-    engineRef.current?.resetAccumulation();
-  }, [simVersion]);
 
   useEffect(() => {
     const container = containerRef.current;
