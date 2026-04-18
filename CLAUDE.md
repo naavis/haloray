@@ -22,19 +22,23 @@ Requires a WebGPU-capable browser. There is no test suite in the web port yet.
 
 ## Architecture
 
-### Rendering pipeline ([src/components/Canvas.tsx](src/components/Canvas.tsx))
+### Engine and rendering pipeline
 
-Three WebGPU passes per animation frame, driven by `requestAnimationFrame`:
+[HaloEngine](src/engine/HaloEngine.ts) is the coordinator that owns the GPU device, canvas context, shared buffers, and the animation frame loop. It delegates work to separate pass classes:
 
-1. **raytrace** (compute, [raytrace.wgsl](src/shaders/raytrace.wgsl)) - One invocation per ray. Generates a crystal, traces one ray through it, writes a `RayResult` (pixel coords + RGB) to `ray_buffer`. `RAYS_PER_STEP ≈ 500k` per frame, rounded up to a multiple of `WORKGROUP_SIZE = 64`. Once `totalRays` reaches `MAX_TOTAL_RAYS`, the raytrace and accumulate passes are skipped. The display pass is also gated by a `displayDirtyRef` flag: it re-runs only when something could have changed the output (fresh rays, displayParams edit, resize, or sim reset), so an idle-capped canvas does effectively no per-frame GPU work.
-2. **accumulate** (compute, [accumulate.wgsl](src/shaders/accumulate.wgsl)) - Reads `ray_buffer`, atomically adds each ray's contribution (scaled to u32) into a per-pixel RGB accumulation buffer. Rays tagged `pixel_x == MISS (0xFFFFFFFF)` are skipped.
-3. **display** (render, [display.wgsl](src/shaders/display.wgsl)) - Full-screen triangle that divides the accumulation buffer by `totalRays`, applies brightness, and writes to the canvas.
+- [HaloPass](src/engine/HaloPass.ts) — **raytrace** + **accumulate** compute passes (progressive). Owns pipelines, ray buffer, params buffer, `totalRays` counter. Writes into the shared accumulation buffer.
+- [SkyPass](src/engine/SkyPass.ts) — **sky** compute pass. Writes per-pixel linear RGB into a sky buffer. Only re-runs when view params (camera + sun position) change.
+- [GuidesPass](src/engine/GuidesPass.ts) — **guides** compute pass. Writes per-pixel linear RGBA into a guides buffer (4 floats/pixel). Only re-runs when view params change. Currently a placeholder that writes transparent black.
 
-The accumulation buffer is sized `width * height * 3 * 4` bytes and is rebuilt on resize (via `ResizeObserver`).
+The engine owns the **display** render pass ([display.wgsl](src/shaders/display.wgsl)), which composites the outputs: it reads the accumulation buffer, sky buffer, and guides buffer, sums halo and sky in linear radiance space, applies Reinhard tone mapping and sRGB gamma, then alpha-blends the guides overlay on top.
+
+The accumulation buffer and sky buffer are sized `width * height * 3 * 4` bytes; the guides buffer is `width * height * 4 * 4` bytes (RGBA). All are rebuilt on resize (via `ResizeObserver`). The display pass is gated by a `displayDirty` flag and only re-runs when something changed.
+
+View params (`sunAlt`, `camPitch`, `camYaw`, `camFov`, `projection`) are tracked via `didViewChange()` in [params.ts](src/state/params.ts). Changes to view params mark the sky pass dirty; all simParams changes reset the halo accumulation.
 
 ### State → GPU uniform encoding ([src/state/encodeParams.ts](src/state/encodeParams.ts))
 
-`encodeSimParams` serializes `SimParams` into a 128-byte `ArrayBuffer` matching the `Params` struct in `raytrace.wgsl`. `encodeDisplayParams` writes the 16-byte `DisplayParams`/`AccParams` layout shared by the accumulate and display shaders.
+`encodeSimParams` serializes `SimParams` into a 128-byte `ArrayBuffer` matching the `Params` struct in `raytrace.wgsl`. `encodeDisplayParams` writes the 16-byte `DisplayParams`/`AccParams` layout shared by the accumulate and display shaders. `encodeSkyParams` writes the 8-byte `SkyParams` layout for `sky.wgsl`. `encodeGuidesParams` writes the 8-byte `GuidesParams` layout for `guides.wgsl`.
 
 Invariants worth preserving:
 
@@ -49,11 +53,13 @@ Invariants worth preserving:
 
 - `simParams` — Inputs to the ray tracer (sun, crystal, camera). Changing any of these must discard the accumulated image, because rays from the old parameters would be physically inconsistent with new ones.
 - `displayParams` — Inputs to the display pass only (e.g. brightness). Can change without invalidating accumulated samples.
-- `simVersion` — Bumped whenever `setSimParam` or `reset` is called. `Canvas.tsx` watches this via `resetRequestedRef` and zeroes the accumulation buffer + resets `totalRays` on the next frame.
+- `simVersion` — Bumped whenever `setSimParam` or `reset` is called. `Canvas.tsx` calls `engine.setSimParams()` which resets the halo accumulation and, if view params changed, marks the sky pass dirty.
 
 When adding a new parameter, decide which of the two buckets it belongs to — that decision determines whether adjusting it resets the image.
 
 The `Canvas` effect reads params through `simRef` / `displayRef` (refreshed by small `useEffect`s) rather than re-running the full WebGPU setup effect on every change; the setup effect's dep array is intentionally empty.
+
+When adding a new pass, create a new pass class in `src/engine/`, a shader in `src/shaders/`, and wire it into `HaloEngine`'s frame loop. If the pass writes a buffer that the display shader reads, add the binding to `display.wgsl` and update `createDisplayBindGroup()`.
 
 ### UI
 

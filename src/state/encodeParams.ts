@@ -6,6 +6,8 @@ import type { DisplayParams, SimParams } from "./params";
 // layouts must be identical).
 export const PARAMS_SIZE = 128;
 export const DISPLAY_PARAMS_SIZE = 16;
+export const SKY_PARAMS_SIZE = 8;
+export const GUIDES_PARAMS_SIZE = 8;
 
 const degToRad = (d: number) => (d * Math.PI) / 180;
 
@@ -63,6 +65,32 @@ export function encodeSimParams(
   // Unused tail of the array<vec4f, 2> (8 floats total, only 6 are meaningful).
   f32[30] = 0;
   f32[31] = 0;
+}
+
+// Serializes sky params into the 8-byte layout expected by sky.wgsl's
+// `SkyParams` uniform.
+// TODO: add sun altitude, camera pitch/yaw/fov, and projection once the sky
+// shader computes actual sky colors instead of writing black.
+export function encodeSkyParams(
+  buf: ArrayBuffer,
+  canvasWidth: number,
+  canvasHeight: number,
+): void {
+  const u32 = new Uint32Array(buf);
+  u32[0] = canvasWidth;
+  u32[1] = canvasHeight;
+}
+
+// Serializes guides params into the 8-byte layout expected by guides.wgsl's
+// `GuidesParams` uniform.
+export function encodeGuidesParams(
+  buf: ArrayBuffer,
+  canvasWidth: number,
+  canvasHeight: number,
+): void {
+  const u32 = new Uint32Array(buf);
+  u32[0] = canvasWidth;
+  u32[1] = canvasHeight;
 }
 
 // Serializes display/accumulate params into the 16-byte layout shared by

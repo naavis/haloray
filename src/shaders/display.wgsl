@@ -13,6 +13,8 @@ struct DisplayParams {
 
 @group(0) @binding(0) var<storage, read> accumulation: array<u32>;
 @group(0) @binding(1) var<uniform> dp: DisplayParams;
+@group(0) @binding(2) var<storage, read> sky: array<f32>;
+@group(0) @binding(3) var<storage, read> guides: array<f32>;
 
 struct VsOut {
     @builtin(position) position: vec4f,
@@ -46,15 +48,22 @@ fn srgb_gamma(c: f32) -> f32 {
     let g_raw = f32(accumulation[idx + 1u]) / SCALE;
     let b_raw = f32(accumulation[idx + 2u]) / SCALE;
 
+    let sky_color = vec3f(sky[idx], sky[idx + 1u], sky[idx + 2u]);
+
     let total = max(dp.total_rays, 1.0);
     let exposure = 500000.0 * dp.brightness;
-    var color = vec3f(r_raw, g_raw, b_raw) * exposure / total;
+    var color = vec3f(r_raw, g_raw, b_raw) * exposure / total + sky_color;
 
     // Reinhard tone mapping per channel
     color = color / (vec3f(1.0) + color);
 
     // sRGB gamma
     color = vec3f(srgb_gamma(color.x), srgb_gamma(color.y), srgb_gamma(color.z));
+
+    // Guide overlay (blended in sRGB space so lines appear at exact colors)
+    let g_idx = (py * rx + px) * 4u;
+    let guide = vec4f(guides[g_idx], guides[g_idx + 1u], guides[g_idx + 2u], guides[g_idx + 3u]);
+    color = mix(color, guide.rgb, guide.a);
 
     return vec4f(color, 1.0);
 }

@@ -1,51 +1,94 @@
-import raytraceCode from "../shaders/raytrace.wgsl?raw";
-import accumulateCode from "../shaders/accumulate.wgsl?raw";
 import displayCode from "../shaders/display.wgsl?raw";
 import {
   DISPLAY_PARAMS_SIZE,
-  PARAMS_SIZE,
   encodeDisplayParams,
-  encodeSimParams,
 } from "../state/encodeParams";
+import { didViewChange } from "../state/params";
 import type { SimParams, DisplayParams } from "../state/params";
+import { GuidesPass } from "./GuidesPass";
+import { HaloPass } from "./HaloPass";
+import { SkyPass } from "./SkyPass";
 
-const WORKGROUP_SIZE = 64;
-const RAYS_PER_STEP = 500_000;
-const NUM_WORKGROUPS = Math.ceil(RAYS_PER_STEP / WORKGROUP_SIZE);
-const ACTUAL_RAYS = NUM_WORKGROUPS * WORKGROUP_SIZE;
-const RAY_RESULT_STRIDE = 20;
-const MAX_TOTAL_RAYS = 1_000_000_000;
-
+/*
+ * HaloEngine — rendering pipeline overview
+ *
+ *   setSimParams()          setDisplayParams()         resize()
+ *       │                        │                        │
+ *       │  resets halo acc,      │  marks display         │  rebuilds buffers,
+ *       │  marks sky/guides      │  dirty                 │  resets everything
+ *       │  dirty on view change  │                        │
+ *       └────────┬───────────────┴────────────────────────┘
+ *                │
+ *                v
+ *         ensureRunning()
+ *                │
+ *                v
+ *   ┌─── requestAnimationFrame ◄───────────────────────────┐
+ *   │                                                      │
+ *   v                                                      │
+ * frame()                                                  │
+ *   │                                                      │
+ *   │  ┌─────────────────── GPU command encoder ─────────────────────┐
+ *   │  │                                                             │
+ *   │  │  COMPUTE PASSES                                             │
+ *   │  │                                                             │
+ *   │  │  HaloPass.encode()  (every frame until maxRays)             │
+ *   │  │    ┌───────────┐      ┌─────────────┐                       │
+ *   │  │    │ raytrace  │─────►│ accumulate  │                       │
+ *   │  │    │ (compute) │ ray  │  (compute)  │                       │
+ *   │  │    └───────────┘ buf  └──────┬──────┘                       │
+ *   │  │                             │ accBuffer (RGB f32)           │
+ *   │  │                             v                               │
+ *   │  │  SkyPass.encode()   (only when dirty)                       │
+ *   │  │    ┌───────────┐                                            │
+ *   │  │    │   sky     │──────────► skyBuffer (RGB f32)             │
+ *   │  │    │ (compute) │                                            │
+ *   │  │    └───────────┘                                            │
+ *   │  │                                                             │
+ *   │  │  GuidesPass.encode() (only when dirty)                      │
+ *   │  │    ┌───────────┐                                            │
+ *   │  │    │  guides   │──────────► guidesBuffer (RGBA f32)         │
+ *   │  │    │ (compute) │                                            │
+ *   │  │    └───────────┘                                            │
+ *   │  │                                                             │
+ *   │  │  DISPLAY RENDER PASS  (only when displayDirty)              │
+ *   │  │                                                             │
+ *   │  │    accBuffer ─────┐                                         │
+ *   │  │    skyBuffer ─────┼──► display.wgsl ──► canvas              │
+ *   │  │    guidesBuffer ──┘   (tone map + sRGB + blend)             │
+ *   │  │    displayParams ─┘                                         │
+ *   │  │                                                             │
+ *   │  └─────────────────────────────────────────────────────────────┘
+ *   │                                                      │
+ *   │  queue.submit()                                      │
+ *   │                                                      │
+ *   └──── if !maxRaysReached ─────────────────────────────►┘
+ *                else stop
+ */
 export class HaloEngine {
   private device: GPUDevice;
   private context: GPUCanvasContext;
   private canvas: HTMLCanvasElement;
 
-  private raytracePipeline: GPUComputePipeline;
-  private accumulatePipeline: GPUComputePipeline;
   private displayPipeline: GPURenderPipeline;
-
-  private paramsBuffer: GPUBuffer;
-  private rayBuffer: GPUBuffer;
   private displayParamsBuffer: GPUBuffer;
-  private accBuffer: GPUBuffer | null = null;
-
-  private raytraceBindGroup: GPUBindGroup | null = null;
-  private accumulateBindGroup: GPUBindGroup | null = null;
   private displayBindGroup: GPUBindGroup | null = null;
-
-  private paramsBuf = new ArrayBuffer(PARAMS_SIZE);
   private displayBuf = new ArrayBuffer(DISPLAY_PARAMS_SIZE);
+
+  private accBuffer: GPUBuffer | null = null;
+  private skyBuffer: GPUBuffer | null = null;
+  private guidesBuffer: GPUBuffer | null = null;
+
+  private haloPass: HaloPass;
+  private skyPass: SkyPass;
+  private guidesPass: GuidesPass;
 
   private canvasWidth = 0;
   private canvasHeight = 0;
-  private totalRays = 0;
-  private rngSeed = 0;
 
   private simParams: SimParams;
   private displayParams: DisplayParams;
   private displayDirty = true;
-  private resetRequested = false;
 
   private animFrameId = 0;
   private running = false;
@@ -64,28 +107,16 @@ export class HaloEngine {
     this.simParams = simParams;
     this.displayParams = displayParams;
 
-    this.raytracePipeline = device.createComputePipeline({
-      layout: "auto",
-      compute: {
-        module: device.createShaderModule({ code: raytraceCode }),
-        entryPoint: "main"
-      },
-    });
-
-    this.accumulatePipeline = device.createComputePipeline({
-      layout: "auto",
-      compute: {
-        module: device.createShaderModule({ code: accumulateCode }),
-        entryPoint: "main"
-      },
-    });
+    this.haloPass = new HaloPass(device);
+    this.skyPass = new SkyPass(device);
+    this.guidesPass = new GuidesPass(device);
 
     const displayModule = device.createShaderModule({ code: displayCode });
     this.displayPipeline = device.createRenderPipeline({
       layout: "auto",
       vertex: {
         module: displayModule,
-        entryPoint: "vertex_shader"
+        entryPoint: "vertex_shader",
       },
       fragment: {
         module: displayModule,
@@ -94,14 +125,6 @@ export class HaloEngine {
       },
     });
 
-    this.paramsBuffer = device.createBuffer({
-      size: PARAMS_SIZE,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
-    this.rayBuffer = device.createBuffer({
-      size: ACTUAL_RAYS * RAY_RESULT_STRIDE,
-      usage: GPUBufferUsage.STORAGE,
-    });
     this.displayParamsBuffer = device.createBuffer({
       size: DISPLAY_PARAMS_SIZE,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -141,8 +164,14 @@ export class HaloEngine {
   }
 
   setSimParams(params: SimParams): void {
+    if (didViewChange(this.simParams, params)) {
+      this.skyPass.markDirty();
+      this.guidesPass.markDirty();
+    }
     this.simParams = params;
-    this.resetAccumulation();
+    this.haloPass.resetAccumulation();
+    this.displayDirty = true;
+    this.ensureRunning();
   }
 
   setDisplayParams(params: DisplayParams): void {
@@ -152,7 +181,9 @@ export class HaloEngine {
   }
 
   resetAccumulation(): void {
-    this.resetRequested = true;
+    this.haloPass.resetAccumulation();
+    this.skyPass.markDirty();
+    this.guidesPass.markDirty();
     this.displayDirty = true;
     this.ensureRunning();
   }
@@ -171,13 +202,34 @@ export class HaloEngine {
     this.canvas.style.width = `${containerWidth}px`;
     this.canvas.style.height = `${containerHeight}px`;
 
+    const bufferSizeBytes = w * h * 3 * 4;
+
     if (this.accBuffer) this.accBuffer.destroy();
     this.accBuffer = this.device.createBuffer({
-      size: w * h * 3 * 4,
+      size: bufferSizeBytes,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     });
-    this.createBindGroups();
-    this.totalRays = 0;
+
+    if (this.skyBuffer) this.skyBuffer.destroy();
+    this.skyBuffer = this.device.createBuffer({
+      size: bufferSizeBytes,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+    });
+
+    if (this.guidesBuffer) this.guidesBuffer.destroy();
+    this.guidesBuffer = this.device.createBuffer({
+      size: w * h * 4 * 4,
+      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+    });
+
+    this.haloPass.createBindGroups(this.accBuffer, this.displayParamsBuffer);
+    this.skyPass.createBindGroups(this.skyBuffer);
+    this.guidesPass.createBindGroups(this.guidesBuffer);
+    this.createDisplayBindGroup();
+
+    this.haloPass.resetAccumulation();
+    this.skyPass.markDirty();
+    this.guidesPass.markDirty();
     this.displayDirty = true;
     this.ensureRunning();
   }
@@ -199,32 +251,18 @@ export class HaloEngine {
 
   destroy(): void {
     this.stop();
-    this.accBuffer?.destroy();
     this.device.destroy();
   }
 
-  private createBindGroups(): void {
-    if (!this.accBuffer) return;
-    this.raytraceBindGroup = this.device.createBindGroup({
-      layout: this.raytracePipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: this.paramsBuffer } },
-        { binding: 1, resource: { buffer: this.rayBuffer } },
-      ],
-    });
-    this.accumulateBindGroup = this.device.createBindGroup({
-      layout: this.accumulatePipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: this.rayBuffer } },
-        { binding: 1, resource: { buffer: this.accBuffer } },
-        { binding: 2, resource: { buffer: this.displayParamsBuffer } },
-      ],
-    });
+  private createDisplayBindGroup(): void {
+    if (!this.accBuffer || !this.skyBuffer || !this.guidesBuffer) return;
     this.displayBindGroup = this.device.createBindGroup({
       layout: this.displayPipeline.getBindGroupLayout(0),
       entries: [
         { binding: 0, resource: { buffer: this.accBuffer } },
         { binding: 1, resource: { buffer: this.displayParamsBuffer } },
+        { binding: 2, resource: { buffer: this.skyBuffer } },
+        { binding: 3, resource: { buffer: this.guidesBuffer } },
       ],
     });
   }
@@ -232,44 +270,39 @@ export class HaloEngine {
   private frame(): void {
     if (!this.running) return;
 
-    if (
-      !this.accBuffer ||
-      !this.raytraceBindGroup ||
-      !this.accumulateBindGroup ||
-      !this.displayBindGroup
-    ) {
+    if (!this.accBuffer || !this.skyBuffer || !this.guidesBuffer || !this.displayBindGroup) {
       this.animFrameId = requestAnimationFrame(() => this.frame());
       return;
     }
 
-    if (this.resetRequested) {
-      this.resetRequested = false;
-      this.totalRays = 0;
-      const clearEncoder = this.device.createCommandEncoder();
-      clearEncoder.clearBuffer(this.accBuffer);
-      this.device.queue.submit([clearEncoder.finish()]);
-    }
+    const encoder = this.device.createCommandEncoder();
 
-    const shouldTrace = this.totalRays < MAX_TOTAL_RAYS;
+    const traced = this.haloPass.encode(
+      encoder,
+      this.simParams,
+      this.canvasWidth,
+      this.canvasHeight,
+    );
 
-    if (shouldTrace) {
-      this.rngSeed++;
-      encodeSimParams(
-        this.paramsBuf,
-        this.simParams,
-        this.canvasWidth,
-        this.canvasHeight,
-        this.rngSeed,
-      );
-      this.device.queue.writeBuffer(this.paramsBuffer, 0, this.paramsBuf);
-      this.totalRays += ACTUAL_RAYS;
-    }
+    const skyRendered = this.skyPass.encode(
+      encoder,
+      this.canvasWidth,
+      this.canvasHeight,
+    );
 
-    if (shouldTrace || this.displayDirty) {
+    const guidesRendered = this.guidesPass.encode(
+      encoder,
+      this.canvasWidth,
+      this.canvasHeight,
+    );
+
+    if (traced || skyRendered || guidesRendered) this.displayDirty = true;
+
+    if (this.displayDirty) {
       encodeDisplayParams(
         this.displayBuf,
         this.displayParams,
-        this.totalRays,
+        this.haloPass.totalRays,
         this.canvasWidth,
         this.canvasHeight,
       );
@@ -278,28 +311,8 @@ export class HaloEngine {
         0,
         this.displayBuf,
       );
-    }
 
-    const encoder = this.device.createCommandEncoder();
-
-    if (shouldTrace) {
-      const rp = encoder.beginComputePass();
-      rp.setPipeline(this.raytracePipeline);
-      rp.setBindGroup(0, this.raytraceBindGroup);
-      rp.dispatchWorkgroups(NUM_WORKGROUPS);
-      rp.end();
-
-      const ap = encoder.beginComputePass();
-      ap.setPipeline(this.accumulatePipeline);
-      ap.setBindGroup(0, this.accumulateBindGroup);
-      ap.dispatchWorkgroups(NUM_WORKGROUPS);
-      ap.end();
-
-      this.displayDirty = true;
-    }
-
-    if (this.displayDirty) {
-      const dp = encoder.beginRenderPass({
+      const rp = encoder.beginRenderPass({
         colorAttachments: [
           {
             view: this.context.getCurrentTexture().createView(),
@@ -309,18 +322,17 @@ export class HaloEngine {
           },
         ],
       });
-      dp.setPipeline(this.displayPipeline);
-      dp.setBindGroup(0, this.displayBindGroup);
-      dp.draw(3);
-      dp.end();
+      rp.setPipeline(this.displayPipeline);
+      rp.setBindGroup(0, this.displayBindGroup);
+      rp.draw(3);
+      rp.end();
+
       this.displayDirty = false;
     }
 
     this.device.queue.submit([encoder.finish()]);
 
-    // Stop the loop when there's no more work to do.
-    // The loop is restarted when new work arrives (param change, reset, resize).
-    if (shouldTrace || this.displayDirty) {
+    if (!this.haloPass.maxRaysReached) {
       this.animFrameId = requestAnimationFrame(() => this.frame());
     } else {
       this.running = false;
