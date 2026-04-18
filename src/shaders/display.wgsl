@@ -1,5 +1,9 @@
 // display.wgsl — Fullscreen triangle that reads the accumulation buffer and tone-maps.
 
+// This buffer is shared with the accumulate pass (which declares a matching
+// AccParams struct). Both shaders bind the same displayParamsBuffer, so the
+// field order and sizes here must stay in sync with AccParams in
+// accumulate.wgsl.  See encodeDisplayParams() for the write side.
 struct DisplayParams {
     total_rays: f32,
     resolution_x: f32,

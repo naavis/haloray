@@ -1,7 +1,9 @@
 import type { DisplayParams, SimParams } from "./params";
 
 // Byte sizes of the WGSL uniform structs. Must match the `Params` struct in
-// raytrace.wgsl and the `DisplayParams` struct in accumulate.wgsl / display.wgsl.
+// raytrace.wgsl and the `DisplayParams`/`AccParams` structs in display.wgsl /
+// accumulate.wgsl (those two shaders bind the same buffer, so their struct
+// layouts must be identical).
 export const PARAMS_SIZE = 128;
 export const DISPLAY_PARAMS_SIZE = 16;
 
@@ -63,6 +65,9 @@ export function encodeSimParams(
   f32[31] = 0;
 }
 
+// Serializes display/accumulate params into the 16-byte layout shared by
+// DisplayParams (display.wgsl) and AccParams (accumulate.wgsl).  Both shaders
+// bind the same GPU buffer, so this single write feeds both passes.
 export function encodeDisplayParams(
   buf: ArrayBuffer,
   display: DisplayParams,

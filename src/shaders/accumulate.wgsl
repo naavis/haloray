@@ -11,11 +11,16 @@ struct RayResult {
     b: f32,
 }
 
+// This struct mirrors DisplayParams in display.wgsl because both shaders bind
+// the same GPU uniform buffer (displayParamsBuffer). Only resolution_x is used
+// by the accumulate pass; the other fields exist to keep the byte layout
+// identical so offsets stay in sync.  See encodeDisplayParams() for the write
+// side and HaloEngine.createBindGroups() for the shared binding.
 struct AccParams {
-    total_rays: f32,     // unused here, present for layout compatibility
-    resolution_x: f32,   // stored as f32 for display shader convenience
-    resolution_y: f32,
-    _pad: f32,
+    total_rays: f32,     // used only by display pass (normalization)
+    resolution_x: f32,
+    resolution_y: f32,   // used only by display pass (UV → pixel)
+    _pad: f32,           // brightness in DisplayParams; unused here
 }
 
 @group(0) @binding(0) var<storage, read> ray_buffer: array<RayResult>;
