@@ -49,7 +49,9 @@ export class GuidesPass {
     canvasWidth: number,
     canvasHeight: number,
   ): boolean {
-    if (!this.dirty || !this.bindGroup) return false;
+    if (!this.dirty || !this.bindGroup) {
+      return false;
+    }
     this.dirty = false;
 
     encodeGuidesParams(this.paramsBuf, sim, canvasWidth, canvasHeight);
@@ -58,10 +60,7 @@ export class GuidesPass {
     const pass = encoder.beginComputePass();
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, this.bindGroup);
-    pass.dispatchWorkgroups(
-      Math.ceil(canvasWidth / 8),
-      Math.ceil(canvasHeight / 8),
-    );
+    pass.dispatchWorkgroups(Math.ceil(canvasWidth / 8), Math.ceil(canvasHeight / 8));
     pass.end();
 
     return true;

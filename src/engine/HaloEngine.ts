@@ -1,8 +1,5 @@
 import displayCode from "../shaders/display.wgsl?raw";
-import {
-  DISPLAY_PARAMS_SIZE,
-  encodeDisplayParams,
-} from "../state/encodeParams";
+import { DISPLAY_PARAMS_SIZE, encodeDisplayParams } from "../state/encodeParams";
 import { didViewChange } from "../state/params";
 import type { SimParams, DisplayParams } from "../state/params";
 import { GuidesPass } from "./GuidesPass";
@@ -153,14 +150,7 @@ export class HaloEngine {
     const format = navigator.gpu.getPreferredCanvasFormat();
     context.configure({ device, format, alphaMode: "opaque" });
 
-    return new HaloEngine(
-      device,
-      context,
-      format,
-      canvas,
-      simParams,
-      displayParams,
-    );
+    return new HaloEngine(device, context, format, canvas, simParams, displayParams);
   }
 
   setSimParams(params: SimParams): void {
@@ -193,7 +183,9 @@ export class HaloEngine {
     const maxDim = this.device.limits.maxTextureDimension2D;
     const w = Math.max(1, Math.min(Math.floor(containerWidth * dpr), maxDim));
     const h = Math.max(1, Math.min(Math.floor(containerHeight * dpr), maxDim));
-    if (w === this.canvasWidth && h === this.canvasHeight) return;
+    if (w === this.canvasWidth && h === this.canvasHeight) {
+      return;
+    }
 
     this.canvasWidth = w;
     this.canvasHeight = h;
@@ -204,19 +196,25 @@ export class HaloEngine {
 
     const bufferSizeBytes = w * h * 3 * 4;
 
-    if (this.accBuffer) this.accBuffer.destroy();
+    if (this.accBuffer) {
+      this.accBuffer.destroy();
+    }
     this.accBuffer = this.device.createBuffer({
       size: bufferSizeBytes,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     });
 
-    if (this.skyBuffer) this.skyBuffer.destroy();
+    if (this.skyBuffer) {
+      this.skyBuffer.destroy();
+    }
     this.skyBuffer = this.device.createBuffer({
       size: bufferSizeBytes,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     });
 
-    if (this.guidesBuffer) this.guidesBuffer.destroy();
+    if (this.guidesBuffer) {
+      this.guidesBuffer.destroy();
+    }
     this.guidesBuffer = this.device.createBuffer({
       size: w * h * 4 * 4,
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
@@ -235,13 +233,17 @@ export class HaloEngine {
   }
 
   start(): void {
-    if (this.running) return;
+    if (this.running) {
+      return;
+    }
     this.running = true;
     this.animFrameId = requestAnimationFrame(() => this.frame());
   }
 
   private ensureRunning(): void {
-    if (!this.running) this.start();
+    if (!this.running) {
+      this.start();
+    }
   }
 
   stop(): void {
@@ -255,7 +257,9 @@ export class HaloEngine {
   }
 
   private createDisplayBindGroup(): void {
-    if (!this.accBuffer || !this.skyBuffer || !this.guidesBuffer) return;
+    if (!this.accBuffer || !this.skyBuffer || !this.guidesBuffer) {
+      return;
+    }
     this.displayBindGroup = this.device.createBindGroup({
       layout: this.displayPipeline.getBindGroupLayout(0),
       entries: [
@@ -268,7 +272,9 @@ export class HaloEngine {
   }
 
   private frame(): void {
-    if (!this.running) return;
+    if (!this.running) {
+      return;
+    }
 
     if (!this.accBuffer || !this.skyBuffer || !this.guidesBuffer || !this.displayBindGroup) {
       this.animFrameId = requestAnimationFrame(() => this.frame());
@@ -284,11 +290,7 @@ export class HaloEngine {
       this.canvasHeight,
     );
 
-    const skyRendered = this.skyPass.encode(
-      encoder,
-      this.canvasWidth,
-      this.canvasHeight,
-    );
+    const skyRendered = this.skyPass.encode(encoder, this.canvasWidth, this.canvasHeight);
 
     const guidesRendered = this.guidesPass.encode(
       encoder,
@@ -297,7 +299,9 @@ export class HaloEngine {
       this.canvasHeight,
     );
 
-    if (traced || skyRendered || guidesRendered) this.displayDirty = true;
+    if (traced || skyRendered || guidesRendered) {
+      this.displayDirty = true;
+    }
 
     if (this.displayDirty) {
       encodeDisplayParams(
@@ -307,11 +311,7 @@ export class HaloEngine {
         this.canvasWidth,
         this.canvasHeight,
       );
-      this.device.queue.writeBuffer(
-        this.displayParamsBuffer,
-        0,
-        this.displayParamsStaging,
-      );
+      this.device.queue.writeBuffer(this.displayParamsBuffer, 0, this.displayParamsStaging);
 
       const rp = encoder.beginRenderPass({
         colorAttachments: [

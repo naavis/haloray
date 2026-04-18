@@ -1,17 +1,26 @@
 import { Flex, Slider, Text } from "@radix-ui/themes";
 
 type Props = {
-  label: string,
-  value: number,
-  min: number,
-  max: number,
-  step: number,
-  onChange: (value: number) => void,
-  precision?: number,
-  disabled?: boolean,
-}
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (value: number) => void;
+  precision?: number;
+  disabled?: boolean;
+};
 
-function SliderControl({ label, value, min, max, step, onChange, precision = 2, disabled = false }: Props) {
+function SliderControl({
+  label,
+  value,
+  min,
+  max,
+  step,
+  onChange,
+  precision = 2,
+  disabled = false,
+}: Props) {
   return (
     <Flex direction="column" gap="1">
       <Flex justify="between" align="center">

@@ -44,12 +44,10 @@ export class SkyPass {
   /** Encodes sky compute dispatch if dirty. Returns true if work was dispatched. */
   // TODO: accept SimParams (sun altitude, camera, projection) once the shader
   // computes real sky colors.
-  encode(
-    encoder: GPUCommandEncoder,
-    canvasWidth: number,
-    canvasHeight: number,
-  ): boolean {
-    if (!this.dirty || !this.bindGroup) return false;
+  encode(encoder: GPUCommandEncoder, canvasWidth: number, canvasHeight: number): boolean {
+    if (!this.dirty || !this.bindGroup) {
+      return false;
+    }
     this.dirty = false;
 
     encodeSkyParams(this.paramsBuf, canvasWidth, canvasHeight);
@@ -58,10 +56,7 @@ export class SkyPass {
     const pass = encoder.beginComputePass();
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, this.bindGroup);
-    pass.dispatchWorkgroups(
-      Math.ceil(canvasWidth / 8),
-      Math.ceil(canvasHeight / 8),
-    );
+    pass.dispatchWorkgroups(Math.ceil(canvasWidth / 8), Math.ceil(canvasHeight / 8));
     pass.end();
 
     return true;

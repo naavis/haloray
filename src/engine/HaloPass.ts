@@ -66,10 +66,7 @@ export class HaloPass {
     return this._totalRays >= MAX_TOTAL_RAYS;
   }
 
-  createBindGroups(
-    accBuffer: GPUBuffer,
-    displayParamsBuffer: GPUBuffer,
-  ): void {
+  createBindGroups(accBuffer: GPUBuffer, displayParamsBuffer: GPUBuffer): void {
     this.accBuffer = accBuffer;
     this.raytraceBindGroup = this.device.createBindGroup({
       layout: this.raytracePipeline.getBindGroupLayout(0),
@@ -102,7 +99,9 @@ export class HaloPass {
     if (this.resetRequested) {
       this.resetRequested = false;
       this._totalRays = 0;
-      if (this.accBuffer) encoder.clearBuffer(this.accBuffer);
+      if (this.accBuffer) {
+        encoder.clearBuffer(this.accBuffer);
+      }
     }
 
     if (this.maxRaysReached || !this.raytraceBindGroup || !this.accumulateBindGroup) {
@@ -110,13 +109,7 @@ export class HaloPass {
     }
 
     this.rngSeed++;
-    encodeSimParams(
-      this.paramsBuf,
-      simParams,
-      canvasWidth,
-      canvasHeight,
-      this.rngSeed,
-    );
+    encodeSimParams(this.paramsBuf, simParams, canvasWidth, canvasHeight, this.rngSeed);
     this.device.queue.writeBuffer(this.paramsBuffer, 0, this.paramsBuf);
     this._totalRays += ACTUAL_RAYS;
 

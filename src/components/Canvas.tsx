@@ -25,18 +25,16 @@ function Canvas() {
   useEffect(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
-    if (!container || !canvas) return;
+    if (!container || !canvas) {
+      return;
+    }
 
     let destroyed = false;
 
     (async () => {
       let engine: HaloEngine;
       try {
-        engine = await HaloEngine.create(
-          canvas,
-          simParamsRef.current,
-          displayParamsRef.current,
-        );
+        engine = await HaloEngine.create(canvas, simParamsRef.current, displayParamsRef.current);
       } catch (e) {
         console.error(e);
         return;

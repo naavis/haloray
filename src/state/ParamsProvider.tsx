@@ -1,11 +1,6 @@
 import { useCallback, useState } from "react";
 import type { ReactNode } from "react";
-import {
-  DEFAULT_DISPLAY,
-  DEFAULT_SIM,
-  type DisplayParams,
-  type SimParams,
-} from "./params";
+import { DEFAULT_DISPLAY, DEFAULT_SIM, type DisplayParams, type SimParams } from "./params";
 import { ParamsContext, type ParamsContextValue } from "./ParamsContext";
 
 export function ParamsProvider({ children }: { children: ReactNode }) {
@@ -33,15 +28,12 @@ export function ParamsProvider({ children }: { children: ReactNode }) {
   // simParams directly, so that if two updates are batched together each one
   // sees the latest state rather than a stale snapshot from when the function
   // was defined.
-  const setSimParam = useCallback(
-    <K extends keyof SimParams>(key: K, value: SimParams[K]) => {
-      setSim((prev) => ({ ...prev, [key]: value }));
-      // Bumping simVersion signals the engine to discard accumulated rays and
-      // restart — sim params affect the physics, so old rays are now invalid.
-      setSimVersion((v) => v + 1);
-    },
-    [],
-  );
+  const setSimParam = useCallback(<K extends keyof SimParams>(key: K, value: SimParams[K]) => {
+    setSim((prev) => ({ ...prev, [key]: value }));
+    // Bumping simVersion signals the engine to discard accumulated rays and
+    // restart — sim params affect the physics, so old rays are now invalid.
+    setSimVersion((v) => v + 1);
+  }, []);
 
   // Same pattern as setSimParam, but for display-only params (e.g. brightness).
   // Does NOT bump simVersion because display changes don't invalidate accumulated rays.
@@ -59,7 +51,14 @@ export function ParamsProvider({ children }: { children: ReactNode }) {
     setSimVersion((v) => v + 1);
   }, []);
 
-  const value: ParamsContextValue = { simParams, displayParams, simVersion, setSimParam, setDisplayParam, reset };
+  const value: ParamsContextValue = {
+    simParams,
+    displayParams,
+    simVersion,
+    setSimParam,
+    setDisplayParam,
+    reset,
+  };
 
   return <ParamsContext.Provider value={value}>{children}</ParamsContext.Provider>;
 }
