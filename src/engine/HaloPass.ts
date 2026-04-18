@@ -1,6 +1,11 @@
 import raytraceCode from "../shaders/raytrace.wgsl?raw";
 import accumulateCode from "../shaders/accumulate.wgsl?raw";
-import { PARAMS_SIZE, encodeSimParams } from "../state/encodeParams";
+import {
+  ACC_PARAMS_SIZE,
+  PARAMS_SIZE,
+  encodeAccParams,
+  encodeSimParams,
+} from "../state/encodeParams";
 import type { SimParams } from "../state/params";
 
 const WORKGROUP_SIZE = 64;
@@ -18,7 +23,9 @@ export class HaloPass {
 
   private paramsBuffer: GPUBuffer;
   private rayBuffer: GPUBuffer;
+  private accParamsBuffer: GPUBuffer;
   private paramsBuf = new ArrayBuffer(PARAMS_SIZE);
+  private accParamsBuf = new ArrayBuffer(ACC_PARAMS_SIZE);
 
   private raytraceBindGroup: GPUBindGroup | null = null;
   private accumulateBindGroup: GPUBindGroup | null = null;
@@ -56,6 +63,11 @@ export class HaloPass {
       size: ACTUAL_RAYS * RAY_RESULT_STRIDE,
       usage: GPUBufferUsage.STORAGE,
     });
+
+    this.accParamsBuffer = device.createBuffer({
+      size: ACC_PARAMS_SIZE,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
   }
 
   get totalRays(): number {
@@ -66,7 +78,7 @@ export class HaloPass {
     return this._totalRays >= MAX_TOTAL_RAYS;
   }
 
-  createBindGroups(accBuffer: GPUBuffer, displayParamsBuffer: GPUBuffer): void {
+  createBindGroups(accBuffer: GPUBuffer): void {
     this.accBuffer = accBuffer;
     this.raytraceBindGroup = this.device.createBindGroup({
       layout: this.raytracePipeline.getBindGroupLayout(0),
@@ -80,9 +92,14 @@ export class HaloPass {
       entries: [
         { binding: 0, resource: { buffer: this.rayBuffer } },
         { binding: 1, resource: { buffer: accBuffer } },
-        { binding: 2, resource: { buffer: displayParamsBuffer } },
+        { binding: 2, resource: { buffer: this.accParamsBuffer } },
       ],
     });
+  }
+
+  writeAccParams(canvasWidth: number): void {
+    encodeAccParams(this.accParamsBuf, canvasWidth);
+    this.device.queue.writeBuffer(this.accParamsBuffer, 0, this.accParamsBuf);
   }
 
   resetAccumulation(): void {

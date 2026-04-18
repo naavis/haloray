@@ -1,7 +1,6 @@
-import displayCode from "../shaders/display.wgsl?raw";
-import { DISPLAY_PARAMS_SIZE, encodeDisplayParams } from "../state/encodeParams";
 import { didViewChange } from "../state/params";
 import type { SimParams, DisplayParams } from "../state/params";
+import { DisplayPass } from "./DisplayPass";
 import { GuidesPass } from "./GuidesPass";
 import { HaloPass } from "./HaloPass";
 import { SkyPass } from "./SkyPass";
@@ -34,8 +33,8 @@ import { SkyPass } from "./SkyPass";
  *   │  │    │ raytrace  │─────►│ accumulate  │                       │
  *   │  │    │ (compute) │ ray  │  (compute)  │                       │
  *   │  │    └───────────┘ buf  └──────┬──────┘                       │
- *   │  │                             │ accBuffer (RGB f32)           │
- *   │  │                             v                               │
+ *   │  │                              │ accBuffer (RGB f32)          │
+ *   │  │                              v                              │
  *   │  │  SkyPass.encode()   (only when dirty)                       │
  *   │  │    ┌───────────┐                                            │
  *   │  │    │   sky     │──────────► skyBuffer (RGB f32)             │
@@ -48,12 +47,11 @@ import { SkyPass } from "./SkyPass";
  *   │  │    │ (compute) │                                            │
  *   │  │    └───────────┘                                            │
  *   │  │                                                             │
- *   │  │  DISPLAY RENDER PASS  (only when displayDirty)              │
+ *   │  │  DisplayPass.encode() (only when dirty — render pass)       │
  *   │  │                                                             │
  *   │  │    accBuffer ─────┐                                         │
  *   │  │    skyBuffer ─────┼──► display.wgsl ──► canvas              │
  *   │  │    guidesBuffer ──┘   (tone map + sRGB + blend)             │
- *   │  │    displayParams ─┘                                         │
  *   │  │                                                             │
  *   │  └─────────────────────────────────────────────────────────────┘
  *   │                                                      │
@@ -64,13 +62,7 @@ import { SkyPass } from "./SkyPass";
  */
 export class HaloEngine {
   private device: GPUDevice;
-  private context: GPUCanvasContext;
   private canvas: HTMLCanvasElement;
-
-  private displayPipeline: GPURenderPipeline;
-  private displayParamsBuffer: GPUBuffer;
-  private displayBindGroup: GPUBindGroup | null = null;
-  private displayParamsStaging = new ArrayBuffer(DISPLAY_PARAMS_SIZE);
 
   private accBuffer: GPUBuffer | null = null;
   private skyBuffer: GPUBuffer | null = null;
@@ -79,13 +71,13 @@ export class HaloEngine {
   private haloPass: HaloPass;
   private skyPass: SkyPass;
   private guidesPass: GuidesPass;
+  private displayPass: DisplayPass;
 
   private canvasWidth = 0;
   private canvasHeight = 0;
 
   private simParams: SimParams;
   private displayParams: DisplayParams;
-  private displayDirty = true;
 
   private animFrameId = 0;
   private running = false;
@@ -99,7 +91,6 @@ export class HaloEngine {
     displayParams: DisplayParams,
   ) {
     this.device = device;
-    this.context = context;
     this.canvas = canvas;
     this.simParams = simParams;
     this.displayParams = displayParams;
@@ -107,25 +98,7 @@ export class HaloEngine {
     this.haloPass = new HaloPass(device);
     this.skyPass = new SkyPass(device);
     this.guidesPass = new GuidesPass(device);
-
-    const displayModule = device.createShaderModule({ code: displayCode });
-    this.displayPipeline = device.createRenderPipeline({
-      layout: "auto",
-      vertex: {
-        module: displayModule,
-        entryPoint: "vertex_shader",
-      },
-      fragment: {
-        module: displayModule,
-        entryPoint: "fragment_shader",
-        targets: [{ format }],
-      },
-    });
-
-    this.displayParamsBuffer = device.createBuffer({
-      size: DISPLAY_PARAMS_SIZE,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
+    this.displayPass = new DisplayPass(device, context, format);
   }
 
   static async create(
@@ -160,13 +133,13 @@ export class HaloEngine {
     }
     this.simParams = params;
     this.haloPass.resetAccumulation();
-    this.displayDirty = true;
+    this.displayPass.markDirty();
     this.ensureRunning();
   }
 
   setDisplayParams(params: DisplayParams): void {
     this.displayParams = params;
-    this.displayDirty = true;
+    this.displayPass.markDirty();
     this.ensureRunning();
   }
 
@@ -174,7 +147,7 @@ export class HaloEngine {
     this.haloPass.resetAccumulation();
     this.skyPass.markDirty();
     this.guidesPass.markDirty();
-    this.displayDirty = true;
+    this.displayPass.markDirty();
     this.ensureRunning();
   }
 
@@ -220,15 +193,16 @@ export class HaloEngine {
       usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
     });
 
-    this.haloPass.createBindGroups(this.accBuffer, this.displayParamsBuffer);
+    this.haloPass.createBindGroups(this.accBuffer);
+    this.haloPass.writeAccParams(w);
     this.skyPass.createBindGroups(this.skyBuffer);
     this.guidesPass.createBindGroups(this.guidesBuffer);
-    this.createDisplayBindGroup();
+    this.displayPass.createBindGroups(this.accBuffer, this.skyBuffer, this.guidesBuffer);
 
     this.haloPass.resetAccumulation();
     this.skyPass.markDirty();
     this.guidesPass.markDirty();
-    this.displayDirty = true;
+    this.displayPass.markDirty();
     this.ensureRunning();
   }
 
@@ -256,27 +230,12 @@ export class HaloEngine {
     this.device.destroy();
   }
 
-  private createDisplayBindGroup(): void {
-    if (!this.accBuffer || !this.skyBuffer || !this.guidesBuffer) {
-      return;
-    }
-    this.displayBindGroup = this.device.createBindGroup({
-      layout: this.displayPipeline.getBindGroupLayout(0),
-      entries: [
-        { binding: 0, resource: { buffer: this.accBuffer } },
-        { binding: 1, resource: { buffer: this.displayParamsBuffer } },
-        { binding: 2, resource: { buffer: this.skyBuffer } },
-        { binding: 3, resource: { buffer: this.guidesBuffer } },
-      ],
-    });
-  }
-
   private frame(): void {
     if (!this.running) {
       return;
     }
 
-    if (!this.accBuffer || !this.skyBuffer || !this.guidesBuffer || !this.displayBindGroup) {
+    if (!this.accBuffer || !this.skyBuffer || !this.guidesBuffer) {
       this.animFrameId = requestAnimationFrame(() => this.frame());
       return;
     }
@@ -300,36 +259,16 @@ export class HaloEngine {
     );
 
     if (traced || skyRendered || guidesRendered) {
-      this.displayDirty = true;
+      this.displayPass.markDirty();
     }
 
-    if (this.displayDirty) {
-      encodeDisplayParams(
-        this.displayParamsStaging,
-        this.displayParams,
-        this.haloPass.totalRays,
-        this.canvasWidth,
-        this.canvasHeight,
-      );
-      this.device.queue.writeBuffer(this.displayParamsBuffer, 0, this.displayParamsStaging);
-
-      const rp = encoder.beginRenderPass({
-        colorAttachments: [
-          {
-            view: this.context.getCurrentTexture().createView(),
-            loadOp: "clear",
-            storeOp: "store",
-            clearValue: { r: 0, g: 0, b: 0, a: 1 },
-          },
-        ],
-      });
-      rp.setPipeline(this.displayPipeline);
-      rp.setBindGroup(0, this.displayBindGroup);
-      rp.draw(3);
-      rp.end();
-
-      this.displayDirty = false;
-    }
+    this.displayPass.encode(
+      encoder,
+      this.displayParams,
+      this.haloPass.totalRays,
+      this.canvasWidth,
+      this.canvasHeight,
+    );
 
     this.device.queue.submit([encoder.finish()]);
 

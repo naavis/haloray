@@ -1,11 +1,12 @@
 import type { DisplayParams, SimParams } from "./params";
 
-// Byte sizes of the WGSL uniform structs. Must match the `Params` struct in
-// raytrace.wgsl and the `DisplayParams`/`AccParams` structs in display.wgsl /
-// accumulate.wgsl (those two shaders bind the same buffer, so their struct
-// layouts must be identical).
+// Byte sizes of the WGSL uniform structs. Each must match its corresponding
+// shader struct: `Params` in raytrace.wgsl, `DisplayParams` in display.wgsl,
+// `AccParams` in accumulate.wgsl, `SkyParams` in sky.wgsl, `GuidesParams` in
+// guides.wgsl.
 export const PARAMS_SIZE = 128;
 export const DISPLAY_PARAMS_SIZE = 32;
+export const ACC_PARAMS_SIZE = 16;
 export const SKY_PARAMS_SIZE = 8;
 export const GUIDES_PARAMS_SIZE = 32;
 
@@ -100,9 +101,8 @@ export function encodeGuidesParams(
   f32[6] = degToRad(sim.sunAlt);
 }
 
-// Serializes display/accumulate params into the 16-byte layout shared by
-// DisplayParams (display.wgsl) and AccParams (accumulate.wgsl).  Both shaders
-// bind the same GPU buffer, so this single write feeds both passes.
+// Serializes display params into the layout expected by display.wgsl's
+// `DisplayParams` uniform.
 export function encodeDisplayParams(
   outBuf: ArrayBuffer,
   display: DisplayParams,
@@ -117,4 +117,13 @@ export function encodeDisplayParams(
   f32[2] = canvasHeight;
   f32[3] = display.brightness;
   u32[4] = display.showGuides ? 1 : 0;
+}
+
+// Serializes accumulate params into the layout expected by accumulate.wgsl's
+// `AccParams` uniform. Only canvas width is needed (the shader maps pixel
+// coordinates into the accumulation buffer). The uniform buffer is 16 bytes
+// to satisfy WebGPU alignment even though only 4 are used.
+export function encodeAccParams(outBuf: ArrayBuffer, canvasWidth: number): void {
+  const u32 = new Uint32Array(outBuf);
+  u32[0] = canvasWidth;
 }
