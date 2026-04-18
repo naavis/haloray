@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import type { ReactNode } from "react";
 import {
   DEFAULT_DISPLAY,
@@ -36,10 +36,7 @@ export function ParamsProvider({ children }: { children: ReactNode }) {
     setSimVersion((v) => v + 1);
   }, []);
 
-  const value = useMemo<ParamsContextValue>(
-    () => ({ simParams, displayParams, simVersion, setSimParam, setDisplayParam, reset }),
-    [simParams, displayParams, simVersion, setSimParam, setDisplayParam, reset],
-  );
+  const value: ParamsContextValue = { simParams, displayParams, simVersion, setSimParam, setDisplayParam, reset };
 
   return <ParamsContext.Provider value={value}>{children}</ParamsContext.Provider>;
 }
