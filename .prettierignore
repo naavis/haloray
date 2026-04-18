@@ -1,0 +1,4 @@
+dist
+desktop
+package-lock.json
+*.wgsl

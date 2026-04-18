@@ -12,10 +12,12 @@ HaloRay is an atmospheric ice-halo (sun halo) simulator. The repository contains
 ## Commands
 
 ```bash
-npm run dev      # Vite dev server with HMR
-npm run build    # tsc -b && vite build (type-check then bundle)
-npm run lint     # eslint .
-npm run preview  # preview production build
+npm run dev           # Vite dev server with HMR
+npm run build         # tsc -b && vite build (type-check then bundle)
+npm run lint          # eslint .
+npm run format        # prettier --write .
+npm run format:check  # prettier --check . (used in CI / pre-commit)
+npm run preview       # preview production build
 ```
 
 Requires a WebGPU-capable browser. There is no test suite in the web port yet.
@@ -69,3 +71,4 @@ Radix Themes (`@radix-ui/themes`) provides the component library and design toke
 
 - WGSL shaders are imported as raw strings via Vite's `?raw` suffix.
 - `@webgpu/types` provides the `GPU*` types; no runtime WebGPU polyfill is used.
+- Formatting is owned by Prettier ([.prettierrc.json](.prettierrc.json)); ESLint handles correctness only. `eslint-config-prettier` is applied last in [eslint.config.js](eslint.config.js) to disable any stylistic rules that would conflict. Don't add formatting rules to ESLint — change the Prettier config instead.
