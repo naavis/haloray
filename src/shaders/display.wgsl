@@ -19,7 +19,7 @@ struct VsOut {
     @location(0) uv: vec2f,
 }
 
-@vertex fn vs(@builtin(vertex_index) vi: u32) -> VsOut {
+@vertex fn vertex_shader(@builtin(vertex_index) vi: u32) -> VsOut {
     // Single triangle covering the full screen
     let x = f32(vi & 1u) * 4.0 - 1.0;
     let y = f32(vi >> 1u) * 4.0 - 1.0;
@@ -35,7 +35,7 @@ fn srgb_gamma(c: f32) -> f32 {
     return select(1.055 * pow(c, 1.0 / 2.4) - 0.055, 12.92 * c, c <= 0.0031308);
 }
 
-@fragment fn fs(in: VsOut) -> @location(0) vec4f {
+@fragment fn fragment_shader(in: VsOut) -> @location(0) vec4f {
     let rx = u32(dp.resolution_x);
     let ry = u32(dp.resolution_y);
     let px = min(u32(in.uv.x * dp.resolution_x), rx - 1u);

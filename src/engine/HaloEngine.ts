@@ -64,26 +64,32 @@ export class HaloEngine {
     this.simParams = simParams;
     this.displayParams = displayParams;
 
-    const raytraceModule = device.createShaderModule({ code: raytraceCode });
-    const accumulateModule = device.createShaderModule({
-      code: accumulateCode,
-    });
-    const displayModule = device.createShaderModule({ code: displayCode });
-
     this.raytracePipeline = device.createComputePipeline({
       layout: "auto",
-      compute: { module: raytraceModule, entryPoint: "main" },
+      compute: {
+        module: device.createShaderModule({ code: raytraceCode }),
+        entryPoint: "main"
+      },
     });
+
     this.accumulatePipeline = device.createComputePipeline({
       layout: "auto",
-      compute: { module: accumulateModule, entryPoint: "main" },
+      compute: {
+        module: device.createShaderModule({ code: accumulateCode }),
+        entryPoint: "main"
+      },
     });
+
+    const displayModule = device.createShaderModule({ code: displayCode });
     this.displayPipeline = device.createRenderPipeline({
       layout: "auto",
-      vertex: { module: displayModule, entryPoint: "vs" },
+      vertex: {
+        module: displayModule,
+        entryPoint: "vertex_shader"
+      },
       fragment: {
         module: displayModule,
-        entryPoint: "fs",
+        entryPoint: "fragment_shader",
         targets: [{ format }],
       },
     });
