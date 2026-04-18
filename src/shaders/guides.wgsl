@@ -41,12 +41,12 @@ fn rotate_y(angle: f32) -> mat3x3f {
 }
 
 struct RayInfo {
-    dir:             vec3f,
+    dir: vec3f,
     projected_angle: f32,
 }
 
 fn pixel_to_world_dir(px: u32, py: u32) -> RayInfo {
-    let resolution    = vec2f(f32(params.resolution_x), f32(params.resolution_y));
+    let resolution = vec2f(f32(params.resolution_x), f32(params.resolution_y));
     let aspect = resolution.y / resolution.x;
     let normalized_coordinates = vec2f(f32(px), f32(py)) / resolution - vec2f(0.5);
     let u = normalized_coordinates.x / aspect;
