@@ -257,14 +257,20 @@ export class HaloEngine {
       this.totalRays += ACTUAL_RAYS;
     }
 
-    encodeDisplayParams(
-      this.displayBuf,
-      this.displayParams,
-      this.totalRays,
-      this.canvasWidth,
-      this.canvasHeight,
-    );
-    this.device.queue.writeBuffer(this.displayParamsBuffer, 0, this.displayBuf);
+    if (shouldTrace || this.displayDirty) {
+      encodeDisplayParams(
+        this.displayBuf,
+        this.displayParams,
+        this.totalRays,
+        this.canvasWidth,
+        this.canvasHeight,
+      );
+      this.device.queue.writeBuffer(
+        this.displayParamsBuffer,
+        0,
+        this.displayBuf,
+      );
+    }
 
     const encoder = this.device.createCommandEncoder();
 
