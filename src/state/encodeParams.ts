@@ -16,14 +16,14 @@ const degToRad = (d: number) => (d * Math.PI) / 180;
 // same bytes, so we pick the view that matches the shader field's type.
 // Angles are stored in radians (the UI works in degrees).
 export function encodeSimParams(
-  buf: ArrayBuffer,
+  outBuf: ArrayBuffer,
   sim: SimParams,
   canvasWidth: number,
   canvasHeight: number,
   rngSeed: number,
 ): void {
-  const u32 = new Uint32Array(buf);
-  const f32 = new Float32Array(buf);
+  const u32 = new Uint32Array(outBuf);
+  const f32 = new Float32Array(outBuf);
 
   u32[0] = rngSeed;
   f32[1] = degToRad(sim.sunAlt);
@@ -72,11 +72,11 @@ export function encodeSimParams(
 // TODO: add sun altitude, camera pitch/yaw/fov, and projection once the sky
 // shader computes actual sky colors instead of writing black.
 export function encodeSkyParams(
-  buf: ArrayBuffer,
+  outBuf: ArrayBuffer,
   canvasWidth: number,
   canvasHeight: number,
 ): void {
-  const u32 = new Uint32Array(buf);
+  const u32 = new Uint32Array(outBuf);
   u32[0] = canvasWidth;
   u32[1] = canvasHeight;
 }
@@ -84,11 +84,11 @@ export function encodeSkyParams(
 // Serializes guides params into the 8-byte layout expected by guides.wgsl's
 // `GuidesParams` uniform.
 export function encodeGuidesParams(
-  buf: ArrayBuffer,
+  outBuf: ArrayBuffer,
   canvasWidth: number,
   canvasHeight: number,
 ): void {
-  const u32 = new Uint32Array(buf);
+  const u32 = new Uint32Array(outBuf);
   u32[0] = canvasWidth;
   u32[1] = canvasHeight;
 }
@@ -97,13 +97,13 @@ export function encodeGuidesParams(
 // DisplayParams (display.wgsl) and AccParams (accumulate.wgsl).  Both shaders
 // bind the same GPU buffer, so this single write feeds both passes.
 export function encodeDisplayParams(
-  buf: ArrayBuffer,
+  outBuf: ArrayBuffer,
   display: DisplayParams,
   totalRays: number,
   canvasWidth: number,
   canvasHeight: number,
 ): void {
-  const f32 = new Float32Array(buf);
+  const f32 = new Float32Array(outBuf);
   f32[0] = totalRays;
   f32[1] = canvasWidth;
   f32[2] = canvasHeight;
