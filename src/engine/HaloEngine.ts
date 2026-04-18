@@ -73,7 +73,7 @@ export class HaloEngine {
   private displayPipeline: GPURenderPipeline;
   private displayParamsBuffer: GPUBuffer;
   private displayBindGroup: GPUBindGroup | null = null;
-  private displayBuf = new ArrayBuffer(DISPLAY_PARAMS_SIZE);
+  private displayParamsStaging = new ArrayBuffer(DISPLAY_PARAMS_SIZE);
 
   private accBuffer: GPUBuffer | null = null;
   private skyBuffer: GPUBuffer | null = null;
@@ -300,7 +300,7 @@ export class HaloEngine {
 
     if (this.displayDirty) {
       encodeDisplayParams(
-        this.displayBuf,
+        this.displayParamsStaging,
         this.displayParams,
         this.haloPass.totalRays,
         this.canvasWidth,
@@ -309,7 +309,7 @@ export class HaloEngine {
       this.device.queue.writeBuffer(
         this.displayParamsBuffer,
         0,
-        this.displayBuf,
+        this.displayParamsStaging,
       );
 
       const rp = encoder.beginRenderPass({
