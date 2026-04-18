@@ -222,13 +222,15 @@ export class HaloEngine {
   }
 
   private frame(): void {
+    if (!this.running) return;
+
     if (
-      !this.running ||
       !this.accBuffer ||
       !this.raytraceBindGroup ||
       !this.accumulateBindGroup ||
       !this.displayBindGroup
     ) {
+      this.animFrameId = requestAnimationFrame(() => this.frame());
       return;
     }
 
