@@ -11,6 +11,8 @@ import { ParamsContext, type ParamsContextValue } from "./ParamsContext";
 export function ParamsProvider({ children }: { children: ReactNode }) {
   const [simParams, setSim] = useState<SimParams>(DEFAULT_SIM);
   const [displayParams, setDisplay] = useState<DisplayParams>(DEFAULT_DISPLAY);
+  // Monotonic counter incremented on every simParams change; the engine
+  // watches this to know when to discard accumulated rays and restart.
   const [simVersion, setSimVersion] = useState(0);
 
   const setSimParam = useCallback(
