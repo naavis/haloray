@@ -79,6 +79,7 @@ export function encodeSkyParams(
   outBuf: ArrayBuffer,
   sim: SimParams,
   sky: SkyState,
+  turbidity: number,
   canvasWidth: number,
   canvasHeight: number,
 ): void {
@@ -91,7 +92,7 @@ export function encodeSkyParams(
   f32[4] = degToRad(sim.camPitch);
   f32[5] = degToRad(sim.camYaw);
   f32[6] = sim.camFov;
-  // f32[7] padding to vec4 boundary
+  f32[7] = turbidity;
   f32[8] = sky.radianceX;
   f32[9] = sky.radianceY;
   f32[10] = sky.radianceZ;

@@ -65,7 +65,7 @@ export class SkyPass {
     const elevation = Math.max(0, degToRad(sim.sunAlt));
     const skyState = buildSkyState(TURBIDITY, ALBEDO, elevation);
 
-    encodeSkyParams(this.paramsBuf, sim, skyState, canvasWidth, canvasHeight);
+    encodeSkyParams(this.paramsBuf, sim, skyState, TURBIDITY, canvasWidth, canvasHeight);
     this.device.queue.writeBuffer(this.uniformBuffer, 0, this.paramsBuf);
 
     const pass = encoder.beginComputePass();

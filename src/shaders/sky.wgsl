@@ -11,6 +11,14 @@ const PROJ_EQUIDISTANT:   u32 = 2u;
 const PROJ_EQUAL_AREA:    u32 = 3u;
 const PROJ_ORTHOGRAPHIC:  u32 = 4u;
 
+// Sun-altitude breakpoints (radians) for the Hosek/Preetham crossfade. Hosek
+// is undefined below the horizon; Preetham keeps producing plausible colours
+// down to a few degrees below, so we blend Hosek→Preetham in [0°, 1°] and
+// fade Preetham→black in [-10°, 0°]. Below -10° the sky is just black.
+const MIN_SUN_ELEVATION:    f32 = radians(-10.0);
+const MIXING_MIN_ELEVATION: f32 = radians(0.0);
+const MIXING_MAX_ELEVATION: f32 = radians(1.0);
+
 struct SkyParams {
     resolution_x: u32,
     resolution_y: u32,
@@ -20,7 +28,7 @@ struct SkyParams {
     cam_pitch:    f32,
     cam_yaw:      f32,
     cam_fov:      f32,
-    _pad0:        f32,
+    turbidity:    f32,
 
     radiances:    vec3f,
     _pad1:        f32,
@@ -92,6 +100,74 @@ fn pixel_to_world_dir(px: u32, py: u32) -> RayInfo {
     return RayInfo(normalize(orient * cam_dir), projected_angle);
 }
 
+// Preetham analytic sky model — "A Practical Analytic Model for Daylight"
+// (Preetham, Shirley, Smits, 1999). Used to extend the Hosek model below the
+// horizon, where Hosek is undefined.
+
+fn perez(cos_zenith: f32, sun_angle: f32, A: f32, B: f32, C: f32, D: f32, E: f32) -> f32 {
+    let cos_sun = cos(sun_angle);
+    return (1.0 + A * exp(B / cos_zenith)) *
+           (1.0 + C * exp(D * sun_angle) + E * cos_sun * cos_sun);
+}
+
+fn preetham_luminance(cos_zenith: f32, sun_angle: f32, turbidity: f32) -> f32 {
+    let sun_zenith = 0.5 * PI - params.sun_altitude;
+    let a =  0.1787 * turbidity - 1.4630;
+    let b = -0.3554 * turbidity + 0.4275;
+    let c = -0.0227 * turbidity + 5.3251;
+    let d =  0.1206 * turbidity - 2.5771;
+    let e = -0.0670 * turbidity + 0.3703;
+    let kappa = (4.0 / 9.0 - turbidity / 120.0) * (PI - 2.0 * sun_zenith);
+    let Yz = (4.0453 * turbidity - 4.9710) * tan(kappa) - 0.2155 * turbidity + 2.4192;
+    return Yz * perez(cos_zenith, sun_angle, a, b, c, d, e) /
+                perez(1.0,        sun_zenith, a, b, c, d, e);
+}
+
+fn preetham_chroma_x(cos_zenith: f32, sun_angle: f32, turbidity: f32) -> f32 {
+    let sz = 0.5 * PI - params.sun_altitude;
+    let a = -0.0193 * turbidity - 0.2592;
+    let b = -0.0665 * turbidity + 0.0008;
+    let c = -0.0004 * turbidity + 0.2125;
+    let d = -0.0641 * turbidity - 0.8989;
+    let e = -0.0033 * turbidity + 0.0452;
+
+    let z2 = sz * sz;
+    let z3 = z2 * sz;
+    let xz = turbidity * turbidity * ( 0.00166 * z3 - 0.00375 * z2 + 0.00209 * sz)
+           + turbidity              * (-0.02903 * z3 + 0.06377 * z2 - 0.03202 * sz + 0.00394)
+           +                          ( 0.11693 * z3 - 0.21196 * z2 + 0.06052 * sz + 0.25886);
+
+    return xz * perez(cos_zenith, sun_angle, a, b, c, d, e) /
+                perez(1.0,        sz,        a, b, c, d, e);
+}
+
+fn preetham_chroma_y(cos_zenith: f32, sun_angle: f32, turbidity: f32) -> f32 {
+    let sz = 0.5 * PI - params.sun_altitude;
+    let a = -0.0167 * turbidity - 0.2608;
+    let b = -0.0950 * turbidity + 0.0092;
+    let c = -0.0079 * turbidity + 0.2102;
+    let d = -0.0441 * turbidity - 1.6537;
+    let e = -0.0109 * turbidity + 0.0529;
+
+    let z2 = sz * sz;
+    let z3 = z2 * sz;
+    let yz = turbidity * turbidity * ( 0.00275 * z3 - 0.00610 * z2 + 0.00317 * sz)
+           + turbidity              * (-0.04214 * z3 + 0.08970 * z2 - 0.04153 * sz + 0.00516)
+           +                          ( 0.15346 * z3 - 0.26756 * z2 + 0.06670 * sz + 0.26688);
+
+    return yz * perez(cos_zenith, sun_angle, a, b, c, d, e) /
+                perez(1.0,        sz,        a, b, c, d, e);
+}
+
+fn preetham_sky(dir: vec3f, sun_vec: vec3f, turbidity: f32) -> vec3f {
+    let sun_angle = acos(clamp(dot(sun_vec, dir), -1.0, 1.0));
+    let cos_zenith = max(dir.y, 1e-4);
+    let Y = preetham_luminance(cos_zenith, sun_angle, turbidity);
+    let x = preetham_chroma_x(cos_zenith, sun_angle, turbidity);
+    let y = preetham_chroma_y(cos_zenith, sun_angle, turbidity);
+    return vec3f(x * Y / y, Y, (1.0 - x - y) * Y / y);
+}
+
 fn hosek_channel(channel: u32, cos_theta: f32, gamma: f32) -> f32 {
     let c0 = params.configs[0][channel];
     let c1 = params.configs[1][channel];
@@ -114,13 +190,36 @@ fn hosek_channel(channel: u32, cos_theta: f32, gamma: f32) -> f32 {
     return params.radiances[channel] * f;
 }
 
+fn hosek_sky(cos_theta: f32, gamma: f32) -> vec3f {
+    return vec3f(
+        hosek_channel(0u, cos_theta, gamma),
+        hosek_channel(1u, cos_theta, gamma),
+        hosek_channel(2u, cos_theta, gamma),
+    );
+}
+
+fn hosek_preetham_mix(dir: vec3f, sun_vec: vec3f, cos_theta: f32, gamma: f32, turbidity: f32) -> vec3f {
+    if (params.sun_altitude >= MIXING_MAX_ELEVATION) {
+        return hosek_sky(cos_theta, gamma);
+    }
+    if (params.sun_altitude >= MIXING_MIN_ELEVATION) {
+        let preetham = preetham_sky(dir, sun_vec, turbidity);
+        let hosek    = hosek_sky(cos_theta, gamma);
+        let t = (params.sun_altitude - MIXING_MIN_ELEVATION) /
+                (MIXING_MAX_ELEVATION - MIXING_MIN_ELEVATION);
+        return mix(preetham, hosek, t);
+    }
+    let t = clamp((params.sun_altitude - MIN_SUN_ELEVATION) / (-MIN_SUN_ELEVATION), 0.0, 1.0);
+    return preetham_sky(dir, sun_vec, turbidity) * t;
+}
+
 @compute @workgroup_size(8, 8)
 fn main(@builtin(global_invocation_id) gid: vec3u) {
     if (gid.x >= params.resolution_x || gid.y >= params.resolution_y) { return; }
     let idx = (gid.y * params.resolution_x + gid.x) * 3u;
 
     let ray = pixel_to_world_dir(gid.x, gid.y);
-    if (ray.projected_angle > PI || ray.dir.y < 0.0 || params.sun_altitude < 0.0) {
+    if (ray.projected_angle > PI || ray.dir.y < 0.0 || params.sun_altitude < MIN_SUN_ELEVATION) {
         sky_buffer[idx]      = 0.0;
         sky_buffer[idx + 1u] = 0.0;
         sky_buffer[idx + 2u] = 0.0;
@@ -131,11 +230,7 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
     let cos_theta = max(ray.dir.y, 0.0);
     let gamma     = acos(clamp(dot(sun_vec, ray.dir), -1.0, 1.0));
 
-    let xyz = vec3f(
-        hosek_channel(0u, cos_theta, gamma),
-        hosek_channel(1u, cos_theta, gamma),
-        hosek_channel(2u, cos_theta, gamma),
-    );
+    let xyz = hosek_preetham_mix(ray.dir, sun_vec, cos_theta, gamma, params.turbidity);
 
     let xyz_to_srgb = mat3x3f(
          3.24096994, -0.96924364,  0.05563008,
