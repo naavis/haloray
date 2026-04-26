@@ -34,9 +34,9 @@ function Sidebar() {
             <SliderControl
               label="Altitude (°)"
               value={simParams.sunAlt}
-              min={-10}
+              min={-90}
               max={90}
-              step={0.5}
+              step={0.1}
               onChange={(v) => setSimParam("sunAlt", v)}
             />
             <SliderControl
