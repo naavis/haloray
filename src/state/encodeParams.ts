@@ -78,8 +78,7 @@ export function encodeSimParams(
   f32[12] = degToRad(sim.camYaw);
   f32[13] = fovDegToFocalLength(sim.camFov, sim.projection);
   u32[14] = parseInt(sim.projection, 10);
-  // camera_hide_sub_horizon: sub-horizon ray filter, not yet exposed in the UI.
-  u32[15] = 0;
+  u32[15] = sim.hideSubHorizon ? 1 : 0;
   u32[16] = canvasWidth;
   u32[17] = canvasHeight;
   // Upper and lower pyramidal apex caps (angle + height avg/std). Zero angle

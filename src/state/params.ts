@@ -15,6 +15,7 @@ export type SimParams = {
   camYaw: number;
   camFov: number;
   projection: Projection;
+  hideSubHorizon: boolean;
 };
 
 export type DisplayParams = {
@@ -38,6 +39,7 @@ export const DEFAULT_SIM: SimParams = {
   camYaw: 15,
   camFov: 75,
   projection: "0",
+  hideSubHorizon: true,
 };
 
 export const DEFAULT_DISPLAY: DisplayParams = {

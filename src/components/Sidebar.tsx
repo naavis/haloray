@@ -181,6 +181,15 @@ function Sidebar() {
                 </Select.Content>
               </Select.Root>
             </Flex>
+            <Text as="label" size="2">
+              <Flex gap="2" align="center">
+                <Checkbox
+                  checked={simParams.hideSubHorizon}
+                  onCheckedChange={(v) => setSimParam("hideSubHorizon", v === true)}
+                />
+                Hide Sub-Horizon Rays
+              </Flex>
+            </Text>
           </Flex>
 
           <Separator size="4" />
