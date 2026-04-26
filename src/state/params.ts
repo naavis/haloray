@@ -20,6 +20,7 @@ export type SimParams = {
 export type DisplayParams = {
   brightness: number;
   showGuides: boolean;
+  showSky: boolean;
 };
 
 export const DEFAULT_SIM: SimParams = {
@@ -42,6 +43,7 @@ export const DEFAULT_SIM: SimParams = {
 export const DEFAULT_DISPLAY: DisplayParams = {
   brightness: 1,
   showGuides: false,
+  showSky: true,
 };
 
 // "View" = observer's perspective + celestial geometry (camera + sun position).

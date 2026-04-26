@@ -10,6 +10,7 @@ struct DisplayParams {
     resolution_y: f32,
     brightness: f32,
     show_guides: u32,
+    show_sky: u32,
 }
 
 @group(0) @binding(0) var<storage, read> accumulation: array<u32>;
@@ -49,7 +50,10 @@ fn srgb_gamma(c: f32) -> f32 {
     let g_raw = f32(accumulation[idx + 1u]) / SCALE;
     let b_raw = f32(accumulation[idx + 2u]) / SCALE;
 
-    let sky_color = 0.04 * dp.brightness * vec3f(sky[idx], sky[idx + 1u], sky[idx + 2u]);
+    var sky_color = vec3f(0.0);
+    if (dp.show_sky != 0u) {
+        sky_color = 0.04 * dp.brightness * vec3f(sky[idx], sky[idx + 1u], sky[idx + 2u]);
+    }
 
     let total = max(dp.total_rays, 1.0);
     let exposure = 500000.0 * dp.brightness;

@@ -140,6 +140,7 @@ export function encodeDisplayParams(
   f32[2] = canvasHeight;
   f32[3] = display.brightness;
   u32[4] = display.showGuides ? 1 : 0;
+  u32[5] = display.showSky ? 1 : 0;
 }
 
 // Serializes accumulate params into the layout expected by accumulate.wgsl's

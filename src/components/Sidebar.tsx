@@ -190,6 +190,15 @@ function Sidebar() {
             <Text as="label" size="2">
               <Flex gap="2" align="center">
                 <Checkbox
+                  checked={displayParams.showSky}
+                  onCheckedChange={(v) => setDisplayParam("showSky", v === true)}
+                />
+                Show Sky
+              </Flex>
+            </Text>
+            <Text as="label" size="2">
+              <Flex gap="2" align="center">
+                <Checkbox
                   checked={displayParams.showGuides}
                   onCheckedChange={(v) => setDisplayParam("showGuides", v === true)}
                 />
