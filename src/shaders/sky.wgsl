@@ -77,8 +77,13 @@ fn pixel_to_world_dir(px: u32, py: u32) -> RayInfo {
 
     let fov = params.cam_fov;
 
-    if ((params.projection == PROJ_RECTILINEAR ||
-         params.projection == PROJ_ORTHOGRAPHIC) && r > 0.5 * PI) {
+    if (params.projection == PROJ_RECTILINEAR && r > 0.5 * PI) {
+        return RayInfo(vec3f(0.0), PI + 1.0);
+    }
+    if (params.projection == PROJ_ORTHOGRAPHIC && r > fov) {
+        return RayInfo(vec3f(0.0), PI + 1.0);
+    }
+    if (params.projection == PROJ_EQUAL_AREA && r > 2.0 * fov) {
         return RayInfo(vec3f(0.0), PI + 1.0);
     }
 
