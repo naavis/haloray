@@ -12,6 +12,28 @@ export const SKY_PARAMS_SIZE = 192;
 export const GUIDES_PARAMS_SIZE = 32;
 
 const degToRad = (d: number) => (d * Math.PI) / 180;
+const radToDeg = (r: number) => (r * 180) / Math.PI;
+
+// Inverse of desktop Camera::getFocalLength (camera.cpp:8-26). The web port
+// stores the focal length directly in `simParams.camFov`, but the display
+// pass needs the actual angular FOV to mirror desktop's brightness math.
+export function focalLengthToFovDeg(focalLength: number, projection: string): number {
+  const f = Math.max(focalLength, 1e-6);
+  switch (projection) {
+    case "0": // Stereographic
+      return radToDeg(4 * Math.atan(1 / (4 * f)));
+    case "1": // Rectilinear
+      return radToDeg(2 * Math.atan(1 / (2 * f)));
+    case "2": // Equidistant
+      return radToDeg(1 / f);
+    case "3": // Equal area
+      return radToDeg(4 * Math.asin(Math.min(1, 1 / (4 * f))));
+    case "4": // Orthographic
+      return radToDeg(2 * Math.asin(Math.min(1, 1 / (2 * f))));
+    default:
+      return radToDeg(1 / f);
+  }
+}
 
 // Serializes SimParams into the 128-byte layout expected by raytrace.wgsl's
 // `Params` uniform. Each slot below is 4 bytes; u32[i] and f32[i] alias the
@@ -133,6 +155,7 @@ export function encodeDisplayParams(
   totalRays: number,
   canvasWidth: number,
   canvasHeight: number,
+  fovDeg: number,
 ): void {
   const f32 = new Float32Array(outBuf);
   const u32 = new Uint32Array(outBuf);
@@ -142,6 +165,7 @@ export function encodeDisplayParams(
   f32[3] = display.brightness;
   u32[4] = display.showGuides ? 1 : 0;
   u32[5] = display.showSky ? 1 : 0;
+  f32[6] = fovDeg;
 }
 
 // Serializes accumulate params into the layout expected by accumulate.wgsl's

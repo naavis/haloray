@@ -39,7 +39,7 @@ View params (`sunAlt`, `camPitch`, `camYaw`, `camFov`, `projection`) are tracked
 
 ### State → GPU uniform encoding ([src/state/encodeParams.ts](src/state/encodeParams.ts))
 
-`encodeSimParams` serializes `SimParams` into a 128-byte `ArrayBuffer` matching the `Params` struct in `raytrace.wgsl`. `encodeDisplayParams` writes the 32-byte `DisplayParams` layout for `display.wgsl`. `encodeAccParams` writes the 16-byte `AccParams` layout for `accumulate.wgsl` (only `resolution_x` is meaningful; the rest is uniform-alignment padding). `encodeSkyParams` writes the 192-byte `SkyParams` layout for `sky.wgsl` (resolution + projection + sun altitude + camera + turbidity + Hosek-Wilkie radiance scales + 9 config coefficients packed as `array<vec4f, 9>`). `encodeGuidesParams` writes the 32-byte `GuidesParams` layout for `guides.wgsl`.
+`encodeSimParams` serializes `SimParams` into a 128-byte `ArrayBuffer` matching the `Params` struct in `raytrace.wgsl`. `encodeDisplayParams` writes the 32-byte `DisplayParams` layout for `display.wgsl` (resolution + brightness + show flags + camera fov in degrees, used to compensate halo exposure for FOV). `encodeAccParams` writes the 16-byte `AccParams` layout for `accumulate.wgsl` (only `resolution_x` is meaningful; the rest is uniform-alignment padding). `encodeSkyParams` writes the 192-byte `SkyParams` layout for `sky.wgsl` (resolution + projection + sun altitude + camera + turbidity + Hosek-Wilkie radiance scales + 9 config coefficients packed as `array<vec4f, 9>`). `encodeGuidesParams` writes the 32-byte `GuidesParams` layout for `guides.wgsl`.
 
 Invariants worth preserving:
 

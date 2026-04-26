@@ -52,13 +52,14 @@ export class DisplayPass {
     totalRays: number,
     canvasWidth: number,
     canvasHeight: number,
+    fovDeg: number,
   ): boolean {
     if (!this.dirty || !this.bindGroup) {
       return false;
     }
     this.dirty = false;
 
-    encodeDisplayParams(this.paramsBuf, display, totalRays, canvasWidth, canvasHeight);
+    encodeDisplayParams(this.paramsBuf, display, totalRays, canvasWidth, canvasHeight, fovDeg);
     this.device.queue.writeBuffer(this.uniformBuffer, 0, this.paramsBuf);
 
     const rp = encoder.beginRenderPass({

@@ -41,7 +41,7 @@ export const DEFAULT_SIM: SimParams = {
 };
 
 export const DEFAULT_DISPLAY: DisplayParams = {
-  brightness: 1,
+  brightness: 3,
   showGuides: false,
   showSky: true,
 };

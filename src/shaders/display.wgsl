@@ -11,6 +11,7 @@ struct DisplayParams {
     brightness: f32,
     show_guides: u32,
     show_sky: u32,
+    fov_deg: f32,
 }
 
 @group(0) @binding(0) var<storage, read> accumulation: array<u32>;
@@ -50,20 +51,24 @@ fn srgb_gamma(c: f32) -> f32 {
     let g_raw = f32(accumulation[idx + 1u]) / SCALE;
     let b_raw = f32(accumulation[idx + 2u]) / SCALE;
 
+    // Match desktop renderer.frag: sky uses raw brightness; halo additionally
+    // compensated by 1/totalRays and 1/(fov/180).
+    let base_exposure = dp.brightness;
+    let total = max(dp.total_rays, 1.0);
+    let adjusted_exposure = 500000.0 * dp.brightness / total / (dp.fov_deg / 180.0);
+
     var sky_color = vec3f(0.0);
     if (dp.show_sky != 0u) {
-        sky_color = 0.04 * dp.brightness * vec3f(sky[idx], sky[idx + 1u], sky[idx + 2u]);
+        sky_color = 0.005 * base_exposure * vec3f(sky[idx], sky[idx + 1u], sky[idx + 2u]);
     }
-
-    let total = max(dp.total_rays, 1.0);
-    let exposure = 500000.0 * dp.brightness;
-    var color = vec3f(r_raw, g_raw, b_raw) * exposure / total + sky_color;
+    var color = 0.1 * adjusted_exposure * vec3f(r_raw, g_raw, b_raw) + sky_color;
 
     // Reinhard tone mapping per channel
     color = color / (vec3f(1.0) + color);
 
     // sRGB gamma
     color = vec3f(srgb_gamma(color.x), srgb_gamma(color.y), srgb_gamma(color.z));
+    color = clamp(color, vec3f(0.0), vec3f(1.0));
 
     // Guide overlay (blended in sRGB space so lines appear at exact colors)
     if (dp.show_guides != 0u) {
