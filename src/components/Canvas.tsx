@@ -108,8 +108,11 @@ function Canvas() {
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
     const fov = simParamsRef.current.camFov;
-    setSimParam("camYaw", clamp(dragStart.current.yaw + dx * DRAG_SENSITIVITY / fov, -180, 180));
-    setSimParam("camPitch", clamp(dragStart.current.pitch + dy * DRAG_SENSITIVITY / fov, -90, 90));
+    setSimParam("camYaw", clamp(dragStart.current.yaw + (dx * DRAG_SENSITIVITY) / fov, -180, 180));
+    setSimParam(
+      "camPitch",
+      clamp(dragStart.current.pitch + (dy * DRAG_SENSITIVITY) / fov, -90, 90),
+    );
   };
 
   const handleMouseUp = () => {

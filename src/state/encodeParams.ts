@@ -1,4 +1,5 @@
 import type { DisplayParams, SimParams } from "./params";
+import type { SkyState } from "../engine/hosek-wilkie-sky/calculate";
 
 // Byte sizes of the WGSL uniform structs. Each must match its corresponding
 // shader struct: `Params` in raytrace.wgsl, `DisplayParams` in display.wgsl,
@@ -7,7 +8,7 @@ import type { DisplayParams, SimParams } from "./params";
 export const PARAMS_SIZE = 128;
 export const DISPLAY_PARAMS_SIZE = 32;
 export const ACC_PARAMS_SIZE = 16;
-export const SKY_PARAMS_SIZE = 8;
+export const SKY_PARAMS_SIZE = 192;
 export const GUIDES_PARAMS_SIZE = 32;
 
 const degToRad = (d: number) => (d * Math.PI) / 180;
@@ -68,18 +69,40 @@ export function encodeSimParams(
   f32[31] = 0;
 }
 
-// Serializes sky params into the 8-byte layout expected by sky.wgsl's
-// `SkyParams` uniform.
-// TODO: add sun altitude, camera pitch/yaw/fov, and projection once the sky
-// shader computes actual sky colors instead of writing black.
+// Serializes sky params into the 192-byte layout expected by sky.wgsl's
+// `SkyParams` uniform: a small view header (resolution, projection, camera,
+// sun altitude), the per-channel Hosek-Wilkie radiance scales, and the 27
+// configuration coefficients packed as `array<vec4<f32>, 9>` (one vec4 per
+// coefficient index, holding the X, Y, Z values for that index plus a
+// padding lane).
 export function encodeSkyParams(
   outBuf: ArrayBuffer,
+  sim: SimParams,
+  sky: SkyState,
   canvasWidth: number,
   canvasHeight: number,
 ): void {
   const u32 = new Uint32Array(outBuf);
+  const f32 = new Float32Array(outBuf);
   u32[0] = canvasWidth;
   u32[1] = canvasHeight;
+  u32[2] = parseInt(sim.projection, 10);
+  f32[3] = degToRad(sim.sunAlt);
+  f32[4] = degToRad(sim.camPitch);
+  f32[5] = degToRad(sim.camYaw);
+  f32[6] = sim.camFov;
+  // f32[7] padding to vec4 boundary
+  f32[8] = sky.radianceX;
+  f32[9] = sky.radianceY;
+  f32[10] = sky.radianceZ;
+  // f32[11] padding to vec4 boundary
+  for (let i = 0; i < 9; i++) {
+    const base = 12 + i * 4;
+    f32[base + 0] = sky.configX[i];
+    f32[base + 1] = sky.configY[i];
+    f32[base + 2] = sky.configZ[i];
+    // f32[base + 3] padding to vec4 boundary
+  }
 }
 
 // Serializes guides params into the 32-byte layout expected by guides.wgsl's

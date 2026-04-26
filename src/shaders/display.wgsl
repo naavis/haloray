@@ -49,7 +49,7 @@ fn srgb_gamma(c: f32) -> f32 {
     let g_raw = f32(accumulation[idx + 1u]) / SCALE;
     let b_raw = f32(accumulation[idx + 2u]) / SCALE;
 
-    let sky_color = vec3f(sky[idx], sky[idx + 1u], sky[idx + 2u]);
+    let sky_color = 0.04 * dp.brightness * vec3f(sky[idx], sky[idx + 1u], sky[idx + 2u]);
 
     let total = max(dp.total_rays, 1.0);
     let exposure = 500000.0 * dp.brightness;

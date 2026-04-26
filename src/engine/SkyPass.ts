@@ -1,5 +1,14 @@
 import skyCode from "../shaders/sky.wgsl?raw";
 import { SKY_PARAMS_SIZE, encodeSkyParams } from "../state/encodeParams";
+import type { SimParams } from "../state/params";
+import { buildSkyState } from "./hosek-wilkie-sky/calculate";
+
+// Hosek-Wilkie inputs that the UI does not yet expose. Turbidity ~3 is a
+// typical clear-sky value; albedo ~0.3 approximates ground reflectance.
+const TURBIDITY = 3.0;
+const ALBEDO = 0.3;
+
+const degToRad = (d: number) => (d * Math.PI) / 180;
 
 export class SkyPass {
   private device: GPUDevice;
@@ -42,15 +51,21 @@ export class SkyPass {
   }
 
   /** Encodes sky compute dispatch if dirty. Returns true if work was dispatched. */
-  // TODO: accept SimParams (sun altitude, camera, projection) once the shader
-  // computes real sky colors.
-  encode(encoder: GPUCommandEncoder, canvasWidth: number, canvasHeight: number): boolean {
+  encode(
+    encoder: GPUCommandEncoder,
+    sim: SimParams,
+    canvasWidth: number,
+    canvasHeight: number,
+  ): boolean {
     if (!this.dirty || !this.bindGroup) {
       return false;
     }
     this.dirty = false;
 
-    encodeSkyParams(this.paramsBuf, canvasWidth, canvasHeight);
+    const elevation = Math.max(0, degToRad(sim.sunAlt));
+    const skyState = buildSkyState(TURBIDITY, ALBEDO, elevation);
+
+    encodeSkyParams(this.paramsBuf, sim, skyState, canvasWidth, canvasHeight);
     this.device.queue.writeBuffer(this.uniformBuffer, 0, this.paramsBuf);
 
     const pass = encoder.beginComputePass();

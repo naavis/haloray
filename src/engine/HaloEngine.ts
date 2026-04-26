@@ -249,7 +249,12 @@ export class HaloEngine {
       this.canvasHeight,
     );
 
-    const skyRendered = this.skyPass.encode(encoder, this.canvasWidth, this.canvasHeight);
+    const skyRendered = this.skyPass.encode(
+      encoder,
+      this.simParams,
+      this.canvasWidth,
+      this.canvasHeight,
+    );
 
     const guidesRendered = this.guidesPass.encode(
       encoder,

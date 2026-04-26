@@ -29,7 +29,7 @@ Requires a WebGPU-capable browser. There is no test suite in the web port yet.
 [HaloEngine](src/engine/HaloEngine.ts) is the coordinator that owns the GPU device, shared buffers, and the animation frame loop. It delegates work to separate pass classes:
 
 - [HaloPass](src/engine/HaloPass.ts) — **raytrace** + **accumulate** compute passes (progressive). Owns pipelines, ray buffer, sim-params buffer, a tiny acc-params uniform (just `resolution_x`), and the `totalRays` counter. Writes into the shared accumulation buffer.
-- [SkyPass](src/engine/SkyPass.ts) — **sky** compute pass. Writes per-pixel linear RGB into a sky buffer. Only re-runs when view params (camera + sun position) change.
+- [SkyPass](src/engine/SkyPass.ts) — **sky** compute pass. Evaluates the Hosek-Wilkie analytic sky model and writes per-pixel linear sRGB into a sky buffer. Rebuilds the `SkyState` (per-channel configs + radiance scales from [hosek-wilkie-sky/calculate.ts](src/engine/hosek-wilkie-sky/calculate.ts)) per dispatch — cheap CPU-side Bézier evaluation. Only re-runs when view params (camera + sun position) change.
 - [GuidesPass](src/engine/GuidesPass.ts) — **guides** compute pass. Writes per-pixel linear RGBA into a guides buffer (4 floats/pixel). Only re-runs when view params change. Currently a placeholder that writes transparent black.
 - [DisplayPass](src/engine/DisplayPass.ts) — **display** render pass ([display.wgsl](src/shaders/display.wgsl)). Owns the render pipeline, display-params uniform, canvas context, and its own dirty flag. Composites the other passes' outputs: sums halo and sky in linear radiance space, applies Reinhard tone mapping and sRGB gamma, then alpha-blends the guides overlay on top.
 
@@ -39,14 +39,14 @@ View params (`sunAlt`, `camPitch`, `camYaw`, `camFov`, `projection`) are tracked
 
 ### State → GPU uniform encoding ([src/state/encodeParams.ts](src/state/encodeParams.ts))
 
-`encodeSimParams` serializes `SimParams` into a 128-byte `ArrayBuffer` matching the `Params` struct in `raytrace.wgsl`. `encodeDisplayParams` writes the 32-byte `DisplayParams` layout for `display.wgsl`. `encodeAccParams` writes the 16-byte `AccParams` layout for `accumulate.wgsl` (only `resolution_x` is meaningful; the rest is uniform-alignment padding). `encodeSkyParams` writes the 8-byte `SkyParams` layout for `sky.wgsl`. `encodeGuidesParams` writes the 32-byte `GuidesParams` layout for `guides.wgsl`.
+`encodeSimParams` serializes `SimParams` into a 128-byte `ArrayBuffer` matching the `Params` struct in `raytrace.wgsl`. `encodeDisplayParams` writes the 32-byte `DisplayParams` layout for `display.wgsl`. `encodeAccParams` writes the 16-byte `AccParams` layout for `accumulate.wgsl` (only `resolution_x` is meaningful; the rest is uniform-alignment padding). `encodeSkyParams` writes the 192-byte `SkyParams` layout for `sky.wgsl` (resolution + projection + sun altitude + camera + Hosek-Wilkie radiance scales + 9 config coefficients packed as `array<vec4f, 9>`). `encodeGuidesParams` writes the 32-byte `GuidesParams` layout for `guides.wgsl`.
 
 Invariants worth preserving:
 
 - The `*_PARAMS_SIZE` constants and field order in `encodeParams.ts` must exactly match the WGSL struct layouts. Changing one without the other silently corrupts the simulation.
 - Angles are stored in degrees in UI state and converted to radians at encode time.
 - `rng_seed` is incremented every frame so successive compute dispatches sample different rays.
-- Several slots (sub-horizon flag, pyramidal apex caps, prism face distances) are encoded with fixed placeholder values — they exist in the shader but aren't exposed in the UI yet.
+- Several slots (sub-horizon flag, pyramidal apex caps, prism face distances) are encoded with fixed placeholder values — they exist in the shader but aren't exposed in the UI yet. The same applies to atmospheric turbidity and ground albedo, which are hardcoded inside `SkyPass`.
 
 ### Parameter state ([src/state/](src/state/))
 
