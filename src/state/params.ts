@@ -36,7 +36,7 @@ export const DEFAULT_SIM: SimParams = {
   rotStd: 0,
   camPitch: 30,
   camYaw: 15,
-  camFov: 0.5,
+  camFov: 75,
   projection: "0",
 };
 

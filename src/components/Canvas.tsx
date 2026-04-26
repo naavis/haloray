@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { Box } from "@radix-ui/themes";
 import { useParams } from "../state/useParams";
 import { HaloEngine } from "../engine/HaloEngine";
+import { getMaxFovDeg } from "../state/encodeParams";
 
-const DRAG_SENSITIVITY = 0.1;
+const DRAG_SENSITIVITY = 0.003;
 const SCROLL_SENSITIVITY = 0.001;
 
 function clamp(value: number, min: number, max: number) {
@@ -41,7 +42,9 @@ function Canvas() {
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const newFov = clamp(simParamsRef.current.camFov - e.deltaY * SCROLL_SENSITIVITY, 0.1, 5);
+      const sim = simParamsRef.current;
+      const maxFov = getMaxFovDeg(sim.projection);
+      const newFov = clamp(sim.camFov * Math.exp(e.deltaY * SCROLL_SENSITIVITY), 1.5, maxFov);
       setSimParam("camFov", newFov);
     };
 
@@ -108,10 +111,10 @@ function Canvas() {
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
     const fov = simParamsRef.current.camFov;
-    setSimParam("camYaw", clamp(dragStart.current.yaw + (dx * DRAG_SENSITIVITY) / fov, -180, 180));
+    setSimParam("camYaw", clamp(dragStart.current.yaw + dx * DRAG_SENSITIVITY * fov, -180, 180));
     setSimParam(
       "camPitch",
-      clamp(dragStart.current.pitch + (dy * DRAG_SENSITIVITY) / fov, -90, 90),
+      clamp(dragStart.current.pitch + dy * DRAG_SENSITIVITY * fov, -90, 90),
     );
   };
 

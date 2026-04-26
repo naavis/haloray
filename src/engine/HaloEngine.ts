@@ -1,5 +1,4 @@
 import { didViewChange } from "../state/params";
-import { focalLengthToFovDeg } from "../state/encodeParams";
 import type { SimParams, DisplayParams } from "../state/params";
 import { DisplayPass } from "./DisplayPass";
 import { GuidesPass } from "./GuidesPass";
@@ -274,7 +273,7 @@ export class HaloEngine {
       this.haloPass.totalRays,
       this.canvasWidth,
       this.canvasHeight,
-      focalLengthToFovDeg(this.simParams.camFov, this.simParams.projection),
+      this.simParams.camFov,
     );
 
     this.device.queue.submit([encoder.finish()]);

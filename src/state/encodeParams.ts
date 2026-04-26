@@ -12,26 +12,40 @@ export const SKY_PARAMS_SIZE = 192;
 export const GUIDES_PARAMS_SIZE = 32;
 
 const degToRad = (d: number) => (d * Math.PI) / 180;
-const radToDeg = (r: number) => (r * 180) / Math.PI;
 
-// Inverse of desktop Camera::getFocalLength (camera.cpp:8-26). The web port
-// stores the focal length directly in `simParams.camFov`, but the display
-// pass needs the actual angular FOV to mirror desktop's brightness math.
-export function focalLengthToFovDeg(focalLength: number, projection: string): number {
-  const f = Math.max(focalLength, 1e-6);
+// Mirrors desktop Camera::getFocalLength (camera.cpp:8-26). The shaders
+// (raytrace, sky, guides) take a focal length, but the UI tracks FOV in
+// degrees to match the desktop UX, so we convert at encode time.
+export function fovDegToFocalLength(fovDeg: number, projection: string): number {
+  const fovRad = degToRad(fovDeg);
   switch (projection) {
     case "0": // Stereographic
-      return radToDeg(4 * Math.atan(1 / (4 * f)));
+      return 1 / (4 * Math.tan(fovRad / 4));
     case "1": // Rectilinear
-      return radToDeg(2 * Math.atan(1 / (2 * f)));
+      return 1 / (2 * Math.tan(fovRad / 2));
     case "2": // Equidistant
-      return radToDeg(1 / f);
+      return 1 / fovRad;
     case "3": // Equal area
-      return radToDeg(4 * Math.asin(Math.min(1, 1 / (4 * f))));
+      return 1 / (4 * Math.sin(fovRad / 4));
     case "4": // Orthographic
-      return radToDeg(2 * Math.asin(Math.min(1, 1 / (2 * f))));
+      return 1 / (2 * Math.sin(fovRad / 2));
     default:
-      return radToDeg(1 / f);
+      return 1 / fovRad;
+  }
+}
+
+// Mirrors desktop Camera::getMaximumFov (camera.cpp:28-41). Some projections
+// can't represent a full hemisphere/sphere, so the slider needs a tighter cap.
+export function getMaxFovDeg(projection: string): number {
+  switch (projection) {
+    case "0": // Stereographic
+      return 350;
+    case "1": // Rectilinear
+      return 160;
+    case "4": // Orthographic
+      return 180;
+    default:
+      return 360;
   }
 }
 
@@ -62,7 +76,7 @@ export function encodeSimParams(
   f32[10] = degToRad(sim.rotStd);
   f32[11] = degToRad(sim.camPitch);
   f32[12] = degToRad(sim.camYaw);
-  f32[13] = sim.camFov;
+  f32[13] = fovDegToFocalLength(sim.camFov, sim.projection);
   u32[14] = parseInt(sim.projection, 10);
   // camera_hide_sub_horizon: sub-horizon ray filter, not yet exposed in the UI.
   u32[15] = 0;
@@ -113,7 +127,7 @@ export function encodeSkyParams(
   f32[3] = degToRad(sim.sunAlt);
   f32[4] = degToRad(sim.camPitch);
   f32[5] = degToRad(sim.camYaw);
-  f32[6] = sim.camFov;
+  f32[6] = fovDegToFocalLength(sim.camFov, sim.projection);
   f32[7] = turbidity;
   f32[8] = sky.radianceX;
   f32[9] = sky.radianceY;
@@ -142,7 +156,7 @@ export function encodeGuidesParams(
   u32[1] = canvasHeight;
   f32[2] = degToRad(sim.camPitch);
   f32[3] = degToRad(sim.camYaw);
-  f32[4] = sim.camFov;
+  f32[4] = fovDegToFocalLength(sim.camFov, sim.projection);
   u32[5] = parseInt(sim.projection, 10);
   f32[6] = degToRad(sim.sunAlt);
 }

@@ -12,6 +12,7 @@ import {
 import SliderControl from "./SliderControl";
 import { useParams } from "../state/useParams";
 import type { Projection } from "../state/params";
+import { getMaxFovDeg } from "../state/encodeParams";
 
 function Sidebar() {
   const { simParams, displayParams, setSimParam, setDisplayParam, reset } = useParams();
@@ -150,18 +151,25 @@ function Sidebar() {
               onChange={(v) => setSimParam("camYaw", v)}
             />
             <SliderControl
-              label="Focal Length"
+              label="Field of View (°)"
               value={simParams.camFov}
-              min={0.1}
-              max={5}
-              step={0.05}
+              min={1.5}
+              max={getMaxFovDeg(simParams.projection)}
+              step={0.5}
               onChange={(v) => setSimParam("camFov", v)}
             />
             <Flex direction="column" gap="1">
               <Text size="2">Projection</Text>
               <Select.Root
                 value={simParams.projection}
-                onValueChange={(v) => setSimParam("projection", v as Projection)}
+                onValueChange={(v) => {
+                  const projection = v as Projection;
+                  setSimParam("projection", projection);
+                  const maxFov = getMaxFovDeg(projection);
+                  if (simParams.camFov > maxFov) {
+                    setSimParam("camFov", maxFov);
+                  }
+                }}
               >
                 <Select.Trigger />
                 <Select.Content>

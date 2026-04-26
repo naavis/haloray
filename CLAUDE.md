@@ -45,6 +45,7 @@ Invariants worth preserving:
 
 - The `*_PARAMS_SIZE` constants and field order in `encodeParams.ts` must exactly match the WGSL struct layouts. Changing one without the other silently corrupts the simulation.
 - Angles are stored in degrees in UI state and converted to radians at encode time.
+- `simParams.camFov` holds the camera field of view in degrees (matching desktop). The raytrace, sky, and guides shaders consume a focal length, so `encodeParams.ts` calls `fovDegToFocalLength(fovDeg, projection)` (mirror of desktop `Camera::getFocalLength`) when serializing.
 - `rng_seed` is incremented every frame so successive compute dispatches sample different rays.
 - Several slots (sub-horizon flag, pyramidal apex caps, prism face distances) are encoded with fixed placeholder values — they exist in the shader but aren't exposed in the UI yet. The same applies to atmospheric turbidity and ground albedo, which are hardcoded inside `SkyPass`.
 
