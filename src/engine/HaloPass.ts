@@ -34,6 +34,7 @@ export class HaloPass {
   private _totalRays = 0;
   private rngSeed = 0;
   private resetRequested = false;
+  private sunSpectrum: Float32Array | null = null;
 
   constructor(device: GPUDevice) {
     this.device = device;
@@ -106,6 +107,10 @@ export class HaloPass {
     this.resetRequested = true;
   }
 
+  setSunSpectrum(spectrum: Float32Array | null): void {
+    this.sunSpectrum = spectrum;
+  }
+
   /** Encodes raytrace + accumulate commands. Returns true if work was dispatched. */
   encode(
     encoder: GPUCommandEncoder,
@@ -126,7 +131,14 @@ export class HaloPass {
     }
 
     this.rngSeed++;
-    encodeSimParams(this.paramsBuf, simParams, canvasWidth, canvasHeight, this.rngSeed);
+    encodeSimParams(
+      this.paramsBuf,
+      simParams,
+      canvasWidth,
+      canvasHeight,
+      this.rngSeed,
+      this.sunSpectrum,
+    );
     this.device.queue.writeBuffer(this.paramsBuffer, 0, this.paramsBuf);
     this._totalRays += ACTUAL_RAYS;
 

@@ -3,7 +3,8 @@ import type { SimParams, DisplayParams } from "../state/params";
 import { DisplayPass } from "./DisplayPass";
 import { GuidesPass } from "./GuidesPass";
 import { HaloPass } from "./HaloPass";
-import { SkyPass } from "./SkyPass";
+import { SkyPass, TURBIDITY } from "./SkyPass";
+import { buildSunSpectrum } from "./hosek-wilkie-sky/sun-spectrum";
 
 /*
  * HaloEngine — rendering pipeline overview
@@ -99,6 +100,20 @@ export class HaloEngine {
     this.skyPass = new SkyPass(device);
     this.guidesPass = new GuidesPass(device);
     this.displayPass = new DisplayPass(device, context, format);
+
+    this.recomputeSunSpectrum();
+  }
+
+  // Hosek-Wilkie spectral solar radiance, recomputed when the sun moves or
+  // when the user toggles the sky background. With sky off the raytracer
+  // falls back to the simple linear daylight estimate inside the shader.
+  private recomputeSunSpectrum(): void {
+    if (this.displayParams.showSky) {
+      const elevation = (this.simParams.sunAlt * Math.PI) / 180;
+      this.haloPass.setSunSpectrum(buildSunSpectrum(TURBIDITY, elevation));
+    } else {
+      this.haloPass.setSunSpectrum(null);
+    }
   }
 
   static async create(
@@ -132,6 +147,10 @@ export class HaloEngine {
       this.guidesPass.markDirty();
     }
     this.simParams = params;
+    const sunMoved = this.simParams.sunAlt !== params.sunAlt;
+    if (sunMoved) {
+      this.recomputeSunSpectrum();
+    }
     this.haloPass.resetAccumulation();
     this.displayPass.markDirty();
     this.ensureRunning();
@@ -139,6 +158,14 @@ export class HaloEngine {
 
   setDisplayParams(params: DisplayParams): void {
     this.displayParams = params;
+    const skyToggled = this.displayParams.showSky !== params.showSky;
+    if (skyToggled) {
+      // Toggling the sky background swaps the halo spectrum (Hosek-Wilkie
+      // vs. flat daylight estimate), so accumulated samples are no longer
+      // physically consistent and must be discarded.
+      this.recomputeSunSpectrum();
+      this.haloPass.resetAccumulation();
+    }
     this.displayPass.markDirty();
     this.ensureRunning();
   }

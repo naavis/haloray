@@ -43,6 +43,13 @@ struct Params {
     lower_apex_height_avg: f32,
     lower_apex_height_std: f32,
     prism_distances: array<vec4f, 2>,  // [0].xyzw = d0-d3, [1].xy = d4-d5
+    atmosphere_enabled: u32,
+    _pad0: u32,
+    _pad1: u32,
+    _pad2: u32,
+    // 31 spectral samples (400..700 nm @ 10 nm) packed into 8 vec4 lanes.
+    // Index i lives at sun_spectrum[i / 4][i % 4]; lane 31 is unused padding.
+    sun_spectrum: array<vec4f, 8>,
 }
 
 struct RayResult {
@@ -385,6 +392,16 @@ fn daylight_estimate(wavelength: f32) -> f32 {
     return 1.0 - 0.0013333 * wavelength;
 }
 
+fn sample_sun_spectrum(wavelength: f32) -> f32 {
+    let i_f = clamp((wavelength - 400.0) / 10.0, 0.0, 30.0);
+    let i = u32(floor(i_f));
+    let frac = i_f - f32(i);
+    let j = i + 1u;
+    let a = params.sun_spectrum[i / 4u][i % 4u];
+    let b = params.sun_spectrum[j / 4u][j % 4u];
+    return mix(a, b, frac);
+}
+
 // ── Crystal geometry ───────────────────────────────────────────────────
 
 fn get_next(i: u32) -> u32 { return (i + 1u) % 6u; }
@@ -591,7 +608,12 @@ fn main(@builtin(global_invocation_id) global_id: vec3u) {
     }
 
     // Spectral → sRGB linear
-    let sun_rad = daylight_estimate(wavelength);
+    var sun_rad: f32;
+    if (params.atmosphere_enabled == 1u) {
+        sun_rad = sample_sun_spectrum(wavelength);
+    } else {
+        sun_rad = daylight_estimate(wavelength);
+    }
     let cie_xyz = sun_rad * vec3f(x_fit_1931(wavelength), y_fit_1931(wavelength), z_fit_1931(wavelength));
     let xyz_to_srgb = mat3x3f(
          3.24096994, -0.96924364,  0.05563008,

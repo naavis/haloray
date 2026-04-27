@@ -5,8 +5,9 @@ import { buildSkyState } from "./hosek-wilkie-sky/calculate";
 
 // Hosek-Wilkie inputs that the UI does not yet expose. Turbidity ~3 is a
 // typical clear-sky value; albedo ~0.3 approximates ground reflectance.
-const TURBIDITY = 3.0;
-const ALBEDO = 0.3;
+// Exported so HaloPass can compute the matching sun spectrum.
+export const TURBIDITY = 3.0;
+export const ALBEDO = 0.3;
 
 const degToRad = (d: number) => (d * Math.PI) / 180;
 

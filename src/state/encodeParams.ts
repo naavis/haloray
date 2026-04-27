@@ -5,7 +5,9 @@ import type { SkyState } from "../engine/hosek-wilkie-sky/calculate";
 // shader struct: `Params` in raytrace.wgsl, `DisplayParams` in display.wgsl,
 // `AccParams` in accumulate.wgsl, `SkyParams` in sky.wgsl, `GuidesParams` in
 // guides.wgsl.
-export const PARAMS_SIZE = 128;
+// 128 base bytes + 16 (atmosphere_enabled u32 + vec4 padding)
+// + 128 (sun_spectrum: array<vec4f, 8>, 31 of 32 lanes used) = 272 bytes.
+export const PARAMS_SIZE = 272;
 export const DISPLAY_PARAMS_SIZE = 32;
 export const ACC_PARAMS_SIZE = 16;
 export const SKY_PARAMS_SIZE = 192;
@@ -59,6 +61,7 @@ export function encodeSimParams(
   canvasWidth: number,
   canvasHeight: number,
   rngSeed: number,
+  sunSpectrum: Float32Array | null,
 ): void {
   const u32 = new Uint32Array(outBuf);
   const f32 = new Float32Array(outBuf);
@@ -102,6 +105,25 @@ export function encodeSimParams(
   // Unused tail of the array<vec4f, 2> (8 floats total, only 6 are meaningful).
   f32[30] = 0;
   f32[31] = 0;
+
+  // atmosphere_enabled (u32) + 12 bytes padding to vec4 alignment.
+  u32[32] = sunSpectrum ? 1 : 0;
+  u32[33] = 0;
+  u32[34] = 0;
+  u32[35] = 0;
+
+  // sun_spectrum: array<vec4f, 8> starting at f32[36]. 31 samples written
+  // into the first 31 lanes; lane 31 (f32[67]) stays zero.
+  if (sunSpectrum) {
+    for (let i = 0; i < 31; i++) {
+      f32[36 + i] = sunSpectrum[i];
+    }
+    f32[67] = 0;
+  } else {
+    for (let i = 36; i < 68; i++) {
+      f32[i] = 0;
+    }
+  }
 }
 
 // Serializes sky params into the 192-byte layout expected by sky.wgsl's

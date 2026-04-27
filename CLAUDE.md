@@ -29,6 +29,7 @@ Requires a WebGPU-capable browser. There is no test suite in the web port yet.
 [HaloEngine](src/engine/HaloEngine.ts) is the coordinator that owns the GPU device, shared buffers, and the animation frame loop. It delegates work to separate pass classes:
 
 - [HaloPass](src/engine/HaloPass.ts) — **raytrace** + **accumulate** compute passes (progressive). Owns pipelines, ray buffer, sim-params buffer, a tiny acc-params uniform (just `resolution_x`), and the `totalRays` counter. Writes into the shared accumulation buffer.
+- [HaloEngine](src/engine/HaloEngine.ts) also computes the Hosek-Wilkie solar spectrum (via [sun-spectrum.ts](src/engine/hosek-wilkie-sky/sun-spectrum.ts), backed by [dataset-solar.ts](src/engine/hosek-wilkie-sky/dataset-solar.ts) ported from the desktop `solarDatasets` table) whenever the sun moves or `showSky` toggles, and feeds it to `HaloPass.setSunSpectrum`.
 - [SkyPass](src/engine/SkyPass.ts) — **sky** compute pass. Evaluates the Hosek-Wilkie analytic sky model and writes per-pixel linear sRGB into a sky buffer. Rebuilds the `SkyState` (per-channel configs + radiance scales from [hosek-wilkie-sky/calculate.ts](src/engine/hosek-wilkie-sky/calculate.ts)) per dispatch — cheap CPU-side Bézier evaluation. For sun altitudes near and below the horizon the shader crossfades to the simpler Preetham analytic model (which Hosek doesn't define), then fades to black at -10°. Only re-runs when view params (camera + sun position) change.
 - [GuidesPass](src/engine/GuidesPass.ts) — **guides** compute pass. Writes per-pixel linear RGBA into a guides buffer (4 floats/pixel). Only re-runs when view params change. Currently a placeholder that writes transparent black.
 - [DisplayPass](src/engine/DisplayPass.ts) — **display** render pass ([display.wgsl](src/shaders/display.wgsl)). Owns the render pipeline, display-params uniform, canvas context, and its own dirty flag. Composites the other passes' outputs: sums halo and sky in linear radiance space, applies Reinhard tone mapping and sRGB gamma, then alpha-blends the guides overlay on top.
@@ -39,7 +40,7 @@ View params (`sunAlt`, `camPitch`, `camYaw`, `camFov`, `projection`) are tracked
 
 ### State → GPU uniform encoding ([src/state/encodeParams.ts](src/state/encodeParams.ts))
 
-`encodeSimParams` serializes `SimParams` into a 128-byte `ArrayBuffer` matching the `Params` struct in `raytrace.wgsl`. `encodeDisplayParams` writes the 32-byte `DisplayParams` layout for `display.wgsl` (resolution + brightness + show flags + camera fov in degrees, used to compensate halo exposure for FOV). `encodeAccParams` writes the 16-byte `AccParams` layout for `accumulate.wgsl` (only `resolution_x` is meaningful; the rest is uniform-alignment padding). `encodeSkyParams` writes the 192-byte `SkyParams` layout for `sky.wgsl` (resolution + projection + sun altitude + camera + turbidity + Hosek-Wilkie radiance scales + 9 config coefficients packed as `array<vec4f, 9>`). `encodeGuidesParams` writes the 32-byte `GuidesParams` layout for `guides.wgsl`.
+`encodeSimParams` serializes `SimParams` into a 272-byte `ArrayBuffer` matching the `Params` struct in `raytrace.wgsl` (128 base bytes + `atmosphere_enabled` u32 with vec4 padding + `sun_spectrum` `array<vec4f, 8>` holding the 31-sample Hosek-Wilkie solar spectrum). `encodeDisplayParams` writes the 32-byte `DisplayParams` layout for `display.wgsl` (resolution + brightness + show flags + camera fov in degrees, used to compensate halo exposure for FOV). `encodeAccParams` writes the 16-byte `AccParams` layout for `accumulate.wgsl` (only `resolution_x` is meaningful; the rest is uniform-alignment padding). `encodeSkyParams` writes the 192-byte `SkyParams` layout for `sky.wgsl` (resolution + projection + sun altitude + camera + turbidity + Hosek-Wilkie radiance scales + 9 config coefficients packed as `array<vec4f, 9>`). `encodeGuidesParams` writes the 32-byte `GuidesParams` layout for `guides.wgsl`.
 
 Invariants worth preserving:
 
@@ -54,7 +55,7 @@ Invariants worth preserving:
 `ParamsProvider` holds two separate pieces of state and a monotonic `simVersion` counter:
 
 - `simParams` — Inputs to the ray tracer (sun, crystal, camera). Changing any of these must discard the accumulated image, because rays from the old parameters would be physically inconsistent with new ones.
-- `displayParams` — Inputs to the display pass only (e.g. brightness). Can change without invalidating accumulated samples.
+- `displayParams` — Inputs to the display pass only (e.g. brightness). Can change without invalidating accumulated samples. **Exception:** toggling `showSky` swaps the halo's spectral weighting (Hosek-Wilkie sun spectrum vs. flat daylight estimate) and therefore resets halo accumulation.
 - `simVersion` — Bumped whenever `setSimParam` or `reset` is called. `Canvas.tsx` calls `engine.setSimParams()` which resets the halo accumulation and, if view params changed, marks the sky pass dirty.
 
 When adding a new parameter, decide which of the two buckets it belongs to — that decision determines whether adjusting it resets the image.
