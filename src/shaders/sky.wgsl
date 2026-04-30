@@ -37,6 +37,20 @@ struct SkyParams {
     // one component per CIE XYZ channel. Wrapped as vec4 to satisfy WGSL's
     // 16-byte uniform array stride.
     configs: array<vec4f, 9>,
+
+    // Sun disk rendering — precomputed CIE XYZ radiance at top/bottom of disk
+    // and per-channel limb-darkening scaler. See buildSunDiskState in
+    // sun-spectrum.ts for how these are computed.
+    sun_top_xyz:           vec3f,
+    _pad2:                 f32,
+    sun_bottom_xyz:        vec3f,
+    _pad3:                 f32,
+    limb_darkening_scaler: vec3f,
+    _pad4:                 f32,
+    solar_radius:          f32,
+    elevation:             f32,
+    _pad5:                 f32,
+    _pad6:                 f32,
 }
 
 @group(0) @binding(0) var<uniform> params: SkyParams;
@@ -218,6 +232,29 @@ fn hosek_preetham_mix(dir: vec3f, sun_vec: vec3f, cos_theta: f32, gamma: f32, tu
     return preetham_sky(dir, sun_vec, turbidity) * t;
 }
 
+// Renders the solar disk — port of renderSun() from desktop sky.glsl.
+// Returns CIE XYZ radiance for the solar disk at direction `dir`, or zero
+// if the direction misses the disk.
+fn render_sun(dir: vec3f, sun_vec: vec3f) -> vec3f {
+    let sun_angle = acos(clamp(dot(dir, sun_vec), -1.0, 1.0));
+    if (sun_angle > params.solar_radius) { return vec3f(0.0); }
+
+    let ray_elevation = asin(clamp(dir.y, -1.0, 1.0));
+    // Interpolate top/bottom disk radiance by elevation within the disk.
+    // The clamp+max handles the case where the sun is partly below the horizon.
+    let factor = (ray_elevation - max(params.elevation - params.solar_radius, 0.0))
+               / min(2.0 * params.solar_radius, params.elevation + params.solar_radius);
+    let plain_radiance = mix(params.sun_bottom_xyz, params.sun_top_xyz, clamp(factor, 0.0, 1.0));
+
+    // Limb darkening: sampleCosine = 1 at disk centre, 0 at edge.
+    let sin_solar_radius = sin(params.solar_radius);
+    let sin_gamma        = sin(sun_angle);
+    let sc2              = max(0.0, 1.0 - (sin_gamma * sin_gamma) / (sin_solar_radius * sin_solar_radius));
+    let sample_cosine    = sqrt(sc2);
+
+    return mix(params.limb_darkening_scaler * plain_radiance, plain_radiance, sample_cosine);
+}
+
 @compute @workgroup_size(8, 8)
 fn main(@builtin(global_invocation_id) gid: vec3u) {
     if (gid.x >= params.resolution_x || gid.y >= params.resolution_y) { return; }
@@ -235,7 +272,9 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
     let cos_theta = max(ray.dir.y, 0.0);
     let gamma     = acos(clamp(dot(sun_vec, ray.dir), -1.0, 1.0));
 
-    let xyz = hosek_preetham_mix(ray.dir, sun_vec, cos_theta, gamma, params.turbidity);
+    let sky_xyz = hosek_preetham_mix(ray.dir, sun_vec, cos_theta, gamma, params.turbidity);
+    let sun_xyz = render_sun(ray.dir, sun_vec);
+    let xyz     = sky_xyz + sun_xyz;
 
     let xyz_to_srgb = mat3x3f(
          3.24096994, -0.96924364,  0.05563008,

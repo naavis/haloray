@@ -1,5 +1,6 @@
 import type { DisplayParams, SimParams } from "./params";
 import type { SkyState } from "../engine/hosek-wilkie-sky/calculate";
+import type { SunDiskState } from "../engine/hosek-wilkie-sky/sun-spectrum";
 
 // Byte sizes of the WGSL uniform structs. Each must match its corresponding
 // shader struct: `Params` in raytrace.wgsl, `DisplayParams` in display.wgsl,
@@ -10,7 +11,7 @@ import type { SkyState } from "../engine/hosek-wilkie-sky/calculate";
 export const PARAMS_SIZE = 272;
 export const DISPLAY_PARAMS_SIZE = 32;
 export const ACC_PARAMS_SIZE = 16;
-export const SKY_PARAMS_SIZE = 192;
+export const SKY_PARAMS_SIZE = 256;
 export const GUIDES_PARAMS_SIZE = 32;
 
 const degToRad = (d: number) => (d * Math.PI) / 180;
@@ -126,16 +127,18 @@ export function encodeSimParams(
   }
 }
 
-// Serializes sky params into the 192-byte layout expected by sky.wgsl's
+// Serializes sky params into the 256-byte layout expected by sky.wgsl's
 // `SkyParams` uniform: a small view header (resolution, projection, camera,
-// sun altitude), the per-channel Hosek-Wilkie radiance scales, and the 27
+// sun altitude), the per-channel Hosek-Wilkie radiance scales, the 27
 // configuration coefficients packed as `array<vec4<f32>, 9>` (one vec4 per
 // coefficient index, holding the X, Y, Z values for that index plus a
-// padding lane).
+// padding lane), and the sun disk state used to render the solar disk.
 export function encodeSkyParams(
   outBuf: ArrayBuffer,
   sim: SimParams,
   sky: SkyState,
+  sunDisk: SunDiskState,
+  elevation: number,
   turbidity: number,
   canvasWidth: number,
   canvasHeight: number,
@@ -161,6 +164,23 @@ export function encodeSkyParams(
     f32[base + 2] = sky.configZ[i];
     // f32[base + 3] padding to vec4 boundary
   }
+  // Sun disk state — new fields starting at f32[48] (offset 192).
+  // Each vec3f occupies a vec4f slot (16-byte alignment).
+  f32[48] = sunDisk.sunTopXYZ[0];
+  f32[49] = sunDisk.sunTopXYZ[1];
+  f32[50] = sunDisk.sunTopXYZ[2];
+  // f32[51] pad
+  f32[52] = sunDisk.sunBottomXYZ[0];
+  f32[53] = sunDisk.sunBottomXYZ[1];
+  f32[54] = sunDisk.sunBottomXYZ[2];
+  // f32[55] pad
+  f32[56] = sunDisk.limbDarkeningScaler[0];
+  f32[57] = sunDisk.limbDarkeningScaler[1];
+  f32[58] = sunDisk.limbDarkeningScaler[2];
+  // f32[59] pad
+  f32[60] = sunDisk.solarRadius;
+  f32[61] = elevation;
+  // f32[62-63] pad
 }
 
 // Serializes guides params into the 32-byte layout expected by guides.wgsl's

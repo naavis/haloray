@@ -2,6 +2,7 @@ import skyCode from "../shaders/sky.wgsl?raw";
 import { SKY_PARAMS_SIZE, encodeSkyParams } from "../state/encodeParams";
 import type { SimParams } from "../state/params";
 import { buildSkyState } from "./hosek-wilkie-sky/calculate";
+import { buildSunDiskState } from "./hosek-wilkie-sky/sun-spectrum";
 
 // Hosek-Wilkie inputs that the UI does not yet expose. Turbidity ~3 is a
 // typical clear-sky value; albedo ~0.3 approximates ground reflectance.
@@ -63,10 +64,22 @@ export class SkyPass {
     }
     this.dirty = false;
 
-    const elevation = Math.max(0, degToRad(sim.sunAlt));
+    const elevationRaw = degToRad(sim.sunAlt);
+    const elevation = Math.max(0, elevationRaw);
+    const solarRadius = degToRad(sim.sunDiam / 2);
     const skyState = buildSkyState(TURBIDITY, ALBEDO, elevation);
+    const sunDiskState = buildSunDiskState(TURBIDITY, elevationRaw, solarRadius);
 
-    encodeSkyParams(this.paramsBuf, sim, skyState, TURBIDITY, canvasWidth, canvasHeight);
+    encodeSkyParams(
+      this.paramsBuf,
+      sim,
+      skyState,
+      sunDiskState,
+      elevationRaw,
+      TURBIDITY,
+      canvasWidth,
+      canvasHeight,
+    );
     this.device.queue.writeBuffer(this.uniformBuffer, 0, this.paramsBuf);
 
     const pass = encoder.beginComputePass();
