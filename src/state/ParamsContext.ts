@@ -1,12 +1,14 @@
 import { createContext } from "react";
 import type { DisplayParams, SimParams } from "./params";
 
+export type ParamSetters<T> = { [K in keyof T]: (value: T[K]) => void };
+
 export type ParamsContextValue = {
   simParams: SimParams;
   displayParams: DisplayParams;
   simVersion: number;
-  setSimParam: <K extends keyof SimParams>(key: K, value: SimParams[K]) => void;
-  setDisplayParam: <K extends keyof DisplayParams>(key: K, value: DisplayParams[K]) => void;
+  setSim: ParamSetters<SimParams>;
+  setDisplay: ParamSetters<DisplayParams>;
   reset: () => void;
 };
 

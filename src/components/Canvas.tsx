@@ -15,7 +15,7 @@ function Canvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<HaloEngine | null>(null);
-  const { simParams, displayParams, setSimParam } = useParams();
+  const { simParams, displayParams, setSim } = useParams();
 
   const simParamsRef = useRef(simParams);
   const displayParamsRef = useRef(displayParams);
@@ -45,12 +45,12 @@ function Canvas() {
       const sim = simParamsRef.current;
       const maxFov = getMaxFovDeg(sim.projection);
       const newFov = clamp(sim.camFov * Math.exp(e.deltaY * SCROLL_SENSITIVITY), 1.5, maxFov);
-      setSimParam("camFov", newFov);
+      setSim.camFov(newFov);
     };
 
     canvas.addEventListener("wheel", handleWheel, { passive: false });
     return () => canvas.removeEventListener("wheel", handleWheel);
-  }, [setSimParam]);
+  }, [setSim]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -111,8 +111,8 @@ function Canvas() {
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
     const fov = simParamsRef.current.camFov;
-    setSimParam("camYaw", clamp(dragStart.current.yaw + dx * DRAG_SENSITIVITY * fov, -180, 180));
-    setSimParam("camPitch", clamp(dragStart.current.pitch + dy * DRAG_SENSITIVITY * fov, -90, 90));
+    setSim.camYaw(clamp(dragStart.current.yaw + dx * DRAG_SENSITIVITY * fov, -180, 180));
+    setSim.camPitch(clamp(dragStart.current.pitch + dy * DRAG_SENSITIVITY * fov, -90, 90));
   };
 
   const handleMouseUp = () => {

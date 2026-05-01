@@ -15,7 +15,7 @@ import type { Projection } from "../state/params";
 import { getMaxFovDeg } from "../state/encodeParams";
 
 function Sidebar() {
-  const { simParams, displayParams, setSimParam, setDisplayParam, reset } = useParams();
+  const { simParams, displayParams, setSim, setDisplay, reset } = useParams();
 
   return (
     <Box
@@ -38,7 +38,7 @@ function Sidebar() {
               min={-90}
               max={90}
               step={0.1}
-              onChange={(v) => setSimParam("sunAlt", v)}
+              onChange={setSim.sunAlt}
             />
             <SliderControl
               label="Diameter (°)"
@@ -46,7 +46,7 @@ function Sidebar() {
               min={0.1}
               max={5}
               step={0.1}
-              onChange={(v) => setSimParam("sunDiam", v)}
+              onChange={setSim.sunDiam}
             />
           </Flex>
 
@@ -60,7 +60,7 @@ function Sidebar() {
               min={0.1}
               max={5}
               step={0.01}
-              onChange={(v) => setSimParam("caRatio", v)}
+              onChange={setSim.caRatio}
             />
             <SliderControl
               label="C/A Std Dev"
@@ -68,14 +68,14 @@ function Sidebar() {
               min={0}
               max={2}
               step={0.01}
-              onChange={(v) => setSimParam("caRatioStd", v)}
+              onChange={setSim.caRatioStd}
             />
             <Separator size="4" />
             <Text as="label" size="2">
               <Flex gap="2" align="center">
                 <Checkbox
                   checked={simParams.tiltGaussian}
-                  onCheckedChange={(v) => setSimParam("tiltGaussian", v === true)}
+                  onCheckedChange={(v) => setSim.tiltGaussian(v === true)}
                 />
                 Gaussian Tilt
               </Flex>
@@ -86,7 +86,7 @@ function Sidebar() {
               min={0}
               max={90}
               step={0.5}
-              onChange={(v) => setSimParam("tiltAvg", v)}
+              onChange={setSim.tiltAvg}
               disabled={!simParams.tiltGaussian}
             />
             <SliderControl
@@ -95,7 +95,7 @@ function Sidebar() {
               min={0}
               max={45}
               step={0.5}
-              onChange={(v) => setSimParam("tiltStd", v)}
+              onChange={setSim.tiltStd}
               disabled={!simParams.tiltGaussian}
             />
             <Separator size="4" />
@@ -103,7 +103,7 @@ function Sidebar() {
               <Flex gap="2" align="center">
                 <Checkbox
                   checked={simParams.rotGaussian}
-                  onCheckedChange={(v) => setSimParam("rotGaussian", v === true)}
+                  onCheckedChange={(v) => setSim.rotGaussian(v === true)}
                 />
                 Gaussian Rotation
               </Flex>
@@ -114,7 +114,7 @@ function Sidebar() {
               min={0}
               max={180}
               step={1}
-              onChange={(v) => setSimParam("rotAvg", v)}
+              onChange={setSim.rotAvg}
               precision={0}
               disabled={!simParams.rotGaussian}
             />
@@ -124,7 +124,7 @@ function Sidebar() {
               min={0}
               max={90}
               step={1}
-              onChange={(v) => setSimParam("rotStd", v)}
+              onChange={setSim.rotStd}
               precision={0}
               disabled={!simParams.rotGaussian}
             />
@@ -140,7 +140,7 @@ function Sidebar() {
               min={-90}
               max={90}
               step={0.5}
-              onChange={(v) => setSimParam("camPitch", v)}
+              onChange={setSim.camPitch}
             />
             <SliderControl
               label="Yaw (°)"
@@ -148,7 +148,7 @@ function Sidebar() {
               min={-180}
               max={180}
               step={0.5}
-              onChange={(v) => setSimParam("camYaw", v)}
+              onChange={setSim.camYaw}
             />
             <SliderControl
               label="Field of View (°)"
@@ -156,7 +156,7 @@ function Sidebar() {
               min={1.5}
               max={getMaxFovDeg(simParams.projection)}
               step={0.5}
-              onChange={(v) => setSimParam("camFov", v)}
+              onChange={setSim.camFov}
             />
             <Flex direction="column" gap="1">
               <Text size="2">Projection</Text>
@@ -164,10 +164,10 @@ function Sidebar() {
                 value={simParams.projection}
                 onValueChange={(v) => {
                   const projection = v as Projection;
-                  setSimParam("projection", projection);
+                  setSim.projection(projection);
                   const maxFov = getMaxFovDeg(projection);
                   if (simParams.camFov > maxFov) {
-                    setSimParam("camFov", maxFov);
+                    setSim.camFov(maxFov);
                   }
                 }}
               >
@@ -185,7 +185,7 @@ function Sidebar() {
               <Flex gap="2" align="center">
                 <Checkbox
                   checked={simParams.hideSubHorizon}
-                  onCheckedChange={(v) => setSimParam("hideSubHorizon", v === true)}
+                  onCheckedChange={(v) => setSim.hideSubHorizon(v === true)}
                 />
                 Hide Sub-Horizon Rays
               </Flex>
@@ -202,13 +202,13 @@ function Sidebar() {
               min={0.1}
               max={30}
               step={0.1}
-              onChange={(v) => setDisplayParam("brightness", v)}
+              onChange={setDisplay.brightness}
             />
             <Text as="label" size="2">
               <Flex gap="2" align="center">
                 <Checkbox
                   checked={displayParams.showSky}
-                  onCheckedChange={(v) => setDisplayParam("showSky", v === true)}
+                  onCheckedChange={(v) => setDisplay.showSky(v === true)}
                 />
                 Show Sky
               </Flex>
@@ -217,7 +217,7 @@ function Sidebar() {
               <Flex gap="2" align="center">
                 <Checkbox
                   checked={displayParams.showGuides}
-                  onCheckedChange={(v) => setDisplayParam("showGuides", v === true)}
+                  onCheckedChange={(v) => setDisplay.showGuides(v === true)}
                 />
                 Show Guides
               </Flex>

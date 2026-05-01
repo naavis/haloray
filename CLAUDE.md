@@ -56,7 +56,9 @@ Invariants worth preserving:
 
 - `simParams` — Inputs to the ray tracer (sun, crystal, camera). Changing any of these must discard the accumulated image, because rays from the old parameters would be physically inconsistent with new ones.
 - `displayParams` — Inputs to the display pass only (e.g. brightness). Can change without invalidating accumulated samples. **Exception:** toggling `showSky` swaps the halo's spectral weighting (Hosek-Wilkie sun spectrum vs. flat daylight estimate) and therefore resets halo accumulation.
-- `simVersion` — Bumped whenever `setSimParam` or `reset` is called. `Canvas.tsx` calls `engine.setSimParams()` which resets the halo accumulation and, if view params changed, marks the sky pass dirty.
+- `simVersion` — Bumped whenever any `setSim.<field>(...)` setter or `reset` is called. `Canvas.tsx` calls `engine.setSimParams()` which resets the halo accumulation and, if view params changed, marks the sky pass dirty.
+
+`setSim` and `setDisplay` are Proxy objects exposing one setter per field (`setSim.sunAlt(v)`, `setDisplay.brightness(v)`, …). The shape is typed as `{ [K in keyof T]: (value: T[K]) => void }`, so each field's setter accepts only its own value type. `setSim` setters bump `simVersion`; `setDisplay` setters do not.
 
 When adding a new parameter, decide which of the two buckets it belongs to — that decision determines whether adjusting it resets the image.
 
