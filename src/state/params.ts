@@ -31,7 +31,7 @@ export const DEFAULT_SIM: SimParams = {
   caRatioStd: 0,
   tiltGaussian: true,
   tiltAvg: 90.0,
-  tiltStd: 1.5,
+  tiltStd: 0.5,
   rotGaussian: false,
   rotAvg: 0,
   rotStd: 0,
@@ -50,7 +50,14 @@ export const DEFAULT_DISPLAY: DisplayParams = {
 
 // "View" = observer's perspective + celestial geometry (camera + sun position).
 // These params affect the sky background and guides, not just the halo.
-const VIEW_KEYS: (keyof SimParams)[] = ["sunAlt", "sunDiam", "camPitch", "camYaw", "camFov", "projection"];
+const VIEW_KEYS: (keyof SimParams)[] = [
+  "sunAlt",
+  "sunDiam",
+  "camPitch",
+  "camYaw",
+  "camFov",
+  "projection",
+];
 
 export function didViewChange(prev: SimParams, next: SimParams): boolean {
   return VIEW_KEYS.some((k) => prev[k] !== next[k]);

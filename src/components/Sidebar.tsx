@@ -59,7 +59,7 @@ function Sidebar() {
               value={simParams.caRatio}
               min={0.1}
               max={5}
-              step={0.01}
+              step={0.1}
               onChange={setSim.caRatio}
             />
             <SliderControl
@@ -67,7 +67,7 @@ function Sidebar() {
               value={simParams.caRatioStd}
               min={0}
               max={2}
-              step={0.01}
+              step={0.1}
               onChange={setSim.caRatioStd}
             />
             <Separator size="4" />
@@ -94,7 +94,7 @@ function Sidebar() {
               value={simParams.tiltStd}
               min={0}
               max={45}
-              step={0.5}
+              step={0.1}
               onChange={setSim.tiltStd}
               disabled={!simParams.tiltGaussian}
             />
@@ -115,7 +115,6 @@ function Sidebar() {
               max={180}
               step={1}
               onChange={setSim.rotAvg}
-              precision={0}
               disabled={!simParams.rotGaussian}
             />
             <SliderControl
@@ -123,9 +122,8 @@ function Sidebar() {
               value={simParams.rotStd}
               min={0}
               max={90}
-              step={1}
+              step={0.1}
               onChange={setSim.rotStd}
-              precision={0}
               disabled={!simParams.rotGaussian}
             />
           </Flex>
