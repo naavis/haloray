@@ -15,6 +15,9 @@ const PROJ_EQUIDISTANT: u32 = 2u;
 const PROJ_EQUAL_AREA: u32 = 3u;
 const PROJ_ORTHOGRAPHIC: u32 = 4u;
 
+// Halo fade range: full intensity at 0°, gone at -10° (mirrors sky.wgsl).
+const MIN_SUN_ELEVATION: f32 = radians(-10.0);
+
 // ── Types ──────────────────────────────────────────────────────────────
 
 struct Params {
@@ -546,6 +549,15 @@ fn main(@builtin(global_invocation_id) global_id: vec3u) {
     let gid = global_id.x;
     rng_state = wang_hash(wang_hash(params.rng_seed) ^ gid);
 
+    let halo_fade = clamp(
+        (params.sun_altitude - MIN_SUN_ELEVATION) / (-MIN_SUN_ELEVATION),
+        0.0, 1.0
+    );
+    if (halo_fade <= 0.0) {
+        ray_buffer[gid] = RayResult(MISS, 0u, 0.0, 0.0, 0.0);
+        return;
+    }
+
     initialize_crystal();
 
     // Pick random wavelength 400-700 nm
@@ -624,5 +636,5 @@ fn main(@builtin(global_invocation_id) global_id: vec3u) {
 
     let px = u32(res.x * nc.x);
     let py = u32(res.y * (1.0 - nc.y));
-    ray_buffer[gid] = RayResult(px, py, rgb.x, rgb.y, rgb.z);
+    ray_buffer[gid] = RayResult(px, py, rgb.x * halo_fade, rgb.y * halo_fade, rgb.z * halo_fade);
 }
