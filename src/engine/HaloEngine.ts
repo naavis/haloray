@@ -142,13 +142,13 @@ export class HaloEngine {
   }
 
   setSimParams(params: SimParams): void {
-    if (didViewChange(this.simParams, params)) {
+    const prev = this.simParams;
+    if (didViewChange(prev, params)) {
       this.skyPass.markDirty();
       this.guidesPass.markDirty();
     }
     this.simParams = params;
-    const sunMoved = this.simParams.sunAlt !== params.sunAlt;
-    if (sunMoved) {
+    if (prev.sunAlt !== params.sunAlt) {
       this.recomputeSunSpectrum();
     }
     this.haloPass.resetAccumulation();
@@ -157,9 +157,9 @@ export class HaloEngine {
   }
 
   setDisplayParams(params: DisplayParams): void {
+    const prev = this.displayParams;
     this.displayParams = params;
-    const skyToggled = this.displayParams.showSky !== params.showSky;
-    if (skyToggled) {
+    if (prev.showSky !== params.showSky) {
       // Toggling the sky background swaps the halo spectrum (Hosek-Wilkie
       // vs. flat daylight estimate), so accumulated samples are no longer
       // physically consistent and must be discarded.
