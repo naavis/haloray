@@ -4,7 +4,7 @@ import { useParams } from "../state/useParams";
 import { HaloEngine } from "../engine/HaloEngine";
 import { getMaxFovDeg } from "../state/encodeParams";
 
-const DRAG_SENSITIVITY = 0.003;
+const DRAG_SENSITIVITY = 0.001;
 const SCROLL_SENSITIVITY = 0.001;
 
 function clamp(value: number, min: number, max: number) {
@@ -111,7 +111,13 @@ function Canvas() {
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
     const fov = simParamsRef.current.camFov;
-    setSim.camYaw(clamp(dragStart.current.yaw + dx * DRAG_SENSITIVITY * fov, -180, 180));
+    let newYaw = (dragStart.current.yaw + dx * DRAG_SENSITIVITY * fov);;
+    if (newYaw > 180) {
+      newYaw -= 360;
+    } else if (newYaw < -180) {
+      newYaw += 360;
+    }
+    setSim.camYaw(newYaw);
     setSim.camPitch(clamp(dragStart.current.pitch + dy * DRAG_SENSITIVITY * fov, -90, 90));
   };
 
