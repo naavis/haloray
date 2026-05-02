@@ -1,4 +1,5 @@
 import type { DisplayParams, SimParams } from "./params";
+import type { CrystalPopulation } from "./populations";
 import type { SkyState } from "../engine/hosek-wilkie-sky/calculate";
 import type { SunDiskState } from "../engine/hosek-wilkie-sky/sun-spectrum";
 
@@ -52,13 +53,14 @@ export function getMaxFovDeg(projection: string): number {
   }
 }
 
-// Serializes SimParams into the 128-byte layout expected by raytrace.wgsl's
-// `Params` uniform. Each slot below is 4 bytes; u32[i] and f32[i] alias the
-// same bytes, so we pick the view that matches the shader field's type.
-// Angles are stored in radians (the UI works in degrees).
+// Serializes SimParams + one CrystalPopulation into the 128-byte layout
+// expected by raytrace.wgsl's `Params` uniform. View fields (sun, camera,
+// resolution) come from `sim`; crystal/orientation/geometry fields come from
+// `population`. Called once per enabled population per frame.
 export function encodeSimParams(
   outBuf: ArrayBuffer,
   sim: SimParams,
+  population: CrystalPopulation,
   canvasWidth: number,
   canvasHeight: number,
   rngSeed: number,
@@ -70,14 +72,14 @@ export function encodeSimParams(
   u32[0] = rngSeed;
   f32[1] = degToRad(sim.sunAlt);
   f32[2] = degToRad(sim.sunDiam);
-  f32[3] = sim.caRatio;
-  f32[4] = sim.caRatioStd;
-  u32[5] = sim.tiltGaussian ? 1 : 0;
-  f32[6] = degToRad(sim.tiltAvg);
-  f32[7] = degToRad(sim.tiltStd);
-  u32[8] = sim.rotGaussian ? 1 : 0;
-  f32[9] = degToRad(sim.rotAvg);
-  f32[10] = degToRad(sim.rotStd);
+  f32[3] = population.caRatio;
+  f32[4] = population.caRatioStd;
+  u32[5] = population.tiltGaussian ? 1 : 0;
+  f32[6] = degToRad(population.tiltAvg);
+  f32[7] = degToRad(population.tiltStd);
+  u32[8] = population.rotGaussian ? 1 : 0;
+  f32[9] = degToRad(population.rotAvg);
+  f32[10] = degToRad(population.rotStd);
   f32[11] = degToRad(sim.camPitch);
   f32[12] = degToRad(sim.camYaw);
   f32[13] = fovDegToFocalLength(sim.camFov, sim.projection);
@@ -85,24 +87,18 @@ export function encodeSimParams(
   u32[15] = sim.hideSubHorizon ? 1 : 0;
   u32[16] = canvasWidth;
   u32[17] = canvasHeight;
-  // Upper and lower pyramidal apex caps (angle + height avg/std). Zero angle
-  // disables the cap in the shader, leaving a plain hexagonal prism.
-  // Not yet exposed in the UI.
-  f32[18] = 0;
-  f32[19] = 0;
-  f32[20] = 0;
-  f32[21] = 0;
-  f32[22] = 0;
-  f32[23] = 0;
-  // Six prism face distances (`prism_distances` in the shader, declared as
-  // array<vec4f, 2>). Equal values produce a regular hexagonal cross-section.
-  // Not yet exposed in the UI.
-  f32[24] = 1;
-  f32[25] = 1;
-  f32[26] = 1;
-  f32[27] = 1;
-  f32[28] = 1;
-  f32[29] = 1;
+  // Pyramidal apex caps — angle (radians) + height avg/std per population.
+  // Zero angle disables the cap in the shader (plain hexagonal prism).
+  f32[18] = degToRad(population.upperApexAngle);
+  f32[19] = population.upperApexHeightAvg;
+  f32[20] = population.upperApexHeightStd;
+  f32[21] = degToRad(population.lowerApexAngle);
+  f32[22] = population.lowerApexHeightAvg;
+  f32[23] = population.lowerApexHeightStd;
+  // Six prism face distances (array<vec4f, 2>); equal values → regular hexagon.
+  for (let i = 0; i < 6; i++) {
+    f32[24 + i] = population.prismDistances[i];
+  }
   // Unused tail of the array<vec4f, 2> (8 floats total, only 6 are meaningful).
   f32[30] = 0;
   f32[31] = 0;

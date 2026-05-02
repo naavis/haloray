@@ -2,8 +2,10 @@ import {
   Box,
   Button,
   Checkbox,
+  DropdownMenu,
   Flex,
   Heading,
+  IconButton,
   ScrollArea,
   Select,
   Separator,
@@ -12,10 +14,33 @@ import {
 import SliderControl from "./SliderControl";
 import { useParams } from "../state/useParams";
 import type { Projection } from "../state/params";
+import type { PresetKey } from "../state/populations";
 import { getMaxFovDeg } from "../state/encodeParams";
 
+const PRESET_LABELS: Record<PresetKey, string> = {
+  random: "Random",
+  plate: "Plate",
+  column: "Column",
+  parry: "Parry",
+  lowitz: "Lowitz",
+  pyramid: "Pyramid",
+};
+
+const PRESET_KEYS: PresetKey[] = ["random", "plate", "column", "parry", "lowitz", "pyramid"];
+
 function Sidebar() {
-  const { simParams, displayParams, setSim, setDisplay, reset } = useParams();
+  const {
+    simParams,
+    displayParams,
+    setSim,
+    setDisplay,
+    setCurrentPop,
+    addPopulation,
+    removePopulation,
+    reset,
+  } = useParams();
+  const { populations, selectedPopIndex } = simParams;
+  const pop = populations[selectedPopIndex];
 
   return (
     <Box
@@ -54,77 +79,143 @@ function Sidebar() {
 
           <Flex direction="column" gap="3">
             <Heading size="2">Crystal</Heading>
+
+            {/* Population selector row */}
+            <Flex gap="2" align="center">
+              <Box flexGrow="1">
+                <Select.Root
+                  value={String(selectedPopIndex)}
+                  onValueChange={(v) => setSim.selectedPopIndex(Number(v))}
+                >
+                  <Select.Trigger style={{ width: "100%" }} />
+                  <Select.Content>
+                    {populations.map((p, i) => (
+                      <Select.Item key={i} value={String(i)}>
+                        {p.name}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Root>
+              </Box>
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger>
+                  <IconButton variant="soft" aria-label="Add population">
+                    +
+                  </IconButton>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content>
+                  {PRESET_KEYS.map((key) => (
+                    <DropdownMenu.Item key={key} onSelect={() => addPopulation(key)}>
+                      {PRESET_LABELS[key]}
+                    </DropdownMenu.Item>
+                  ))}
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
+              <IconButton
+                variant="soft"
+                color="red"
+                aria-label="Remove population"
+                disabled={populations.length <= 1}
+                onClick={() => removePopulation(selectedPopIndex)}
+              >
+                −
+              </IconButton>
+            </Flex>
+
+            {/* Per-population controls */}
+            <Flex gap="3" align="center">
+              <Text as="label" size="2">
+                <Flex gap="2" align="center">
+                  <Checkbox
+                    checked={pop.enabled}
+                    onCheckedChange={(v) => setCurrentPop.enabled(v === true)}
+                  />
+                  Enabled
+                </Flex>
+              </Text>
+            </Flex>
+            <SliderControl
+              label="Weight"
+              value={pop.weight}
+              min={0}
+              max={20}
+              step={0.1}
+              onChange={setCurrentPop.weight}
+            />
+
+            <Separator size="4" />
+
             <SliderControl
               label="C/A Ratio"
-              value={simParams.caRatio}
+              value={pop.caRatio}
               min={0.1}
               max={5}
               step={0.1}
-              onChange={setSim.caRatio}
+              onChange={setCurrentPop.caRatio}
             />
             <SliderControl
               label="C/A Std Dev"
-              value={simParams.caRatioStd}
+              value={pop.caRatioStd}
               min={0}
               max={2}
               step={0.1}
-              onChange={setSim.caRatioStd}
+              onChange={setCurrentPop.caRatioStd}
             />
             <Separator size="4" />
             <Text as="label" size="2">
               <Flex gap="2" align="center">
                 <Checkbox
-                  checked={simParams.tiltGaussian}
-                  onCheckedChange={(v) => setSim.tiltGaussian(v === true)}
+                  checked={pop.tiltGaussian}
+                  onCheckedChange={(v) => setCurrentPop.tiltGaussian(v === true)}
                 />
                 Gaussian Tilt
               </Flex>
             </Text>
             <SliderControl
               label="Tilt Average (°)"
-              value={simParams.tiltAvg}
+              value={pop.tiltAvg}
               min={0}
               max={90}
               step={0.5}
-              onChange={setSim.tiltAvg}
-              disabled={!simParams.tiltGaussian}
+              onChange={setCurrentPop.tiltAvg}
+              disabled={!pop.tiltGaussian}
             />
             <SliderControl
               label="Tilt Std Dev (°)"
-              value={simParams.tiltStd}
+              value={pop.tiltStd}
               min={0}
               max={45}
               step={0.1}
-              onChange={setSim.tiltStd}
-              disabled={!simParams.tiltGaussian}
+              onChange={setCurrentPop.tiltStd}
+              disabled={!pop.tiltGaussian}
             />
             <Separator size="4" />
             <Text as="label" size="2">
               <Flex gap="2" align="center">
                 <Checkbox
-                  checked={simParams.rotGaussian}
-                  onCheckedChange={(v) => setSim.rotGaussian(v === true)}
+                  checked={pop.rotGaussian}
+                  onCheckedChange={(v) => setCurrentPop.rotGaussian(v === true)}
                 />
                 Gaussian Rotation
               </Flex>
             </Text>
             <SliderControl
               label="Rotation Average (°)"
-              value={simParams.rotAvg}
+              value={pop.rotAvg}
               min={0}
               max={180}
               step={1}
-              onChange={setSim.rotAvg}
-              disabled={!simParams.rotGaussian}
+              onChange={setCurrentPop.rotAvg}
+              disabled={!pop.rotGaussian}
             />
             <SliderControl
               label="Rotation Std Dev (°)"
-              value={simParams.rotStd}
+              value={pop.rotStd}
               min={0}
               max={90}
               step={0.1}
-              onChange={setSim.rotStd}
-              disabled={!simParams.rotGaussian}
+              onChange={setCurrentPop.rotStd}
+              disabled={!pop.rotGaussian}
             />
           </Flex>
 

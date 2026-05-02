@@ -272,6 +272,7 @@ export class HaloEngine {
     const traced = this.haloPass.encode(
       encoder,
       this.simParams,
+      this.simParams.populations,
       this.canvasWidth,
       this.canvasHeight,
     );
