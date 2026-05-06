@@ -69,10 +69,7 @@ function base(
   };
 }
 
-export function uniquePopulationName(
-  existing: CrystalPopulation[],
-  baseName: string,
-): string {
+export function uniquePopulationName(existing: CrystalPopulation[], baseName: string): string {
   const taken = new Set(existing.map((p) => p.name));
   if (!taken.has(baseName)) {
     return baseName;

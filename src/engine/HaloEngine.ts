@@ -1,4 +1,4 @@
-import { didViewChange } from "../state/params";
+import { didSimulationChange, didViewChange } from "../state/params";
 import type { SimParams, DisplayParams } from "../state/params";
 import { DisplayPass } from "./DisplayPass";
 import { GuidesPass } from "./GuidesPass";
@@ -148,17 +148,21 @@ export class HaloEngine {
 
   setSimParams(params: SimParams): void {
     const prev = this.simParams;
-    if (didViewChange(prev, params)) {
-      this.skyPass.markDirty();
-      this.guidesPass.markDirty();
-    }
     this.simParams = params;
     if (prev.sunAlt !== params.sunAlt) {
       this.recomputeSunSpectrum();
     }
-    this.haloPass.resetAccumulation();
-    this.displayPass.markDirty();
-    this.ensureRunning();
+    const viewChanged = didViewChange(prev, params);
+    const simChanged = viewChanged || didSimulationChange(prev, params);
+    if (viewChanged) {
+      this.skyPass.markDirty();
+      this.guidesPass.markDirty();
+    }
+    if (simChanged) {
+      this.haloPass.resetAccumulation();
+      this.displayPass.markDirty();
+      this.ensureRunning();
+    }
   }
 
   setDisplayParams(params: DisplayParams): void {

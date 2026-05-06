@@ -59,7 +59,7 @@ Invariants worth preserving:
 
 `ParamsProvider` holds two separate pieces of state:
 
-- `simParams` — Inputs to the ray tracer (sun, camera, populations list). Every change to `simParams` produces a new object reference, which `Canvas.tsx` watches via a `useEffect` dep to call `engine.setSimParams()` — resetting the halo accumulation and, if view params changed, marking the sky pass dirty.
+- `simParams` — Inputs to the ray tracer (sun, camera, populations list). Every change to `simParams` produces a new object reference, which `Canvas.tsx` watches via a `useEffect` dep to call `engine.setSimParams()`. That method classifies the change via `didViewChange` and `didSimulationChange` ([params.ts](src/state/params.ts)): view changes mark the sky/guides passes dirty; simulation-input changes reset the halo accumulation; UI-only field changes (e.g. a population's `name`, listed in `POPULATION_NON_SIM_KEYS`) do neither, so the converged image survives.
 - `displayParams` — Inputs to the display pass only (e.g. brightness). Can change without invalidating accumulated samples. **Exception:** toggling `showSky` swaps the halo's spectral weighting (Hosek-Wilkie sun spectrum vs. flat daylight estimate) and therefore resets halo accumulation.
 
 `setSim` and `setDisplay` are Proxy objects exposing one setter per field (`setSim.sunAlt(v)`, `setDisplay.brightness(v)`, …). The shape is typed as `{ [K in keyof T]: (value: T[K]) => void }`, so each field's setter accepts only its own value type.
