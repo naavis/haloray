@@ -15,6 +15,7 @@ HaloRay is an atmospheric ice-halo (sun halo) simulator. The repository contains
 npm run dev           # Vite dev server with HMR
 npm run build         # tsc -b && vite build (type-check then bundle)
 npm run lint          # eslint .
+npm run lint -- --fix # eslint . --fix
 npm run format        # prettier --write .
 npm run format:check  # prettier --check . (used in CI / pre-commit)
 npm run preview       # preview production build
