@@ -12,7 +12,6 @@ export type SimParams = {
   projection: Projection;
   hideSubHorizon: boolean;
   populations: CrystalPopulation[];
-  selectedPopIndex: number;
 };
 
 export type DisplayParams = {
@@ -34,7 +33,6 @@ export const DEFAULT_SIM: SimParams = {
     { ...PRESETS.plate(), weight: 1 },
     { ...PRESETS.random(), weight: 1 },
   ],
-  selectedPopIndex: 0,
 };
 
 export const DEFAULT_DISPLAY: DisplayParams = {

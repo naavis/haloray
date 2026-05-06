@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -15,6 +16,8 @@ import SliderControl from "./SliderControl";
 import { useParams } from "../state/useParams";
 import type { Projection } from "../state/params";
 import type { PresetKey } from "../state/populations";
+import type { CrystalPopulation } from "../state/populations";
+import { type ParamSetters } from "../state/ParamsContext";
 import { getMaxFovDeg } from "../state/encodeParams";
 
 const PRESET_LABELS: Record<PresetKey, string> = {
@@ -42,13 +45,27 @@ function Sidebar({
     displayParams,
     setSim,
     setDisplay,
-    setCurrentPop,
+    setPopField,
     addPopulation,
     removePopulation,
     reset,
   } = useParams();
-  const { populations, selectedPopIndex } = simParams;
-  const pop = populations[selectedPopIndex];
+  const { populations } = simParams;
+
+  const [selectedPopIndex, setSelectedPopIndex] = useState(0);
+  const safeIndex = Math.min(selectedPopIndex, populations.length - 1);
+  const pop = populations[safeIndex];
+
+  const setCurrentPop = useMemo<ParamSetters<CrystalPopulation>>(
+    () =>
+      new Proxy({} as ParamSetters<CrystalPopulation>, {
+        get(_t, key: string) {
+          return (value: unknown) =>
+            setPopField(safeIndex, key as keyof CrystalPopulation, value as never);
+        },
+      }),
+    [safeIndex, setPopField],
+  );
 
   return (
     <Box
@@ -105,8 +122,8 @@ function Sidebar({
             <Flex gap="2" align="center">
               <Box flexGrow="1">
                 <Select.Root
-                  value={String(selectedPopIndex)}
-                  onValueChange={(v) => setSim.selectedPopIndex(Number(v))}
+                  value={String(safeIndex)}
+                  onValueChange={(v) => setSelectedPopIndex(Number(v))}
                 >
                   <Select.Trigger style={{ width: "100%" }} />
                   <Select.Content>
@@ -126,7 +143,13 @@ function Sidebar({
                 </DropdownMenu.Trigger>
                 <DropdownMenu.Content>
                   {PRESET_KEYS.map((key) => (
-                    <DropdownMenu.Item key={key} onSelect={() => addPopulation(key)}>
+                    <DropdownMenu.Item
+                      key={key}
+                      onSelect={() => {
+                        setSelectedPopIndex(populations.length);
+                        addPopulation(key);
+                      }}
+                    >
                       {PRESET_LABELS[key]}
                     </DropdownMenu.Item>
                   ))}
@@ -137,7 +160,10 @@ function Sidebar({
                 color="red"
                 aria-label="Remove population"
                 disabled={populations.length <= 1}
-                onClick={() => removePopulation(selectedPopIndex)}
+                onClick={() => {
+                  setSelectedPopIndex((i) => Math.min(i, populations.length - 2));
+                  removePopulation(safeIndex);
+                }}
               >
                 −
               </IconButton>
@@ -336,7 +362,13 @@ function Sidebar({
 
           <Separator size="4" />
 
-          <Button variant="soft" onClick={reset}>
+          <Button
+            variant="soft"
+            onClick={() => {
+              reset();
+              setSelectedPopIndex(0);
+            }}
+          >
             Reset Parameters
           </Button>
         </Flex>

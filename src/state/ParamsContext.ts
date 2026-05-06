@@ -7,10 +7,13 @@ export type ParamSetters<T> = { [K in keyof T]: (value: T[K]) => void };
 export type ParamsContextValue = {
   simParams: SimParams;
   displayParams: DisplayParams;
-  simVersion: number;
   setSim: ParamSetters<SimParams>;
   setDisplay: ParamSetters<DisplayParams>;
-  setCurrentPop: ParamSetters<CrystalPopulation>;
+  setPopField: <K extends keyof CrystalPopulation>(
+    idx: number,
+    key: K,
+    value: CrystalPopulation[K],
+  ) => void;
   addPopulation: (preset: PresetKey) => void;
   removePopulation: (idx: number) => void;
   reset: () => void;

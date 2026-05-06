@@ -57,15 +57,16 @@ Invariants worth preserving:
 
 ### Parameter state ([src/state/](src/state/))
 
-`ParamsProvider` holds two separate pieces of state and a monotonic `simVersion` counter:
+`ParamsProvider` holds two separate pieces of state:
 
-- `simParams` — Inputs to the ray tracer (sun, camera, populations list). Changing any of these must discard the accumulated image, because rays from the old parameters would be physically inconsistent with new ones. **Exception:** `selectedPopIndex` is UI-only selection state and must not bump `simVersion` — the `setSim.selectedPopIndex(v)` setter is special-cased in the Proxy to skip the version bump.
+- `simParams` — Inputs to the ray tracer (sun, camera, populations list). Every change to `simParams` produces a new object reference, which `Canvas.tsx` watches via a `useEffect` dep to call `engine.setSimParams()` — resetting the halo accumulation and, if view params changed, marking the sky pass dirty.
 - `displayParams` — Inputs to the display pass only (e.g. brightness). Can change without invalidating accumulated samples. **Exception:** toggling `showSky` swaps the halo's spectral weighting (Hosek-Wilkie sun spectrum vs. flat daylight estimate) and therefore resets halo accumulation.
-- `simVersion` — Bumped whenever any `setSim.<field>(...)` setter (except `selectedPopIndex`), `setPopField`, `addPopulation`, `removePopulation`, or `reset` is called. `Canvas.tsx` calls `engine.setSimParams()` which resets the halo accumulation and, if view params changed, marks the sky pass dirty.
 
-`setSim` and `setDisplay` are Proxy objects exposing one setter per field (`setSim.sunAlt(v)`, `setDisplay.brightness(v)`, …). The shape is typed as `{ [K in keyof T]: (value: T[K]) => void }`, so each field's setter accepts only its own value type. `setSim` setters bump `simVersion`; `setDisplay` setters do not.
+`setSim` and `setDisplay` are Proxy objects exposing one setter per field (`setSim.sunAlt(v)`, `setDisplay.brightness(v)`, …). The shape is typed as `{ [K in keyof T]: (value: T[K]) => void }`, so each field's setter accepts only its own value type.
 
-Crystal populations are managed through three explicit context methods: `setPopField(idx, key, value)` mutates a single field of one population; `addPopulation(preset)` appends a preset-initialized population and selects it; `removePopulation(idx)` removes a population (no-op when only one remains). All three bump `simVersion`. Presets (Random, Plate, Column, Parry, Lowitz, Pyramid) are defined in [src/state/populations.ts](src/state/populations.ts) and ported from the desktop's `CrystalPopulation::create*()` factories.
+Crystal populations are managed through three explicit context methods: `setPopField(idx, key, value)` mutates a single field of one population (bumps `simParams`); `addPopulation(preset)` appends a preset-initialized population; `removePopulation(idx)` removes a population (no-op when only one remains). Presets (Random, Plate, Column, Parry, Lowitz, Pyramid) are defined in [src/state/populations.ts](src/state/populations.ts) and ported from the desktop's `CrystalPopulation::create*()` factories.
+
+The currently-selected population index is UI-only state, owned as local `useState` in [Sidebar](src/components/Sidebar.tsx). `Sidebar` builds its own `setCurrentPop` Proxy on top of the context's `setPopField`, closing over the local `safeIndex`.
 
 When adding a new parameter, decide which of the two buckets it belongs to — that decision determines whether adjusting it resets the image.
 
