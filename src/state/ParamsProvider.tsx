@@ -1,7 +1,12 @@
 import { useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { DEFAULT_DISPLAY, DEFAULT_SIM, type DisplayParams, type SimParams } from "./params";
-import { PRESETS, type CrystalPopulation, type PresetKey } from "./populations";
+import {
+  PRESETS,
+  uniquePopulationName,
+  type CrystalPopulation,
+  type PresetKey,
+} from "./populations";
 import { ParamsContext, type ParamSetters, type ParamsContextValue } from "./ParamsContext";
 
 export function ParamsProvider({ children }: { children: ReactNode }) {
@@ -43,7 +48,11 @@ export function ParamsProvider({ children }: { children: ReactNode }) {
   );
 
   const addPopulation = useCallback((preset: PresetKey) => {
-    setSimState((prev) => ({ ...prev, populations: [...prev.populations, PRESETS[preset]()] }));
+    setSimState((prev) => {
+      const freshParameters = PRESETS[preset]();
+      freshParameters.name = uniquePopulationName(prev.populations, freshParameters.name);
+      return { ...prev, populations: [...prev.populations, freshParameters] };
+    });
   }, []);
 
   const removePopulation = useCallback((idx: number) => {

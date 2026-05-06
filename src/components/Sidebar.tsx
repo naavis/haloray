@@ -11,6 +11,7 @@ import {
   Select,
   Separator,
   Text,
+  TextField,
 } from "@radix-ui/themes";
 import SliderControl from "./SliderControl";
 import { useParams } from "../state/useParams";
@@ -167,6 +168,14 @@ function Sidebar({
               >
                 −
               </IconButton>
+            </Flex>
+
+            <Flex direction="column" gap="1">
+              <Text size="2">Name</Text>
+              <TextField.Root
+                value={pop.name}
+                onChange={(e) => setCurrentPop.name(e.target.value)}
+              />
             </Flex>
 
             {/* Per-population controls */}

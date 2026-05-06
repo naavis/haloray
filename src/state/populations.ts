@@ -69,6 +69,22 @@ function base(
   };
 }
 
+export function uniquePopulationName(
+  existing: CrystalPopulation[],
+  baseName: string,
+): string {
+  const taken = new Set(existing.map((p) => p.name));
+  if (!taken.has(baseName)) {
+    return baseName;
+  }
+  for (let n = 2; ; n++) {
+    const candidate = `${baseName} ${n}`;
+    if (!taken.has(candidate)) {
+      return candidate;
+    }
+  }
+}
+
 export const PRESETS: Record<PresetKey, () => CrystalPopulation> = {
   random: () => base("random", "Random", 1.0, 0.1, false, 0, 0, false, 0, 0),
   plate: () => base("plate", "Plate", 0.3, 0.1, true, 0, 1.0, false, 0, 0),

@@ -64,7 +64,7 @@ Invariants worth preserving:
 
 `setSim` and `setDisplay` are Proxy objects exposing one setter per field (`setSim.sunAlt(v)`, `setDisplay.brightness(v)`, …). The shape is typed as `{ [K in keyof T]: (value: T[K]) => void }`, so each field's setter accepts only its own value type.
 
-Crystal populations are managed through three explicit context methods: `setPopField(idx, key, value)` mutates a single field of one population (bumps `simParams`); `addPopulation(preset)` appends a preset-initialized population; `removePopulation(idx)` removes a population (no-op when only one remains). Presets (Random, Plate, Column, Parry, Lowitz, Pyramid) are defined in [src/state/populations.ts](src/state/populations.ts) and ported from the desktop's `CrystalPopulation::create*()` factories.
+Crystal populations are managed through three explicit context methods: `setPopField(idx, key, value)` mutates a single field of one population (bumps `simParams`); `addPopulation(preset)` appends a preset-initialized population (its `name` is deduplicated against existing populations via `uniquePopulationName`, e.g. "Plate", "Plate 2", …; users can rename it freely afterward); `removePopulation(idx)` removes a population (no-op when only one remains). Presets (Random, Plate, Column, Parry, Lowitz, Pyramid) are defined in [src/state/populations.ts](src/state/populations.ts) and ported from the desktop's `CrystalPopulation::create*()` factories.
 
 The currently-selected population index is UI-only state, owned as local `useState` in [Sidebar](src/components/Sidebar.tsx). `Sidebar` builds its own `setCurrentPop` Proxy on top of the context's `setPopField`, closing over the local `safeIndex`.
 
