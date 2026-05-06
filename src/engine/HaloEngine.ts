@@ -264,6 +264,13 @@ export class HaloEngine {
 
   start(): void {
     this.userStarted = true;
+    if (this.haloPass.maxRaysReached) {
+      this.haloPass.resetAccumulation();
+      this.onProgress(0, this.canvasPixels);
+      this.skyPass.markDirty();
+      this.guidesPass.markDirty();
+      this.displayPass.markDirty();
+    }
     if (!this.running) {
       this.scheduleFrame();
     }
