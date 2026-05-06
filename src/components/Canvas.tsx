@@ -11,7 +11,7 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-function Canvas() {
+function Canvas({ isRunning, onStop }: { isRunning: boolean; onStop: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<HaloEngine | null>(null);
@@ -19,10 +19,25 @@ function Canvas() {
 
   const simParamsRef = useRef(simParams);
   const displayParamsRef = useRef(displayParams);
+  const isRunningRef = useRef(isRunning);
+  const onStopRef = useRef(onStop);
 
   const isDragging = useRef(false);
   const dragStart = useRef<{ x: number; y: number; pitch: number; yaw: number } | null>(null);
   const [grabbing, setGrabbing] = useState(false);
+
+  useEffect(() => {
+    onStopRef.current = onStop;
+  }, [onStop]);
+
+  useEffect(() => {
+    if (isRunning) {
+      engineRef.current?.start();
+    } else {
+      engineRef.current?.stop();
+    }
+    isRunningRef.current = isRunning;
+  }, [isRunning]);
 
   useEffect(() => {
     simParamsRef.current = simParams;
@@ -41,6 +56,9 @@ function Canvas() {
     }
 
     const handleWheel = (e: WheelEvent) => {
+      if (!isRunningRef.current) {
+        return;
+      }
       e.preventDefault();
       const sim = simParamsRef.current;
       const maxFov = getMaxFovDeg(sim.projection);
@@ -64,7 +82,12 @@ function Canvas() {
     (async () => {
       let engine: HaloEngine;
       try {
-        engine = await HaloEngine.create(canvas, simParamsRef.current, displayParamsRef.current);
+        engine = await HaloEngine.create(
+          canvas,
+          simParamsRef.current,
+          displayParamsRef.current,
+          () => onStopRef.current(),
+        );
       } catch (e) {
         console.error(e);
         return;
@@ -94,6 +117,9 @@ function Canvas() {
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (!isRunningRef.current) {
+      return;
+    }
     isDragging.current = true;
     dragStart.current = {
       x: e.clientX,
@@ -111,7 +137,7 @@ function Canvas() {
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
     const fov = simParamsRef.current.camFov;
-    let newYaw = (dragStart.current.yaw + dx * DRAG_SENSITIVITY * fov);;
+    let newYaw = dragStart.current.yaw + dx * DRAG_SENSITIVITY * fov;
     if (newYaw > 180) {
       newYaw -= 360;
     } else if (newYaw < -180) {
@@ -134,7 +160,7 @@ function Canvas() {
         height: "100vh",
         background: "var(--gray-2)",
         overflow: "hidden",
-        cursor: grabbing ? "grabbing" : "grab",
+        cursor: isRunning ? (grabbing ? "grabbing" : "grab") : "default",
       }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}

@@ -82,6 +82,8 @@ export class HaloEngine {
 
   private animFrameId = 0;
   private running = false;
+  private userStarted = false;
+  private readonly onAutoStop: () => void;
 
   private constructor(
     device: GPUDevice,
@@ -90,11 +92,13 @@ export class HaloEngine {
     canvas: HTMLCanvasElement,
     simParams: SimParams,
     displayParams: DisplayParams,
+    onAutoStop: () => void,
   ) {
     this.device = device;
     this.canvas = canvas;
     this.simParams = simParams;
     this.displayParams = displayParams;
+    this.onAutoStop = onAutoStop;
 
     this.haloPass = new HaloPass(device);
     this.skyPass = new SkyPass(device);
@@ -120,6 +124,7 @@ export class HaloEngine {
     canvas: HTMLCanvasElement,
     simParams: SimParams,
     displayParams: DisplayParams,
+    onAutoStop: () => void,
   ): Promise<HaloEngine> {
     if (!navigator.gpu) {
       throw new Error("WebGPU is not supported in this browser");
@@ -138,7 +143,7 @@ export class HaloEngine {
     const format = navigator.gpu.getPreferredCanvasFormat();
     context.configure({ device, format, alphaMode: "opaque" });
 
-    return new HaloEngine(device, context, format, canvas, simParams, displayParams);
+    return new HaloEngine(device, context, format, canvas, simParams, displayParams, onAutoStop);
   }
 
   setSimParams(params: SimParams): void {
@@ -234,6 +239,13 @@ export class HaloEngine {
   }
 
   start(): void {
+    this.userStarted = true;
+    if (!this.running) {
+      this.scheduleFrame();
+    }
+  }
+
+  private scheduleFrame(): void {
     if (this.running) {
       return;
     }
@@ -242,12 +254,13 @@ export class HaloEngine {
   }
 
   private ensureRunning(): void {
-    if (!this.running) {
-      this.start();
+    if (this.userStarted && !this.running) {
+      this.scheduleFrame();
     }
   }
 
   stop(): void {
+    this.userStarted = false;
     this.running = false;
     cancelAnimationFrame(this.animFrameId);
   }
@@ -310,6 +323,8 @@ export class HaloEngine {
       this.animFrameId = requestAnimationFrame(() => this.frame());
     } else {
       this.running = false;
+      this.userStarted = false;
+      this.onAutoStop();
     }
   }
 }

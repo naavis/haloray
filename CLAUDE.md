@@ -39,6 +39,10 @@ The accumulation buffer and sky buffer are sized `width * height * 3 * 4` bytes;
 
 View params (`sunAlt`, `camPitch`, `camYaw`, `camFov`, `projection`) are tracked via `didViewChange()` in [params.ts](src/state/params.ts). Changes to view params mark the sky pass dirty; all simParams changes reset the halo accumulation.
 
+#### Engine start/stop lifecycle
+
+`HaloEngine` has an explicit start/stop model gated on a `userStarted` flag. `start()` sets `userStarted = true` and schedules the frame loop; `stop()` clears it and cancels the animation frame. The internal `ensureRunning()` (called on param changes that would otherwise restart a stalled loop) only reschedules if `userStarted` is true. When the frame loop terminates naturally (e.g. GPU error), it clears `userStarted` and calls the `onAutoStop` callback passed to `HaloEngine.create()` so the UI can sync its state. `App` holds the authoritative `isRunning` boolean and passes it down to both `Canvas` (which calls `engine.start()`/`engine.stop()`) and `Sidebar` (which renders the Start/Stop button). Canvas mouse-drag and scroll-wheel interactions are gated on `isRunning`; the cursor is `grab`/`grabbing` only while running.
+
 ### State → GPU uniform encoding ([src/state/encodeParams.ts](src/state/encodeParams.ts))
 
 `encodeSimParams` serializes one `CrystalPopulation` plus the view fields from `SimParams` into a 272-byte `ArrayBuffer` matching the `Params` struct in `raytrace.wgsl` (128 base bytes + `atmosphere_enabled` u32 with vec4 padding + `sun_spectrum` `array<vec4f, 8>` holding the 31-sample Hosek-Wilkie solar spectrum). It is called once per enabled population per frame by `HaloPass.encode()`. `encodeDisplayParams` writes the 32-byte `DisplayParams` layout for `display.wgsl` (resolution + brightness + show flags + camera fov in degrees, used to compensate halo exposure for FOV). `encodeAccParams` writes the 16-byte `AccParams` layout for `accumulate.wgsl` (only `resolution_x` is meaningful; the rest is uniform-alignment padding). `encodeSkyParams` writes the 256-byte `SkyParams` layout for `sky.wgsl` (resolution + projection + sun altitude + camera + turbidity + Hosek-Wilkie radiance scales + 9 config coefficients packed as `array<vec4f, 9>` + sun disk state: top/bottom XYZ, limb-darkening scaler, solar radius, raw elevation). `encodeGuidesParams` writes the 32-byte `GuidesParams` layout for `guides.wgsl`.
@@ -71,7 +75,7 @@ When adding a new pass, create a new pass class in `src/engine/`, a shader in `s
 
 ### UI
 
-Radix Themes (`@radix-ui/themes`) provides the component library and design tokens (CSS variables like `--gray-2`, `--color-panel-solid`). [SliderControl](src/components/SliderControl.tsx) is the shared labeled-slider wrapper used throughout the sidebar.
+Radix Themes (`@radix-ui/themes`) provides the component library and design tokens (CSS variables like `--gray-2`, `--color-panel-solid`). [SliderControl](src/components/SliderControl.tsx) is the shared labeled-slider wrapper used throughout the sidebar. [Sidebar](src/components/Sidebar.tsx) renders a Start/Stop button at the top (above the scroll area) that drives the `isRunning` state in `App`.
 
 ## Conventions
 

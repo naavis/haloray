@@ -28,7 +28,15 @@ const PRESET_LABELS: Record<PresetKey, string> = {
 
 const PRESET_KEYS: PresetKey[] = ["random", "plate", "column", "parry", "lowitz", "pyramid"];
 
-function Sidebar() {
+function Sidebar({
+  isRunning,
+  onStart,
+  onStop,
+}: {
+  isRunning: boolean;
+  onStart: () => void;
+  onStop: () => void;
+}) {
   const {
     simParams,
     displayParams,
@@ -49,9 +57,22 @@ function Sidebar() {
         height: "100vh",
         borderRight: "1px solid var(--gray-a5)",
         background: "var(--color-panel-solid)",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <ScrollArea type="auto" scrollbars="vertical" style={{ height: "100%" }}>
+      <Box p="3" style={{ borderBottom: "1px solid var(--gray-a5)" }}>
+        {isRunning ? (
+          <Button variant="solid" color="red" onClick={onStop} style={{ width: "100%" }}>
+            Stop
+          </Button>
+        ) : (
+          <Button variant="solid" onClick={onStart} style={{ width: "100%" }}>
+            Start
+          </Button>
+        )}
+      </Box>
+      <ScrollArea type="auto" scrollbars="vertical" style={{ flex: 1 }}>
         <Flex direction="column" gap="4" p="4">
           <Heading size="4">Parameters</Heading>
 
