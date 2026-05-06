@@ -14,7 +14,7 @@ const RAYS_PER_STEP = 500_000;
 const NUM_WORKGROUPS = Math.ceil(RAYS_PER_STEP / WORKGROUP_SIZE);
 const ACTUAL_RAYS = NUM_WORKGROUPS * WORKGROUP_SIZE;
 const RAY_RESULT_STRIDE = 20;
-const MAX_TOTAL_RAYS = 1_000_000_000;
+export const MAX_TOTAL_RAYS = 250_000_000;
 // One params buffer + bind group per slot so per-population queue.writeBuffer
 // calls target distinct GPU memory — all writeBuffers execute before the
 // command encoder's submit, so a shared buffer would have every raytrace pass

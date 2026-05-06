@@ -11,7 +11,15 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-function Canvas({ isRunning, onStop }: { isRunning: boolean; onStop: () => void }) {
+function Canvas({
+  isRunning,
+  onStop,
+  onProgressUpdate,
+}: {
+  isRunning: boolean;
+  onStop: () => void;
+  onProgressUpdate: (totalRays: number, canvasPixels: number) => void;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<HaloEngine | null>(null);
@@ -21,6 +29,7 @@ function Canvas({ isRunning, onStop }: { isRunning: boolean; onStop: () => void 
   const displayParamsRef = useRef(displayParams);
   const isRunningRef = useRef(isRunning);
   const onStopRef = useRef(onStop);
+  const onProgressUpdateRef = useRef(onProgressUpdate);
 
   const isDragging = useRef(false);
   const dragStart = useRef<{ x: number; y: number; pitch: number; yaw: number } | null>(null);
@@ -29,6 +38,10 @@ function Canvas({ isRunning, onStop }: { isRunning: boolean; onStop: () => void 
   useEffect(() => {
     onStopRef.current = onStop;
   }, [onStop]);
+
+  useEffect(() => {
+    onProgressUpdateRef.current = onProgressUpdate;
+  }, [onProgressUpdate]);
 
   useEffect(() => {
     if (isRunning) {
@@ -87,6 +100,7 @@ function Canvas({ isRunning, onStop }: { isRunning: boolean; onStop: () => void 
           simParamsRef.current,
           displayParamsRef.current,
           () => onStopRef.current(),
+          (r, p) => onProgressUpdateRef.current(r, p),
         );
       } catch (e) {
         console.error(e);

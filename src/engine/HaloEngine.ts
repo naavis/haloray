@@ -84,6 +84,7 @@ export class HaloEngine {
   private running = false;
   private userStarted = false;
   private readonly onAutoStop: () => void;
+  private readonly onProgress: (totalRays: number, canvasPixels: number) => void;
 
   private constructor(
     device: GPUDevice,
@@ -93,12 +94,14 @@ export class HaloEngine {
     simParams: SimParams,
     displayParams: DisplayParams,
     onAutoStop: () => void,
+    onProgress: (totalRays: number, canvasPixels: number) => void,
   ) {
     this.device = device;
     this.canvas = canvas;
     this.simParams = simParams;
     this.displayParams = displayParams;
     this.onAutoStop = onAutoStop;
+    this.onProgress = onProgress;
 
     this.haloPass = new HaloPass(device);
     this.skyPass = new SkyPass(device);
@@ -120,11 +123,16 @@ export class HaloEngine {
     }
   }
 
+  get canvasPixels(): number {
+    return this.canvasWidth * this.canvasHeight;
+  }
+
   static async create(
     canvas: HTMLCanvasElement,
     simParams: SimParams,
     displayParams: DisplayParams,
     onAutoStop: () => void,
+    onProgress: (totalRays: number, canvasPixels: number) => void,
   ): Promise<HaloEngine> {
     if (!navigator.gpu) {
       throw new Error("WebGPU is not supported in this browser");
@@ -143,7 +151,16 @@ export class HaloEngine {
     const format = navigator.gpu.getPreferredCanvasFormat();
     context.configure({ device, format, alphaMode: "opaque" });
 
-    return new HaloEngine(device, context, format, canvas, simParams, displayParams, onAutoStop);
+    return new HaloEngine(
+      device,
+      context,
+      format,
+      canvas,
+      simParams,
+      displayParams,
+      onAutoStop,
+      onProgress,
+    );
   }
 
   setSimParams(params: SimParams): void {
@@ -160,6 +177,7 @@ export class HaloEngine {
     }
     if (simChanged) {
       this.haloPass.resetAccumulation();
+      this.onProgress(0, this.canvasPixels);
       this.displayPass.markDirty();
       this.ensureRunning();
     }
@@ -181,6 +199,7 @@ export class HaloEngine {
 
   resetAccumulation(): void {
     this.haloPass.resetAccumulation();
+    this.onProgress(0, this.canvasPixels);
     this.skyPass.markDirty();
     this.guidesPass.markDirty();
     this.displayPass.markDirty();
@@ -236,6 +255,7 @@ export class HaloEngine {
     this.displayPass.createBindGroups(this.accBuffer, this.skyBuffer, this.guidesBuffer);
 
     this.haloPass.resetAccumulation();
+    this.onProgress(0, w * h);
     this.skyPass.markDirty();
     this.guidesPass.markDirty();
     this.displayPass.markDirty();
@@ -322,6 +342,7 @@ export class HaloEngine {
     );
 
     this.device.queue.submit([encoder.finish()]);
+    this.onProgress(this.haloPass.totalRays, this.canvasPixels);
 
     if (!this.haloPass.maxRaysReached) {
       this.animFrameId = requestAnimationFrame(() => this.frame());

@@ -7,6 +7,7 @@ import {
   Flex,
   Heading,
   IconButton,
+  Progress,
   ScrollArea,
   Select,
   Separator,
@@ -15,6 +16,7 @@ import {
 } from "@radix-ui/themes";
 import SliderControl from "./SliderControl";
 import { useParams } from "../state/useParams";
+import { MAX_TOTAL_RAYS } from "../engine/HaloPass";
 import type { Projection } from "../state/params";
 import type { PresetKey } from "../state/populations";
 import type { CrystalPopulation } from "../state/populations";
@@ -36,10 +38,14 @@ function Sidebar({
   isRunning,
   onStart,
   onStop,
+  totalRays,
+  canvasPixels,
 }: {
   isRunning: boolean;
   onStart: () => void;
   onStop: () => void;
+  totalRays: number;
+  canvasPixels: number;
 }) {
   const {
     simParams,
@@ -88,6 +94,14 @@ function Sidebar({
           <Button variant="solid" onClick={onStart} style={{ width: "100%" }}>
             Start
           </Button>
+        )}
+        {(isRunning || totalRays > 0) && (
+          <Flex direction="column" gap="1" mt="2">
+            <Progress value={Math.min((totalRays / MAX_TOTAL_RAYS) * 100, 100)} />
+            <Text size="1" color="gray">
+              {canvasPixels > 0 ? Math.floor(totalRays / canvasPixels) : 0} samples per pixel
+            </Text>
+          </Flex>
         )}
       </Box>
       <ScrollArea type="auto" scrollbars="vertical" style={{ flex: 1 }}>
